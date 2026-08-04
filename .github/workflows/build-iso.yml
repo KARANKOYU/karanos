@@ -1,0 +1,239 @@
+name: ISO derle ve test et
+
+# Yerelde ISO DERLEMEYECEĞİZ — geliştiricinin bağlantısı 470 Kbps.
+# Tüm derleme ve QEMU testi burada, GitHub'ın makinesinde olur.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Sürüm (örn. 1.0-test)"
+        required: false
+        default: "1.0-dev"
+      smoke_test:
+        description: "QEMU duman testini çalıştır"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+    branches:
+      - main
+    paths:
+      - "iso/**"
+      - "tools/qemu-smoke-test.sh"
+      - ".github/workflows/build-iso.yml"
+
+concurrency:
+  group: iso-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ------------------------------------------------------------------
+  build:
+    name: ISO derle
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    container:
+      image: debian:trixie
+      # live-build chroot kurar, loop/mount kullanır — ayrıcalıklı olmalı
+      options: --privileged
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      iso_name: ${{ steps.meta.outputs.iso_name }}
+    steps:
+      - name: Derleme bağımlılıkları
+        run: |
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            live-build debootstrap squashfs-tools xorriso \
+            dosfstools mtools grub-pc-bin grub-efi-amd64-bin \
+            ca-certificates git curl rsync file sudo
+
+      - uses: actions/checkout@v4
+
+      - name: Sürüm bilgisi
+        id: meta
+        run: |
+          set -eu
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${{ inputs.version || 'main-dev' }}"
+          fi
+          echo "version=${VERSION}"                        >> "$GITHUB_OUTPUT"
+          echo "iso_name=karanos-${VERSION}-amd64.iso"     >> "$GITHUB_OUTPUT"
+          echo "Sürüm: ${VERSION}"
+
+      - name: live-build yapılandır
+        working-directory: iso
+        env:
+          KARANOS_VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -eux
+          chmod +x auto/config auto/build auto/clean
+          chmod +x config/hooks/normal/*.hook.chroot
+          lb clean --purge || true
+          lb config
+
+      - name: ISO derle
+        working-directory: iso
+        env:
+          KARANOS_VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -eux
+          lb build
+
+      - name: ISO'yu adlandır ve özetini çıkar
+        id: pack
+        working-directory: iso
+        run: |
+          set -eux
+          SRC=$(ls -1 karanos-amd64.hybrid.iso live-image-amd64.hybrid.iso 2>/dev/null | head -1)
+          mkdir -p ../out
+          mv "$SRC" "../out/${{ steps.meta.outputs.iso_name }}"
+          cd ../out
+          sha256sum "${{ steps.meta.outputs.iso_name }}" \
+            > "${{ steps.meta.outputs.iso_name }}.sha256"
+          sha256sum "${{ steps.meta.outputs.iso_name }}" > SHA256SUMS
+          ls -lh
+
+      - name: Boyut kontrolü (hedef 1.5 GB)
+        working-directory: out
+        run: |
+          set -eu
+          BYTES=$(stat -c%s "${{ steps.meta.outputs.iso_name }}")
+          MB=$((BYTES / 1024 / 1024))
+          LIMIT=1536
+          echo "ISO boyutu: ${MB} MB (sınır ${LIMIT} MB)"
+          {
+            echo "### ISO"
+            echo ""
+            echo "| Alan | Değer |"
+            echo "|---|---|"
+            echo "| Dosya | \`${{ steps.meta.outputs.iso_name }}\` |"
+            echo "| Boyut | **${MB} MB** / ${LIMIT} MB |"
+            echo "| sha256 | \`$(cut -d' ' -f1 "${{ steps.meta.outputs.iso_name }}.sha256")\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$MB" -gt "$LIMIT" ]; then
+            echo "::warning::ISO ${MB} MB — 1.5 GB hedefinin üstünde"
+          fi
+
+      - name: Paket listesini kaydet (boyut ayıklaması için)
+        if: always()
+        working-directory: iso
+        run: |
+          set -eu
+          mkdir -p ../out
+          if [ -f chroot.packages.live ]; then
+            cp chroot.packages.live ../out/paket-listesi.txt
+          fi
+          cp build.log ../out/build.log 2>/dev/null || true
+
+      - name: ISO'yu yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: karanos-iso
+          path: out/
+          retention-days: 14
+          compression-level: 0
+
+      - name: Derleme günlüğünü yükle (hata durumunda da)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: |
+            iso/build.log
+            iso/chroot.packages.live
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ------------------------------------------------------------------
+  smoke-test:
+    name: QEMU ${{ matrix.mode }}
+    needs: build
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.smoke_test }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [bios, uefi, secureboot]
+    container:
+      image: debian:trixie
+    steps:
+      - name: QEMU ve OVMF
+        run: |
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            qemu-system-x86 ovmf ca-certificates procps coreutils
+
+      - uses: actions/checkout@v4
+
+      - name: ISO'yu indir
+        uses: actions/download-artifact@v4
+        with:
+          name: karanos-iso
+          path: out
+
+      - name: Duman testi
+        env:
+          TIMEOUT: 1500
+          SERIAL_OUT: ${{ github.workspace }}/serial-${{ matrix.mode }}.log
+        run: |
+          set -eu
+          chmod +x tools/qemu-smoke-test.sh
+          ISO=$(ls out/karanos-*.iso | head -1)
+          tools/qemu-smoke-test.sh "$ISO" "${{ matrix.mode }}"
+
+      - name: Seri günlüğünü yükle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: serial-${{ matrix.mode }}
+          path: serial-${{ matrix.mode }}.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ------------------------------------------------------------------
+  release:
+    name: Releases'e yükle
+    needs: [build, smoke-test]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: karanos-iso
+          path: out
+
+      - name: Release oluştur
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Karan OS ${{ needs.build.outputs.version }}
+          draft: true
+          files: |
+            out/karanos-*.iso
+            out/karanos-*.iso.sha256
+            out/SHA256SUMS
+          body: |
+            ## Karan OS ${{ needs.build.outputs.version }}
+
+            **Dosya:** `${{ needs.build.outputs.iso_name }}`
+
+            ### Kurulum
+            1. ISO'yu indir, `SHA256SUMS` ile doğrula
+            2. USB'ye yaz (balenaEtcher, Rufus veya `dd`)
+            3. USB'den aç → "Kurmadan dene" veya "Karan OS'u kur"
+
+            Doğrulama:
+            ```
+            sha256sum -c ${{ needs.build.outputs.iso_name }}.sha256
+            ```

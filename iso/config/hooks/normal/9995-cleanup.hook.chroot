@@ -1,0 +1,32 @@
+#!/bin/sh
+# Karan OS — ISO boyutunu düşüren son temizlik (hedef: 1.5 GB altı)
+set -e
+
+# APT önbelleği ve indeksleri
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+rm -f  /var/cache/apt/*.bin
+
+# Kullanmadığımız diller — Türkçe ve İngilizce kalır
+if [ -d /usr/share/locale ]; then
+	find /usr/share/locale -mindepth 1 -maxdepth 1 -type d \
+		! -name 'tr*' ! -name 'en*' ! -name 'locale.alias' \
+		-exec rm -rf {} + 2>/dev/null || true
+fi
+
+# Kılavuz sayfaları dururken, çevrilmiş kılavuzlar gereksiz
+if [ -d /usr/share/man ]; then
+	find /usr/share/man -mindepth 1 -maxdepth 1 -type d \
+		! -name 'man*' ! -name 'tr' -exec rm -rf {} + 2>/dev/null || true
+fi
+
+# Belgeler: telif dosyaları kalsın (lisans gereği), gerisi gitsin
+find /usr/share/doc -type f ! -name 'copyright' -delete 2>/dev/null || true
+find /usr/share/doc -type d -empty -delete 2>/dev/null || true
+
+rm -rf /usr/share/doc-base
+rm -rf /var/cache/debconf/*-old
+rm -rf /var/lib/dpkg/*-old
+rm -rf /tmp/* /var/tmp/*
+
+echo "I: temizlik bitti"

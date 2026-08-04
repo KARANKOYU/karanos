@@ -1,0 +1,18 @@
+[Unit]
+Description=Karan OS acilis dogrulamasi (CI duman testi)
+Documentation=https://github.com/KARANKOYU/karanos
+After=graphical.target
+# Sadece canlı (USB/ISO) oturumda çalışır — kurulu sistemde çalışmaz.
+ConditionPathExists=/run/live/medium
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# X sunucusu gerçekten ayağa kalktı mı diye en fazla 120 saniye bekler ve
+# sonucu seri konsola yazar. GitHub Actions'taki QEMU testi bu satırı arar.
+ExecStart=/usr/lib/karanos/boot-check
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=graphical.target

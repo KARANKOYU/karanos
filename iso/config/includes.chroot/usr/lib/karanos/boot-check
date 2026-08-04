@@ -1,0 +1,69 @@
+#!/bin/sh
+# Karan OS — açılış duman testi (yalnızca canlı oturumda çalışır)
+#
+# Amaç: geliştirici 470 Kbps bağlantıyla 1+ GB'lık ISO'yu indirip elle test
+# edemiyor. Bu script açılışın gerçekten grafik arayüze kadar geldiğini
+# seri konsola tek satır olarak bildirir; CI bu satırı arar.
+
+set -u
+
+log() { echo "KARANOS-CHECK: $*"; }
+
+# 1) X sunucusu ayağa kalktı mı
+x_up=0
+i=0
+while [ "$i" -lt 120 ]; do
+	if pgrep -x Xorg >/dev/null 2>&1 || pgrep -x X >/dev/null 2>&1; then
+		x_up=1
+		break
+	fi
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$x_up" -ne 1 ]; then
+	log "X-FAIL Xorg 120 saniyede baslamadi"
+	log "RESULT=FAIL"
+	exit 1
+fi
+log "X-OK Xorg calisiyor (${i} saniyede)"
+
+# 2) Pencere yöneticisi
+if pgrep -x openbox >/dev/null 2>&1; then
+	log "WM-OK openbox calisiyor"
+else
+	log "WM-WARN openbox bulunamadi"
+fi
+
+# 3) Firmware yüklendi mi (Wi-Fi/ekran kartı için kritik — prompt 16)
+if [ -d /lib/firmware ] && [ -n "$(ls -A /lib/firmware 2>/dev/null)" ]; then
+	log "FIRMWARE-OK $(find /lib/firmware -type f 2>/dev/null | wc -l) dosya"
+else
+	log "FIRMWARE-WARN /lib/firmware bos"
+fi
+
+# 4) EFI ile mi açıldı, BIOS ile mi
+if [ -d /sys/firmware/efi ]; then
+	log "BOOT-MODE=UEFI"
+	# efivars dosyasi: ilk 4 bayt oznitelik, 5. bayt SecureBoot degeri (0/1)
+	sb_state="okunamadi"
+	for sb in /sys/firmware/efi/efivars/SecureBoot-*; do
+		[ -r "$sb" ] || continue
+		sb_val=$(od -An -t u1 -j 4 -N 1 "$sb" 2>/dev/null | tr -d ' \n')
+		case "$sb_val" in
+		1) sb_state="on" ;;
+		0) sb_state="off" ;;
+		esac
+		break
+	done
+	log "SECURE-BOOT=${sb_state}"
+else
+	log "BOOT-MODE=BIOS"
+fi
+
+# 5) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
+mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
+log "MEM-USED=${mem_used_mb}MB"
+
+log "RESULT=OK"
+exit 0

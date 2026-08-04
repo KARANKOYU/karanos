@@ -1,0 +1,71 @@
+#!/bin/sh
+# Karan OS — live-build yapılandırması
+#
+# Bu dosya `lb config` çalıştığında otomatik yürütülür.
+# ELLE `lb config` PARAMETRESİ VERME — her şey burada dursun ki
+# GitHub Actions ile yerel çalıştırma aynı sonucu üretsin.
+
+set -e
+
+# Sürüm: CI ortam değişkeninden gelir, yoksa geliştirme sürümü
+KARANOS_VERSION="${KARANOS_VERSION:-1.0-dev}"
+
+# Açılış satırı.
+# NOT: `quiet splash` şu an KAPALI — 1. aşamada boot mesajlarını görmek
+# istiyoruz. 3. aşamada (Plymouth teması) açılacak.
+# console=ttyS0 CI'daki QEMU testinin boot günlüğünü okuyabilmesi için;
+# seri portu olmayan gerçek donanımda hiçbir etkisi yok.
+BOOTAPPEND="boot=live components \
+username=karan \
+hostname=karanos \
+user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin \
+locales=tr_TR.UTF-8 \
+timezone=Europe/Istanbul \
+keyboard-layouts=tr \
+console=tty0 console=ttyS0,115200n8"
+
+lb config noauto \
+	--mode debian \
+	--distribution trixie \
+	--parent-distribution trixie \
+	--architecture amd64 \
+	--archive-areas "main contrib non-free non-free-firmware" \
+	--parent-archive-areas "main contrib non-free non-free-firmware" \
+	--binary-images iso-hybrid \
+	--bootloaders "grub-pc,grub-efi" \
+	--uefi-secure-boot enable \
+	--linux-flavours amd64 \
+	--debian-installer none \
+	--memtest none \
+	--win32-loader false \
+	--apt-indices false \
+	--apt-recommends false \
+	--updates true \
+	--security true \
+	--backports false \
+	--firmware-binary false \
+	--firmware-chroot false \
+	--image-name "karanos" \
+	--iso-application "Karan OS" \
+	--iso-publisher "Karan OS; https://github.com/KARANKOYU/karanos" \
+	--iso-volume "Karan OS ${KARANOS_VERSION}" \
+	--bootappend-live "${BOOTAPPEND}" \
+	"${@}"
+
+# --------------------------------------------------------------------------
+# Seçimlerin gerekçeleri (silme, ileride "bu neden böyle" diye sorulacak):
+#
+# --apt-recommends false   : Hafiflik (prompt 20). Bunun bedeli, gereken her
+#                            paketi listelerde AÇIKÇA yazmak zorunda olmamız.
+#                            Kurulu sistemde tavsiye paketleri yeniden açılır
+#                            (hooks/normal/9990-apt-recommends.hook.chroot).
+# --firmware-chroot false  : live-build'in tüm firmware-* paketlerini
+#                            gelişigüzel eklemesini istemiyoruz; prompt 16'daki
+#                            listeyi elle veriyoruz (03-firmware listesi).
+# --uefi-secure-boot enable: Debian'ın imzalı shim/grub'unu kullanır.
+#                            Prompt 2 + 18: Secure Boot açıkken boot etmeli.
+# --debian-installer none  : Kurulum Calamares ile olacak (prompt 14),
+#                            d-i ISO'ya gömülmeyecek.
+# --memtest none,
+# --apt-indices false      : ISO boyutu (1.5 GB hedefi).
+# --------------------------------------------------------------------------

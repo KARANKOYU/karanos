@@ -1,0 +1,66 @@
+# Karan OS — sistem temeli
+#
+# DİKKAT: --apt-recommends false açık. Tavsiye edilen (Recommends) paketler
+# kendiliğinden gelmez. Bir şey eksik kalıyorsa buraya açıkça yazılacak.
+
+# --- çekirdek ve canlı sistem ---
+linux-image-amd64
+live-boot
+live-config
+live-config-systemd
+live-tools
+
+# --- init ve oturum altyapısı ---
+systemd-sysv
+systemd-timesyncd
+libpam-systemd
+dbus
+dbus-user-session
+polkitd
+pkexec
+sudo
+
+# --- önyükleyici (ISO'nun imzalı EFI dosyalarını buradan alır) ---
+grub-common
+grub-pc-bin
+grub-efi-amd64-bin
+grub-efi-amd64-signed
+shim-signed
+mtools
+
+# --- yerelleştirme ---
+locales
+console-setup
+keyboard-configuration
+tzdata
+
+# --- ağ ---
+network-manager
+wpasupplicant
+wireless-regdb
+iw
+iproute2
+ca-certificates
+
+# --- dosya sistemleri (btrfs kök + FAT32 EFI + NTFS okuma/yazma) ---
+btrfs-progs
+dosfstools
+e2fsprogs
+ntfs-3g
+util-linux
+parted
+gdisk
+
+# --- donanım bilgisi (Ayarlar > Sistem ve kurulum ön kontrolü kullanacak) ---
+pciutils
+usbutils
+dmidecode
+
+# --- temel komut satırı ---
+procps
+bash-completion
+less
+nano
+curl
+wget
+file

@@ -1,0 +1,46 @@
+# live-build derleme çıktıları — bunlar CI'da üretilir, depoya girmez
+iso/chroot/
+iso/binary/
+iso/cache/
+iso/.build/
+iso/local/
+iso/build.log
+iso/chroot.files
+iso/chroot.packages.*
+iso/*.iso
+iso/*.img
+iso/*.contents
+iso/*.packages
+iso/*.files
+iso/config/binary
+iso/config/bootstrap
+iso/config/chroot
+iso/config/common
+iso/config/source
+
+# Derlenmiş paketler
+*.deb
+*.buildinfo
+*.changes
+debian/.debhelper/
+debian/files
+debian/*.substvars
+debian/karanos-*/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Çeviri derleme çıktısı (.po kaynak, .mo üretilir)
+*.mo
+
+# Test çıktıları
+out/
+serial-*.log
+
+# Editör
+.vscode/
+*.swp
+.DS_Store

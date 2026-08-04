@@ -1,0 +1,24 @@
+# Karan OS — firmware ve grafik sürücüleri
+#
+# Prompt 16: "Bunlar olmazsa kurulumdan sonra Wi-Fi veya ekran kartı
+# çalışmayabilir ve kullanıcı internetsiz kalır — bu yüzden 'küçük ISO'
+# hedefinin istisnasıdır." (~200 MB)
+#
+# Tescilli Nvidia/AMD sürücüleri BURAYA GİRMEZ — Ayarlar > Ek sürücüler'den
+# sonradan kurulur.
+
+firmware-linux
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-misc-nonfree
+
+# Modern Intel/AMD dizüstülerde ses donanımı bu olmadan çalışmaz.
+# Açılış müziği (prompt 5) için kritik.
+firmware-sof-signed
+
+# Mesa — açık kaynak 3B/2B hızlandırma
+libgl1-mesa-dri
+libglx-mesa0
+mesa-va-drivers

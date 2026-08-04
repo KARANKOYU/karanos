@@ -1,0 +1,11 @@
+# Karan OS — Openbox oturum başlangıcı
+#
+# 4. aşamada buraya karanos-panel eklenecek.
+# Şimdilik sadece "X gerçekten açıldı mı" görülebilsin diye arka planı
+# kimlik renklerimizin koyu tonuna boyuyoruz.
+
+xsetroot -solid "#1A1A1A" &
+
+# Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken
+# 10 dakika sonra ekranın kararması kafa karıştırıyor).
+xset s off -dpms &
