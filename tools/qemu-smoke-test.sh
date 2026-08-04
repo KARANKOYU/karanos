@@ -56,6 +56,8 @@ uefi)
 secureboot)
 	[[ -f "$OVMF_DIR/OVMF_CODE_4M.secboot.fd" ]] || { echo "HATA: ovmf secboot dosyasi yok" >&2; exit 2; }
 	cp "$OVMF_DIR/OVMF_VARS_4M.ms.fd" "$WORKDIR/vars.fd"
+	# Asagidaki virguller QEMU parametresinin parcasi, dizi ayraci degil.
+	# shellcheck disable=SC2054
 	qemu_args+=(
 		-machine "q35,smm=on"
 		-global driver=cfi.pflash01,property=secure,value=on
