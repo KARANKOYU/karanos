@@ -190,6 +190,47 @@ echo
 echo "===== KARANOS-CHECK satirlari ====="
 grep "KARANOS-CHECK" "$SERIAL" || echo "(hic satir yok)"
 echo "==================================="
+
+# --- Bosta RAM kullanimi (prompt 20: 1 GB normal, 1.5 GB mutlak sinir) ---
+#
+# DIKKAT: burada olculen deger CANLI (live) oturumun degeri ve KURULU
+# sistemden YUKSEK cikar — canli modda kok dosya sistemi squashfs + RAM
+# uzerinde overlay olarak durur, yazilan her sey RAM'de birikir. Yani bu
+# rakam kotumser bir ust sinir; kurulu sistemde daha dusuk olacak.
+# Bu yuzden asilirsa uyariyoruz, testi basarisiz saymiyoruz.
+mem_line=$(grep -o 'MEM-USED=[0-9]*MB' "$SERIAL" 2>/dev/null | tail -1 || true)
+if [[ -n "$mem_line" ]]; then
+	mem_mb="${mem_line#MEM-USED=}"
+	mem_mb="${mem_mb%MB}"
+	echo
+	echo "===== Bosta RAM (canli oturum) ====="
+	printf '  olculen: %s MB\n' "$mem_mb"
+	printf '  hedef  : 1024 MB normal / 1536 MB mutlak sinir\n'
+	if (( mem_mb > 1536 )); then
+		mem_verdict="SINIR ASILDI"
+		echo "  ⚠ 1.5 GB mutlak sinir asildi — hafifletme gerekiyor"
+		echo "::warning::Bosta RAM ${mem_mb} MB — 1.5 GB mutlak sinirin ustunde ($MODE)"
+	elif (( mem_mb > 1024 )); then
+		mem_verdict="normal ustu"
+		echo "  ! 1 GB normal hedefin ustunde, 1.5 GB sinirin altinda"
+	else
+		mem_verdict="hedefte"
+		echo "  ✓ hedefte"
+	fi
+	echo "  (canli mod olcumu kurulu sistemden yuksektir)"
+	echo "===================================="
+
+	if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+		{
+			echo "### QEMU $MODE"
+			echo ""
+			echo "| Alan | Değer |"
+			echo "|---|---|"
+			echo "| Boşta RAM (canlı) | **${mem_mb} MB** — ${mem_verdict} |"
+			echo "| Hedef | 1024 MB normal / 1536 MB sınır |"
+		} >> "$GITHUB_STEP_SUMMARY"
+	fi
+fi
 echo
 echo "===== seri gunlugunun son 80 satiri ====="
 tail -n 80 "$SERIAL" || true

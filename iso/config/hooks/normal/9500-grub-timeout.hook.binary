@@ -13,18 +13,35 @@
 # yalnızca ekrana gidiyor, seri porta hiçbir şey yazmıyordu. Seri konsolu
 # da ekliyoruz ki bir daha takılırsa CI günlüğünde MENÜYÜ görebilelim.
 #
-# Bu bir `.hook.binary` — live-build'in binary aşamasında, önyükleyici
-# yapılandırması üretildikten SONRA, ISO paketlenmeden ÖNCE çalışır.
+# ÇALIŞMA DİZİNİ: live-build binary hook'ları `binary/` dizininin İÇİNDE
+# çalıştırır, derleme kökünde değil. İlk denemede yolu `binary/boot/...`
+# yazdığım için hook dosyayı bulamayıp derlemeyi durdurdu. Bu yüzden
+# aşağıda birkaç aday yol deneniyor.
 
 set -e
 
-CFG="binary/boot/grub/config.cfg"
+CFG=""
+for candidate in \
+	boot/grub/config.cfg \
+	binary/boot/grub/config.cfg \
+	../binary/boot/grub/config.cfg
+do
+	if [ -f "$candidate" ]; then
+		CFG="$candidate"
+		break
+	fi
+done
 
-if [ ! -f "$CFG" ]; then
-	echo "E: $CFG bulunamadi — GRUB yapilandirmasi degismis olabilir." >&2
+if [ -z "$CFG" ]; then
+	echo "E: GRUB config.cfg bulunamadi." >&2
+	echo "E: calisma dizini: $(pwd)" >&2
+	echo "E: buradaki icerik:" >&2
+	ls -la >&2 || true
 	echo "E: Bu hook duzeltilmeden ISO menude takilir, derleme durduruluyor." >&2
 	exit 1
 fi
+
+echo "I: GRUB yapilandirmasi bulundu: $CFG"
 
 cat >> "$CFG" <<'EOF'
 
@@ -43,4 +60,9 @@ if serial --unit=0 --speed=115200; then
 fi
 EOF
 
-echo "I: GRUB menusune timeout=10 ve seri konsol eklendi"
+if grep -q '^set timeout=10$' "$CFG"; then
+	echo "I: GRUB menusune timeout=10 ve seri konsol eklendi"
+else
+	echo "E: yazma basarisiz gorunuyor, $CFG icinde timeout yok" >&2
+	exit 1
+fi

@@ -1,4 +1,8 @@
-#!/bin/sh
-set -e
+#!/bin/bash
+# DİKKAT: bash şart — `pipefail` olmadan `| tee` lb'nin çıkış kodunu yutar
+# ve başarısız bir derleme CI'da BAŞARILI görünür. Bir kez oldu:
+# hook hata verip derleme durdu, adım yeşil kaldı, ISO'nun yokluğu ancak
+# bir sonraki adımda anlaşıldı.
+set -eo pipefail
 
-lb build noauto "${@}" 2>&1 | tee build.log
+lb build noauto "$@" 2>&1 | tee build.log

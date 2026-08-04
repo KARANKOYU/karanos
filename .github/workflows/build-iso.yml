@@ -100,6 +100,35 @@ jobs:
           sha256sum "${{ steps.meta.outputs.iso_name }}" > SHA256SUMS
           ls -lh
 
+      # QEMU testi 25 dakika sürüyor. Önyükleyici hatasını 5 saniyede
+      # yakalayabiliyorsak orada yakalayalım: ISO'nun içindeki GRUB
+      # yapılandırmasını çıkarıp beklediğimiz satırlar var mı diye bak.
+      - name: ISO içi önyükleyici doğrulaması
+        working-directory: out
+        run: |
+          set -eu
+          ISO="${{ steps.meta.outputs.iso_name }}"
+          rm -rf grubcheck && mkdir grubcheck
+          xorriso -osirrox on -indev "$ISO" \
+            -extract /boot/grub/config.cfg grubcheck/config.cfg 2>/dev/null
+          echo "--- ISO içindeki config.cfg sonu ---"
+          tail -20 grubcheck/config.cfg
+          echo "------------------------------------"
+          hata=0
+          if grep -q '^set timeout=' grubcheck/config.cfg; then
+            echo "✓ set timeout var — menü kendiliğinden açılacak"
+          else
+            echo "::error::GRUB config.cfg içinde 'set timeout' YOK. ISO menüde takılır."
+            hata=1
+          fi
+          if grep -q 'terminal_output --append serial' grubcheck/config.cfg; then
+            echo "✓ seri konsol var — CI menüyü görebilir"
+          else
+            echo "::warning::GRUB seri konsola yazmıyor, hata ayıklaması zorlaşır"
+          fi
+          rm -rf grubcheck
+          exit $hata
+
       - name: Boyut kontrolü (hedef 1.5 GB)
         working-directory: out
         run: |
