@@ -19,12 +19,14 @@ bir seçenek olacak.
 | Konu | Değer |
 |---|---|
 | Biçim | PNG (PNG-24 veya PNG-32) |
-| Önerilen boyut | **512 × 512 piksel**, kare |
-| Kabul edilen aralık | 256×256 – 1024×1024, kare olmak zorunda |
+| Önerilen boyut | **512 – 1024 piksel** uzun kenar |
+| En-boy oranı | Serbest — tema oranı korur. Aşırı yatay/dikey olmasın (1:2 – 2:1 arası). |
 | Arka plan | **Şeffaf** (alfa kanallı) |
 | Renk uzayı | sRGB, 8 bit/kanal |
 | Dosya boyutu | 500 KB altı (ideal: 150 KB altı) |
 | Kenar boşluğu | Görselin kenarlarında ~%8 boşluk bırak |
+
+> **Şu anki dosya:** 735 × 820, RGBA (alfa var), 422 KB — uygun. ✅
 
 **Neden şeffaf arka plan:** açılış ekranının arka planı düz koyu renk
 (`#1A1A1A`) olacak ve görsel %15 opaklıktan %100'e çıkarken üzerine bir parlama
