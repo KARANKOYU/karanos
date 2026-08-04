@@ -171,7 +171,8 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           apt-get update
           apt-get install -y --no-install-recommends \
-            qemu-system-x86 ovmf ca-certificates procps coreutils
+            qemu-system-x86 ovmf ca-certificates procps coreutils \
+            netcat-openbsd python3
 
       - uses: actions/checkout@v4
 
@@ -183,20 +184,24 @@ jobs:
 
       - name: Duman testi
         env:
-          TIMEOUT: 1500
-          SERIAL_OUT: ${{ github.workspace }}/serial-${{ matrix.mode }}.log
+          TIMEOUT: 900
+          SERIAL_OUT: ${{ github.workspace }}/tani/serial-${{ matrix.mode }}.log
+          SCREENSHOT_DIR: ${{ github.workspace }}/tani
         run: |
           set -eu
+          mkdir -p tani
           chmod +x tools/qemu-smoke-test.sh
           ISO=$(ls out/karanos-*.iso | head -1)
           tools/qemu-smoke-test.sh "$ISO" "${{ matrix.mode }}"
 
-      - name: Seri günlüğünü yükle
+      # Boot başarısız olursa ekran görüntüsü olmadan teşhis edemiyoruz —
+      # geliştirici 1 GB'lık ISO'yu indirip elle deneyemiyor (470 Kbps).
+      - name: Teşhis dosyalarını yükle (seri günlük + ekran görüntüsü)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: serial-${{ matrix.mode }}
-          path: serial-${{ matrix.mode }}.log
+          name: tani-${{ matrix.mode }}
+          path: tani/
           retention-days: 7
           if-no-files-found: ignore
 

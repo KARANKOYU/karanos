@@ -21,7 +21,54 @@ TIMEOUT="${TIMEOUT:-900}"
 WORKDIR="$(mktemp -d)"
 trap 'rm -rf "$WORKDIR"' EXIT
 SERIAL="$WORKDIR/serial.log"
+MONITOR="$WORKDIR/monitor.sock"
 : > "$SERIAL"
+
+# QEMU'nun ekranini PNG olarak disari al.
+# Bir daha GRUB menusunde takilirsak seri gunlukte hicbir sey olmaz ama
+# ekran goruntusunde ne oldugu net gorunur. Ilk CI koşusunda tam olarak bu
+# sorunu yasadik ve gormek icin ISO'yu elle indirmek zorunda kaldik.
+snapshot() {
+	local label="$1"
+	local ppm="$WORKDIR/screen-$label.ppm"
+	[[ -S "$MONITOR" ]] || return 0
+	printf 'screendump %s\n' "$ppm" | nc -U -q 2 "$MONITOR" >/dev/null 2>&1 || return 0
+	sleep 1
+	[[ -s "$ppm" ]] || return 0
+	python3 - "$ppm" "${SCREENSHOT_DIR:-$PWD}/screen-$MODE-$label.png" <<'PY' || true
+import sys, zlib, struct
+src, dst = sys.argv[1], sys.argv[2]
+d = open(src, 'rb').read()
+if d[:2] != b'P6':
+    sys.exit(0)
+# P6\n<w> <h>\n255\n
+parts, idx = [], 2
+while len(parts) < 3:
+    while d[idx:idx+1].isspace():
+        idx += 1
+    if d[idx:idx+1] == b'#':
+        while d[idx:idx+1] != b'\n':
+            idx += 1
+        continue
+    start = idx
+    while not d[idx:idx+1].isspace():
+        idx += 1
+    parts.append(int(d[start:idx]))
+idx += 1
+w, h = parts[0], parts[1]
+raw = d[idx:idx + w*h*3]
+rows = b''.join(b'\x00' + raw[y*w*3:(y+1)*w*3] for y in range(h))
+def chunk(t, data):
+    c = t + data
+    return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c))
+png = (b'\x89PNG\r\n\x1a\n'
+       + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0))
+       + chunk(b'IDAT', zlib.compress(rows, 6))
+       + chunk(b'IEND', b''))
+open(dst, 'wb').write(png)
+print(f"    ekran goruntusu: {dst} ({w}x{h})")
+PY
+}
 
 OVMF_DIR="/usr/share/OVMF"
 
@@ -35,6 +82,7 @@ qemu_args=(
 	-display none
 	-vga std
 	-serial "file:$SERIAL"
+	-monitor "unix:$MONITOR,server,nowait"
 	-no-reboot
 	-rtc base=utc
 	-net none
@@ -90,6 +138,8 @@ trap "kill $QEMU_PID 2>/dev/null || true; rm -rf '$WORKDIR'" EXIT
 
 result=""
 elapsed=0
+kernel_seen=0
+stuck_reported=0
 while (( elapsed < TIMEOUT )); do
 	if ! kill -0 "$QEMU_PID" 2>/dev/null; then
 		echo ">> QEMU beklenmedik sekilde kapandi (${elapsed}s)"
@@ -103,12 +153,35 @@ while (( elapsed < TIMEOUT )); do
 		result="FAIL"
 		break
 	fi
+	if grep -qi "Kernel panic" "$SERIAL" 2>/dev/null; then
+		result="PANIC"
+		break
+	fi
+
+	# Cekirdek basladi mi? "Linux version ..." cekirdegin ilk satiridir.
+	if (( kernel_seen == 0 )) && grep -q "Linux version" "$SERIAL" 2>/dev/null; then
+		kernel_seen=1
+		echo ">> cekirdek basladi (${elapsed}s)"
+	fi
+
+	# 240 saniyede cekirdek hala baslamadiysa onyukleyicide takiliyiz.
+	# Zaman asimini beklemeden ekran goruntusunu al ve durumu yaz.
+	if (( kernel_seen == 0 && elapsed >= 240 && stuck_reported == 0 )); then
+		stuck_reported=1
+		echo ">> UYARI: ${elapsed}s gecti, cekirdek hic baslamadi."
+		echo ">> Muhtemelen onyukleyici menusunde tus bekleniyor. Ekran:"
+		snapshot "takildi"
+	fi
+
 	sleep 5
 	elapsed=$((elapsed + 5))
 	if (( elapsed % 60 == 0 )); then
 		echo ">> ${elapsed}s… (seri gunlugu $(wc -l < "$SERIAL") satir)"
 	fi
 done
+
+# Sonuc ne olursa olsun son ekran goruntusunu al
+snapshot "son"
 
 kill "$QEMU_PID" 2>/dev/null || true
 wait "$QEMU_PID" 2>/dev/null || true
@@ -128,7 +201,27 @@ if [[ -n "${SERIAL_OUT:-}" ]]; then
 fi
 
 case "$result" in
-OK)   echo ">> SONUC: BASARILI ($MODE, ${elapsed}s)"; exit 0 ;;
-FAIL) echo ">> SONUC: BASARISIZ — boot-check FAIL dondu ($MODE)"; exit 1 ;;
-*)    echo ">> SONUC: ZAMAN ASIMI — ${TIMEOUT}s icinde grafik arayuze ulasilamadi ($MODE)"; exit 1 ;;
+OK)
+	echo ">> SONUC: BASARILI ($MODE, ${elapsed}s)"
+	exit 0
+	;;
+FAIL)
+	echo ">> SONUC: BASARISIZ — boot-check FAIL dondu ($MODE)"
+	exit 1
+	;;
+PANIC)
+	echo ">> SONUC: KERNEL PANIC ($MODE, ${elapsed}s)"
+	exit 1
+	;;
+*)
+	echo ">> SONUC: ZAMAN ASIMI — ${TIMEOUT}s icinde grafik arayuze ulasilamadi ($MODE)"
+	if (( kernel_seen == 0 )); then
+		echo ">> TESHIS: cekirdek hic baslamadi — sorun onyukleyicide (GRUB),"
+		echo ">>         isletim sisteminde degil. Ekran goruntusune bak."
+	else
+		echo ">> TESHIS: cekirdek basladi ama grafik arayuze ulasilamadi."
+		echo ">>         Seri gunlugundeki son satirlara bak."
+	fi
+	exit 1
+	;;
 esac

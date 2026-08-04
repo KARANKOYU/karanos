@@ -1,0 +1,46 @@
+#!/bin/sh
+# Karan OS — GRUB menüsüne geri sayım ve seri konsol ekle
+#
+# NEDEN VAR:
+# live-build'in ürettiği boot/grub/config.cfg dosyasında `set timeout`
+# SATIRI YOK. GRUB'da timeout tanımsızsa menü sonsuza kadar tuş bekler.
+# Gerçek makinede kullanıcı Enter'a basar ve fark edilmez; ama otomatik
+# testte (ve "aç, git, gel, açılmış olsun" beklentisinde) sistem menüde
+# takılı kalır. İlk CI koşusunda tam olarak bu oldu: üç QEMU testi de
+# 25 dakika menüde bekleyip zaman aşımına uğradı.
+#
+# Ayrıca config.cfg `terminal_output gfxterm` diyor — yani GRUB çıktısı
+# yalnızca ekrana gidiyor, seri porta hiçbir şey yazmıyordu. Seri konsolu
+# da ekliyoruz ki bir daha takılırsa CI günlüğünde MENÜYÜ görebilelim.
+#
+# Bu bir `.hook.binary` — live-build'in binary aşamasında, önyükleyici
+# yapılandırması üretildikten SONRA, ISO paketlenmeden ÖNCE çalışır.
+
+set -e
+
+CFG="binary/boot/grub/config.cfg"
+
+if [ ! -f "$CFG" ]; then
+	echo "E: $CFG bulunamadi — GRUB yapilandirmasi degismis olabilir." >&2
+	echo "E: Bu hook duzeltilmeden ISO menude takilir, derleme durduruluyor." >&2
+	exit 1
+fi
+
+cat >> "$CFG" <<'EOF'
+
+### Karan OS ###
+# Menü 10 saniye görünür, sonra ilk girdi (Live system) kendiliğinden açılır.
+set default=0
+set timeout=10
+set timeout_style=menu
+
+# GRUB çıktısını seri porta da ver — CI'daki QEMU testi menüyü görebilsin.
+# Seri portu olmayan gerçek donanımda `serial` komutu başarısız olur ve
+# blok atlanır, hiçbir etkisi olmaz.
+if serial --unit=0 --speed=115200; then
+	terminal_input  --append serial
+	terminal_output --append serial
+fi
+EOF
+
+echo "I: GRUB menusune timeout=10 ve seri konsol eklendi"

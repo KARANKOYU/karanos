@@ -72,6 +72,8 @@ iso/
 | `--debian-installer none` | Kurulum Calamares ile (prompt 14). Debian Installer ISO'ya gömülmüyor. |
 | `console=ttyS0` açılış satırında | CI'daki QEMU testinin boot günlüğünü okuyabilmesi için. Seri portu olmayan gerçek donanımda etkisi yok. |
 | `quiet splash` **kapalı** | 1. aşamada boot mesajlarını görmek istiyoruz. 3. aşamada (Plymouth) açılacak. |
+| GRUB'a elle `set timeout=10` ekleniyor | **live-build bunu koymuyor.** Timeout tanımsızken GRUB menüsü sonsuza kadar tuş bekler; ilk CI koşusunda üç QEMU testi de bu yüzden takıldı. `hooks/normal/9500-grub-timeout.hook.binary` ekliyor. |
+| GRUB seri konsola da yazıyor | live-build `terminal_output gfxterm` diyor, yani GRUB çıktısı sadece ekranda. Seri konsol eklenmezse önyükleyici hatası CI günlüğünde hiç görünmüyor. |
 | lightdm otomatik giriş | Geçici. 5. aşamada `karanos-greeter` gelince kalkacak; kurulan sistemde Calamares bu dosyayı siliyor. |
 
 ## Bir sonraki aşamaya geçince değişecekler
