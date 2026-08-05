@@ -18,15 +18,18 @@ tablolardan alınır. Tabloda karşılığı yoksa uydurmak yerine sor.
 
 ## Derleme ortamı — en önemli kısıt
 
-Geliştirme GitHub Codespaces'te (Debian konteyner, 2 çekirdek) yapılıyor ve
-**kullanıcının internet bağlantısı 470 Kbps**.
+Geliştirme GitHub Codespaces'te yapılıyor: Debian konteyner, **2 çekirdek**,
+~20 GB boş disk.
 
 - **ISO'yu yerelde derleme.** `lb build` yalnızca GitHub Actions'ta çalışır
-  (`.github/workflows/build-iso.yml`). Yerelde sadece yapılandırma yazılır.
-- Kullanıcı 500+ MB'lık ISO'yu indirip elle deneyemez. Bu yüzden doğrulama
-  CI'daki QEMU duman testine ve `tani-<mod>` yapıtına (seri günlük + otomatik
-  PNG ekran görüntüsü) dayanır. Bir şey bozulduğunda önce o yapıtı incele.
-- Tek tek bileşen testleri (bir GTK penceresi, bir script) yerelde yapılabilir.
+  (`.github/workflows/build-iso.yml`). Sebep çekirdek sayısı ve disk;
+  Codespace'te sadece yapılandırma yazılır ve tek tek bileşen testi yapılır.
+- İlk doğrulama yine CI'da: QEMU duman testi ve `tani-<mod>` yapıtı (seri
+  günlük + otomatik PNG ekran görüntüleri). Bir şey bozulduğunda önce oraya bak
+  — 40 dakikalık koşuyu tahminle harcama.
+- Kullanıcının bağlantısı ~1 MB/s. ISO'yu indirip **VirtualBox'ta elle test
+  edebiliyor**; "bunu gözünle görmen lazım" diyebileceğin durumlarda
+  `karanos-iso` yapıtını indirmesini istemek makul.
 
 ## Push etmeden önce
 

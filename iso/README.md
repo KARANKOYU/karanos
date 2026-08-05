@@ -4,15 +4,15 @@ Debian trixie tabanlı Karan OS ISO'sunun `live-build` yapılandırması.
 
 ## ⚠️ Bu klasörde yerelde derleme YAPMA
 
-ISO **GitHub Actions'ta** derlenir. Codespace'te derlemenin üç sorunu var:
+ISO **GitHub Actions'ta** derlenir. Codespace'te derlemenin iki sorunu var:
 
 1. 2 çekirdek — debootstrap + squashfs sıkıştırma 40+ dakika sürer
 2. Disk — chroot + squashfs + ISO aynı anda ~15 GB ister, elimizde 20 GB boş var
-3. Sonuçta çıkan 1+ GB'lık ISO'yu 470 Kbps ile indirmek 6-7 saat sürer
 
 Bunun yerine: **derleme + QEMU testi Actions'ta**, sonuç seri konsol
-günlüğü olarak geri gelir. ISO'yu sadece gerçek USB testine hazır olduğunda
-indirirsin.
+günlüğü ve ekran görüntüsü olarak geri gelir. ISO'yu VirtualBox'ta ya da
+USB'de denemek istediğinde `karanos-iso` yapıtından indirirsin (~1 MB/s ile
+10 dakika kadar).
 
 ## Derlemeyi başlatma
 

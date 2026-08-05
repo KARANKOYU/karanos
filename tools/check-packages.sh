@@ -61,6 +61,38 @@ for list in "$LIST_DIR"/*.list.chroot; do
 	echo
 done
 
+# packages/*/debian/control içindeki Build-Depends ve Depends adları da
+# aynı arşivden geliyor. Oradaki bir yazım hatası .deb derlemesini
+# CI'da düşürüyor; burada 1 saniyede yakalanıyor.
+for ctrl in "$REPO_ROOT"/packages/*/debian/control; do
+	[[ -f "$ctrl" ]] || continue
+	echo "==> $(basename "$(dirname "$(dirname "$ctrl")")")/debian/control"
+	# Alan gövdelerini topla, virgülle ayır, sürüm/mimari kısıtlarını at.
+	# "${misc:Depends}" gibi dpkg değişkenleri arşivde aranmaz.
+	awk '
+		/^(Build-Depends|Build-Depends-Indep|Depends|Recommends|Pre-Depends):/ { al=1; sub(/^[^:]*:/, ""); }
+		/^[ \t]/ { if (al) print; next }
+		/^[^ \t]/ { if (al && $0 !~ /^(Build-Depends|Depends|Recommends|Pre-Depends)/) al=0 }
+		al { print }
+	' "$ctrl" | tr ',|' '\n\n' | sed -e 's/(.*)//' -e 's/\[.*\]//' \
+		-e 's/<.*>//' -e 's/[[:space:]]//g' | grep -v '^\${' | grep -v '^$' \
+		| sort -u | while IFS= read -r pkg; do
+		if grep -qxF "$pkg" "$INDEX"; then
+			printf '    \033[32m✓\033[0m %s\n' "$pkg"
+		else
+			printf '    \033[31m✗ %s — trixie/amd64 arşivinde YOK\033[0m\n' "$pkg"
+			echo "$pkg" >> "$CACHE_DIR/eksik"
+		fi
+	done
+	echo
+done
+
+if [[ -s "$CACHE_DIR/eksik" ]]; then
+	fail=$((fail + $(wc -l < "$CACHE_DIR/eksik")))
+	total=$((total + $(wc -l < "$CACHE_DIR/eksik")))
+	rm -f "$CACHE_DIR/eksik"
+fi
+
 echo "==================================================="
 if (( fail == 0 )); then
 	echo "TAMAM: $total paketin hepsi Debian $SUITE arşivinde var."

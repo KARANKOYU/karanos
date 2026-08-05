@@ -17,15 +17,26 @@ iso/config/bootstrap
 iso/config/chroot
 iso/config/common
 iso/config/source
+# ISO'ya girecek karanos-*.deb'ler CI'da buraya indirilir, depoda durmaz
+iso/config/packages.chroot/
+
+# Paket ağacına derleme sırasında kopyalanan kaynaklar — aslı assets/ altında
+packages/*/src/logo/
 
 # Derlenmiş paketler
 *.deb
 *.buildinfo
 *.changes
-debian/.debhelper/
-debian/files
-debian/*.substvars
-debian/karanos-*/
+# dpkg-buildpackage'in paket ağacında bıraktıkları. Desenler
+# packages/*/debian/ altını da tutmalı — başında `debian/` yazınca git
+# bunu yalnızca depo kökünde arıyor ve derleme ağacı depoya giriyordu.
+**/debian/.debhelper/
+**/debian/files
+**/debian/*.substvars
+**/debian/*.debhelper
+**/debian/debhelper-build-stamp
+**/debian/karanos-*/
+**/debian/tmp/
 
 # Python
 __pycache__/

@@ -1,0 +1,94 @@
+name: Paketleri derle
+
+# packages/ altındaki karanos-* .deb'lerini derler ve yapıt olarak yükler.
+# ISO iş akışı bu iş akışını `uses:` ile çağırıp yapıtı doğrudan
+# live-build'in config/packages.chroot/ dizinine koyuyor — böylece ISO'ya
+# giren .deb ile burada test edilen .deb aynı koşunun ürünü oluyor.
+#
+# 13. aşamada bunların yerini aptly ile üretilen gerçek APT deposu alacak.
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/**"
+      - "assets/logo/**"
+      - "tools/build-packages.sh"
+      - ".github/workflows/build-packages.yml"
+
+jobs:
+  build:
+    name: .deb üret
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: debian:trixie
+    steps:
+      - name: Derleme bağımlılıkları
+        run: |
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential debhelper dpkg-dev fakeroot \
+            librsvg2-bin x11-apps python3 ca-certificates git
+
+      - uses: actions/checkout@v7
+
+      - name: Derle
+        run: |
+          set -eux
+          chmod +x tools/build-packages.sh
+          tools/build-packages.sh
+
+      # Paketin içine gerçekten girmesi gerekenler girdi mi? Boş bir imleç
+      # dizini ya da eksik duvar kağıdı derlemeyi durdurmaz, sessizce
+      # eksik bir tema üretir — burada yakalanır.
+      - name: Paket içeriği doğrulaması
+        run: |
+          set -eu
+          deb=out/packages/karanos-theme_*_all.deb
+          liste=$(dpkg-deb -c $deb)
+          hata=0
+          gerek() {
+            adet=$(printf '%s\n' "$liste" | grep -c -- "$1" || true)
+            if [ "$adet" -lt "$2" ]; then
+              echo "::error::karanos-theme içinde '$1' $2 bekleniyordu, $adet var"
+              hata=1
+            else
+              echo "✓ $1 — $adet"
+            fi
+          }
+          gerek "usr/share/themes/Karan/gtk-3.0/gtk.css"          1
+          gerek "usr/share/themes/Karan/openbox-3/themerc"        1
+          gerek "usr/share/icons/Karan-Cursors/cursors/left_ptr"  1
+          gerek "usr/share/icons/Karan-Cursors/cursors/"          80
+          gerek "usr/share/icons/Karan/48x48/apps/karanos.png"    1
+          gerek "usr/share/backgrounds/karanos/karan.png"         1
+          gerek "usr/lib/os-release"                              1
+          if dpkg-deb -I $deb | grep -q "Depends:"; then
+            echo "✓ bağımlılıklar yazılı"
+          fi
+          exit $hata
+
+      - name: Boyut özeti
+        run: |
+          set -eu
+          {
+            echo "### Paketler"
+            echo ""
+            echo "| Paket | Boyut |"
+            echo "|---|---|"
+            for f in out/packages/*.deb; do
+              echo "| \`$(basename "$f")\` | $(du -h "$f" | cut -f1) |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: karanos-packages
+          path: out/packages/*.deb
+          retention-days: 14

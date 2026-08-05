@@ -1,0 +1,23 @@
+#!/bin/sh
+# /etc/os-release, base-files paketinin sahibi olduğu /usr/lib/os-release
+# dosyasına bir sembolik bağ. Üstüne dosya koyarsak dpkg dosya çakışması
+# verir. Doğru yol dpkg-divert: base-files'ın dosyası .debian uzantısıyla
+# kenara alınır, bizimki onun yerine geçer, paket kaldırılınca aslı geri
+# gelir.
+set -e
+
+DIVERTED=/usr/lib/os-release
+ORIGINAL=/usr/lib/os-release.debian
+
+case "$1" in
+install | upgrade)
+	if ! dpkg-divert --list "$DIVERTED" | grep -q karanos-theme; then
+		dpkg-divert --package karanos-theme --add --rename \
+			--divert "$ORIGINAL" "$DIVERTED"
+	fi
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0

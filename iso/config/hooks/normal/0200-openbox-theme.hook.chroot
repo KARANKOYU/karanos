@@ -1,0 +1,41 @@
+#!/bin/sh
+# Karan OS — Openbox'ı Karan temasına geçir
+#
+# NEDEN HOOK, NEDEN DOSYAYI KOMPLE DEĞİŞTİRMİYORUZ:
+# Openbox'ın pencere teması GTK temasından bağımsız; /etc/xdg/openbox/rc.xml
+# içindeki <theme><name> belirliyor. Bu dosyayı kendi sürümümüzle
+# değiştirmek kolay görünüyor ama rc.xml aynı zamanda BÜTÜN fare ve klavye
+# kısayollarını taşıyor — <mouse> bölümü olmayan bir rc.xml'de pencere
+# başlığından tutup sürükleyemiyor, düğmelere tıklayamıyorsun. Bu yüzden
+# Debian'ın tam dosyasını bırakıp yalnızca iki alanı değiştiriyoruz.
+
+set -e
+
+RC=/etc/xdg/openbox/rc.xml
+
+if [ ! -f "$RC" ]; then
+	echo "E: $RC yok — openbox kurulu mu?" >&2
+	exit 1
+fi
+
+# <theme> bloğundaki İLK <name> tema adı; sonrakiler yazı tipi adları.
+# Bu yüzden düz sed yerine "ilk eşleşme" mantığı gerekiyor.
+awk '
+	/<theme>/            { intheme = 1 }
+	intheme && !done && /<name>/ {
+		sub(/<name>[^<]*<\/name>/, "<name>Karan</name>")
+		done = 1
+	}
+	{ print }
+' "$RC" > "$RC.yeni"
+mv "$RC.yeni" "$RC"
+
+# Windows benzeri başlık çubuğu: simge, başlık, sonra küçült/büyüt/kapat
+sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$RC"
+
+if grep -q '<name>Karan</name>' "$RC"; then
+	echo "I: Openbox teması Karan olarak ayarlandi"
+else
+	echo "E: rc.xml'e tema adi yazilamadi" >&2
+	exit 1
+fi

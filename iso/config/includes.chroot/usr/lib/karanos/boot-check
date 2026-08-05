@@ -1,9 +1,9 @@
 #!/bin/sh
 # Karan OS — açılış duman testi (yalnızca canlı oturumda çalışır)
 #
-# Amaç: geliştirici 470 Kbps bağlantıyla 1+ GB'lık ISO'yu indirip elle test
-# edemiyor. Bu script açılışın gerçekten grafik arayüze kadar geldiğini
-# seri konsola tek satır olarak bildirir; CI bu satırı arar.
+# Amaç: her değişiklikte ISO'yu indirip elle açmadan, açılışın gerçekten
+# grafik arayüze kadar geldiğini bilmek. Bu script durumu seri konsola tek
+# satırlık işaretler hâlinde yazar; CI bu satırları arar.
 
 set -u
 
@@ -35,14 +35,48 @@ else
 	log "WM-WARN openbox bulunamadi"
 fi
 
-# 3) Firmware yüklendi mi (Wi-Fi/ekran kartı için kritik — prompt 16)
+# 3) Tema paketi ISO'ya girdi mi ve dosyaları yerinde mi
+# Ekran görüntüsünde "turuncu bir şey" görmek yetmiyor; parçaların
+# tek tek yerinde olduğunu da bilelim.
+theme_eksik=""
+for f in /usr/share/themes/Karan/gtk-3.0/gtk.css \
+	/usr/share/themes/Karan/openbox-3/themerc \
+	/etc/gtk-3.0/settings.ini; do
+	[ -f "$f" ] || theme_eksik="${theme_eksik} ${f}"
+done
+if [ -z "$theme_eksik" ]; then
+	log "THEME-OK gtk+openbox teması yerinde"
+else
+	log "THEME-FAIL eksik:${theme_eksik}"
+fi
+
+if [ -f /usr/share/icons/Karan-Cursors/cursors/left_ptr ]; then
+	log "CURSOR-OK $(ls /usr/share/icons/Karan-Cursors/cursors 2>/dev/null | wc -l) imleç adı"
+else
+	log "CURSOR-FAIL imleç teması yok"
+fi
+
+if [ -f /usr/share/backgrounds/karanos/karan.png ]; then
+	log "WALLPAPER-OK"
+else
+	log "WALLPAPER-FAIL"
+fi
+
+# os-release dpkg-divert ile devralınmıştı; gerçekten devraldı mı
+if grep -q '^PRETTY_NAME="Karan OS' /etc/os-release 2>/dev/null; then
+	log "OSRELEASE-OK $(. /etc/os-release && echo "$PRETTY_NAME")"
+else
+	log "OSRELEASE-FAIL $(grep '^PRETTY_NAME=' /etc/os-release 2>/dev/null)"
+fi
+
+# 4) Firmware yüklendi mi (Wi-Fi/ekran kartı için kritik — prompt 16)
 if [ -d /lib/firmware ] && [ -n "$(ls -A /lib/firmware 2>/dev/null)" ]; then
 	log "FIRMWARE-OK $(find /lib/firmware -type f 2>/dev/null | wc -l) dosya"
 else
 	log "FIRMWARE-WARN /lib/firmware bos"
 fi
 
-# 4) EFI ile mi açıldı, BIOS ile mi
+# 5) EFI ile mi açıldı, BIOS ile mi
 if [ -d /sys/firmware/efi ]; then
 	log "BOOT-MODE=UEFI"
 	# efivars dosyasi: ilk 4 bayt oznitelik, 5. bayt SecureBoot degeri (0/1)
@@ -61,7 +95,7 @@ else
 	log "BOOT-MODE=BIOS"
 fi
 
-# 5) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
+# 6) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"
 

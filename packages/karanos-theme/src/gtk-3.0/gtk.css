@@ -1,0 +1,112 @@
+/* Karan OS — GTK3 açık tema
+ *
+ * NEDEN BÖYLE: sıfırdan GTK teması yazmak binlerce satır ve her GTK
+ * güncellemesinde bozulan bir bakım yükü. Bunun yerine GTK'nın kendi
+ * Adwaita'sını içe aktarıp yalnızca renkleri ve birkaç bileşeni
+ * değiştiriyoruz. Yeni bir GTK sürümü geldiğinde tema kendiliğinden
+ * onunla uyumlu kalıyor.
+ *
+ * Renkler bölüm 4'ten: turuncu #FF8C1A, sarı #FFBF00, metin #575E75.
+ */
+
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+
+/* --- kimlik renkleri ------------------------------------------------ */
+@define-color karan_orange     #FF8C1A;
+@define-color karan_yellow     #FFBF00;
+@define-color karan_ink        #575E75;
+@define-color karan_ink_soft   #7A8199;
+
+/* --- Adwaita'nın renk değişkenlerini ez ----------------------------- */
+@define-color theme_selected_bg_color @karan_orange;
+@define-color theme_selected_fg_color #FFFFFF;
+@define-color selected_bg_color       @karan_orange;
+@define-color selected_fg_color       #FFFFFF;
+@define-color theme_fg_color          @karan_ink;
+@define-color theme_text_color        @karan_ink;
+@define-color text_color              @karan_ink;
+@define-color fg_color                @karan_ink;
+@define-color theme_bg_color          #F4F5F7;
+@define-color bg_color                #F4F5F7;
+@define-color theme_base_color        #FFFFFF;
+@define-color base_color              #FFFFFF;
+@define-color insensitive_fg_color    alpha(@karan_ink, 0.45);
+@define-color insensitive_bg_color    #EDEEF1;
+@define-color borders                 #D4D7DF;
+@define-color unfocused_borders       #DDE0E6;
+@define-color link_color              #D97400;
+@define-color visited_link_color      #A85A00;
+@define-color warning_color           @karan_yellow;
+@define-color error_color             #D64545;
+@define-color success_color           #2FA36B;
+
+/* --- vurgu alan bileşenler ------------------------------------------ */
+/* Turuncu-sarı degrade yalnızca "bu şey aktif" diyen yerlerde: seçim
+ * çubuğu, ilerleme çubuğu, açık anahtar. Her yerde kullanılınca göz
+ * yoruyor. */
+progressbar > trough > progress,
+levelbar block.filled,
+scale highlight {
+	background-image: linear-gradient(to right, @karan_orange, @karan_yellow);
+	border-color: @karan_orange;
+}
+
+scale slider:hover,
+scale slider:active {
+	border-color: @karan_orange;
+}
+
+switch:checked {
+	background-image: linear-gradient(to right, @karan_orange, @karan_yellow);
+	border-color: @karan_orange;
+}
+
+check:checked,
+check:indeterminate,
+radio:checked,
+radio:indeterminate {
+	background-image: linear-gradient(to bottom, @karan_yellow, @karan_orange);
+	border-color: @karan_orange;
+}
+
+entry:focus,
+spinbutton:focus:not(.vertical),
+textview text:focus {
+	border-color: @karan_orange;
+	box-shadow: inset 0 0 0 1px alpha(@karan_orange, 0.55);
+}
+
+button:checked,
+button.suggested-action {
+	background-image: linear-gradient(to bottom, @karan_yellow, @karan_orange);
+	border-color: shade(@karan_orange, 0.9);
+	color: #FFFFFF;
+	text-shadow: none;
+}
+
+button.suggested-action:hover {
+	background-image: linear-gradient(to bottom, shade(@karan_yellow, 1.06),
+	                                             shade(@karan_orange, 1.06));
+}
+
+/* Odak halkası turuncu — klavyeyle gezerken nerede olduğun belli olsun */
+*:focus-visible {
+	outline-color: alpha(@karan_orange, 0.75);
+}
+
+/* Etkin sekme ve seçili kenar çubuğu satırı altında ince turuncu şerit */
+notebook > header > tabs > tab:checked {
+	box-shadow: inset 0 -3px @karan_orange;
+}
+
+headerbar {
+	background-image: linear-gradient(to bottom, #FFFFFF, #F0F1F4);
+	border-bottom-color: @borders;
+}
+
+/* Seçili metin her yerde aynı görünsün */
+selection,
+:selected {
+	background-color: @karan_orange;
+	color: #FFFFFF;
+}

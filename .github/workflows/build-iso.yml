@@ -1,7 +1,7 @@
 name: ISO derle ve test et
 
-# Yerelde ISO DERLEMEYECEĞİZ — geliştiricinin bağlantısı 470 Kbps.
-# Tüm derleme ve QEMU testi burada, GitHub'ın makinesinde olur.
+# Yerelde ISO DERLEMEYECEĞİZ — Codespace 2 çekirdek, derleme 40+ dakika ve
+# ~15 GB disk ister. Tüm derleme ve QEMU testi burada, GitHub'ın makinesinde.
 
 on:
   workflow_dispatch:
@@ -21,8 +21,12 @@ on:
       - main
     paths:
       - "iso/**"
+      - "packages/**"
+      - "assets/**"
       - "tools/qemu-smoke-test.sh"
+      - "tools/build-packages.sh"
       - ".github/workflows/build-iso.yml"
+      - ".github/workflows/build-packages.yml"
 
 concurrency:
   group: iso-${{ github.ref }}
@@ -30,8 +34,16 @@ concurrency:
 
 jobs:
   # ------------------------------------------------------------------
+  # ISO'ya giren .deb ile test edilen .deb aynı koşunun ürünü olsun diye
+  # paketleri ayrı bir iş akışından değil, buradan çağırıyoruz.
+  packages:
+    name: Paketler
+    uses: ./.github/workflows/build-packages.yml
+
+  # ------------------------------------------------------------------
   build:
     name: ISO derle
+    needs: packages
     runs-on: ubuntu-latest
     timeout-minutes: 120
     container:
@@ -78,6 +90,20 @@ jobs:
           chmod +x config/hooks/normal/*.hook.*
           lb clean --purge || true
           lb config
+
+      # live-build, config/packages.chroot/ altındaki .deb'leri chroot'a
+      # kendiliğinden kuruyor. APT deposu 13. aşamada gelene kadar
+      # karanos-* paketleri ISO'ya bu yoldan giriyor.
+      # DİKKAT: `lb config`ten SONRA indiriliyor — lb'nin config ağacını
+      # yeniden kurduğu bir durumda .deb'lerin silinmemesi için.
+      - name: karanos-* paketlerini indir
+        uses: actions/download-artifact@v8
+        with:
+          name: karanos-packages
+          path: iso/config/packages.chroot
+
+      - name: Yerleşen paketleri göster
+        run: ls -lh iso/config/packages.chroot/
 
       - name: ISO derle
         working-directory: iso
@@ -224,8 +250,9 @@ jobs:
           ISO=$(ls out/karanos-*.iso | head -1)
           tools/qemu-smoke-test.sh "$ISO" "${{ matrix.mode }}"
 
-      # Boot başarısız olursa ekran görüntüsü olmadan teşhis edemiyoruz —
-      # geliştirici 1 GB'lık ISO'yu indirip elle deneyemiyor (470 Kbps).
+      # Boot başarısız olursa ekran görüntüsü olmadan teşhis etmek zor. ISO
+      # elle de indirilebiliyor ama 40 dakikalık koşuyu tahminle harcamamak
+      # için önce buradaki günlük ve karelere bakılır.
       - name: Teşhis dosyalarını yükle (seri günlük + ekran görüntüsü)
         if: always()
         uses: actions/upload-artifact@v7

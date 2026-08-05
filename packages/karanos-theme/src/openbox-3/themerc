@@ -1,0 +1,103 @@
+# Karan OS — Openbox pencere teması
+#
+# Windows benzeri davranış hedefi (bölüm 6): başlık çubuğunda solda
+# başlık, sağda küçült / büyült / kapat. Etkin pencerenin başlık çubuğu
+# turuncu-sarı degrade, etkisiz olan gri — hangi pencerede olduğun
+# renginden anlaşılsın.
+
+# --- kenarlar --------------------------------------------------------
+border.width: 1
+padding.width: 6
+padding.height: 4
+window.handle.width: 0
+window.client.padding.width: 0
+window.client.padding.height: 0
+
+window.active.border.color: #E07A0C
+window.inactive.border.color: #C9CDD8
+
+# --- etkin pencere ---------------------------------------------------
+# Degrade turuncu ağırlıklı: sarıya kaçarsa beyaz başlık yazısı okunmuyor.
+window.active.title.bg: gradient vertical
+window.active.title.bg.color: #FFA326
+window.active.title.bg.colorTo: #F07E00
+window.active.title.separator.color: #E07A0C
+# label.bg yazılmazsa Openbox etiket kutusunu siyaha boyuyor ve başlık
+# çubuğunun ortasında siyah bir şerit çıkıyor. parentrelative = başlık
+# çubuğunun degradesini olduğu gibi devam ettir.
+window.active.label.bg: parentrelative
+window.active.label.text.color: #FFFFFF
+
+window.active.button.unpressed.bg: parentrelative
+window.active.button.unpressed.image.color: #FFFFFF
+window.active.button.pressed.bg: flat solid
+window.active.button.pressed.bg.color: #D96C00
+window.active.button.pressed.image.color: #FFFFFF
+window.active.button.hover.bg: flat solid
+window.active.button.hover.bg.color: #FFA340
+window.active.button.hover.image.color: #FFFFFF
+window.active.button.disabled.bg: parentrelative
+window.active.button.disabled.image.color: #F0C79A
+window.active.button.toggled.bg: flat solid
+window.active.button.toggled.bg.color: #D96C00
+window.active.button.toggled.image.color: #FFFFFF
+
+# Kapat düğmesi üstüne gelince kırmızı — yanlışlıkla tıklamayı azaltır
+window.active.button.close.hover.bg: flat solid
+window.active.button.close.hover.bg.color: #D64545
+window.active.button.close.hover.image.color: #FFFFFF
+
+# --- etkisiz pencere -------------------------------------------------
+window.inactive.title.bg: flat solid
+window.inactive.title.bg.color: #EDEEF1
+window.inactive.title.separator.color: #D4D7DF
+window.inactive.label.bg: parentrelative
+window.inactive.label.text.color: #7A8199
+
+window.inactive.button.unpressed.bg: parentrelative
+window.inactive.button.unpressed.image.color: #7A8199
+window.inactive.button.pressed.bg: flat solid
+window.inactive.button.pressed.bg.color: #D4D7DF
+window.inactive.button.pressed.image.color: #575E75
+window.inactive.button.hover.bg: flat solid
+window.inactive.button.hover.bg.color: #DDE0E6
+window.inactive.button.hover.image.color: #575E75
+window.inactive.button.disabled.bg: parentrelative
+window.inactive.button.disabled.image.color: #C9CDD8
+window.inactive.button.toggled.bg: flat solid
+window.inactive.button.toggled.bg.color: #D4D7DF
+window.inactive.button.toggled.image.color: #575E75
+
+# --- menü ------------------------------------------------------------
+menu.border.width: 1
+menu.border.color: #D4D7DF
+menu.title.bg: flat solid
+menu.title.bg.color: #FF8C1A
+menu.title.text.color: #FFFFFF
+menu.items.bg: flat solid
+menu.items.bg.color: #FFFFFF
+menu.items.text.color: #575E75
+menu.items.disabled.text.color: #B0B5C2
+menu.items.active.bg: flat solid
+menu.items.active.bg.color: #FF8C1A
+menu.items.active.text.color: #FFFFFF
+menu.separator.color: #E4E6EC
+menu.separator.width: 1
+menu.overlap.x: 0
+
+# --- diğer -----------------------------------------------------------
+osd.border.width: 1
+osd.border.color: #D4D7DF
+osd.bg: flat solid
+osd.bg.color: #FFFFFF
+osd.label.text.color: #575E75
+osd.hilight.bg: gradient splitvertical
+osd.hilight.bg.color: #FFBF00
+osd.hilight.bg.colorTo: #FF8C1A
+osd.unhilight.bg: flat solid
+osd.unhilight.bg.color: #E4E6EC
+
+# Windows'taki gibi: simge ve başlık solda, düğmeler sağda
+# (N=simge, L=başlık, I=küçült, M=büyüt, C=kapat)
+window.title.layout: NLIMC
+window.label.text.justify: left

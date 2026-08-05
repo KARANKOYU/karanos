@@ -1,0 +1,92 @@
+/* Karan OS — GTK3 koyu tema
+ * gtk.css ile aynı mantık: Adwaita'nın koyu sürümü içe aktarılır,
+ * yalnızca renkler değişir. Koyu zeminde #575E75 metin okunmuyor,
+ * o yüzden burada metin açık gri. */
+
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+
+@define-color karan_orange   #FF9E38;
+@define-color karan_yellow   #FFC734;
+@define-color karan_night    #1B1F2E;
+@define-color karan_night2   #252A3C;
+
+@define-color theme_selected_bg_color @karan_orange;
+@define-color theme_selected_fg_color #1B1F2E;
+@define-color selected_bg_color       @karan_orange;
+@define-color selected_fg_color       #1B1F2E;
+@define-color theme_fg_color          #E4E6EE;
+@define-color theme_text_color        #E4E6EE;
+@define-color text_color              #E4E6EE;
+@define-color fg_color                #E4E6EE;
+@define-color theme_bg_color          @karan_night2;
+@define-color bg_color                @karan_night2;
+@define-color theme_base_color        @karan_night;
+@define-color base_color              @karan_night;
+@define-color insensitive_fg_color    alpha(#E4E6EE, 0.45);
+@define-color insensitive_bg_color    #202434;
+@define-color borders                 #3A4058;
+@define-color unfocused_borders       #333850;
+@define-color link_color              @karan_yellow;
+@define-color visited_link_color      #D8A43C;
+@define-color warning_color           @karan_yellow;
+@define-color error_color             #E36B6B;
+@define-color success_color           #46B884;
+
+progressbar > trough > progress,
+levelbar block.filled,
+scale highlight {
+	background-image: linear-gradient(to right, @karan_orange, @karan_yellow);
+	border-color: @karan_orange;
+}
+
+scale slider:hover,
+scale slider:active {
+	border-color: @karan_orange;
+}
+
+switch:checked {
+	background-image: linear-gradient(to right, @karan_orange, @karan_yellow);
+	border-color: @karan_orange;
+}
+
+check:checked,
+check:indeterminate,
+radio:checked,
+radio:indeterminate {
+	background-image: linear-gradient(to bottom, @karan_yellow, @karan_orange);
+	border-color: @karan_orange;
+}
+
+entry:focus,
+spinbutton:focus:not(.vertical),
+textview text:focus {
+	border-color: @karan_orange;
+	box-shadow: inset 0 0 0 1px alpha(@karan_orange, 0.55);
+}
+
+button:checked,
+button.suggested-action {
+	background-image: linear-gradient(to bottom, @karan_yellow, @karan_orange);
+	border-color: shade(@karan_orange, 0.85);
+	color: @karan_night;
+	text-shadow: none;
+}
+
+*:focus-visible {
+	outline-color: alpha(@karan_orange, 0.75);
+}
+
+notebook > header > tabs > tab:checked {
+	box-shadow: inset 0 -3px @karan_orange;
+}
+
+headerbar {
+	background-image: linear-gradient(to bottom, #2C3145, #232838);
+	border-bottom-color: @borders;
+}
+
+selection,
+:selected {
+	background-color: @karan_orange;
+	color: @karan_night;
+}

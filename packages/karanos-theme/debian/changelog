@@ -1,0 +1,6 @@
+karanos-theme (1.0) stable; urgency=medium
+
+  * İlk sürüm: GTK3 (açık/koyu), GTK2, Openbox teması, simge teması,
+    XCursor imleç teması, duvar kağıtları ve /etc/os-release.
+
+ -- Karan <farukyildiz3207@gmail.com>  Wed, 05 Aug 2026 00:00:00 +0300

@@ -56,6 +56,13 @@ tools/check-config.sh      # sözdizimi, izinler, YAML
 tools/check-packages.sh    # paket adları Debian arşivinde var mı
 ```
 
+Kendi paketlerimiz yerelde derlenebiliyor (ISO'nun aksine hızlı):
+
+```bash
+tools/build-packages.sh          # packages/* → out/packages/*.deb
+tools/theme-screenshot.sh        # temayı Xvfb'de çizip PNG'ye al
+```
+
 ## Kurulum (GitHub tarafı)
 
 Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
@@ -73,8 +80,8 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 
 | # | Aşama | Durum |
 |---|---|---|
-| 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | 🔨 yapılandırma hazır, CI derlemesi bekliyor |
-| 2 | Tema paketi (renkler, logo, imleç, GTK) | ⏳ |
+| 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | ✅ 563 MB, BIOS/UEFI/Secure Boot üçü de açılıyor |
+| 2 | Tema paketi (renkler, logo, imleç, GTK) | 🔨 paket hazır, ISO'ya girişi test ediliyor |
 | 3 | Açılış ekranı (görsel + parlama + mp3) | ⏳ |
 | 4 | Panel: görev çubuğu + başlat menüsü | ⏳ |
 | 5 | Giriş ekranı + kilit ekranı | ⏳ |

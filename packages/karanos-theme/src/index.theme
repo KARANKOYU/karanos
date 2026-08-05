@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Karan
+Name[tr]=Karan
+Comment=Karan OS görünümü
+Comment[en]=Karan OS look and feel
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Karan
+MetacityTheme=Karan
+IconTheme=Karan
+CursorTheme=Karan-Cursors
+ButtonLayout=:minimize,maximize,close

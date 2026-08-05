@@ -7,8 +7,9 @@
 # script'inin yazdığı "KARANOS-CHECK: RESULT=OK" satırını bekler.
 #
 # Bu test GitHub Actions'ta çalışır. Yerelde de çalışır ama Codespaces'te
-# KVM olmadığı için yavaştır (yazılım öykünmesi) — geliştirici bağlantısı
-# yavaş olduğundan ISO'yu indirip elle denemek yerine bunu kullanıyoruz.
+# KVM olmadığı için yavaştır (yazılım öykünmesi). Amaç her değişiklikte
+# ISO'yu indirip elle açmak zorunda kalmamak; elle test (VirtualBox, USB)
+# bunun yerine değil, üstüne yapılır.
 
 set -euo pipefail
 
@@ -179,6 +180,16 @@ while (( elapsed < TIMEOUT )); do
 		echo ">> ${elapsed}s… (seri gunlugu $(wc -l < "$SERIAL") satir)"
 	fi
 done
+
+# Masaustu karesi: boot-check "RESULT=OK" derken Xorg ve openbox ayakta
+# ama autostart'taki duvar kagidi ve pencereler henuz cizilmemis olabilir.
+# Birkac saniye bekleyip alinan kare, temanin nasil gorundugunu ISO'yu
+# indirmeden gostermenin en hizli yolu.
+if [[ "$result" == "OK" ]]; then
+	echo ">> masaustu oturuyor, tema karesi icin ${DESKTOP_SETTLE:-12}s bekleniyor"
+	sleep "${DESKTOP_SETTLE:-12}"
+	snapshot "masaustu"
+fi
 
 # Sonuc ne olursa olsun son ekran goruntusunu al
 snapshot "son"

@@ -1,0 +1,12 @@
+PRETTY_NAME="Karan OS 1.0"
+NAME="Karan OS"
+VERSION_ID="1.0"
+VERSION="1.0"
+VERSION_CODENAME=trixie
+ID=karanos
+ID_LIKE=debian
+HOME_URL="https://github.com/KARANKOYU/karanos"
+SUPPORT_URL="https://github.com/KARANKOYU/karanos/issues"
+BUG_REPORT_URL="https://github.com/KARANKOYU/karanos/issues"
+LOGO=karanos
+ANSI_COLOR="0;38;2;255;140;26"

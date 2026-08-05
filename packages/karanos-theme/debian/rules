@@ -1,0 +1,104 @@
+#!/usr/bin/make -f
+# Karan OS görünüm paketi
+#
+# Simgeler, imleçler ve duvar kağıtları depoda ikili dosya olarak
+# durmuyor; hepsi burada, k-logo.svg ve tools/ altındaki üreteçlerden
+# derleme sırasında üretiliyor.
+
+export DH_VERBOSE = 1
+
+LOGO    := src/logo/k-logo.svg
+DEST    := debian/karanos-theme
+THEME   := $(DEST)/usr/share/themes/Karan
+ICONS   := $(DEST)/usr/share/icons/Karan
+CURSORS := $(DEST)/usr/share/icons/Karan-Cursors
+WALL    := $(DEST)/usr/share/backgrounds/karanos
+SHARE   := $(DEST)/usr/share/karanos
+
+# Simgenin gerçekten üretileceği boyutlar. Aradaki boyutları GTK
+# kendisi ölçekliyor, hepsini üretmeye gerek yok.
+ICON_SIZES := 16 22 24 32 48 64 128 256
+
+# Aynı görsel bu adlarla da isteniyor: başlat menüsü "start-here",
+# hakkında pencereleri "distributor-logo" arıyor.
+ICON_ALIASES := start-here distributor-logo karan-os
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	@if [ ! -f $(LOGO) ]; then \
+		echo "HATA: $(LOGO) yok."; \
+		echo "Logo depo kökünde assets/logo/ altında duruyor ve paket"; \
+		echo "ağacına derleme sırasında kopyalanıyor. Derlemek için:"; \
+		echo "    tools/build-packages.sh karanos-theme"; \
+		exit 1; \
+	fi
+
+override_dh_auto_install:
+	# --- GTK3 / GTK2 / Openbox teması --------------------------------
+	install -d $(THEME)/gtk-3.0 $(THEME)/gtk-2.0 $(THEME)/openbox-3
+	install -m644 src/gtk-3.0/gtk.css      $(THEME)/gtk-3.0/gtk.css
+	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
+	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
+	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc
+	install -m644 src/index.theme          $(THEME)/index.theme
+
+	# --- Sistem geneli varsayılanlar ---------------------------------
+	install -d $(DEST)/etc/gtk-3.0 $(DEST)/etc/gtk-2.0
+	install -m644 src/settings.ini $(DEST)/etc/gtk-3.0/settings.ini
+	printf 'gtk-theme-name="Karan"\ngtk-icon-theme-name="Karan"\ngtk-font-name="DejaVu Sans 10"\n' \
+		> $(DEST)/etc/gtk-2.0/gtkrc
+
+	# --- Logo ---------------------------------------------------------
+	install -d $(SHARE)/logo
+	install -m644 $(LOGO) $(SHARE)/logo/k-logo.svg
+
+	# --- Simge teması --------------------------------------------------
+	install -d $(ICONS)/scalable/apps
+	install -m644 $(LOGO) $(ICONS)/scalable/apps/karanos.svg
+	set -e; for s in $(ICON_SIZES); do \
+		install -d $(ICONS)/$${s}x$${s}/apps; \
+		rsvg-convert -w $$s -h $$s -o $(ICONS)/$${s}x$${s}/apps/karanos.png $(LOGO); \
+	done
+	set -e; for a in $(ICON_ALIASES); do \
+		ln -sf karanos.svg $(ICONS)/scalable/apps/$$a.svg; \
+		for s in $(ICON_SIZES); do \
+			ln -sf karanos.png $(ICONS)/$${s}x$${s}/apps/$$a.png; \
+		done; \
+	done
+	{ \
+		echo "[Icon Theme]"; \
+		echo "Name=Karan"; \
+		echo "Comment=Karan OS simgeleri"; \
+		echo "Inherits=Adwaita,hicolor"; \
+		printf "Directories=scalable/apps"; \
+		for s in $(ICON_SIZES); do printf ",%sx%s/apps" $$s $$s; done; \
+		echo ""; \
+		echo ""; \
+		echo "[scalable/apps]"; \
+		echo "Size=48"; echo "MinSize=8"; echo "MaxSize=512"; \
+		echo "Context=Applications"; echo "Type=Scalable"; \
+		for s in $(ICON_SIZES); do \
+			echo ""; \
+			echo "[$${s}x$${s}/apps]"; \
+			echo "Size=$$s"; echo "Context=Applications"; echo "Type=Fixed"; \
+		done; \
+	} > $(ICONS)/index.theme
+
+	# --- İmleç teması ---------------------------------------------------
+	install -d $(CURSORS)/cursors
+	python3 tools/gen-cursors.py $(CURSORS)/cursors
+	printf '[Icon Theme]\nName=Karan\nComment=Karan OS imleçleri\nInherits=Adwaita\n' \
+		> $(CURSORS)/index.theme
+	cp $(CURSORS)/index.theme $(CURSORS)/cursor.theme
+
+	# --- Duvar kağıtları -------------------------------------------------
+	install -d $(WALL)
+	python3 tools/gen-wallpapers.py $(WALL)
+
+	# --- Dağıtım kimliği -------------------------------------------------
+	# /etc/os-release, /usr/lib/os-release'e bağ. Dosyayı base-files'tan
+	# dpkg-divert ile devralıyoruz (bkz. debian/preinst).
+	install -d $(DEST)/usr/lib
+	install -m644 src/os-release $(DEST)/usr/lib/os-release

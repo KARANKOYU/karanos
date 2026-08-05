@@ -14,25 +14,37 @@ ok()   { printf '  \033[32m✓\033[0m %s\n' "$*"; }
 bad()  { printf '  \033[31m✗ %s\033[0m\n' "$*"; fail=1; }
 warn() { printf '  \033[33m!\033[0m %s\n' "$*"; }
 
-echo "==> POSIX sh script'leri"
+# Hangi yorumlayıcıyla kontrol edileceğine dosyanın kendi shebang'ine
+# bakarak karar veriyoruz. includes.chroot altında hem sh hem Python
+# script'leri var; hepsini `sh -n` ile denemek Python dosyalarında
+# yanlış hata veriyordu.
+sozdizimi() {
+	local f="$1" satir
+	satir=$(head -1 "$f")
+	case "$satir" in
+	*python*) python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$f" 2>/dev/null ;;
+	*bash*) bash -n "$f" 2>/dev/null ;;
+	*) sh -n "$f" 2>/dev/null ;;
+	esac
+}
+
+echo "==> Script sözdizimi"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
          iso/config/hooks/normal/*.hook.* \
-         iso/config/includes.chroot/usr/lib/karanos/*; do
+         iso/config/includes.chroot/usr/lib/karanos/* \
+         packages/*/tools/*.py \
+         packages/*/debian/pre* packages/*/debian/post* \
+         tools/*.sh; do
 	[[ -f "$f" ]] || continue
-	if sh -n "$f" 2>/dev/null; then ok "$f"; else bad "$f — sözdizimi hatası"; fi
-done
-
-echo
-echo "==> bash script'leri"
-for f in tools/*.sh; do
-	if bash -n "$f" 2>/dev/null; then ok "$f"; else bad "$f — sözdizimi hatası"; fi
+	if sozdizimi "$f"; then ok "$f"; else bad "$f — sözdizimi hatası"; fi
 done
 
 echo
 echo "==> Çalıştırma izinleri"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
          iso/config/hooks/normal/*.hook.* \
-         iso/config/includes.chroot/usr/lib/karanos/boot-check \
+         iso/config/includes.chroot/usr/lib/karanos/* \
+         packages/*/debian/rules packages/*/tools/*.py \
          tools/*.sh; do
 	[[ -f "$f" ]] || continue
 	if [[ -x "$f" ]]; then ok "$f"; else bad "$f — çalıştırma izni yok (chmod +x)"; fi
