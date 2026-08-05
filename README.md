@@ -88,5 +88,6 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 | 13 | APT deposu + GitHub Actions | ⏳ |
 | 14 | Gerçek donanımda test | ⏳ |
 
-Tam görev tanımı: [`karanos-claude-code-prompt.md`](karanos-claude-code-prompt.md) ·
-Arayüz metinleri (TR/EN): [`karanos-arayuz-metinleri.md`](karanos-arayuz-metinleri.md)
+Tam görev tanımı: [`docs/karanos-claude-code-prompt.md`](docs/karanos-claude-code-prompt.md) ·
+Arayüz metinleri (TR/EN): [`docs/karanos-arayuz-metinleri.md`](docs/karanos-arayuz-metinleri.md) ·
+GitHub kurulumu: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)

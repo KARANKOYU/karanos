@@ -40,7 +40,8 @@ __pycache__/
 out/
 serial-*.log
 
-# Editör
+# Editör / araç ayarları (kişiye özel, depoya girmez)
 .vscode/
+.claude/
 *.swp
 .DS_Store

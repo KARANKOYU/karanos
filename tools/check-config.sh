@@ -16,7 +16,7 @@ warn() { printf '  \033[33m!\033[0m %s\n' "$*"; }
 
 echo "==> POSIX sh script'leri"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
-         iso/config/hooks/normal/*.hook.chroot \
+         iso/config/hooks/normal/*.hook.* \
          iso/config/includes.chroot/usr/lib/karanos/*; do
 	[[ -f "$f" ]] || continue
 	if sh -n "$f" 2>/dev/null; then ok "$f"; else bad "$f — sözdizimi hatası"; fi
@@ -31,7 +31,7 @@ done
 echo
 echo "==> Çalıştırma izinleri"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
-         iso/config/hooks/normal/*.hook.chroot \
+         iso/config/hooks/normal/*.hook.* \
          iso/config/includes.chroot/usr/lib/karanos/boot-check \
          tools/*.sh; do
 	[[ -f "$f" ]] || continue

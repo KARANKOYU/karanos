@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Gerekli araçlar
         run: |
@@ -33,5 +33,5 @@ jobs:
           shellcheck -S warning \
             tools/*.sh \
             iso/auto/config iso/auto/build iso/auto/clean \
-            iso/config/hooks/normal/*.hook.chroot \
+            iso/config/hooks/normal/*.hook.* \
             iso/config/includes.chroot/usr/lib/karanos/boot-check
