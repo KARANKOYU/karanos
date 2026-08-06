@@ -35,7 +35,8 @@ jobs:
           apt-get install -y --no-install-recommends \
             build-essential debhelper dpkg-dev fakeroot \
             librsvg2-bin x11-apps python3 ca-certificates git \
-            ffmpeg fonts-dejavu-core
+            ffmpeg fonts-dejavu-core \
+            python3-gi gir1.2-gtk-3.0 gir1.2-wnck-3.0 python3-xlib
 
       - uses: actions/checkout@v7
 
@@ -95,6 +96,35 @@ jobs:
           fi
 
           exit $hata
+
+      # Panel saf Python; sözdizimi hatası ya da eksik bir gi modülü
+      # .deb derlemesini durdurmuyor, ISO'da sessizce çöküyor ve sebebi
+      # ancak QEMU koşusundan sonra görülüyor. Modülleri burada, ekran
+      # gerektirmeden içe aktarıp o sınıfı hatayı 10 saniyede yakalıyoruz.
+      # (Gtk.Window() ekran ister ama `import` istemiyor.)
+      - name: karanos-panel içe aktarılabiliyor mu
+        run: |
+          set -eu
+          rm -rf kp && mkdir kp
+          dpkg-deb -x out/packages/karanos-panel_*_all.deb kp
+          PYTHONPATH=kp/usr/lib/python3/dist-packages python3 - <<'PY'
+          import karanos_panel.panel as panel
+          import karanos_panel.baslat as baslat
+          import karanos_panel.gosterge as gosterge
+          import karanos_panel.guc as guc
+          import karanos_panel.uygulamalar as uygulamalar
+          import karanos_panel.metinler as metinler
+          # Metin tablosundaki anahtarlar gerçekten karşılık veriyor mu:
+          # M() eksik anahtarda anahtarın kendisini döndürüyor, o yüzden
+          # sessizce "panel.start" yazan bir düğme çıkabilir.
+          eksik = [a for a in metinler.METINLER if metinler.M(a) == a]
+          assert not eksik, f"karsiligi olmayan anahtar: {eksik}"
+          assert panel.YUKSEKLIK > 0
+          assert baslat.GENISLIK > 0
+          assert callable(guc.kapat) and callable(gosterge.Saat)
+          assert uygulamalar.KATEGORI_SIRASI
+          print("karanos-panel modulleri yuklendi, metin tablosu tutarli")
+          PY
 
       - name: Boyut özeti
         run: |

@@ -38,10 +38,25 @@ if [ -z "$img" ]; then
 	exit 1
 fi
 
-if lsinitramfs "$img" 2>/dev/null | grep -q "plymouth/themes/karanos"; then
+icerik=$(lsinitramfs "$img" 2>/dev/null)
+
+if echo "$icerik" | grep -q "plymouth/themes/karanos"; then
 	echo "I: Plymouth temasi initramfs'e girdi ($img)"
 else
 	echo "E: initramfs icinde karanos temasi yok — splash gorunmez" >&2
 	echo "E: initrd: $img" >&2
+	exit 1
+fi
+
+# Splash DRM (KMS) aygitina ciziliyor. Ekran surucusu initramfs'te yoksa
+# DRM aygiti da yok ve Plymouth metin kipine dusuyor: splash yerine
+# cekirdek yazilari akiyor. Tam olarak bu yasandi.
+# /etc/initramfs-tools/modules icindeki listeden en az biri girmis olmali.
+drm_sayisi=$(echo "$icerik" | grep -cE '/(bochs|bochs_drm|qxl|virtio_gpu|vmwgfx|simpledrm|i915|amdgpu|nouveau)\.ko' || true)
+if [ "$drm_sayisi" -gt 0 ]; then
+	echo "I: initramfs'te $drm_sayisi ekran (DRM) surucusu var"
+else
+	echo "E: initramfs'te hic DRM surucusu yok — Plymouth metin kipine duser" >&2
+	echo "E: /etc/initramfs-tools/modules okundu mu?" >&2
 	exit 1
 fi

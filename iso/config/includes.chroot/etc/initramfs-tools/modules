@@ -1,0 +1,25 @@
+# Karan OS — initramfs'e zorla alınacak çekirdek modülleri
+#
+# NEDEN: Plymouth açılış ekranını DRM (KMS) aygıtına çiziyor. Sürücü
+# initramfs'te yoksa DRM aygıtı da yok; Plymouth metin kipine düşüyor ve
+# splash yerine çekirdek/systemd yazıları akıyor. initramfs-tools'un
+# "most" listesi depolama ve dosya sistemi sürücülerini alıyor, ekran
+# sürücülerini garanti etmiyor.
+#
+# Aşağıdakiler sanal makine ekran kartları. Gerçek donanımın sürücüleri
+# (i915, amdgpu, nouveau) "most" içinde zaten geliyor; buradakiler
+# QEMU/VirtualBox/VMware gibi ortamlar için. Bilinmeyen bir modül adı
+# uyarı üretir, derlemeyi durdurmaz.
+
+# QEMU stdvga — çekirdek 6.x'te "bochs", öncesinde "bochs_drm"
+bochs
+bochs_drm
+# QEMU -vga qxl
+qxl
+# QEMU -vga virtio ve virtio-gpu
+virtio_gpu
+# VMware / VirtualBox
+vmwgfx
+vboxvideo
+# Üreticiye özel sürücü yokken çekirdeğin kurduğu genel DRM aygıtı
+simpledrm

@@ -6,6 +6,59 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## Koşu #7 — masaüstü geldi, iki sorun kaldı
+
+**Tuttu:** `USER-OK karan`, `WM-OK openbox calisiyor (10 saniyede)`,
+`OSRELEASE-OK Karan OS 1.0`, `SPLASH-OK`, `BOOTSOUND-SERVICE=active`.
+`screen-*-son.png` gerçek masaüstünü gösteriyor: duvar kağıdı ve turkuaz
+vurgulu tema imleci. `user-setup` ve `os-release` düzeltmeleri doğrulandı.
+
+### Sorun 1: Plymouth splash hiç çizilmiyordu
+
+Ekranda açılış görseli yerine systemd yazıları akıyordu. `plymouth-start`
+başlamıştı, `splash` çekirdek satırındaydı (`karanos-boot-sound.service`
+`ConditionKernelCommandLine=splash` ile **active** oldu, yani kanıtlı).
+
+İki sebep birleşiyor:
+
+1. **`console=ttyS0` yüzünden Plymouth seri konsolu birincil sayıyor** ve
+   grafik splash'i hiç çizmiyor. Seri konsolu bırakamayız — duman
+   testinin tek çıktı kanalı o. Çözüm çekirdek satırına
+   `plymouth.ignore-serial-consoles` eklemek.
+2. **Splash DRM (KMS) aygıtına çiziliyor**; ekran sürücüsü initramfs'te
+   yoksa Plymouth metin kipine düşüyor. initramfs-tools'un `most` listesi
+   depolama sürücülerini alıyor, ekran sürücülerini garanti etmiyor.
+   `/etc/initramfs-tools/modules` eklendi (bochs, qxl, virtio_gpu,
+   vmwgfx, vboxvideo, simpledrm — sanal makine ekran kartları; gerçek
+   donanımınkiler `most` içinde zaten var).
+
+`0300-plymouth.hook.chroot` artık initramfs'te en az bir DRM sürücüsü
+olduğunu da doğruluyor; yoksa derleme duruyor. Aynı disiplin: sessizce
+bozuk bir ISO üretmektense derlemeyi durdur.
+
+### Sorun 2: panel ISO'da başlamıyordu
+
+Panelin çıktısı hiçbir yere yazılmıyordu; duman testi yalnızca
+"çalışmıyor" diyebiliyordu. Üç şey yapıldı:
+
+1. **En olası sebep zamanlama.** `boot-check` openbox'ı 60 saniye
+   bekliyor ama paneli anında kontrol ediyordu. Panel Python + GTK
+   yüklüyor, öykünmeli QEMU'da bu saniyeler sürüyor. Artık 45 saniye
+   bekleniyor. (Pencere yöneticisinde daha önce düzeltilen hatanın
+   aynısı — aynı hatayı ikinci kez yaptım.)
+2. **Görünürlük.** Openbox autostart paneli günlüğe yazıyor ve üç kez
+   deniyor; `boot-check` panel yoksa günlüğü, `dpkg-query` durumunu ve
+   `import karanos_panel.panel` çıktısını seri konsola döküyor.
+3. **Derleme anında içe aktarma denetimi.** `build-packages.yml` artık
+   paketi açıp bütün modülleri içe aktarıyor ve metin tablosunun
+   tutarlılığını kontrol ediyor. Bir sözdizimi hatası ya da eksik `gi`
+   modülü artık 40 dakikalık ISO koşusunu değil, 10 saniyeyi harcıyor.
+   Bu denetim yerelde çalıştırıldı: modüller temiz yükleniyor, yani
+   çöküş bir içe aktarma hatası **değil** — zamanlama hipotezini
+   güçlendiriyor.
+
+---
+
 ## Tek tema kararı: yalnızca KOYU
 
 Açık tema kaldırıldı — ne varsayılan olarak ne seçenek olarak. Sebep:

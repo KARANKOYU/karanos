@@ -22,12 +22,18 @@ user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetoot
 locales=tr_TR.UTF-8 \
 timezone=Europe/Istanbul \
 keyboard-layouts=tr \
-quiet splash \
+quiet splash plymouth.ignore-serial-consoles \
 console=tty0 console=ttyS0,115200n8"
 
 # `quiet splash` 3. aşamada eklendi: `splash` Plymouth açılış ekranını
 # başlatıyor, `quiet` de çekirdek mesajlarının splash'in üstüne
 # taşmasını engelliyor.
+#
+# `plymouth.ignore-serial-consoles` ŞART: çekirdek satırında
+# `console=ttyS0` varken Plymouth seri konsolu birincil sayıyor ve
+# grafik splash'i hiç çizmiyor — VGA ekranında yalnızca systemd'nin
+# metin çıktısı akıyor. CI seri konsolu bırakamayacağımız için (duman
+# testinin tek çıktı kanalı o) splash'i açık tutmanın yolu bu bayrak.
 #
 # DİKKAT: `quiet` seri konsola giden çekirdek mesajlarını da kısıyor.
 # Duman testi eskiden "Linux version" satırına bakarak çekirdeğin
