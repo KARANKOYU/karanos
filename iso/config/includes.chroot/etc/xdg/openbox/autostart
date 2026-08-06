@@ -16,10 +16,29 @@ fi
 xsetroot -cursor_name left_ptr &
 
 # --- Görev çubuğu ve başlat menüsü (4. aşama) ------------------------
-# 2. ve 3. aşamada burada geçici bir tema önizleme penceresi vardı;
-# panel geldiği için kaldırıldı.
+# NEDEN GÜNLÜĞE YAZIYORUZ: panel ilk denemede canlı ortamda çöktü ve
+# çıktısı hiçbir yere gitmediği için sebebi görünmedi — duman testi
+# yalnızca "çalışmıyor" diyebildi. Artık hata metni burada duruyor ve
+# boot-check onu seri konsola döküyor.
+#
+# NEDEN YENİDEN DENİYORUZ: panel Wnck üzerinden pencere yöneticisine
+# bağlanıyor; openbox otomatik başlangıcı çalıştırdığında bazen henüz
+# tam hazır olmuyor. Üç deneme, aralarında birer saniye.
+KARANOS_PANEL_LOG="${XDG_RUNTIME_DIR:-/tmp}/karanos-panel.log"
+export KARANOS_PANEL_LOG
+
 if command -v karanos-panel >/dev/null 2>&1; then
-	karanos-panel &
+	(
+		deneme=1
+		while [ "$deneme" -le 3 ]; do
+			echo "--- karanos-panel denemesi $deneme ---" >>"$KARANOS_PANEL_LOG"
+			karanos-panel >>"$KARANOS_PANEL_LOG" 2>&1 && exit 0
+			echo "--- panel cikti (kod $?), yeniden deneniyor ---" \
+				>>"$KARANOS_PANEL_LOG"
+			deneme=$((deneme + 1))
+			sleep 1
+		done
+	) &
 fi
 
 # Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken

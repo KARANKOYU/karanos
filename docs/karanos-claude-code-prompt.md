@@ -63,8 +63,8 @@ karanos/
 
 ## 4. Kimlik ve tema
 
-- **Varsayılan görünüm: KOYU.** Açık tema ikinci seçenek olarak durur
-  (Ayarlar > Görünüm > Tema).
+- **Tek tema: KOYU.** Açık tema yok — ne varsayılan olarak ne seçenek
+  olarak. Ayarlar > Görünüm'de "Tema" seçimi bulunmaz.
 - **Renkler:**
 
   | Rol | Değer |
@@ -81,9 +81,8 @@ karanos/
   | İkincil metin | `#8B9BA8` |
   | Başarı / uyarı / hata | `#22C55E` / `#F59E0B` / `#EF4444` |
 
-  Açık temada turkuaz ve mavi koyulaştırılmış tonlarıyla kullanılır
-  (`#0D9488` ve `#2563EB`): `#2DD4BF` beyaz zeminde beyaz yazıyı
-  taşıyamayacak kadar açık.
+  Turkuaz açık bir renk olduğu için üstüne gelen yazı koyu (`#0D141B`)
+  olmalı, beyaz değil.
 - **Logo:** el yazısı/imza tarzı "K" harfi — kalın gövde, ince kollar,
   köşeleri yuvarlatılmış koyu kare kutu (`#0F2A2C` → `#152444`) içinde,
   harf turkuaz→mavi degradeli.
@@ -305,7 +304,7 @@ Windows benzeri:
 
 Solda başlık listesi, sağda içerik, üstte arama (Windows 11 tarzı).
 
-**Görünüm** — duvar kağıdı, vurgu rengi, açık/koyu tema, imleç teması ve boyutu,
+**Görünüm** — duvar kağıdı, vurgu rengi, imleç teması ve boyutu,
 yazı boyutu, görev çubuğu konumu/yüksekliği, saat formatı
 
 **Kullanıcılar** — kullanıcı ekle/sil, avatar, şifre değiştir

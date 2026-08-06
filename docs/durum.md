@@ -6,6 +6,34 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## Tek tema kararı: yalnızca KOYU
+
+Açık tema kaldırıldı — ne varsayılan olarak ne seçenek olarak. Sebep:
+kimliğe uymuyor.
+
+Nasıl uygulandı:
+- `debian/rules` **aynı koyu dosyayı hem `gtk.css` hem `gtk-dark.css`
+  olarak** kuruyor. Böylece `gtk-application-prefer-dark-theme`
+  kapatılsa ya da bir uygulama açık temayı zorlasa bile görünüm
+  değişmiyor. Tek bir ayara güvenmek yerine iki yoldan da kapatmak,
+  "bir yerden açık tema sızdı" hatasını imkânsız kılıyor.
+- `src/gtk-3.0/gtk.css` → `gtk-light.css` olarak yeniden adlandırıldı ve
+  **pakete girmiyor**. Dosya silinmedi; ileride istenirse paletin açık
+  karşılığı hazır dursun diye kaynak olarak saklanıyor.
+- `appearance.theme` / `theme_light` / `theme_dark` anahtarları
+  arayüz metinleri tablosunda üstü çizili işaretlendi. Satırları silmek
+  yerine kayıt olarak bırakmak, ileride birinin "bu metinler nerede
+  kaldı" sorusunu cevaplıyor.
+- Ekran görüntüsü script'lerindeki `VARYANT=acik` seçeneği kaldırıldı.
+- `tools/ornek-pencere.py` içindeki "Tema: Açık/Koyu" açılır listesi
+  duvar kağıdı seçicisiyle değiştirildi — artık var olmayan bir ayarı
+  gösteriyordu ve ekran görüntüsünde "sistem açık temada" izlenimi
+  veriyordu.
+
+**Bundan sonraki aşamalarda açık tema için ek iş yapılmaz.**
+
+---
+
 ## Aşama 4 — karanos-panel (görev çubuğu + başlat menüsü)
 
 Kapsam bölüm 17'nin 4. maddesi: **görev çubuğu ve başlat menüsü**.

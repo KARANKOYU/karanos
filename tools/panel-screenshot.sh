@@ -100,6 +100,33 @@ for _ in $(seq 1 40); do
 done
 sleep 3
 
+# Strut denetimi: _NET_WM_STRUT_PARTIAL calisiyorsa buyutulen pencere
+# panelin ustunde durur, altini kaplamaz. Pencereyi buyutup panelin
+# yerinde olup olmadigina bakiyoruz.
+if [[ "${BUYUT:-0}" == "1" ]]; then
+	ornek_id=$(xdotool search --name "^Karan OS$" | head -1 || true)
+	if [[ -n "$ornek_id" ]]; then
+		xdotool windowactivate "$ornek_id" 2>/dev/null || true
+		wmctrl -i -r "$ornek_id" -b add,maximized_vert,maximized_horz \
+			2>/dev/null || xdotool key --window "$ornek_id" super+Up 2>/dev/null || true
+		sleep 2
+		yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)
+		eval "$(xdotool getwindowgeometry --shell "$ornek_id")"
+		alt_kenar=$(( Y + HEIGHT ))
+		# Panel 44 piksel; strut calisiyorsa buyutulen pencerenin alt
+		# kenari calisma alaninin disina tasmaz. Pencere cercevesi
+		# (baslik cubugu) icin birkac piksel pay birakiyoruz.
+		sinir=$(( yukseklik - 44 + 24 ))
+		echo "buyutulmus pencere: Y=$Y HEIGHT=$HEIGHT alt=$alt_kenar (sinir $sinir)"
+		if (( alt_kenar > sinir )); then
+			echo "HATA: buyutulen pencere panelin altina giriyor —" >&2
+			echo "      _NET_WM_STRUT_PARTIAL yazilmamis olmali." >&2
+			exit 1
+		fi
+		echo "strut tamam: panel icin yer ayrilmis"
+	fi
+fi
+
 if [[ "${MENU:-0}" == "1" ]]; then
 	# Başlat düğmesi sol altta; oraya tıkla
 	yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)

@@ -284,9 +284,9 @@ bu dosyayı kaynak olarak kullanacak.
 |---|---|---|
 | `appearance.wallpaper` | Duvar kağıdı | Wallpaper |
 | `appearance.accent` | Vurgu rengi | Accent color |
-| `appearance.theme` | Tema | Theme |
-| `appearance.theme_light` | Açık | Light |
-| `appearance.theme_dark` | Koyu | Dark |
+| ~~`appearance.theme`~~ | ~~Tema~~ | ~~Theme~~ |
+| ~~`appearance.theme_light`~~ | ~~Açık~~ | ~~Light~~ |
+| ~~`appearance.theme_dark`~~ | ~~Koyu~~ | ~~Dark~~ |
 | `appearance.cursor` | İmleç teması | Cursor theme |
 | `appearance.cursor_size` | İmleç boyutu | Cursor size |
 | `appearance.font_size` | Yazı boyutu | Font size |
@@ -298,6 +298,10 @@ bu dosyayı kaynak olarak kullanacak.
 | `appearance.show_seconds` | Saniyeleri göster | Show seconds |
 | `appearance.desktop_shortcuts` | Kurulan uygulamaları masaüstüne ekle | Add installed apps to the desktop |
 | `appearance.restore_icons` | Varsayılan masaüstü simgelerini geri yükle | Restore default desktop icons |
+
+> Üstü çizili üç anahtar **artık kullanılmıyor.** Karan OS tek temalı
+> (koyu); Ayarlar > Görünüm'de tema seçimi yok. Metinler kayıt olarak
+> duruyor, arayüzde görünmüyor.
 
 ### Kullanıcılar
 

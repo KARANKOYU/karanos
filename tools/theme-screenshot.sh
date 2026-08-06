@@ -16,7 +16,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-OUT="${1:-$REPO_ROOT/out/tema-${VARYANT:-koyu}.png}"
+OUT="${1:-$REPO_ROOT/out/tema.png}"
 DEB=$(ls -1 out/packages/karanos-theme_*_all.deb 2>/dev/null | head -1 || true)
 
 if [[ -z "$DEB" ]]; then
@@ -39,13 +39,10 @@ dpkg-deb -x "$DEB" "$ROOT"
 # Temayı sisteme kurmuyoruz — GTK'ya XDG_DATA_DIRS ile gösteriyoruz.
 # Böylece Codespace'in kendi /usr'ı ellenmiyor.
 export XDG_DATA_DIRS="$ROOT/usr/share:${XDG_DATA_DIRS:-/usr/share}"
-# Varsayilan gorunum koyu; ":dark" soneki GTK'ya tema dizinindeki
-# gtk-dark.css'i yukletir. Acik surumu gormek icin: VARYANT=acik
-if [[ "${VARYANT:-koyu}" == "acik" ]]; then
-	export GTK_THEME=Karan
-else
-	export GTK_THEME=Karan:dark
-fi
+# Karan OS tek temali: koyu. ":dark" soneki GTK'ya tema dizinindeki
+# gtk-dark.css'i yukletiyor; zaten gtk.css de ayni dosyanin kopyasi,
+# yani sonek olmasa da sonuc degismez.
+export GTK_THEME=Karan:dark
 export XCURSOR_PATH="$ROOT/usr/share/icons"
 export XCURSOR_THEME=Karan-Cursors
 

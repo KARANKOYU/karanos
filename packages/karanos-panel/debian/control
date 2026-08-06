@@ -20,7 +20,7 @@ Depends:
  karanos-theme,
  openbox,
  x11-xserver-utils,
- x11-utils,
+ python3-xlib,
 Description: Karan OS görev çubuğu ve başlat menüsü
  Ekranın altında duran görev çubuğu: solda K logolu başlat düğmesi,
  ortada o anki sanal masaüstünün açık pencereleri, sağda masaüstü

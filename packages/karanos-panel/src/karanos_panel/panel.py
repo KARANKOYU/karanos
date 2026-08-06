@@ -10,9 +10,6 @@ gelecek. Panelin sağ ucundaki göstergeler şimdilik doğrudan sistemden
 okunuyor.
 """
 
-import shutil
-import subprocess
-
 import gi
 
 gi.require_version("Gdk", "3.0")
@@ -163,40 +160,53 @@ class Panel(Gtk.Window):
         """Pencereler panelin altına girmesin diye ekranın altında yer ayır.
 
         _NET_WM_STRUT_PARTIAL olmadan büyütülen pencereler panelin
-        üstünü kaplıyor.
+        üstünü kaplıyor — düğmeleri çubuğun arkasında kalıyor.
 
-        NEDEN xprop: bu özelliği yazmanın Python'daki doğal yolu
-        `Gdk.property_change` olurdu ama PyGObject onu dışarı vermiyor
-        (introspection'da `skip` işaretli) — çağırınca AttributeError
-        alıyoruz. Kalan seçenekler python3-xlib bağımlılığı eklemek ya
-        da x11-utils'ten gelen xprop'u çağırmak. xprop zaten ISO'da
-        olduğu için ikincisi tercih edildi.
+        NEDEN python-xlib:
+        Bu özelliğin 12 değerlik bir CARDINAL dizisi olması gerekiyor.
+        - `Gdk.property_change` doğal yol olurdu ama PyGObject onu dışarı
+          vermiyor (introspection'da `skip`); çağırınca AttributeError.
+        - `xprop -set` tek değer yazıyor, dizi yazamıyor. Bir süre bu
+          denendi ve sessizce çalışmadı: pencere büyütülünce panelin
+          altına giriyordu ama hiçbir hata görünmüyordu.
+        python-xlib diziyi doğru yazan ve Debian'da hazır duran tek
+        seçenek.
         """
         pencere = self.get_window()
         if pencere is None:
             return False
-        if shutil.which("xprop") is None:
-            print("karanos-panel: xprop yok, panel alani ayrilamadi")
-            return False
 
-        xid = pencere.get_xid()
+        yukseklik = YUKSEKLIK
         ekran_yuksekligi = Gdk.Screen.get_default().get_height()
-        alt = ekran_yuksekligi - (alan.y + alan.height) + YUKSEKLIK
+        # Panel birincil monitörün altında; ayrılan şerit ekranın en
+        # altına kadar iniyor (birden çok monitörde alttaki boşluk dahil).
+        alt = ekran_yuksekligi - (alan.y + alan.height) + yukseklik
         sol_x = alan.x
         sag_x = alan.x + alan.width - 1
 
-        # sol, sag, ust, alt, sol_baslangic, sol_bitis, sag_baslangic,
-        # sag_bitis, ust_baslangic, ust_bitis, alt_baslangic, alt_bitis
+        # sol, sağ, üst, alt, sol_baş, sol_bit, sağ_baş, sağ_bit,
+        # üst_baş, üst_bit, alt_baş, alt_bit
         kismi = [0, 0, 0, alt, 0, 0, 0, 0, 0, 0, sol_x, sag_x]
-        for ad, degerler in (("_NET_WM_STRUT_PARTIAL", kismi),
-                             ("_NET_WM_STRUT", kismi[:4])):
-            try:
-                subprocess.run(
-                    ["xprop", "-id", str(xid), "-f", ad, "32c",
-                     "-set", ad, ",".join(str(d) for d in degerler)],
-                    check=False, capture_output=True, timeout=5)
-            except (OSError, subprocess.SubprocessError) as hata:
-                print(f"karanos-panel: {ad} yazilamadi: {hata}")
+
+        try:
+            from Xlib import display as xdisplay
+            from Xlib import Xatom
+        except ImportError:
+            print("karanos-panel: python3-xlib yok, panel alani ayrilamadi")
+            return False
+
+        try:
+            ekran = xdisplay.Display()
+            x_pencere = ekran.create_resource_object("window", pencere.get_xid())
+            x_pencere.change_property(
+                ekran.intern_atom("_NET_WM_STRUT_PARTIAL"),
+                Xatom.CARDINAL, 32, kismi)
+            x_pencere.change_property(
+                ekran.intern_atom("_NET_WM_STRUT"),
+                Xatom.CARDINAL, 32, kismi[:4])
+            ekran.sync()
+        except Exception as hata:  # noqa: BLE001 — X hataları çeşitli
+            print(f"karanos-panel: strut yazilamadi: {hata}")
         return False
 
     # ---------------------------------------------------------------

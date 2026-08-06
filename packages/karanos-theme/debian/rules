@@ -38,7 +38,11 @@ override_dh_auto_build:
 override_dh_auto_install:
 	# --- GTK3 / GTK2 / Openbox teması --------------------------------
 	install -d $(THEME)/gtk-3.0 $(THEME)/gtk-2.0 $(THEME)/openbox-3
-	install -m644 src/gtk-3.0/gtk.css      $(THEME)/gtk-3.0/gtk.css
+	# Karan OS tek temalı: koyu. Aynı dosya hem gtk.css hem gtk-dark.css
+	# olarak kuruluyor — böylece gtk-application-prefer-dark-theme
+	# kapatılsa ya da bir uygulama açık temayı zorlasa bile görünüm
+	# değişmiyor. src/gtk-3.0/gtk-light.css kasten KURULMUYOR.
+	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk.css
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
 	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
 	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc

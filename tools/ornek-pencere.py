@@ -44,11 +44,15 @@ def build():
 	head.set_markup('<span size="x-large" weight="bold">Görünüm</span>')
 	outer.pack_start(head, False, False, 0)
 
+	# "Tema: Açık / Koyu" seçeneği kasten yok: Karan OS tek temalı (koyu).
+	# Aynı bileşeni göstermek için yerine duvar kağıdı seçici kondu —
+	# eskisi var olmayan bir ayarı gösteriyordu ve ekran görüntüsünde
+	# "sistem açık temada" izlenimi veriyordu.
 	combo = Gtk.ComboBoxText()
-	for text in ("Açık", "Koyu"):
+	for text in ("karan", "karan-gece", "karan-duz"):
 		combo.append_text(text)
 	combo.set_active(0)
-	outer.pack_start(row("Tema", combo), False, False, 0)
+	outer.pack_start(row("Duvar kağıdı", combo), False, False, 0)
 
 	entry = Gtk.Entry()
 	entry.set_text("Karan")

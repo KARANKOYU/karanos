@@ -1,7 +1,13 @@
-/* Karan OS — GTK3 AÇIK tema (ikinci seçenek)
+/* Karan OS — GTK3 açık tema  ·  SİSTEME KURULMUYOR
  *
- * Varsayılan görünüm koyu; bu dosya ayarlardan "Tema: Açık" seçilince
- * devreye giriyor (gtk-application-prefer-dark-theme kapatılır).
+ * DİKKAT: Bu dosya pakete GİRMİYOR ve hiçbir yerden seçilemiyor.
+ * Karan OS tek temalı: koyu. Açık tema kimliğe uymadığı için kaldırıldı;
+ * Ayarlar > Görünüm'de "Tema: Açık/Koyu" seçeneği de yok.
+ *
+ * Dosya silinmedi, kaynak olarak duruyor: ileride tekrar istenirse
+ * paletin açık karşılığı burada hazır. Kurulmasını istersen
+ * debian/rules içindeki install satırını geri ekle.
+ *
  * Mantık gtk-dark.css ile aynı: Adwaita içe aktarılır, renkler ezilir.
  *
  * NEDEN RENKLER BİREBİR AYNI DEĞİL: #2DD4BF açık bir turkuaz. Koyu

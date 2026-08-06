@@ -122,10 +122,41 @@ fi
 # Görev çubuğu (4. aşama) çalışıyor mu
 # Panel yoksa masaüstü Windows benzeri olmuyor; ekran görüntüsünde de
 # yalnızca duvar kağıdı görünür.
-if pgrep -f "karanos-panel" >/dev/null 2>&1; then
-	log "PANEL-OK karanos-panel calisiyor"
+# Panel Python + GTK yüklüyor; öykünmeli QEMU'da bu birkaç saniye
+# sürüyor. Pencere yöneticisinde yaptığım hatanın aynısını burada da
+# yapmayalım: anında bakmak yanlış negatif veriyor, bekleyerek bakıyoruz.
+panel_up=0
+i=0
+while [ "$i" -lt 45 ]; do
+	if pgrep -f "karanos-panel" >/dev/null 2>&1; then
+		panel_up=1
+		break
+	fi
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$panel_up" -eq 1 ]; then
+	log "PANEL-OK karanos-panel calisiyor (${i} saniyede)"
 else
 	fatal "PANEL-FAIL karanos-panel calismiyor" "panel"
+	echo "--- KARANOS-TANI: panel neden calismiyor ---"
+	echo "# karanos-panel yolu: $(command -v karanos-panel 2>&1 || echo YOK)"
+	echo "# paket kurulu mu: $(dpkg-query -W -f='${Status}' karanos-panel 2>&1)"
+	# Openbox otomatik başlangıcı panelin çıktısını buraya yazıyor.
+	# Kullanıcının çalışma dizini root'un değil, o yüzden ikisine de bak.
+	for f in /run/user/1000/karanos-panel.log /tmp/karanos-panel.log \
+		/home/karan/.xsession-errors; do
+		echo "# ===== $f ====="
+		if [ -r "$f" ]; then
+			tail -n 30 "$f" 2>&1 | sed 's/^/#   /'
+		else
+			echo "#   (okunamadi)"
+		fi
+	done
+	echo "# python modulu yuklenebiliyor mu:"
+	python3 -c "import karanos_panel.panel" 2>&1 | sed 's/^/#   /'
+	echo "--- KARANOS-TANI sonu ---"
 fi
 
 # Açılış ekranı (3. aşama): tema seçili mi, kaynaklar yerinde mi
