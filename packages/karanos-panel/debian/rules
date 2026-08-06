@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+
+DEST := debian/karanos-panel
+PYDIR := $(DEST)/usr/lib/python3/dist-packages
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -d $(PYDIR)/karanos_panel
+	install -m644 src/karanos_panel/*.py $(PYDIR)/karanos_panel/
+	install -d $(DEST)/usr/bin
+	install -m755 src/karanos-panel $(DEST)/usr/bin/karanos-panel
+	install -d $(DEST)/usr/share/applications
+	install -m644 src/karanos-panel.desktop \
+		$(DEST)/usr/share/applications/karanos-panel.desktop
