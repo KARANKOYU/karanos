@@ -19,14 +19,19 @@ on:
       - "v*"
     branches:
       - main
+    # Sık commit ediyoruz (Codespace beklenmedik anda kapanabiliyor) ama
+    # her commit 40 dakikalık derlemeyi hak etmiyor. Yalnızca ISO'nun
+    # içeriğini gerçekten değiştiren yollar tetikliyor.
+    #
+    # DİKKAT: tools/ burada YOK. tools/qemu-smoke-test.sh ya da
+    # tools/build-packages.sh değiştiğinde derleme kendiliğinden
+    # koşmuyor — o değişiklikleri denemek için Actions sekmesinden
+    # "Run workflow" ile elle başlatmak gerekiyor.
     paths:
       - "iso/**"
       - "packages/**"
       - "assets/**"
-      - "tools/qemu-smoke-test.sh"
-      - "tools/build-packages.sh"
       - ".github/workflows/build-iso.yml"
-      - ".github/workflows/build-packages.yml"
 
 concurrency:
   group: iso-${{ github.ref }}

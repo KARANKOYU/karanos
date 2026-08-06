@@ -147,6 +147,20 @@ fi
 ses_durum=$(systemctl is-active karanos-boot-sound.service 2>/dev/null || echo yok)
 log "BOOTSOUND-SERVICE=${ses_durum}"
 
+# Plymouth script'i ayrıştırılabildi mi?
+# Tema script'inde bir sözdizimi hatası olursa splash sessizce boş kalır;
+# açılış devam ettiği için hiçbir yerde hata görünmez. Plymouth ayrıştırma
+# hatalarını günlüğe yazıyor, burada onu arıyoruz.
+ply_hata=$(journalctl -b --no-pager 2>/dev/null |
+	grep -iE 'plymouth.*(parse|syntax|error).*(script|theme)|karanos\.script' |
+	head -3 || true)
+if [ -n "$ply_hata" ]; then
+	fatal "SPLASH-SCRIPT-FAIL plymouth tema script'inde hata" "splash-script"
+	echo "$ply_hata" | sed 's/^/#   /'
+else
+	log "SPLASH-SCRIPT-OK ayristirma hatasi yok"
+fi
+
 # os-release dpkg-divert ile devralınmıştı; gerçekten devraldı mı
 if grep -q '^PRETTY_NAME="Karan OS' /etc/os-release 2>/dev/null; then
 	log "OSRELEASE-OK $(. /etc/os-release && echo "$PRETTY_NAME")"

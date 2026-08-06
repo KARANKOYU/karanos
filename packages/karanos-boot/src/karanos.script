@@ -14,15 +14,23 @@
 # çevriliyor: açılışta hiçbir yazı tipi bağımlılığı kalmıyor ve sonuç
 # her makinede birebir aynı.
 #
-# ZAMANLAMA: Refresh fonksiyonu saniyede ~50 kez çağrılıyor. Gerçek
-# saat okumak yerine kare sayıyoruz — Plymouth'ta güvenilir bir zaman
-# kaynağı yok ve kare hızı sabit.
+# DİL KISITI: Plymouth'un script dili küçük bir dil. Burada bilerek
+# yalnızca kesin desteklenen yapılar kullanılıyor:
+#   - `++` yok, `kare = kare + 1` yazılıyor
+#   - gövdesiz `return;` yok, her dal if/else ile ayrılıyor
+#   - Sprite'ın opaklığı geri okunamıyor (GetOpacity yok), bu yüzden
+#     opaklıklar ayrı değişkenlerde tutuluyor
+#
+# ZAMANLAMA: Refresh saniyede ~50 kez çağrılıyor. Gerçek saat okumak
+# yerine kare sayıyoruz — Plymouth'ta güvenilir bir zaman kaynağı yok.
 
 # --- ayarlar ---------------------------------------------------------
-KARE_HIZI       = 50.0;
-PARLAMA_SURESI  = 1.5;   # saniye — %15'ten %100'e
-BASLANGIC_OPAK  = 0.15;
-SONME_SURESI    = 0.5;   # saniye — kapanmadan önceki fade-out
+KARE_HIZI      = 50.0;
+PARLAMA_SURESI = 1.5;   # saniye — %15'ten %100'e
+BASLANGIC_OPAK = 0.15;
+YAZI_OPAK      = 0.85;
+PARLAMA_OPAK   = 0.18;
+SONME_SURESI   = 0.5;   # saniye — kapanmadan önceki fade-out
 
 # Zemin: koyu paletteki yüzey renginden masaüstü zeminine ince degrade
 # (#17222C üstte, #0D141B altta)
@@ -54,7 +62,7 @@ parlama_w = logo_w * 1.10;
 parlama_h = logo_h * 1.10;
 parlama = logo_ham.Scale(parlama_w, parlama_h);
 
-# Yazı görselin altında, genişliği görselin yarısı kadar
+# Yazı görselin altında, genişliği görselin yarısından biraz fazla
 yazi_w = logo_w * 0.62;
 yazi_olcek = yazi_w / yazi_ham.GetWidth();
 yazi_h = yazi_ham.GetHeight() * yazi_olcek;
@@ -89,50 +97,61 @@ kare = 0;
 sonuyor = 0;
 sonme_karesi = 0;
 
+# Sprite'tan opaklık geri okunamadığı için kendimiz tutuyoruz.
+logo_opak = BASLANGIC_OPAK;
+yazi_opak = 0;
+parlama_opak = 0;
+
 fun Refresh()
   {
-    kare++;
-    t = kare / KARE_HIZI;
+    kare = kare + 1;
 
-    if (sonuyor)
+    if (sonuyor == 1)
       {
         # Kapanış: görsel, yazı ve parlama birlikte söner
-        s = (kare - sonme_karesi) / KARE_HIZI;
-        k = 1 - (s / SONME_SURESI);
-        if (k < 0) k = 0;
-        logo_sprite.SetOpacity(son_logo_opak * k);
-        yazi_sprite.SetOpacity(son_yazi_opak * k);
-        parlama_sprite.SetOpacity(son_parlama_opak * k);
-        return;
-      }
-
-    # Açılış: %15 → %100
-    if (t < PARLAMA_SURESI)
-      {
-        ilerleme = t / PARLAMA_SURESI;
-        opak = BASLANGIC_OPAK + (1 - BASLANGIC_OPAK) * ilerleme;
-        logo_sprite.SetOpacity(opak);
-        yazi_sprite.SetOpacity(ilerleme * 0.85);
-        parlama_sprite.SetOpacity(ilerleme * 0.18);
+        gecen = (kare - sonme_karesi) / KARE_HIZI;
+        k = 1 - (gecen / SONME_SURESI);
+        if (k < 0)
+          {
+            k = 0;
+          }
+        logo_sprite.SetOpacity(logo_opak * k);
+        yazi_sprite.SetOpacity(yazi_opak * k);
+        parlama_sprite.SetOpacity(parlama_opak * k);
       }
     else
       {
-        logo_sprite.SetOpacity(1);
-        yazi_sprite.SetOpacity(0.85);
-        # Parlama hafifçe nefes alsın — donmuş ekran izlenimi vermesin
-        nefes = 0.18 + 0.07 * Math.Sin((t - PARLAMA_SURESI) * 1.6);
-        parlama_sprite.SetOpacity(nefes);
+        t = kare / KARE_HIZI;
+        if (t < PARLAMA_SURESI)
+          {
+            # Açılış: %15 → %100
+            ilerleme = t / PARLAMA_SURESI;
+            logo_opak = BASLANGIC_OPAK + (1 - BASLANGIC_OPAK) * ilerleme;
+            yazi_opak = YAZI_OPAK * ilerleme;
+            parlama_opak = PARLAMA_OPAK * ilerleme;
+          }
+        else
+          {
+            logo_opak = 1;
+            yazi_opak = YAZI_OPAK;
+            # Parlama hafifçe nefes alsın — donmuş ekran izlenimi
+            # vermesin. Genlik küçük, dikkat dağıtmıyor.
+            parlama_opak = PARLAMA_OPAK
+                           + 0.07 * Math.Sin((t - PARLAMA_SURESI) * 1.6);
+          }
+        logo_sprite.SetOpacity(logo_opak);
+        yazi_sprite.SetOpacity(yazi_opak);
+        parlama_sprite.SetOpacity(parlama_opak);
       }
   }
 
-fun Sonmeyi_Baslat()
+fun SonmeyiBaslat()
   {
-    if (sonuyor) return;
-    sonuyor = 1;
-    sonme_karesi = kare;
-    son_logo_opak = logo_sprite.GetOpacity();
-    son_yazi_opak = yazi_sprite.GetOpacity();
-    son_parlama_opak = parlama_sprite.GetOpacity();
+    if (sonuyor == 0)
+      {
+        sonuyor = 1;
+        sonme_karesi = kare;
+      }
   }
 
 # Ses servisi müzik bitince `plymouth update --status=karanos-sonlaniyor`
@@ -142,13 +161,13 @@ fun DurumDegisti(durum)
   {
     if (durum == "karanos-sonlaniyor")
       {
-        Sonmeyi_Baslat();
+        SonmeyiBaslat();
       }
   }
 
 fun Cikis()
   {
-    Sonmeyi_Baslat();
+    SonmeyiBaslat();
   }
 
 Plymouth.SetRefreshFunction(Refresh);

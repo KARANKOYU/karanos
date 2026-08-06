@@ -6,6 +6,47 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## Çalışma biçimi — CI tetiklenmiyor (AÇIK SORUN)
+
+**Belirti:** `45431df` ve `c28a15e` push edildi, GitHub hiçbir iş akışı
+koşusu üretmedi. Depo public, üç iş akışı da `active`, `paths` filtreleri
+tutuyor. Toplam koşu sayısı `d143bb4`'te kaldı.
+
+**Sebep (büyük olasılıkla):** Bu Codespace oturumunun `GITHUB_TOKEN`'ı
+kısıtlı bir kurulum token'ı (`ghu_…`). `gh workflow run` denemesi
+`403 Resource not accessible by integration` döndü; `actions/permissions`
+uç noktası da 403. GitHub, kurulum token'ıyla yapılan push'lardan iş
+akışı tetiklemiyor (özyinelemeli koşuları önlemek için). Daha önceki
+push'lar tetikliyordu, yani token kapsamı oturumlar arasında değişmiş.
+
+**Ne yapılmalı:** Actions sekmesinden **Run workflow** ile elle
+başlatmak gerekiyor. Bu Codespace'ten tetiklenemiyor — kullanıcının
+yapması lazım.
+
+**Sonuç:** 2. ve 3. aşamaların CI doğrulaması **yapılamadı**. Elde
+şunlar var:
+- `karanos-theme` yerelde derlendi ve Xvfb'de çizildi (koyu ve açık
+  varyant), görsel olarak doğrulandı
+- `karanos-boot` yerelde derlendi, paket içeriği ve WAV süresi
+  (6,14 sn) doğrulandı; splash'in kendisi yalnızca gerçek açılışta
+  görülebiliyor
+- `user-setup` düzeltmesi ve `os-release` hook'u **hiç çalıştırılmadı**
+
+### Push tetikleyicileri daraltıldı
+
+Codespace beklenmedik anda kapanabildiği için sık commit ediyoruz, ama
+her commit 40 dakikalık derlemeyi hak etmiyor. `build-iso.yml` artık
+yalnızca `iso/**`, `packages/**`, `assets/**` ve kendi dosyası
+değişince koşuyor.
+
+**Bunun bedeli:** `tools/qemu-smoke-test.sh` ya da
+`tools/build-packages.sh` değiştiğinde derleme kendiliğinden koşmuyor.
+O değişiklikleri denemek için Actions sekmesinden elle başlatmak
+gerekiyor. Lint her push'ta koşmaya devam ediyor (20 saniye).
+Belge/not commit'lerinin mesajına `[skip ci]` ekleniyor.
+
+---
+
 ## Aşama 3 — karanos-boot (açılış ekranı)
 
 **Karar: italik yazı PNG olarak gömüldü.** Bölüm 5'in notu iki seçenek
