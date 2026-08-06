@@ -9,6 +9,27 @@ set -u
 
 log() { echo "KARANOS-CHECK: $*"; }
 
+# Ölümcül sayılan hatalar burada birikir. En sonda RESULT=FAIL veriyoruz.
+# NEDEN: 1. ve 2. aşamada grafik oturum hiç açılmadığı hâlde bu script
+# RESULT=OK yazıyordu, çünkü pencere yöneticisinin yokluğu yalnızca
+# "uyarı" sayılıyordu. CI iki kez yanlış yeşil yandı. Artık masaüstünün
+# gerçekten ayakta olması testin geçme şartı.
+olumcul=""
+fatal() {
+	log "$1"
+	olumcul="${olumcul} ${2}"
+}
+
+# 0) Canlı kullanıcı oluşturuldu mu
+# live-config bu kullanıcıyı user-setup ile yaratıyor. Paket eksikse
+# kullanıcı hiç oluşmuyor ve oturum açılamıyor — bu kontrol o durumu
+# doğrudan gösterir.
+if getent passwd karan >/dev/null 2>&1; then
+	log "USER-OK karan ($(getent passwd karan | cut -d: -f6,7))"
+else
+	fatal "USER-FAIL canli kullanici 'karan' yok — user-setup kurulu mu?" "kullanici"
+fi
+
 # 1) X sunucusu ayağa kalktı mı
 x_up=0
 i=0
@@ -29,14 +50,50 @@ fi
 log "X-OK Xorg calisiyor (${i} saniyede)"
 
 # 2) Pencere yöneticisi
-if pgrep -x openbox >/dev/null 2>&1; then
-	log "WM-OK openbox calisiyor"
+# Pencere yöneticisi yoksa masaüstü diye bir şey yok demektir: X boş bir
+# kök pencere gösterir, ekran görüntüsü simsiyah çıkar. Bu durumda
+# tahmin yürütmek yerine oturumun neden açılmadığını buradan döküyoruz —
+# aksi hâlde her denemede 40 dakikalık CI koşusu harcanıyor.
+wm_up=0
+i=0
+while [ "$i" -lt 60 ]; do
+	if pgrep -x openbox >/dev/null 2>&1; then
+		wm_up=1
+		break
+	fi
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$wm_up" -eq 1 ]; then
+	log "WM-OK openbox calisiyor (${i} saniyede)"
 else
-	log "WM-WARN openbox bulunamadi"
+	fatal "WM-FAIL openbox calismiyor — oturum acilmamis" "oturum"
+	echo "--- KARANOS-TANI: oturum neden acilmadi ---"
+	echo "# systemctl is-active lightdm: $(systemctl is-active lightdm 2>&1)"
+	echo "# kullanici karan: $(getent passwd karan 2>&1 || echo YOK)"
+	echo "# oturum dosyalari:"
+	ls -1 /usr/share/xsessions/ 2>&1 | sed 's/^/#   /'
+	echo "# calisan surecler:"
+	ps -eo comm= 2>/dev/null | sort -u \
+		| grep -iE '^(x|xorg|lightdm|openbox|dbus)' | sed 's/^/#   /'
+	for f in /var/log/lightdm/lightdm.log \
+		/var/log/lightdm/seat0-greeter.log \
+		/var/log/lightdm/x-0.log; do
+		echo "# ===== $f ====="
+		if [ -r "$f" ]; then
+			tail -n 25 "$f" 2>&1 | sed 's/^/#   /'
+		else
+			echo "#   (okunamadi)"
+		fi
+	done
+	echo "# ===== journalctl -u lightdm ====="
+	journalctl -u lightdm --no-pager -n 30 2>&1 | sed 's/^/#   /'
+	echo "--- KARANOS-TANI sonu ---"
 fi
 
 # 3) Tema paketi ISO'ya girdi mi ve dosyaları yerinde mi
-# Ekran görüntüsünde "turuncu bir şey" görmek yetmiyor; parçaların
+# Ekran görüntüsünde "renkli bir şey" görmek yetmiyor; parçaların
 # tek tek yerinde olduğunu da bilelim.
 theme_eksik=""
 for f in /usr/share/themes/Karan/gtk-3.0/gtk.css \
@@ -47,26 +104,26 @@ done
 if [ -z "$theme_eksik" ]; then
 	log "THEME-OK gtk+openbox teması yerinde"
 else
-	log "THEME-FAIL eksik:${theme_eksik}"
+	fatal "THEME-FAIL eksik:${theme_eksik}" "tema"
 fi
 
 if [ -f /usr/share/icons/Karan-Cursors/cursors/left_ptr ]; then
 	log "CURSOR-OK $(ls /usr/share/icons/Karan-Cursors/cursors 2>/dev/null | wc -l) imleç adı"
 else
-	log "CURSOR-FAIL imleç teması yok"
+	fatal "CURSOR-FAIL imleç teması yok" "imlec"
 fi
 
 if [ -f /usr/share/backgrounds/karanos/karan.png ]; then
 	log "WALLPAPER-OK"
 else
-	log "WALLPAPER-FAIL"
+	fatal "WALLPAPER-FAIL duvar kagidi yok" "duvarkagidi"
 fi
 
 # os-release dpkg-divert ile devralınmıştı; gerçekten devraldı mı
 if grep -q '^PRETTY_NAME="Karan OS' /etc/os-release 2>/dev/null; then
 	log "OSRELEASE-OK $(. /etc/os-release && echo "$PRETTY_NAME")"
 else
-	log "OSRELEASE-FAIL $(grep '^PRETTY_NAME=' /etc/os-release 2>/dev/null)"
+	fatal "OSRELEASE-FAIL $(grep '^PRETTY_NAME=' /etc/os-release 2>/dev/null)" "os-release"
 fi
 
 # 4) Firmware yüklendi mi (Wi-Fi/ekran kartı için kritik — prompt 16)
@@ -98,6 +155,12 @@ fi
 # 6) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"
+
+if [ -n "$olumcul" ]; then
+	log "FAILED-CHECKS=${olumcul# }"
+	log "RESULT=FAIL"
+	exit 1
+fi
 
 log "RESULT=OK"
 exit 0

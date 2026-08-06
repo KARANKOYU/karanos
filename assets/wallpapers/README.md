@@ -1,8 +1,8 @@
 # assets/wallpapers/ — duvar kağıtları
 
 **İsteğe bağlı.** Buraya hiçbir şey koymazsan sistem, `karanos-theme` paketinin
-kod içinde ürettiği degrade duvar kağıtlarıyla gelir (turuncu/sarı, koyu ve
-açık tema için birer tane). ISO'ya yer kaybettirmez.
+kod içinde ürettiği degrade duvar kağıtlarıyla gelir (`karan`, `karan-gece`,
+`karan-duz` — üçü de koyu palette). ISO'ya yer kaybettirmez.
 
 Kendi duvar kağıtlarını koymak istersen:
 

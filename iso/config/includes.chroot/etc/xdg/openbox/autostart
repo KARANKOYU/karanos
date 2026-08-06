@@ -10,7 +10,7 @@ if command -v xwallpaper >/dev/null 2>&1 &&
 	[ -f /usr/share/backgrounds/karanos/karan.png ]; then
 	xwallpaper --zoom /usr/share/backgrounds/karanos/karan.png &
 else
-	xsetroot -solid "#575E75" &
+	xsetroot -solid "#0D141B" &
 fi
 
 # --- İmleç -----------------------------------------------------------

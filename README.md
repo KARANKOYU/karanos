@@ -80,8 +80,8 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 
 | # | Aşama | Durum |
 |---|---|---|
-| 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | ✅ 563 MB, BIOS/UEFI/Secure Boot üçü de açılıyor |
-| 2 | Tema paketi (renkler, logo, imleç, GTK) | 🔨 paket hazır, ISO'ya girişi test ediliyor |
+| 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | ✅ BIOS/UEFI/Secure Boot üçü de açılıyor |
+| 2 | Tema paketi (renkler, logo, imleç, GTK) | 🔨 paket hazır, masaüstü oturumu düzeltildi, CI doğrulaması bekliyor |
 | 3 | Açılış ekranı (görsel + parlama + mp3) | ⏳ |
 | 4 | Panel: görev çubuğu + başlat menüsü | ⏳ |
 | 5 | Giriş ekranı + kilit ekranı | ⏳ |
@@ -95,6 +95,7 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 | 13 | APT deposu + GitHub Actions | ⏳ |
 | 14 | Gerçek donanımda test | ⏳ |
 
+Karar günlüğü: [`docs/durum.md`](docs/durum.md) ·
 Tam görev tanımı: [`docs/karanos-claude-code-prompt.md`](docs/karanos-claude-code-prompt.md) ·
 Arayüz metinleri (TR/EN): [`docs/karanos-arayuz-metinleri.md`](docs/karanos-arayuz-metinleri.md) ·
 GitHub kurulumu: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)

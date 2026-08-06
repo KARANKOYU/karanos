@@ -3,9 +3,9 @@
 **Buraya elle bir şey koymuyorsun.** Bu klasörü 2. aşamada (`karanos-theme`)
 kod dolduracak.
 
-İmleç teması `assets/logo/k-logo.svg` içindeki turuncu/sarı kimlikten türetilen
-SVG'lerden `xcursorgen` ile üretilecek; üretim script'i
-`packages/karanos-theme/tools/build-cursors.sh` altında olacak.
+İmleç teması `assets/logo/k-logo.svg` içindeki turkuaz/mavi kimlikten türetilen
+SVG'lerden `xcursorgen` ile üretiliyor; üreteç
+`packages/karanos-theme/tools/gen-cursors.py`.
 
-Klasör şimdilik boş duruyor ki 2. aşamada üretilen ara PNG'lerin nereye
-yazılacağı belli olsun.
+Ara PNG'ler derleme sırasında geçici bir dizinde üretilip atılıyor —
+ne buraya ne de pakete giriyorlar. Bu klasör bu yüzden boş.

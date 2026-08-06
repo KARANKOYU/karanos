@@ -15,7 +15,8 @@ koyulmayacak. Üretilen boyutlar ve gittikleri yerler:
 | 512 | Calamares kurulum aracı, GitHub Releases görseli |
 
 Logonun renkleri prompt 4. bölümdeki kimlikle birebir aynı:
-turuncu `#FF8C1A` → sarı `#FFBF00` degrade, beyaz `#FFFFFF` çizgiler.
+koyu kutu (`#0F2A2C` → `#152444`) üstünde turkuaz `#2DD4BF` → mavi
+`#4F92F7` degradeli harf, kenarlık `#233A45`.
 
 **Logoyu değiştirirsen:** aynı ada sahip yeni SVG'yi buraya koy, `viewBox`
 `0 0 100 100` ve kare kalsın. Türetilen tüm PNG'ler bir sonraki derlemede

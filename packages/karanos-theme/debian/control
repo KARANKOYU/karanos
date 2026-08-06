@@ -22,8 +22,9 @@ Description: Karan OS görünümü — GTK teması, simgeler, imleçler, duvar k
  .
   * GTK3 teması (açık ve koyu), GTK2 uyumu ve Openbox pencere teması
   * K logosundan türetilen simge teması (Adwaita'yı miras alır)
-  * Turuncu vurgulu XCursor imleç teması
+  * Turkuaz vurgulu XCursor imleç teması
   * Marka renklerinde duvar kağıtları
   * /etc/os-release içinde dağıtım kimliği
  .
- Renkler: turuncu #FF8C1A, sarı #FFBF00, beyaz, metin için #575E75.
+ Renkler: turkuaz #2DD4BF, mavi #4F92F7, zemin #0D141B, metin #E6EDF3.
+ Varsayilan gorunum koyu; acik tema ikinci secenek.

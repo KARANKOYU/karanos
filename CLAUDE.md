@@ -16,6 +16,30 @@ metinleri Türkçe yazılır.
 hata mesajı, bildirim — hepsi `docs/karanos-arayuz-metinleri.md` içindeki
 tablolardan alınır. Tabloda karşılığı yoksa uydurmak yerine sor.
 
+## Renk kimliği
+
+**Varsayılan görünüm koyu.** Açık tema ikinci seçenek.
+
+| Rol | Koyu (varsayılan) | Açık |
+|---|---|---|
+| Ana vurgu | `#2DD4BF` turkuaz | `#0D9488` |
+| İkincil | `#4F92F7` mavi | `#2563EB` |
+| Zemin (masaüstü) | `#0D141B` | `#EEF2F6` |
+| Panel / görev çubuğu | `#121C26` | — |
+| Yüzey (pencere, menü) | `#17222C` | `#FFFFFF` |
+| Yüzey (hover) | `#1D2C38` | `#E2E9EF` |
+| Kenarlık | `#233A45` | `#CBD6DF` |
+| Ana metin | `#E6EDF3` | `#1B2732` |
+| İkincil metin | `#8B9BA8` | `#5C6B78` |
+| Başarı / uyarı / hata | `#22C55E` / `#F59E0B` / `#EF4444` | `#16A34A` / `#D97706` / `#DC2626` |
+
+Açık temada turkuaz/mavi koyulaştırılıyor: `#2DD4BF` beyaz zeminde beyaz
+yazıyı taşıyamayacak kadar açık (kontrast ~1.7).
+
+Renk değiştirmek gerekirse tek kaynak `packages/karanos-theme/` — CSS
+dosyalarındaki `@define-color` blokları ve `tools/gen-*.py` başındaki
+sabitler.
+
 ## Derleme ortamı — en önemli kısıt
 
 Geliştirme GitHub Codespaces'te yapılıyor: Debian konteyner, **2 çekirdek**,

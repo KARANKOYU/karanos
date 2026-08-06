@@ -1,9 +1,13 @@
 # Karan OS — Openbox pencere teması
 #
 # Windows benzeri davranış hedefi (bölüm 6): başlık çubuğunda solda
-# başlık, sağda küçült / büyült / kapat. Etkin pencerenin başlık çubuğu
-# turuncu-sarı degrade, etkisiz olan gri — hangi pencerede olduğun
-# renginden anlaşılsın.
+# simge ve başlık, sağda küçült / büyült / kapat.
+#
+# Varsayılan tema koyu. Etkin pencerenin başlık çubuğu marka degradesini
+# (turkuaz→mavi) taşıyor, etkisiz olan koyu yüzey rengine düşüyor —
+# hangi pencerede olduğun renginden anlaşılsın. Degrade açık bir renk
+# olduğu için başlık yazısı beyaz değil KOYU; beyaz olsaydı turkuazın
+# üstünde okunmazdı.
 
 # --- kenarlar --------------------------------------------------------
 border.width: 1
@@ -13,89 +17,89 @@ window.handle.width: 0
 window.client.padding.width: 0
 window.client.padding.height: 0
 
-window.active.border.color: #E07A0C
-window.inactive.border.color: #C9CDD8
+window.active.border.color: #2DD4BF
+window.inactive.border.color: #233A45
 
 # --- etkin pencere ---------------------------------------------------
-# Degrade turuncu ağırlıklı: sarıya kaçarsa beyaz başlık yazısı okunmuyor.
-window.active.title.bg: gradient vertical
-window.active.title.bg.color: #FFA326
-window.active.title.bg.colorTo: #F07E00
-window.active.title.separator.color: #E07A0C
+window.active.title.bg: gradient horizontal
+window.active.title.bg.color: #2DD4BF
+window.active.title.bg.colorTo: #4F92F7
+window.active.title.separator.color: #1E9C90
 # label.bg yazılmazsa Openbox etiket kutusunu siyaha boyuyor ve başlık
 # çubuğunun ortasında siyah bir şerit çıkıyor. parentrelative = başlık
 # çubuğunun degradesini olduğu gibi devam ettir.
 window.active.label.bg: parentrelative
-window.active.label.text.color: #FFFFFF
+window.active.label.text.color: #0D141B
 
 window.active.button.unpressed.bg: parentrelative
-window.active.button.unpressed.image.color: #FFFFFF
+window.active.button.unpressed.image.color: #0D141B
 window.active.button.pressed.bg: flat solid
-window.active.button.pressed.bg.color: #D96C00
-window.active.button.pressed.image.color: #FFFFFF
+window.active.button.pressed.bg.color: #17222C
+window.active.button.pressed.image.color: #E6EDF3
 window.active.button.hover.bg: flat solid
-window.active.button.hover.bg.color: #FFA340
-window.active.button.hover.image.color: #FFFFFF
+window.active.button.hover.bg.color: #E6EDF3
+window.active.button.hover.image.color: #0D141B
 window.active.button.disabled.bg: parentrelative
-window.active.button.disabled.image.color: #F0C79A
+window.active.button.disabled.image.color: #6E8A92
 window.active.button.toggled.bg: flat solid
-window.active.button.toggled.bg.color: #D96C00
-window.active.button.toggled.image.color: #FFFFFF
+window.active.button.toggled.bg.color: #17222C
+window.active.button.toggled.image.color: #2DD4BF
 
 # Kapat düğmesi üstüne gelince kırmızı — yanlışlıkla tıklamayı azaltır
 window.active.button.close.hover.bg: flat solid
-window.active.button.close.hover.bg.color: #D64545
+window.active.button.close.hover.bg.color: #EF4444
 window.active.button.close.hover.image.color: #FFFFFF
 
 # --- etkisiz pencere -------------------------------------------------
 window.inactive.title.bg: flat solid
-window.inactive.title.bg.color: #EDEEF1
-window.inactive.title.separator.color: #D4D7DF
+window.inactive.title.bg.color: #17222C
+window.inactive.title.separator.color: #233A45
 window.inactive.label.bg: parentrelative
-window.inactive.label.text.color: #7A8199
+window.inactive.label.text.color: #8B9BA8
 
 window.inactive.button.unpressed.bg: parentrelative
-window.inactive.button.unpressed.image.color: #7A8199
+window.inactive.button.unpressed.image.color: #8B9BA8
 window.inactive.button.pressed.bg: flat solid
-window.inactive.button.pressed.bg.color: #D4D7DF
-window.inactive.button.pressed.image.color: #575E75
+window.inactive.button.pressed.bg.color: #233A45
+window.inactive.button.pressed.image.color: #E6EDF3
 window.inactive.button.hover.bg: flat solid
-window.inactive.button.hover.bg.color: #DDE0E6
-window.inactive.button.hover.image.color: #575E75
+window.inactive.button.hover.bg.color: #1D2C38
+window.inactive.button.hover.image.color: #E6EDF3
 window.inactive.button.disabled.bg: parentrelative
-window.inactive.button.disabled.image.color: #C9CDD8
+window.inactive.button.disabled.image.color: #3C4E5A
 window.inactive.button.toggled.bg: flat solid
-window.inactive.button.toggled.bg.color: #D4D7DF
-window.inactive.button.toggled.image.color: #575E75
+window.inactive.button.toggled.bg.color: #233A45
+window.inactive.button.toggled.image.color: #2DD4BF
 
 # --- menü ------------------------------------------------------------
 menu.border.width: 1
-menu.border.color: #D4D7DF
+menu.border.color: #233A45
 menu.title.bg: flat solid
-menu.title.bg.color: #FF8C1A
-menu.title.text.color: #FFFFFF
+menu.title.bg.color: #121C26
+menu.title.text.color: #2DD4BF
 menu.items.bg: flat solid
-menu.items.bg.color: #FFFFFF
-menu.items.text.color: #575E75
-menu.items.disabled.text.color: #B0B5C2
-menu.items.active.bg: flat solid
-menu.items.active.bg.color: #FF8C1A
-menu.items.active.text.color: #FFFFFF
-menu.separator.color: #E4E6EC
+menu.items.bg.color: #121C26
+menu.items.text.color: #E6EDF3
+menu.items.disabled.text.color: #55677A
+menu.items.active.bg: gradient horizontal
+menu.items.active.bg.color: #2DD4BF
+menu.items.active.bg.colorTo: #4F92F7
+menu.items.active.text.color: #0D141B
+menu.separator.color: #233A45
 menu.separator.width: 1
 menu.overlap.x: 0
 
 # --- diğer -----------------------------------------------------------
 osd.border.width: 1
-osd.border.color: #D4D7DF
+osd.border.color: #233A45
 osd.bg: flat solid
-osd.bg.color: #FFFFFF
-osd.label.text.color: #575E75
-osd.hilight.bg: gradient splitvertical
-osd.hilight.bg.color: #FFBF00
-osd.hilight.bg.colorTo: #FF8C1A
+osd.bg.color: #17222C
+osd.label.text.color: #E6EDF3
+osd.hilight.bg: gradient horizontal
+osd.hilight.bg.color: #2DD4BF
+osd.hilight.bg.colorTo: #4F92F7
 osd.unhilight.bg: flat solid
-osd.unhilight.bg.color: #E4E6EC
+osd.unhilight.bg.color: #233A45
 
 # Windows'taki gibi: simge ve başlık solda, düğmeler sağda
 # (N=simge, L=başlık, I=küçült, M=büyüt, C=kapat)

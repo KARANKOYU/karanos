@@ -63,13 +63,34 @@ karanos/
 
 ## 4. Kimlik ve tema
 
-- **Renkler:** turuncu `#FF8C1A`, sarı `#FFBF00`, beyaz `#FFFFFF`,
-  metin için koyu gri `#575E75`
+- **Varsayılan görünüm: KOYU.** Açık tema ikinci seçenek olarak durur
+  (Ayarlar > Görünüm > Tema).
+- **Renkler:**
+
+  | Rol | Değer |
+  |---|---|
+  | Ana vurgu (turkuaz) | `#2DD4BF` |
+  | İkincil (mavi) | `#4F92F7` |
+  | Vurgu degradesi | `#2DD4BF` → `#4F92F7` |
+  | Zemin (masaüstü) | `#0D141B` |
+  | Panel / görev çubuğu | `#121C26` |
+  | Yüzey (pencere, menü) | `#17222C` |
+  | Yüzey (üzerine gelince) | `#1D2C38` |
+  | Kenarlık | `#233A45` |
+  | Ana metin | `#E6EDF3` |
+  | İkincil metin | `#8B9BA8` |
+  | Başarı / uyarı / hata | `#22C55E` / `#F59E0B` / `#EF4444` |
+
+  Açık temada turkuaz ve mavi koyulaştırılmış tonlarıyla kullanılır
+  (`#0D9488` ve `#2563EB`): `#2DD4BF` beyaz zeminde beyaz yazıyı
+  taşıyamayacak kadar açık.
 - **Logo:** el yazısı/imza tarzı "K" harfi — kalın gövde, ince kollar,
-  köşeleri yuvarlatılmış kare kutu içinde, turuncu→sarı degrade.
-  SVG olarak verilecek (`assets/k-logo.svg`), tüm boyutlara buradan türetilecek.
-- **İmleç teması:** özel XCursor teması (`xcursorgen` ile üretilecek),
-  turuncu vurgu.
+  köşeleri yuvarlatılmış koyu kare kutu (`#0F2A2C` → `#152444`) içinde,
+  harf turkuaz→mavi degradeli.
+  SVG olarak verilir (`assets/logo/k-logo.svg`), tüm boyutlara buradan
+  türetilir.
+- **İmleç teması:** özel XCursor teması (`xcursorgen` ile üretilir),
+  turkuaz vurgu.
 - `/etc/os-release` içinde `NAME="Karan OS"`, `PRETTY_NAME="Karan OS 1.0"`.
 
 ---
@@ -107,7 +128,7 @@ Hangisinin daha sağlam olduğuna karar verip uygula.
 ## 6. Giriş ekranı (karanos-greeter)
 
 - Kullanıcı listesi (avatar + isim), şifre alanı
-- Turuncu/sarı tema, arka planda duvar kağıdı, sağ altta saat
+- Koyu tema (turkuaz vurgu), arka planda duvar kağıdı, sağ altta saat
 - **"Şifremi unuttum" bağlantısı** şifre sıfırlama akışını başlatır.
   Gizli/sabit bir kurtarma ifadesi **yoktur** — tek sıfırlama yolu aşağıdaki
   güvenlik sorularıdır.

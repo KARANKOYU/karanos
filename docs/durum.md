@@ -1,0 +1,179 @@
+# Karan OS — durum ve karar günlüğü
+
+Bu dosya "ne yapıldı" listesi değil, **neden öyle yapıldı** kaydı.
+Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
+ısırmış tuzaklar burada. En yeni en üstte.
+
+---
+
+## Aşama 2 sonrası — renk kimliği değişimi ve iki gerçek hata
+
+### Renk kimliği turuncu/sarıdan koyu turkuaz-maviye geçti
+
+Yeni palet `CLAUDE.md` ve `docs/karanos-claude-code-prompt.md` bölüm 4'te.
+Tek kaynak `packages/karanos-theme/`: CSS'lerdeki `@define-color` blokları
+ve `tools/gen-*.py` başındaki sabitler.
+
+**Karar: varsayılan tema koyu, açık tema ikinci seçenek.**
+GTK'da bu, tema dizininde iki dosya tutmak demek — `gtk-dark.css` (koyu)
+ve `gtk.css` (açık). Hangisinin yükleneceğini
+`gtk-application-prefer-dark-theme` belirliyor ve
+`/etc/gtk-3.0/settings.ini` içinde açık geliyor. Ayrı iki tema
+(`Karan` / `Karan-Light`) yapmadım: tek tema + bir mantıksal anahtar,
+8. aşamadaki "Tema: Açık / Koyu" seçiminin değiştireceği tek bir değer
+bırakıyor.
+
+**Karar: açık temada turkuaz ve mavi koyulaştırıldı** — `#2DD4BF` yerine
+`#0D9488`, `#4F92F7` yerine `#2563EB`. Sebep kontrast: `#2DD4BF` beyaz
+zeminde beyaz yazıyı taşıyamıyor (oran ~1.7). Marka degradesinin yönü ve
+karakteri korundu, yalnızca değeri düştü.
+
+**Karar: seçili/etkin öğelerde yazı rengi koyu.** Turkuaz açık bir renk;
+üstüne beyaz yazı okunmuyor. Koyu temada seçili satırın yazısı
+`#0D141B`. Aynı sebeple Openbox'ta etkin pencerenin başlık yazısı da koyu.
+
+**Karar: "yasak" imleci kırmızı kaldı** (`#EF4444`). Turkuaz bir yasak
+işareti işlevini anlatmıyor; tek renk istisnası bu.
+
+**Karar: imleç dış çizgisi neredeyse siyah** (`#0D141B`). İmleç hem koyu
+masaüstünde hem beyaz bir belgenin üstünde aynı netlikte görünmeli.
+
+**Karar: duvar kağıdı adı `karan-koyu` → `karan-gece`.** Varsayılan tema
+koyu olunca "koyu" ayırt edici bir ad olmaktan çıktı. Üçü de koyu:
+`karan` (marka degradesi), `karan-gece` (en sakin), `karan-duz` (düz
+zemin + logo).
+
+### Hata 1: grafik oturum hiç açılmıyordu — `user-setup` eksikti
+
+**Belirti:** CI 1. ve 2. aşamada yeşil yandı ama QEMU ekran görüntüsü
+simsiyahtı. `boot-check` "WM-WARN openbox bulunamadi" yazıyor, buna
+rağmen `RESULT=OK` veriyordu.
+
+**Kök sebep:** `live-config`, canlı kullanıcıyı
+`/usr/lib/user-setup/user-setup-apply` ile oluşturuyor ve bu dosya
+`user-setup` paketinden geliyor. `live-config` onu yalnızca
+**Recommends** ile istiyor. Biz `--apt-recommends false` ile derliyoruz,
+dolayısıyla paket hiç kurulmadı, `karan` kullanıcısı hiç oluşmadı,
+lightdm var olmayan bir kullanıcıya otomatik giriş yapmaya çalışıp boş
+bir X kök penceresinde kaldı.
+
+Bu, `CLAUDE.md`'de zaten yazan tuzağın (`libpam-systemd` örneği) ikinci
+kez ısırması. `user-setup` artık `01-base.list.chroot` içinde, sebebiyle
+birlikte.
+
+**Nasıl bulundu:** ISO'yu Codespace'e indirip squashfs'i açtım,
+`lightdm.conf`, `xsessions`, `openbox-session` — hepsi yerindeydi.
+Sonra `live-config` paketini indirip `0030-user-setup` bileşenini
+okudum; `user-setup-apply` çağrısını görünce paketin Recommends'te
+olduğunu doğruladım. Tahminle üç CI koşusu harcamaktan ucuzdu.
+
+**Denenip vazgeçilen:** canlı sisteme seri konsoldan girip
+`/var/log/lightdm` okumak. Canlı kullanıcı hiç oluşmadığı için parola
+da yoktu (`live-config` parolayı `live` yapıyor ama kullanıcı yaratılmamış).
+`systemd.debug-shell` ile tty9'dan root kabuğu denemesi de yarıda kaldı.
+Paket metaverisini okumak daha kısa yoldu.
+
+### Hata 2: `/etc/os-release` devralınmıyordu
+
+**Belirti:** ISO içindeki `/usr/lib/os-release` doğru ("Karan OS 1.0")
+ama çalışan sistemde `/etc/os-release` "Debian GNU/Linux 13" diyordu.
+
+**Kök sebep:** Debian'da `/etc/os-release`, `/usr/lib/os-release`'e giden
+bir sembolik bağ. `karanos-theme` hedefi `dpkg-divert` ile devralıyor —
+bu kısım çalıştı, derleme günlüğünde görünüyor. Ama **live-build**
+derlemenin erken bir aşamasında `/etc/os-release`'i silip yerine
+**gerçek bir dosya** yazıyor: Debian'ın o anki içeriği + `IMAGE_ID` ve
+`BUILD_ID`. Bu iş bizim paketimiz kurulmadan önce olduğu için bağ
+kopuyor ve eski içerik donuyor.
+
+**Çözüm:** `iso/config/hooks/normal/9996-os-release.hook.chroot`.
+Chroot hook'ları paketlerden sonra çalıştığı için burada
+`/usr/lib/os-release`'i tekrar `/etc/os-release`'e yazıyoruz.
+live-build'in eklediği `IMAGE_ID` / `BUILD_ID` satırları korunuyor —
+onlar derlemenin kimliği, bizim üstümüze aldığımız bilgi değil.
+Hook, dosya bizim sürümümüz değilse derlemeyi durduruyor.
+
+### Duman testi artık yanlış yeşil veremiyor
+
+İki kere yeşil yanıp aslında masaüstü açılmadığı için testin geçme
+şartları sıkılaştırıldı:
+
+- `boot-check` içinde ölümcül hata listesi var. Kullanıcı yok, pencere
+  yöneticisi yok, tema eksik, imleç yok, duvar kağıdı yok ya da
+  os-release yanlışsa `RESULT=FAIL`. Eskiden bunlar "uyarı"ydı.
+- Pencere yöneticisi için 60 saniyelik bekleme eklendi — oturum X'ten
+  birkaç saniye sonra açılıyor, anlık bakmak yanlış negatif veriyordu.
+- `tools/screen-not-blank.py`: QEMU ekran görüntüsünün gerçekten bir şey
+  gösterdiğini ölçüyor (renk çeşitliliği + parlaklık sapması). Boş ekran
+  testi düşürüyor. `RESULT=OK` satırını görmek yetmiyor artık.
+- Pencere yöneticisi yoksa `boot-check` lightdm günlüklerini, oturum
+  dosyalarını ve süreç listesini seri konsola döküyor — bir sonraki
+  arıza tek koşuda teşhis edilsin diye.
+
+### Yerel doğrulama
+
+`tools/theme-screenshot.sh` Xvfb + Openbox'ta temayı çizip PNG veriyor,
+~10 saniye. `VARYANT=acik` ile açık tema. Bu turda üç hatayı ISO
+derlemeden yakaladı: kaydırıcı dolgusu Adwaita mavisinde kalmıştı,
+Openbox `label.bg` yazılmadığı için başlık çubuğunun ortasını siyaha
+boyuyordu, önizleme penceresi sabit `sleep` yüzünden kareye
+girmiyordu (artık pencere haritalanana kadar bekleniyor).
+
+---
+
+## Aşama 2 — karanos-theme
+
+**Karar: sıfırdan GTK teması yazılmadı.** GTK'nın kendi Adwaita'sı
+`@import` ile alınıp yalnızca renkler ve vurgu alan bileşenler eziliyor.
+Sıfırdan tema binlerce satır ve her GTK güncellemesinde bozulan bir
+bakım yükü; bu yöntemde yeni GTK sürümü gelince tema kendiliğinden
+uyumlu kalıyor.
+
+**Karar: depoda üretilmiş ikili dosya yok.** Simgeler, imleçler ve duvar
+kağıtları `assets/logo/k-logo.svg` ve `tools/gen-*.py` üreteçlerinden
+derleme sırasında çıkıyor. 16 imleç şekli × 4 boyut (ikisi 12 kareli
+animasyon) = 400'den fazla PNG; bunları depoda tutmak her renk
+değişikliğini megabaytlarca ikili fark yapardı.
+
+**Karar: Openbox teması hook'la, dosya değiştirilerek değil.**
+`rc.xml` yalnızca tema adını değil **bütün fare ve klavye kısayollarını**
+taşıyor. Dosyayı kendi sürümümüzle değiştirseydik `<mouse>` bölümü
+giderdi ve pencereler fareyle tutulamaz hâle gelirdi.
+`0200-openbox-theme.hook.chroot` awk ile yalnızca `<theme>` bloğundaki
+ilk `<name>` alanını değiştiriyor (sonraki `<name>`ler yazı tipi adları).
+
+**Karar: `.deb`'ler ISO'ya `config/packages.chroot/` üzerinden giriyor.**
+`build-packages.yml` paketleri üretiyor, `build-iso.yml` onu `uses:` ile
+çağırıp yapıtı indiriyor. Böylece ISO'ya giren `.deb` ile test edilen
+`.deb` aynı koşunun ürünü. Gerçek APT deposu 13. aşamada.
+
+**Karar: tema önizleme penceresi geçici.** 2. aşamada tema var ama onu
+gösterecek panel/masaüstü yok; boş ekranın görüntüsüne bakıp "tema
+uygulanmış mı" denemez. `/usr/lib/karanos/theme-preview` yalnızca canlı
+ortamda açılıyor (`/run/live/medium` varsa) ve 4. aşamada panel gelince
+silinecek. Etiketleri `docs/karanos-arayuz-metinleri.md` içindeki
+`appearance.*` anahtarlarından alındı — bu pencereye özel metin
+uydurulmadı.
+
+---
+
+## Aşama 1 — çıplak ISO
+
+**Tuzak: live-build `set timeout` yazmıyor.** GRUB'da timeout tanımsızsa
+menü sonsuza kadar tuş bekler, ISO hiç açılmaz. Üç QEMU testi de 25
+dakika zaman aşımına uğradı. `9500-grub-timeout.hook.binary` bunu
+ekliyor; iş akışındaki "ISO içi önyükleyici doğrulaması" adımı ISO'nun
+içinden `config.cfg`'yi çıkarıp satırın gerçekten orada olduğunu
+doğruluyor.
+
+**Tuzak: binary hook'lar `binary/` dizininin İÇİNDE çalışıyor**, derleme
+kökünde değil. İlk sürüm yanlış dizinde arıyordu.
+
+**Tuzak: `cmd | tee` tee'nin çıkış kodunu döndürüyor.** `iso/auto/build`
+bu yüzden `#!/bin/bash` + `set -eo pipefail` kullanıyor; olmazsa
+başarısız derleme CI'da yeşil görünüyor — bir kez görünmüştü de.
+
+**Karar: `--apt-recommends false` yalnızca derleme için.**
+`9990-apt-recommends.hook.chroot` kurulan sistemde Recommends'i geri
+açıyor. Bunun bedeli: Recommends'ten gelen paketler (`libpam-systemd`,
+`user-setup`) paket listelerinde açıkça yazılmak zorunda.

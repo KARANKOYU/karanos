@@ -20,6 +20,7 @@ TIMEOUT="${TIMEOUT:-900}"
 [[ -f "$ISO" ]] || { echo "HATA: ISO bulunamadi: $ISO" >&2; exit 2; }
 
 WORKDIR="$(mktemp -d)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 trap 'rm -rf "$WORKDIR"' EXIT
 SERIAL="$WORKDIR/serial.log"
 MONITOR="$WORKDIR/monitor.sock"
@@ -189,6 +190,19 @@ if [[ "$result" == "OK" ]]; then
 	echo ">> masaustu oturuyor, tema karesi icin ${DESKTOP_SETTLE:-12}s bekleniyor"
 	sleep "${DESKTOP_SETTLE:-12}"
 	snapshot "masaustu"
+
+	# "RESULT=OK" satirini gormek yetmiyor: 1. ve 2. asamada bu satir
+	# yazildigi hâlde QEMU ekrani simsiyahti, cunku grafik oturum hic
+	# acilmamisti. Ekranda gercekten bir sey cizildigini de olcuyoruz.
+	ppm="$WORKDIR/screen-masaustu.ppm"
+	if [[ -s "$ppm" ]]; then
+		if ! python3 "$REPO_ROOT/tools/screen-not-blank.py" "$ppm"; then
+			result="BLANK"
+			echo "::error::Masaustu karesi bos ($MODE) — oturum acilmis gorunuyor ama ekranda hicbir sey yok"
+		fi
+	else
+		echo "!! masaustu karesi alinamadi, ekran denetimi atlandi"
+	fi
 fi
 
 # Sonuc ne olursa olsun son ekran goruntusunu al
@@ -259,6 +273,15 @@ OK)
 	;;
 FAIL)
 	echo ">> SONUC: BASARISIZ — boot-check FAIL dondu ($MODE)"
+	grep "KARANOS-CHECK: FAILED-CHECKS=" "$SERIAL" 2>/dev/null || true
+	exit 1
+	;;
+BLANK)
+	echo ">> SONUC: BASARISIZ — masaustu karesi bos ($MODE)"
+	echo ">> TESHIS: boot-check gecti ama ekranda hicbir sey cizilmemis."
+	echo ">>         Genellikle pencere yoneticisi ya da duvar kagidi"
+	echo ">>         calismamis demektir. tani-$MODE yapitindaki"
+	echo ">>         screen-$MODE-masaustu.png dosyasina bak."
 	exit 1
 	;;
 PANIC)

@@ -1,0 +1,61 @@
+#!/bin/sh
+# Karan OS — /etc/os-release'i karanos-theme'in sürümüne geri döndür
+#
+# NEDEN GEREKLİ:
+# Debian'da /etc/os-release, /usr/lib/os-release'e giden bir sembolik
+# bağdır. karanos-theme paketi /usr/lib/os-release'i dpkg-divert ile
+# devralıyor, dolayısıyla bağ da bizim dosyamıza çıkmalı.
+#
+# Ama live-build derlemenin erken bir aşamasında /etc/os-release'i
+# SİLİP yerine GERÇEK BİR DOSYA yazıyor: Debian'ın o anki içeriği +
+# IMAGE_ID ve BUILD_ID satırları. Bu iş bizim paketimiz kurulmadan önce
+# olduğu için ortaya çıkan dosyada "Debian GNU/Linux 13" yazıyordu —
+# ISO'daki /usr/lib/os-release doğru olmasına rağmen sistem kendini
+# Debian sanıyordu.
+#
+# Burada dosyayı yeniden yazıyoruz. live-build'in eklediği IMAGE_ID /
+# BUILD_ID gibi satırlar korunuyor: bunlar derlemenin kimliği, bizim
+# üstümüze aldığımız bilgi değil.
+#
+# Bu hook 9990'lardan sonra, temizlikten (9995) önce çalışmalı; adı
+# ona göre seçildi. Paketler chroot hook'larından ÖNCE kurulduğu için
+# /usr/lib/os-release bu noktada bizim dosyamız.
+
+set -e
+
+ETC=/etc/os-release
+LIB=/usr/lib/os-release
+
+if [ ! -f "$LIB" ]; then
+	echo "E: $LIB yok — karanos-theme kurulmamis mi?" >&2
+	exit 1
+fi
+
+if ! grep -q '^PRETTY_NAME="Karan OS' "$LIB"; then
+	echo "E: $LIB bizim dosyamiz degil, dpkg-divert calismamis." >&2
+	head -3 "$LIB" >&2
+	exit 1
+fi
+
+# live-build'in kendi eklediği satırları ayıkla
+KORUNAN=""
+if [ -f "$ETC" ]; then
+	KORUNAN=$(grep -E '^(IMAGE_ID|IMAGE_VERSION|BUILD_ID)=' "$ETC" 2>/dev/null || true)
+fi
+
+{
+	cat "$LIB"
+	if [ -n "$KORUNAN" ]; then
+		echo "$KORUNAN"
+	fi
+} > "$ETC.yeni"
+mv "$ETC.yeni" "$ETC"
+chmod 0644 "$ETC"
+
+if grep -q '^PRETTY_NAME="Karan OS' "$ETC"; then
+	echo "I: /etc/os-release Karan OS olarak yazildi"
+	grep -E '^(PRETTY_NAME|ID|IMAGE_ID|BUILD_ID)=' "$ETC" | sed 's/^/I:   /'
+else
+	echo "E: /etc/os-release yazilamadi" >&2
+	exit 1
+fi

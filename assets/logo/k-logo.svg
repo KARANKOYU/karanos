@@ -1,12 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" role="img" aria-label="Karan OS">
   <defs>
-    <linearGradient id="karanGradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FF8C1A"/>
-      <stop offset="100%" stop-color="#FFBF00"/>
+    <linearGradient id="karanBox" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F2A2C"/>
+      <stop offset="100%" stop-color="#152444"/>
+    </linearGradient>
+    <linearGradient id="karanLetter" x1="0.2" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#2DD4BF"/>
+      <stop offset="100%" stop-color="#4F92F7"/>
     </linearGradient>
   </defs>
-  <rect width="100" height="100" rx="26" fill="url(#karanGradient)"/>
-  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="100" height="100" rx="26" fill="url(#karanBox)"/>
+  <rect x="1" y="1" width="98" height="98" rx="25" fill="none" stroke="#233A45" stroke-width="2"/>
+  <g fill="none" stroke="url(#karanLetter)" stroke-linecap="round" stroke-linejoin="round">
     <path d="M40 18 C31 24, 27 44, 28 60 C28.6 70, 30 76, 32 80" stroke-width="10"/>
     <path d="M74 24 C60 33, 45 43, 33 51" stroke-width="4.5"/>
     <path d="M37 48 C49 56, 60 66, 72 80" stroke-width="8"/>

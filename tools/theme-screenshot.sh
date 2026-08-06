@@ -16,7 +16,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-OUT="${1:-$REPO_ROOT/out/tema.png}"
+OUT="${1:-$REPO_ROOT/out/tema-${VARYANT:-koyu}.png}"
 DEB=$(ls -1 out/packages/karanos-theme_*_all.deb 2>/dev/null | head -1 || true)
 
 if [[ -z "$DEB" ]]; then
@@ -39,7 +39,13 @@ dpkg-deb -x "$DEB" "$ROOT"
 # Temayı sisteme kurmuyoruz — GTK'ya XDG_DATA_DIRS ile gösteriyoruz.
 # Böylece Codespace'in kendi /usr'ı ellenmiyor.
 export XDG_DATA_DIRS="$ROOT/usr/share:${XDG_DATA_DIRS:-/usr/share}"
-export GTK_THEME=Karan
+# Varsayilan gorunum koyu; ":dark" soneki GTK'ya tema dizinindeki
+# gtk-dark.css'i yukletir. Acik surumu gormek icin: VARYANT=acik
+if [[ "${VARYANT:-koyu}" == "acik" ]]; then
+	export GTK_THEME=Karan
+else
+	export GTK_THEME=Karan:dark
+fi
 export XCURSOR_PATH="$ROOT/usr/share/icons"
 export XCURSOR_THEME=Karan-Cursors
 
@@ -74,9 +80,23 @@ sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1
 xwallpaper --zoom "$ROOT/usr/share/backgrounds/karanos/karan.png" || true
-/usr/bin/python3 iso/config/includes.chroot/usr/lib/karanos/theme-preview >/dev/null 2>&1 &
+/usr/bin/python3 iso/config/includes.chroot/usr/lib/karanos/theme-preview \
+	>"$ROOT/preview.log" 2>&1 &
 PREVIEW_PID=$!
-sleep 4
+
+# Pencerenin haritalanmasini bekle. Sabit bir `sleep` yeterli degil:
+# yavas makinede kare pencere cizilmeden aliniyor ve ekran goruntusunde
+# yalnizca duvar kagidi cikiyor.
+for _ in $(seq 1 40); do
+	if xdotool search --name "Karan OS" >/dev/null 2>&1; then break; fi
+	if ! kill -0 "$PREVIEW_PID" 2>/dev/null; then
+		echo "HATA: onizleme penceresi cikti, gunluk:" >&2
+		cat "$ROOT/preview.log" >&2
+		break
+	fi
+	sleep 0.5
+done
+sleep 2
 
 mkdir -p "$(dirname "$OUT")"
 /usr/bin/python3 - "$OUT" <<'PY'

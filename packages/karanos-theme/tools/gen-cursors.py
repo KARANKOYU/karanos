@@ -17,13 +17,15 @@ import sys
 import tempfile
 
 # Bölüm 4'teki kimlik renkleri
-OUTLINE = "#575E75"
+# Dış çizgi neredeyse siyah: imleç hem koyu masaüstünde hem beyaz bir
+# belgenin üstünde aynı netlikte görünmeli.
+OUTLINE = "#0D141B"
 FILL = "#FFFFFF"
-ACCENT = "#FF8C1A"
-ACCENT2 = "#FFBF00"
-# "Yasak" imleci turuncu olursa uyarı gibi okunmuyor; işlevi renginden
+ACCENT = "#2DD4BF"
+ACCENT2 = "#4F92F7"
+# "Yasak" imleci turkuaz olursa uyarı gibi okunmuyor; işlevi renginden
 # anlaşılsın diye tek istisna olarak kırmızı.
-DANGER = "#D64545"
+DANGER = "#EF4444"
 
 SIZES = (24, 32, 48, 64)
 GRID = 24.0  # bütün çizimler 24x24 ızgarada, boyutlara buradan ölçeklenir

@@ -10,6 +10,16 @@ live-config
 live-config-systemd
 live-tools
 
+# user-setup OLMAZSA CANLI OTURUM AÇILMAZ.
+# live-config canlı kullanıcıyı (karan) /usr/lib/user-setup/user-setup-apply
+# ile oluşturuyor ve bu dosya user-setup paketinden geliyor. live-config onu
+# yalnızca Recommends ile istiyor; Recommends kapalı olduğu için paket
+# gelmiyor, kullanıcı hiç oluşmuyor, lightdm var olmayan kullanıcıya
+# otomatik giriş yapmaya çalışıp boş bir X ekranında kalıyordu — QEMU
+# görüntüsü simsiyah çıkıyordu. 1. ve 2. aşamada fark edilmedi çünkü
+# duman testi bunu yalnızca uyarı sayıyordu.
+user-setup
+
 # --- init ve oturum altyapısı ---
 systemd-sysv
 systemd-timesyncd
