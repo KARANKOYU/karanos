@@ -22,6 +22,7 @@ iso/config/packages.chroot/
 
 # Paket ağacına derleme sırasında kopyalanan kaynaklar — aslı assets/ altında
 packages/*/src/logo/
+packages/*/src/boot/
 
 # Derlenmiş paketler
 *.deb
@@ -34,6 +35,7 @@ packages/*/src/logo/
 **/debian/files
 **/debian/*.substvars
 **/debian/*.debhelper
+**/debian/*.debhelper.log
 **/debian/debhelper-build-stamp
 **/debian/karanos-*/
 **/debian/tmp/

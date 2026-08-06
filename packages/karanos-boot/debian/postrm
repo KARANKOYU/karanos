@@ -1,0 +1,20 @@
+#!/bin/sh
+# Tema kaldırılınca Plymouth'u Debian'ın varsayılanına döndür; aksi hâlde
+# olmayan bir temaya işaret eden bir yapılandırma kalıyor ve açılışta
+# splash hiç görünmüyor.
+set -e
+
+case "$1" in
+remove | purge)
+	if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+		plymouth-set-default-theme --reset >/dev/null 2>&1 || true
+	fi
+	if command -v update-initramfs >/dev/null 2>&1; then
+		update-initramfs -u || true
+	fi
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0

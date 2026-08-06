@@ -43,6 +43,13 @@ prepare_sources() {
 		install -m644 assets/logo/k-logo.svg \
 			packages/karanos-theme/src/logo/k-logo.svg
 		;;
+	karanos-boot)
+		install -d packages/karanos-boot/src/boot
+		install -m644 assets/boot/boot-image.png \
+			packages/karanos-boot/src/boot/boot-image.png
+		install -m644 assets/boot/boot-sound.mp3 \
+			packages/karanos-boot/src/boot/boot-sound.mp3
+		;;
 	esac
 }
 

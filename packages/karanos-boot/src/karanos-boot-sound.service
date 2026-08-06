@@ -1,0 +1,22 @@
+[Unit]
+Description=Karan OS açılış müziği ve açılış ekranı bekleme
+Documentation=file:///usr/share/doc/karanos-boot/README.md
+DefaultDependencies=no
+After=systemd-udev-settle.service sound.target
+Wants=sound.target
+# Açılış ekranı gösterilmiyorsa müziği de çalmıyoruz: kurtarma modunda
+# ya da `splash` verilmemişken sessiz açılmak doğru davranış.
+ConditionKernelCommandLine=splash
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/karanos/boot-sound
+# Script kendi içinde 10 saniyede kesiyor; bu değer onun üstünde bir
+# güvenlik ağı. Aşılırsa servis başarısız sayılır ama açılış durmaz.
+TimeoutStartSec=20
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=sysinit.target

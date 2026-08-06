@@ -1,0 +1,45 @@
+#!/bin/sh
+# Karan OS — açılış müziğini çalar ve splash'i müzik bitene kadar tutar
+#
+# NEDEN AYRI SERVİS: Plymouth'un ses desteği yok (bölüm 5).
+#
+# NEDEN SPLASH'İ BU TUTUYOR: systemd'nin plymouth-quit.service'i bu
+# servisi bekleyecek şekilde ayarlandı (drop-in). Servis Type=oneshot
+# olduğu için müzik bitene kadar "başlıyor" sayılıyor ve splash açık
+# kalıyor. Sistem müzikten önce hazır olsa bile splash bekliyor —
+# bölüm 5 madde 4'ün istediği bu.
+#
+# GÜVENLİK AĞI (bölüm 5 madde 5): ses aygıtı yoksa ya da çalma bir
+# şekilde takılırsa en fazla ${AZAMI_BEKLEME} saniye bekleyip devam
+# ediyoruz. Servisin TimeoutStartSec değeri de bunun biraz üstünde.
+# Müzik bir kez çalar, döngüye alınmaz.
+
+set -u
+
+SES=/usr/share/karanos/boot/boot-sound.wav
+AZAMI_BEKLEME=10
+SONME_PAYI=0.5
+
+# Splash yoksa (örneğin `splash` çekirdek parametresi verilmemişse)
+# ortalıkta tutacak bir şey de yok; sesi yine de çalıyoruz.
+plymouth_var=0
+if command -v plymouth >/dev/null 2>&1 && plymouth --ping >/dev/null 2>&1; then
+	plymouth_var=1
+fi
+
+if [ -r "$SES" ] && command -v aplay >/dev/null 2>&1; then
+	# `timeout` olmazsa bozuk bir ses aygıtı açılışı süresiz kilitler.
+	timeout "$AZAMI_BEKLEME" aplay -q "$SES" >/dev/null 2>&1 || true
+else
+	echo "karanos-boot: ses dosyasi ya da aplay yok, muzik atlandi" >&2
+fi
+
+# Görsel ile sesin birlikte sönmesi için: müzik bitti, şimdi splash'e
+# "sönmeye başla" de, kısa fade-out'u bekle, sonra çık. plymouth-quit
+# bunun ardından devreye giriyor.
+if [ "$plymouth_var" -eq 1 ]; then
+	plymouth update --status=karanos-sonlaniyor >/dev/null 2>&1 || true
+fi
+
+sleep "$SONME_PAYI"
+exit 0

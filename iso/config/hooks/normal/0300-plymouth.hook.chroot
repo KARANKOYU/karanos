@@ -1,0 +1,47 @@
+#!/bin/sh
+# Karan OS — Plymouth temasını initramfs'e göm
+#
+# NEDEN AYRI HOOK:
+# Açılış ekranı kök dosya sistemi bağlanmadan ÖNCE görünmeli, yani tema
+# initramfs'in içinde olmalı. `plymouth-set-default-theme -R` bunu tek
+# adımda yapıyor ama -R her paket kurulumunda initramfs üretiyor;
+# live-build chroot'unda bu derlemeye dakikalar ekliyor. Bu yüzden
+# karanos-boot'un postinst'i temayı yalnızca seçiyor, initramfs'i de
+# burada bir kez üretiyoruz.
+#
+# Bu hook paketlerden sonra çalışıyor (chroot_local-packages ->
+# chroot_local-hooks), dolayısıyla tema bu noktada kurulu.
+
+set -e
+
+if [ ! -d /usr/share/plymouth/themes/karanos ]; then
+	echo "E: karanos Plymouth temasi yok — karanos-boot kuruldu mu?" >&2
+	exit 1
+fi
+
+# Tema seçili mi (postinst yapmış olmalı, garantiye alıyoruz)
+plymouth-set-default-theme karanos
+
+secili=$(plymouth-set-default-theme)
+if [ "$secili" != "karanos" ]; then
+	echo "E: varsayilan tema 'karanos' olmadi, '$secili' kaldi" >&2
+	exit 1
+fi
+
+update-initramfs -u
+
+# initramfs'in içinde tema gerçekten var mı? Olmazsa açılışta splash
+# yerine siyah ekran görünür ve sebebi ISO açılmadan anlaşılmaz.
+img=$(ls -1 /boot/initrd.img-* 2>/dev/null | sort | tail -1)
+if [ -z "$img" ]; then
+	echo "E: initrd bulunamadi" >&2
+	exit 1
+fi
+
+if lsinitramfs "$img" 2>/dev/null | grep -q "plymouth/themes/karanos"; then
+	echo "I: Plymouth temasi initramfs'e girdi ($img)"
+else
+	echo "E: initramfs icinde karanos temasi yok — splash gorunmez" >&2
+	echo "E: initrd: $img" >&2
+	exit 1
+fi

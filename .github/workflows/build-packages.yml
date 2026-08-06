@@ -34,7 +34,8 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential debhelper dpkg-dev fakeroot \
-            librsvg2-bin x11-apps python3 ca-certificates git
+            librsvg2-bin x11-apps python3 ca-certificates git \
+            ffmpeg fonts-dejavu-core
 
       - uses: actions/checkout@v7
 
@@ -69,9 +70,30 @@ jobs:
           gerek "usr/share/icons/Karan/48x48/apps/karanos.png"    1
           gerek "usr/share/backgrounds/karanos/karan.png"         1
           gerek "usr/lib/os-release"                              1
-          if dpkg-deb -I $deb | grep -q "Depends:"; then
-            echo "✓ bağımlılıklar yazılı"
+
+          deb=out/packages/karanos-boot_*_all.deb
+          liste=$(dpkg-deb -c $deb)
+          gerek "usr/share/plymouth/themes/karanos/karanos.script"     1
+          gerek "usr/share/plymouth/themes/karanos/logo.png"           1
+          gerek "usr/share/plymouth/themes/karanos/made-by-karan.png"  1
+          gerek "usr/share/karanos/boot/boot-sound.wav"                1
+          gerek "lib/systemd/system/karanos-boot-sound.service"        1
+          gerek "plymouth-quit.service.d/karanos.conf"                 1
+
+          # Muzik gercekten cozulup fade uygulanmis mi? Bozuk bir WAV
+          # acilista sessiz kalir ve sebebi ISO acilmadan anlasilmaz.
+          rm -rf kb && mkdir kb && dpkg-deb -x $deb kb
+          sure=$(ffprobe -v error -show_entries format=duration \
+            -of default=noprint_wrappers=1:nokey=1 \
+            kb/usr/share/karanos/boot/boot-sound.wav 2>/dev/null || echo 0)
+          echo "acilis muzigi: ${sure}s"
+          if awk -v s="$sure" 'BEGIN{exit !(s > 1 && s < 30)}'; then
+            echo "✓ muzik suresi makul"
+          else
+            echo "::error::boot-sound.wav suresi ${sure}s — cozulme basarisiz olmus olabilir"
+            hata=1
           fi
+
           exit $hata
 
       - name: Boyut özeti

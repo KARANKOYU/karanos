@@ -74,6 +74,9 @@ PY
 
 OVMF_DIR="/usr/share/OVMF"
 
+# Asagidaki virguller QEMU parametrelerinin parcasi (audiodev=snd0 gibi),
+# dizi ayraci degil.
+# shellcheck disable=SC2054
 qemu_args=(
 	-name "karanos-smoke-$MODE"
 	-cpu max
@@ -88,6 +91,13 @@ qemu_args=(
 	-no-reboot
 	-rtc base=utc
 	-net none
+	# Ses karti: 3. asamadaki acilis muzigi gercek bir ALSA aygiti
+	# ariyor. Backend "none" — ses hicbir yere gitmiyor ama aplay
+	# gercek zamanda calisiyor, yani splash'in muzik boyunca acik
+	# kalmasi da test edilmis oluyor.
+	-audiodev none,id=snd0
+	-device intel-hda
+	-device hda-duplex,audiodev=snd0
 )
 
 case "$MODE" in
@@ -141,6 +151,8 @@ trap "kill $QEMU_PID 2>/dev/null || true; rm -rf '$WORKDIR'" EXIT
 result=""
 elapsed=0
 kernel_seen=0
+kernel_seen_at=0
+splash_shot=0
 stuck_reported=0
 while (( elapsed < TIMEOUT )); do
 	if ! kill -0 "$QEMU_PID" 2>/dev/null; then
@@ -160,10 +172,26 @@ while (( elapsed < TIMEOUT )); do
 		break
 	fi
 
-	# Cekirdek basladi mi? "Linux version ..." cekirdegin ilk satiridir.
-	if (( kernel_seen == 0 )) && grep -q "Linux version" "$SERIAL" 2>/dev/null; then
+	# Cekirdek basladi mi?
+	# 3. asamada `quiet` eklendi ve "Linux version" satiri seri konsolda
+	# gorunmuyor. Bu yuzden cekirdegin ya da systemd'nin herhangi bir
+	# yasam belirtisine bakiyoruz — amac "onyukleyicide mi takildik"
+	# sorusunu ayirt etmek.
+	if (( kernel_seen == 0 )) && grep -qE "Linux version|systemd\[1\]|Welcome to|KARANOS-CHECK|Reached target" "$SERIAL" 2>/dev/null; then
 		kernel_seen=1
+		kernel_seen_at=$elapsed
 		echo ">> cekirdek basladi (${elapsed}s)"
+	fi
+
+	# Acilis ekrani karesi: Plymouth splash yalnizca acilis sirasinda
+	# ekranda. Duman testinin sonundaki kareler alindiginda splash coktan
+	# kapanmis oluyor, yani 3. asamanin ciktisi hic gorulemiyor.
+	# plymouth-x11 Debian'da olmadigi icin yerelde de cizdiremiyoruz;
+	# splash'i gormenin tek yolu bu erken kare.
+	if (( kernel_seen == 1 && splash_shot == 0 && elapsed >= kernel_seen_at + 10 )); then
+		splash_shot=1
+		echo ">> acilis ekrani karesi aliniyor (${elapsed}s)"
+		snapshot "acilis"
 	fi
 
 	# 240 saniyede cekirdek hala baslamadiysa onyukleyicide takiliyiz.

@@ -119,6 +119,34 @@ else
 	fatal "WALLPAPER-FAIL duvar kagidi yok" "duvarkagidi"
 fi
 
+# Açılış ekranı (3. aşama): tema seçili mi, kaynaklar yerinde mi
+# Splash'in gerçekten göründüğünü buradan anlayamayız (o sırada bu script
+# henüz çalışmıyor); parçaların yerinde olduğunu doğruluyoruz. Görüntünün
+# kendisi CI'daki "acilis" ekran karesinden bakılır.
+if [ -f /usr/share/plymouth/themes/karanos/karanos.script ] &&
+	[ -f /usr/share/plymouth/themes/karanos/logo.png ] &&
+	[ -f /usr/share/plymouth/themes/karanos/made-by-karan.png ]; then
+	secili=$(plymouth-set-default-theme 2>/dev/null || echo "?")
+	if [ "$secili" = "karanos" ]; then
+		log "SPLASH-OK tema karanos"
+	else
+		fatal "SPLASH-FAIL varsayilan tema '$secili'" "splash"
+	fi
+else
+	fatal "SPLASH-FAIL plymouth temasi eksik" "splash"
+fi
+
+if [ -f /usr/share/karanos/boot/boot-sound.wav ]; then
+	log "BOOTSOUND-OK $(stat -c %s /usr/share/karanos/boot/boot-sound.wav) bayt"
+else
+	fatal "BOOTSOUND-FAIL acilis muzigi yok" "acilis-muzigi"
+fi
+
+# Ses servisi çalıştı mı — çalmadıysa splash'i tutan mekanizma da
+# devreye girmemiş demektir.
+ses_durum=$(systemctl is-active karanos-boot-sound.service 2>/dev/null || echo yok)
+log "BOOTSOUND-SERVICE=${ses_durum}"
+
 # os-release dpkg-divert ile devralınmıştı; gerçekten devraldı mı
 if grep -q '^PRETTY_NAME="Karan OS' /etc/os-release 2>/dev/null; then
 	log "OSRELEASE-OK $(. /etc/os-release && echo "$PRETTY_NAME")"

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  "made by Karan" — açılış ekranındaki italik yazı.
+
+  NEDEN SVG: Plymouth bitmap font kullanıyor, italik desteği yok. Bu
+  dosya paket derlenirken rsvg-convert ile PNG'ye çevriliyor; açılışta
+  hiçbir yazı tipi bağımlılığı kalmıyor.
+
+  Renk #8B9BA8 = koyu paletin ikincil metin rengi.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="150" viewBox="0 0 800 150">
+  <text x="400" y="100"
+        text-anchor="middle"
+        font-family="DejaVu Sans"
+        font-style="italic"
+        font-size="72"
+        fill="#8B9BA8">made by Karan</text>
+</svg>

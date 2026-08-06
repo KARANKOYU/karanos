@@ -1,0 +1,15 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: karanos-boot
+Source: https://github.com/KARANKOYU/karanos
+
+Files: *
+Copyright: 2026 Karan
+License: GPL-3.0+
+ GNU Genel Kamu Lisansı 3 veya sonrası. Tam metin Debian sistemlerinde
+ /usr/share/common-licenses/GPL-3 dosyasındadır.
+
+Files: usr/share/karanos/boot/*
+Copyright: 2026 Karan
+License: özel
+ Açılış görseli ve müziği Karan OS'a özeldir, yeniden dağıtımı proje
+ dışında serbest değildir.

@@ -6,6 +6,66 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## Aşama 3 — karanos-boot (açılış ekranı)
+
+**Karar: italik yazı PNG olarak gömüldü.** Bölüm 5'in notu iki seçenek
+sunuyordu: hazır PNG ya da kendi framebuffer programımız. Plymouth
+bitmap font kullanıyor ve italik gösteremiyor; kendi programımızı yazmak
+Plymouth'u ikinci kez yazmak olurdu. `src/made-by-karan.svg` paket
+derlenirken `rsvg-convert` ile PNG'ye çevriliyor — açılışta yazı tipi
+bağımlılığı yok, sonuç her makinede birebir aynı.
+
+**Karar: müzik WAV olarak gömülüyor, mp3 olarak değil.** Bölüm 5 "görsel
+ve ses birlikte yumuşakça söner" diyor ama mp3 çalarların çoğunda
+fade-out yok. `ffmpeg` paket derlenirken mp3'ü çözüp sonuna 0,4 saniyelik
+fade ekliyor; açılışta `aplay` yetiyor, mp3 çözücü gerekmiyor. Bedeli
+~1 MB ISO alanı (99 KB mp3 → 1,08 MB WAV); 1,5 GB hedefinde sorun değil.
+
+**Karar: splash'i tutan mekanizma systemd sıralaması.**
+`karanos-boot-sound.service` `Type=oneshot`; müzik bitene kadar
+"başlıyor" sayılıyor. `plymouth-quit.service` ve
+`plymouth-quit-wait.service` için konan drop-in'ler onu bekliyor. Böylece
+sistem daha erken hazır olsa bile splash müzik bitene kadar duruyor —
+bölüm 5 madde 4'ün istediği bu. Ses servisi başarısız olsa da sonlandığı
+için açılış kilitlenmiyor; script kendi içinde 10 saniyede kesiyor
+(madde 5'teki güvenlik ağı), servisin `TimeoutStartSec=20` değeri de
+onun üstünde ikinci bir ağ.
+
+**Karar: fade-out'u ses servisi tetikliyor.** Plymouth script'i müziğin
+ne zaman bittiğini bilemez. Servis müzik bitince
+`plymouth update --status=karanos-sonlaniyor` çağırıyor, tema script'i
+bu durumu görünce sönmeyi başlatıyor. Görsel ile sesin birlikte sönmesi
+böyle sağlanıyor.
+
+**Karar: initramfs ayrı hook'ta üretiliyor.**
+`plymouth-set-default-theme -R` tek adımda yapardı ama her paket
+kurulumunda initramfs üretmek live-build chroot'unda derlemeye dakikalar
+ekliyor. `postinst` yalnızca temayı seçiyor,
+`0300-plymouth.hook.chroot` initramfs'i bir kez üretiyor **ve temanın
+gerçekten içine girdiğini `lsinitramfs` ile doğruluyor**. Girmezse
+derleme duruyor: aksi hâlde açılışta siyah ekran görünür ve sebebi ISO
+açılmadan anlaşılmaz.
+
+**Karar: görsel tek kopya.** Aslı tema dizininde, bölüm 5'in istediği
+`/usr/share/karanos/boot/boot-image.png` ona giden bir bağ. Tersi
+olsaydı tema dizini initramfs'e kopyalanırken bağ kırılırdı. 432 KB
+tasarruf.
+
+**Yan etki: `quiet splash` seri günlüğü kısıyor.** Duman testi
+çekirdeğin başladığını "Linux version" satırından anlıyordu; `quiet` ile
+o satır görünmüyor. Test artık daha geniş bir desene bakıyor
+(`systemd[1]`, `Reached target`, `KARANOS-CHECK`). Bu tespit yalnızca
+"önyükleyicide mi takıldık" sorusunu ayırmak için kullanılıyor.
+
+**Splash nasıl görülüyor:** `plymouth-x11` Debian trixie'de yok, yani
+açılış ekranı yerelde çizdirilemiyor. Duman testi çekirdek başladıktan
+10 saniye sonra ayrı bir kare alıyor: `screen-<mod>-acilis.png`.
+QEMU'ya ses kartı da eklendi (`intel-hda`, backend `none`) — ses hiçbir
+yere gitmiyor ama `aplay` gerçek zamanda çalışıyor, böylece splash'in
+müzik boyunca açık kalması da test ediliyor.
+
+---
+
 ## Aşama 2 sonrası — renk kimliği değişimi ve iki gerçek hata
 
 ### Renk kimliği turuncu/sarıdan koyu turkuaz-maviye geçti

@@ -82,7 +82,7 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 |---|---|---|
 | 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | ✅ BIOS/UEFI/Secure Boot üçü de açılıyor |
 | 2 | Tema paketi (renkler, logo, imleç, GTK) | 🔨 paket hazır, masaüstü oturumu düzeltildi, CI doğrulaması bekliyor |
-| 3 | Açılış ekranı (görsel + parlama + mp3) | ⏳ |
+| 3 | Açılış ekranı (görsel + parlama + mp3) | 🔨 paket hazır, CI doğrulaması bekliyor |
 | 4 | Panel: görev çubuğu + başlat menüsü | ⏳ |
 | 5 | Giriş ekranı + kilit ekranı | ⏳ |
 | 6 | Kullanıcı/dizin yapısı + bind mount koruması | ⏳ |

@@ -22,7 +22,18 @@ user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetoot
 locales=tr_TR.UTF-8 \
 timezone=Europe/Istanbul \
 keyboard-layouts=tr \
+quiet splash \
 console=tty0 console=ttyS0,115200n8"
+
+# `quiet splash` 3. aşamada eklendi: `splash` Plymouth açılış ekranını
+# başlatıyor, `quiet` de çekirdek mesajlarının splash'in üstüne
+# taşmasını engelliyor.
+#
+# DİKKAT: `quiet` seri konsola giden çekirdek mesajlarını da kısıyor.
+# Duman testi eskiden "Linux version" satırına bakarak çekirdeğin
+# başladığını anlıyordu; o satır artık görünmediği için
+# tools/qemu-smoke-test.sh daha geniş bir desene bakıyor. Boot-check'in
+# kendi çıktısı systemd üzerinden geldiği için etkilenmiyor.
 
 lb config noauto \
 	--mode debian \
