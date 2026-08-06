@@ -61,6 +61,7 @@ Kendi paketlerimiz yerelde derlenebiliyor (ISO'nun aksine hızlı):
 ```bash
 tools/build-packages.sh          # packages/* → out/packages/*.deb
 tools/theme-screenshot.sh        # temayı Xvfb'de çizip PNG'ye al
+tools/panel-screenshot.sh        # görev çubuğunu çizip PNG'ye al
 ```
 
 ## Kurulum (GitHub tarafı)
@@ -83,7 +84,7 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 | 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | ✅ BIOS/UEFI/Secure Boot üçü de açılıyor |
 | 2 | Tema paketi (renkler, logo, imleç, GTK) | 🔨 paket hazır, masaüstü oturumu düzeltildi, CI doğrulaması bekliyor |
 | 3 | Açılış ekranı (görsel + parlama + mp3) | 🔨 paket hazır, CI doğrulaması bekliyor |
-| 4 | Panel: görev çubuğu + başlat menüsü | ⏳ |
+| 4 | Panel: görev çubuğu + başlat menüsü | 🔨 çubuk + menü çalışıyor; snap, Alt+Tab, masaüstü simgeleri kaldı |
 | 5 | Giriş ekranı + kilit ekranı | ⏳ |
 | 6 | Kullanıcı/dizin yapısı + bind mount koruması | ⏳ |
 | 7 | Kurulum sihirbazı | ⏳ |

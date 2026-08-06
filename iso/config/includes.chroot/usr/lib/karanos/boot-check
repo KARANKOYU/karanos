@@ -119,6 +119,15 @@ else
 	fatal "WALLPAPER-FAIL duvar kagidi yok" "duvarkagidi"
 fi
 
+# Görev çubuğu (4. aşama) çalışıyor mu
+# Panel yoksa masaüstü Windows benzeri olmuyor; ekran görüntüsünde de
+# yalnızca duvar kağıdı görünür.
+if pgrep -f "karanos-panel" >/dev/null 2>&1; then
+	log "PANEL-OK karanos-panel calisiyor"
+else
+	fatal "PANEL-FAIL karanos-panel calismiyor" "panel"
+fi
+
 # Açılış ekranı (3. aşama): tema seçili mi, kaynaklar yerinde mi
 # Splash'in gerçekten göründüğünü buradan anlayamayız (o sırada bu script
 # henüz çalışmıyor); parçaların yerinde olduğunu doğruluyoruz. Görüntünün

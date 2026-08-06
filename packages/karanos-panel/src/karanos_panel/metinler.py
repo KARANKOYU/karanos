@@ -44,6 +44,16 @@ def _turkce_mi():
 _TR = _turkce_mi()
 
 
+def turkce():
+    """Arayüz Türkçe mi gösterilecek.
+
+    Metin tablosunun dışında kalan (ama yine de çevrilmesi gereken)
+    yerler için — örneğin XDG kategori adları. Dil seçimi tek yerde
+    kalsın diye burada.
+    """
+    return _TR
+
+
 def M(anahtar):
     """Anahtarın karşılığını döndürür.
 

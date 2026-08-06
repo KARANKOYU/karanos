@@ -10,6 +10,8 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gio  # noqa: E402
 
+from .metinler import turkce
+
 # Başlat menüsündeki kategori sırası. Anahtarlar XDG ana kategorileri.
 # Sıra Windows'un "Tüm uygulamalar" listesindeki gibi değil, kullanım
 # sıklığına göre: günlük kullanılanlar üstte, sistem araçları altta.
@@ -92,6 +94,12 @@ def ara(uygulamalar, sorgu):
     bas = [u for u in uygulamalar if u.ad.lower().startswith(sorgu)]
     ic = [u for u in uygulamalar if u not in bas and u.eslesir_mi(sorgu)]
     return bas + ic
+
+
+def kategori_adi(kategori):
+    """Kategorinin görünen adı, arayüz diliyle tutarlı."""
+    tr, en = KATEGORI_ADI.get(kategori, (kategori, kategori))
+    return tr if turkce() else en
 
 
 def kategoriye_gore(uygulamalar):

@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
-"""Karan OS — tema önizleme penceresi (GEÇİCİ, yalnızca canlı ortam).
+"""Örnek GTK penceresi — YALNIZCA GELİŞTİRME ARACI, ISO'ya girmiyor.
 
-NEDEN VAR: 2. aşamada tema var ama onu gösterecek panel/masaüstü yok.
-Boş bir ekranın görüntüsüne bakıp "tema uygulanmış mı" demek mümkün
-değil. Bu pencere temanın dokunduğu bileşenleri tek karede gösteriyor:
-düğme, giriş kutusu, onay kutusu, anahtar, ilerleme çubuğu, seçili liste
-satırı, pencere çerçevesi.
+Temanın dokunduğu bileşenleri tek karede gösteriyor: düğme, giriş
+kutusu, onay kutusu, anahtar, kaydırıcı, ilerleme çubuğu ve pencere
+çerçevesi. tools/theme-screenshot.sh ve tools/panel-screenshot.sh
+ekran görüntüsü alırken bunu açıyor.
 
-4. aşamada karanos-panel gelince bu dosya ve onu çağıran autostart
-satırı silinecek.
+2. ve 3. aşamada bu dosya ISO'ya giriyordu (panel yokken temayı
+gösterecek başka bir şey yoktu). 4. aşamada gerçek panel gelince
+buraya, geliştirme araçlarının arasına taşındı.
 
-Buradaki etiketler docs/karanos-arayuz-metinleri.md içindeki
-`appearance.*` anahtarlarından alınmıştır; bu pencereye özgü metin
-uydurulmadı.
+Etiketler docs/karanos-arayuz-metinleri.md içindeki `appearance.*`
+anahtarlarından alınmıştır; bu pencereye özgü metin uydurulmadı.
 """
 
 import gi

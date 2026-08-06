@@ -77,6 +77,17 @@ for ctrl in "$REPO_ROOT"/packages/*/debian/control; do
 	' "$ctrl" | tr ',|' '\n\n' | sed -e 's/(.*)//' -e 's/\[.*\]//' \
 		-e 's/<.*>//' -e 's/[[:space:]]//g' | grep -v '^\${' | grep -v '^$' \
 		| sort -u | while IFS= read -r pkg; do
+		# Kendi paketlerimiz Debian arşivinde yok, packages/ altında
+		# derleniyorlar. Aranırsa hep "bulunamadı" derdi.
+		if [[ "$pkg" == karanos-* ]]; then
+			if [[ -d "$REPO_ROOT/packages/$pkg" ]]; then
+				printf '    \033[32m✓\033[0m %s (kendi paketimiz)\n' "$pkg"
+			else
+				printf '    \033[31m✗ %s — packages/ altinda boyle bir paket yok\033[0m\n' "$pkg"
+				echo "$pkg" >> "$CACHE_DIR/eksik"
+			fi
+			continue
+		fi
 		if grep -qxF "$pkg" "$INDEX"; then
 			printf '    \033[32m✓\033[0m %s\n' "$pkg"
 		else

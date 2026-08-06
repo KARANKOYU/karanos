@@ -1,7 +1,4 @@
 # Karan OS — Openbox oturum başlangıcı
-#
-# GEÇİCİ: 4. aşamada karanos-panel gelince duvar kağıdını ve oturum
-# başlangıcını panel yönetecek, bu dosya küçülecek.
 
 # --- Duvar kağıdı ----------------------------------------------------
 # karanos-theme paketinden geliyor. Paket yoksa (çıplak ISO) düz renge
@@ -18,13 +15,11 @@ fi
 # kalın çarpı imleci kalıyor, tema imleci yalnızca pencerelerde görünüyor.
 xsetroot -cursor_name left_ptr &
 
-# --- Tema önizlemesi (yalnızca canlı ortamda) ------------------------
-# Panel ve masaüstü henüz yok; temanın gerçekten uygulandığını CI'ın
-# ekran görüntüsünde görebilmek için küçük bir pencere açıyoruz.
-# /run/live/medium yalnızca ISO'dan açılınca var — kurulu sistemde
-# çalışmaz. 4. aşamada tamamen kaldırılacak.
-if [ -d /run/live/medium ] && [ -x /usr/lib/karanos/theme-preview ]; then
-	/usr/lib/karanos/theme-preview &
+# --- Görev çubuğu ve başlat menüsü (4. aşama) ------------------------
+# 2. ve 3. aşamada burada geçici bir tema önizleme penceresi vardı;
+# panel geldiği için kaldırıldı.
+if command -v karanos-panel >/dev/null 2>&1; then
+	karanos-panel &
 fi
 
 # Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken

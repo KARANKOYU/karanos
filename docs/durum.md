@@ -6,6 +6,58 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## Aşama 4 — karanos-panel (görev çubuğu + başlat menüsü)
+
+Kapsam bölüm 17'nin 4. maddesi: **görev çubuğu ve başlat menüsü**.
+Bölüm 8'deki masaüstü simgeleri, snap (Win+ok), Alt+Tab önizlemeleri ve
+kısayol tuşları bu commit'te YOK — ayrı bir adımda yapılacak, durum.md
+güncellenecek.
+
+**Karar: pencere listesi için libwnck.** Openbox EWMH konuşuyor;
+pencere listesini, sanal masaüstlerini ve "masaüstünü göster"i elle X
+protokolüyle yazmak yerine libwnck kullanıyoruz. Zaten Debian'da ve
+GTK3 ile aynı olay döngüsünde çalışıyor.
+
+**Karar: uygulama listesi Gio.AppInfo'dan.** Kendi .desktop
+ayrıştırıcımızı yazmıyoruz — Gio, NoDisplay/OnlyShowIn/TryExec ve dil
+kurallarını zaten doğru uyguluyor.
+
+**Karar: güç eylemleri logind üzerinden, sudo'suz.** logind, yerel
+oturum sahibine kapatma/yeniden başlatma iznini polkit üzerinden zaten
+veriyor. Böylece parola sorulmuyor ve panelin root yetkisi gerekmiyor.
+
+**Karar: `_NET_WM_STRUT_PARTIAL` xprop ile yazılıyor.** Doğal yolu
+`Gdk.property_change` olurdu ama PyGObject onu dışarı vermiyor
+(introspection'da `skip`), çağırınca `AttributeError` geliyor. Kalan
+seçenekler `python3-xlib` bağımlılığı eklemek ya da x11-utils'ten gelen
+`xprop`u çağırmak; xprop zaten ISO'da olduğu için o seçildi. Bu özellik
+olmazsa büyütülen pencereler panelin üstünü kaplıyor.
+
+**Karar: dil seçimi tek yerde.** `metinler.py` hem tablo metinlerini
+hem `turkce()` bayrağını veriyor; XDG kategori adları da onu kullanıyor.
+İlk sürümde kategoriler her zaman Türkçe, düğmeler yerele göreydi —
+ekran görüntüsünde "Start" ile "Geliştirme" yan yana çıkınca fark edildi.
+
+**Karar: sistem tepsisi bu aşamada yok.** Bölüm 8 ağ/ses/pil simgelerini
+tepside istiyor ama XEmbed/StatusNotifier tepsisi kendi başına bir iş.
+Panelin sağ ucundaki göstergeler (klavye dili, pil, saat) doğrudan
+sistemden okunuyor; gerçek tepsi 10. aşamadaki karanos-tools ile
+gelecek.
+
+**Geçici tema önizlemesi kaldırıldı.** 2. ve 3. aşamada ISO'ya giren
+`/usr/lib/karanos/theme-preview` panel geldiği için silindi;
+`tools/ornek-pencere.py` olarak geliştirme araçlarının arasına taşındı
+(ekran görüntüsü script'leri onu açıyor).
+
+**Doğrulama:** `tools/panel-screenshot.sh` paneli Xvfb + Openbox'ta
+çalıştırıp PNG veriyor, `MENU=1` ile başlat menüsü açık hâlde. Bu turda
+üç hatayı ISO derlemeden yakaladı: CSS bloğu Türkçe yorum içerdiği için
+`bytes` literal olamıyordu, `Gdk.property_change` yoktu, dil seçimi iki
+yerde ayrıydı. `boot-check` de artık `PANEL-OK` arıyor — panel
+çalışmazsa duman testi düşüyor.
+
+---
+
 ## Çalışma biçimi — CI tetiklenmiyor (AÇIK SORUN)
 
 **Belirti:** `45431df` ve `c28a15e` push edildi, GitHub hiçbir iş akışı

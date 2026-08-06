@@ -80,7 +80,7 @@ sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1
 xwallpaper --zoom "$ROOT/usr/share/backgrounds/karanos/karan.png" || true
-/usr/bin/python3 iso/config/includes.chroot/usr/lib/karanos/theme-preview \
+/usr/bin/python3 tools/ornek-pencere.py \
 	>"$ROOT/preview.log" 2>&1 &
 PREVIEW_PID=$!
 

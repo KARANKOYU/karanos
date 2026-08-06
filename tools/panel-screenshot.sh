@@ -43,6 +43,14 @@ export PYTHONPATH="$ROOT/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH
 export GTK_THEME=Karan:dark
 export XCURSOR_PATH="$ROOT/usr/share/icons"
 
+# Gercek sistemde /etc/gtk-3.0/settings.ini simge temasini Karan yapiyor
+# (karanos-theme paketinden geliyor). Burada onu XDG_CONFIG_HOME ile
+# taklit ediyoruz; olmazsa baslat dugmesinde K logosu yerine genel bir
+# simge cikiyor ve ekran goruntusu yaniltici oluyor.
+mkdir -p "$ROOT/config/gtk-3.0"
+cp "$ROOT/etc/gtk-3.0/settings.ini" "$ROOT/config/gtk-3.0/settings.ini"
+export XDG_CONFIG_HOME="$ROOT/config"
+
 DISPLAY_NUM=98
 export DISPLAY=":$DISPLAY_NUM"
 
@@ -74,7 +82,7 @@ if command -v xwallpaper >/dev/null 2>&1; then
 fi
 
 # Pencere listesinin boş görünmemesi için iki örnek pencere
-/usr/bin/python3 "$REPO_ROOT/iso/config/includes.chroot/usr/lib/karanos/theme-preview" \
+/usr/bin/python3 "$REPO_ROOT/tools/ornek-pencere.py" \
 	>/dev/null 2>&1 &
 ORNEK_PID=$!
 

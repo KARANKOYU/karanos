@@ -10,8 +10,12 @@ gelecek. Panelin sağ ucundaki göstergeler şimdilik doğrudan sistemden
 okunuyor.
 """
 
+import shutil
+import subprocess
+
 import gi
 
+gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
 gi.require_version("Wnck", "3.0")
 from gi.repository import Gdk, GLib, Gtk, Wnck  # noqa: E402
@@ -156,25 +160,43 @@ class Panel(Gtk.Window):
         del ekran
 
     def _strut_ayarla(self, alan):
-        """Pencereler panelin altına girmesin diye alan ayır.
+        """Pencereler panelin altına girmesin diye ekranın altında yer ayır.
 
-        _NET_WM_STRUT_PARTIAL olmadan tam ekran pencereler panelin
-        üstünü kaplıyor. Gdk bu özelliği doğrudan sunmuyor, ham özellik
-        olarak yazıyoruz.
+        _NET_WM_STRUT_PARTIAL olmadan büyütülen pencereler panelin
+        üstünü kaplıyor.
+
+        NEDEN xprop: bu özelliği yazmanın Python'daki doğal yolu
+        `Gdk.property_change` olurdu ama PyGObject onu dışarı vermiyor
+        (introspection'da `skip` işaretli) — çağırınca AttributeError
+        alıyoruz. Kalan seçenekler python3-xlib bağımlılığı eklemek ya
+        da x11-utils'ten gelen xprop'u çağırmak. xprop zaten ISO'da
+        olduğu için ikincisi tercih edildi.
         """
         pencere = self.get_window()
         if pencere is None:
             return False
+        if shutil.which("xprop") is None:
+            print("karanos-panel: xprop yok, panel alani ayrilamadi")
+            return False
+
+        xid = pencere.get_xid()
         ekran_yuksekligi = Gdk.Screen.get_default().get_height()
         alt = ekran_yuksekligi - (alan.y + alan.height) + YUKSEKLIK
-        degerler = [0, 0, 0, alt, 0, 0, 0, 0, 0, 0, alan.x, alan.x + alan.width - 1]
-        for ad in ("_NET_WM_STRUT_PARTIAL", "_NET_WM_STRUT"):
-            veri = degerler if ad == "_NET_WM_STRUT_PARTIAL" else degerler[:4]
-            Gdk.property_change(
-                pencere,
-                Gdk.Atom.intern(ad, False),
-                Gdk.Atom.intern("CARDINAL", False),
-                32, Gdk.PropMode.REPLACE, veri, len(veri))
+        sol_x = alan.x
+        sag_x = alan.x + alan.width - 1
+
+        # sol, sag, ust, alt, sol_baslangic, sol_bitis, sag_baslangic,
+        # sag_bitis, ust_baslangic, ust_bitis, alt_baslangic, alt_bitis
+        kismi = [0, 0, 0, alt, 0, 0, 0, 0, 0, 0, sol_x, sag_x]
+        for ad, degerler in (("_NET_WM_STRUT_PARTIAL", kismi),
+                             ("_NET_WM_STRUT", kismi[:4])):
+            try:
+                subprocess.run(
+                    ["xprop", "-id", str(xid), "-f", ad, "32c",
+                     "-set", ad, ",".join(str(d) for d in degerler)],
+                    check=False, capture_output=True, timeout=5)
+            except (OSError, subprocess.SubprocessError) as hata:
+                print(f"karanos-panel: {ad} yazilamadi: {hata}")
         return False
 
     # ---------------------------------------------------------------

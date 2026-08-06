@@ -128,9 +128,9 @@ class BaslatMenusu(Gtk.Window):
         self.liste.show_all()
 
     def _baslik(self, kategori):
-        tr, en = uygulamalar.KATEGORI_ADI.get(kategori, (kategori, kategori))
+        ad = uygulamalar.kategori_adi(kategori)
         etiket = Gtk.Label(xalign=0)
-        etiket.set_markup(f"<b>{GLib.markup_escape_text(tr)}</b>")
+        etiket.set_markup(f"<b>{GLib.markup_escape_text(ad)}</b>")
         etiket.get_style_context().add_class("dim-label")
         etiket.set_margin_top(10)
         etiket.set_margin_start(6)
