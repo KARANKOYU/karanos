@@ -22,6 +22,13 @@ lightdm-gtk-greeter
 # --- terminal (LXDE ailesi: GTK3, hafif, pcmanfm ile aynı takım) ---
 lxterminal
 
+# --- kompozitör (4. aşama) ---
+# Yuvarlatılmış köşe, gölge ve yumuşak geçişler ancak bileşikleme varken
+# çiziliyor. picom olmadan güç menüsü gibi şeffaf kenarlı pencerelerin
+# etrafında siyah çerçeve çıkıyor. xrender arka ucu kullanılıyor: 3B
+# hızlandırması olmayan sanal makinelerde de çalışıyor ve RAM'i az.
+picom
+
 # --- duvar kağıdı (2. aşama; 4. aşamada panel devralacak) ---
 # feh yerine xwallpaper: tek iş yapıyor, ~50 KB, arka planda süreç
 # bırakmıyor.

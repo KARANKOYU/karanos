@@ -187,6 +187,71 @@ fi
 ses_durum=$(systemctl is-active karanos-boot-sound.service 2>/dev/null || echo yok)
 log "BOOTSOUND-SERVICE=${ses_durum}"
 
+# --- Açılış sırası doğrulaması --------------------------------------
+# NEDEN GEREKLİ: QEMU'da ses arka ucu "none" ve zamanlama gerçek
+# donanımdan farklı, bu yüzden akış bozukluğu orada görünmüyordu.
+# VirtualBox testinde şu yaşandı: splash geldi (sessiz), söndü, konsol
+# göründü, müzik ANCAK O ZAMAN başladı, splash ikinci kez geldi ve müzik
+# masaüstüne taştı. Beklenen sıra:
+#
+#   plymouth-start  ≤  ses servisi başlangıcı  ≤  ses servisi bitişi
+#                                              ≤  plymouth-quit
+#
+# Zaman damgalarını systemd'nin kendi monotonik sayaçlarından okuyoruz
+# (mikrosaniye); journalctl metnini ayrıştırmaktan daha güvenilir.
+zaman() {
+	deger=$(systemctl show -p "$2" --value "$1" 2>/dev/null || echo 0)
+	case "$deger" in
+	'' | *[!0-9]*) echo 0 ;;
+	*) echo "$deger" ;;
+	esac
+}
+
+ply_basla=$(zaman plymouth-start.service InactiveExitTimestampMonotonic)
+ses_basla=$(zaman karanos-boot-sound.service InactiveExitTimestampMonotonic)
+ses_bit=$(zaman karanos-boot-sound.service ActiveEnterTimestampMonotonic)
+ply_bitir=$(zaman plymouth-quit.service InactiveExitTimestampMonotonic)
+
+sn() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
+log "SPLASH-TIMING start=$(sn "$ply_basla")s ses_basla=$(sn "$ses_basla")s ses_bit=$(sn "$ses_bit")s quit=$(sn "$ply_bitir")s"
+
+sira_hatasi=""
+if [ "$ply_basla" -eq 0 ]; then
+	sira_hatasi="${sira_hatasi} plymouth-start-hic-calismadi"
+fi
+if [ "$ses_basla" -eq 0 ]; then
+	sira_hatasi="${sira_hatasi} ses-servisi-hic-calismadi"
+elif [ "$ses_basla" -lt "$ply_basla" ]; then
+	sira_hatasi="${sira_hatasi} ses-splash-ten-once-basladi"
+fi
+# plymouth-quit ses servisi bitmeden koştuysa splash müziği kesmiş ya da
+# müzik splash'i aşmış demektir — ikisi de bölüm 5'e aykırı.
+if [ "$ply_bitir" -ne 0 ] && [ "$ses_bit" -ne 0 ] && [ "$ply_bitir" -lt "$ses_bit" ]; then
+	sira_hatasi="${sira_hatasi} quit-muzik-bitmeden-calisti"
+fi
+
+# Splash kaç kez gösterildi? Birden fazlaysa arada konsola düşülmüş
+# demektir (gerçek donanımda görülen belirti).
+splash_adet=$(journalctl -b --no-pager -u plymouth-start.service 2>/dev/null |
+	grep -c "Started plymouth-start" || true)
+[ -n "$splash_adet" ] || splash_adet=0
+log "SPLASH-COUNT=${splash_adet}"
+if [ "$splash_adet" -gt 1 ]; then
+	sira_hatasi="${sira_hatasi} splash-birden-fazla-baslatildi"
+fi
+
+if [ -z "$sira_hatasi" ]; then
+	log "SPLASH-ORDER-OK"
+else
+	fatal "SPLASH-ORDER-FAIL${sira_hatasi}" "splash-sirasi"
+	echo "--- KARANOS-TANI: acilis sirasi ---"
+	journalctl -b --no-pager -o short-monotonic \
+		-u plymouth-start.service -u karanos-boot-sound.service \
+		-u plymouth-quit.service -u plymouth-quit-wait.service 2>&1 |
+		tail -n 40 | sed 's/^/#   /'
+	echo "--- KARANOS-TANI sonu ---"
+fi
+
 # Plymouth script'i ayrıştırılabildi mi?
 # Tema script'inde bir sözdizimi hatası olursa splash sessizce boş kalır;
 # açılış devam ettiği için hiçbir yerde hata görünmez. Plymouth ayrıştırma

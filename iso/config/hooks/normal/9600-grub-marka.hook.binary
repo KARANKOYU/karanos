@@ -1,0 +1,106 @@
+#!/bin/sh
+# Karan OS — GRUB açılış menüsünü Karan OS markasına çevir
+#
+# NEDEN VAR: menü hâlâ Debian markalıydı — "Debian GNU/Linux ... (trixie)"
+# başlığı, Debian logosu ve Debian'ın kırmızı/gri renkleri. Kullanıcının
+# gördüğü ilk ekran bu; dağıtımın kendi kimliğini taşımalı.
+#
+# ÇALIŞMA DİZİNİ: binary hook'lar `binary/` dizininin İÇİNDE çalışır.
+# 9500 hook'unda bu bir kez ısırdı, aynı çoklu-yol yaklaşımı burada da.
+#
+# BU HOOK DERLEMEYİ DURDURMAZ. 9500 (timeout) durduruyor çünkü o olmadan
+# ISO hiç açılmıyor. Marka ise kozmetik: bir dosya beklediğimiz yerde
+# değilse uyarı yazıp devam ediyoruz, yoksa her live-build sürüm
+# değişikliği derlemeyi kırar. Ne bulduğunu günlüğe yazıyor ki yapı
+# değişirse bir sonraki koşuda görelim.
+
+set -e
+
+# Yeni koyu palet (bölüm 4). GRUB yalnızca 16 adlandırılmış renk
+# tanıyor; turkuazın karşılığı "cyan", zeminin karşılığı "black".
+# Tam altıgen değerler yalnızca tema dosyasında kullanılabiliyor.
+RENK_NORMAL="light-gray/black"
+RENK_SECILI="black/cyan"
+
+kok=""
+for aday in boot/grub ../binary/boot/grub binary/boot/grub; do
+	if [ -d "$aday" ]; then
+		kok="$aday"
+		break
+	fi
+done
+
+if [ -z "$kok" ]; then
+	echo "W: GRUB dizini bulunamadi, marka atlandi (calisma dizini: $(pwd))" >&2
+	exit 0
+fi
+
+echo "I: GRUB dizini: $kok"
+echo "I: icerigi:"
+ls -1 "$kok" | sed 's/^/I:   /'
+
+CFG="$kok/config.cfg"
+if [ ! -f "$CFG" ]; then
+	echo "W: $CFG yok, marka atlandi" >&2
+	exit 0
+fi
+
+# --- menü girdilerinin adları ----------------------------------------
+# live-build "Live system (amd64)" gibi adlar üretiyor. Kullanıcı
+# "Karan OS" görmeli. Sed yerine tek tek eşleme: beklenmedik bir ad
+# gelirse sessizce bozmak yerine olduğu gibi bırakıyoruz.
+sed -i \
+	-e 's|menuentry "Live system (\([^)]*\) fail-safe mode)"|menuentry "Karan OS (güvenli mod, \1)"|' \
+	-e 's|menuentry "Live system (\([^)]*\))"|menuentry "Karan OS (\1)"|' \
+	-e 's|menuentry "Debian GNU/Linux[^"]*"|menuentry "Karan OS"|' \
+	"$CFG"
+
+# --- renkler ve başlık ------------------------------------------------
+cat >> "$CFG" <<EOF
+
+### Karan OS — marka ###
+set color_normal=${RENK_NORMAL}
+set color_highlight=${RENK_SECILI}
+set menu_color_normal=${RENK_NORMAL}
+set menu_color_highlight=${RENK_SECILI}
+EOF
+
+# --- arka plan --------------------------------------------------------
+# Duvar kağıdının en sakin olanını kullanıyoruz; menü yazısı üstünde
+# okunur kalsın diye desenli olan değil.
+arka=""
+for aday in \
+	../chroot/usr/share/backgrounds/karanos/karan-gece.png \
+	chroot/usr/share/backgrounds/karanos/karan-gece.png
+do
+	if [ -f "$aday" ]; then
+		arka="$aday"
+		break
+	fi
+done
+
+if [ -n "$arka" ]; then
+	cp "$arka" "$kok/karanos-arkaplan.png"
+	cat >> "$CFG" <<'EOF'
+# GRUB'un png modulu yoksa bu satir sessizce basarisiz olur ve menu duz
+# renk zeminde gorunur — okunurlugu bozmaz.
+if background_image /boot/grub/karanos-arkaplan.png; then
+	true
+fi
+EOF
+	echo "I: GRUB arka plani kondu ($arka)"
+else
+	echo "W: karan-gece.png bulunamadi, GRUB arka plani duz renk kalacak" >&2
+fi
+
+# --- Debian markalı kalıntılar ---------------------------------------
+# desktop-base'ten gelen Debian logosu/arka planı varsa kaldır.
+for artik in "$kok/splash.png" "$kok/debian.png" "$kok/themes/debian"; do
+	if [ -e "$artik" ]; then
+		rm -rf "$artik"
+		echo "I: Debian markali dosya kaldirildi: $artik"
+	fi
+done
+
+echo "I: GRUB menusu Karan OS markasina cevrildi"
+grep -c 'menuentry "Karan OS' "$CFG" | sed 's/^/I: Karan OS girdisi sayisi: /'

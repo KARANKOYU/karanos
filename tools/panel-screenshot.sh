@@ -77,6 +77,16 @@ awk '
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1
 
+# Kompozitor: ISO'da picom autostart'tan basliyor, burada da baslatiyoruz
+# ki guc menusunun golgesi/yuvarlak kosesi gercekte nasil gorunecekse
+# oyle cizilsin. Yoksa panel "bilesikleme yok" moduna dusuyor.
+if command -v picom >/dev/null 2>&1; then
+	picom --backend xrender \
+		--config "$REPO_ROOT/iso/config/includes.chroot/etc/xdg/picom-karanos.conf" \
+		>"$ROOT/picom.log" 2>&1 &
+	sleep 2
+fi
+
 if command -v xwallpaper >/dev/null 2>&1; then
 	xwallpaper --zoom "$ROOT/usr/share/backgrounds/karanos/karan.png" || true
 fi
@@ -127,10 +137,18 @@ if [[ "${BUYUT:-0}" == "1" ]]; then
 	fi
 fi
 
-if [[ "${MENU:-0}" == "1" ]]; then
+if [[ "${MENU:-0}" == "1" || "${GUC:-0}" == "1" ]]; then
 	# Başlat düğmesi sol altta; oraya tıkla
 	yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)
 	xdotool mousemove 40 $((yukseklik - 22)) click 1
+	sleep 3
+fi
+
+# GUC=1: baslat menusundeki guc dugmesine de bas, popup acik kalsin.
+# Guc dugmesi menunun sol alt kosesinde (menu x=0'dan basliyor).
+if [[ "${GUC:-0}" == "1" ]]; then
+	yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)
+	xdotool mousemove 60 $((yukseklik - 70)) click 1
 	sleep 3
 fi
 

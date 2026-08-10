@@ -9,7 +9,8 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 
-from . import guc, uygulamalar
+from . import uygulamalar
+from .guc_menusu import GucMenusu
 from .metinler import M
 
 GENISLIK = 420
@@ -62,22 +63,26 @@ class BaslatMenusu(Gtk.Window):
                        False, False, 0)
 
         # --- güç ---
+        # Tek düğme; basınca Windows 11'deki gibi üstte küçük bir popup
+        # açılıyor (guc_menusu.py). Eylemleri doğrudan buraya dizmek
+        # yerine popup kullanmanın sebebi: dört ikon yan yana dizilince
+        # hangisinin ne olduğu ancak ipucu metniyle anlaşılıyordu.
         guc_kutusu = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         guc_kutusu.set_border_width(8)
-        for etiket, simge, eylem in (
-            (M("panel.lock"), "system-lock-screen-symbolic", guc.kilitle),
-            (M("panel.logout"), "system-log-out-symbolic", guc.oturumu_kapat),
-            (M("panel.restart"), "system-reboot-symbolic", guc.yeniden_baslat),
-            (M("panel.shutdown"), "system-shutdown-symbolic", guc.kapat),
-        ):
-            dugme = Gtk.Button()
-            dugme.set_tooltip_text(etiket)
-            dugme.set_image(Gtk.Image.new_from_icon_name(
-                simge, Gtk.IconSize.LARGE_TOOLBAR))
-            dugme.set_relief(Gtk.ReliefStyle.NONE)
-            dugme.connect("clicked", self._guc_eylemi, eylem)
-            guc_kutusu.pack_start(dugme, False, False, 0)
+        self.guc_dugmesi = Gtk.Button()
+        self.guc_dugmesi.set_relief(Gtk.ReliefStyle.NONE)
+        self.guc_dugmesi.set_tooltip_text(M("panel.power"))
+        guc_ic = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        guc_ic.pack_start(Gtk.Image.new_from_icon_name(
+            "system-shutdown-symbolic", Gtk.IconSize.LARGE_TOOLBAR),
+            False, False, 0)
+        guc_ic.pack_start(Gtk.Label(label=M("panel.power")), False, False, 0)
+        self.guc_dugmesi.add(guc_ic)
+        self.guc_dugmesi.connect("clicked", self._guc_menusunu_ac)
+        guc_kutusu.pack_start(self.guc_dugmesi, False, False, 0)
         kok.pack_start(guc_kutusu, False, False, 0)
+
+        self.guc_menusu = GucMenusu()
 
     # ---------------------------------------------------------------
     def ac(self, x, y):
@@ -171,9 +176,20 @@ class BaslatMenusu(Gtk.Window):
         except GLib.Error as hata:
             print(f"karanos-panel: {uygulama.ad} baslatilamadi: {hata}")
 
-    def _guc_eylemi(self, _dugme, eylem):
-        self.kapat()
-        eylem()
+    def _guc_menusunu_ac(self, dugme):
+        # Popup'ı güç düğmesinin üstünde aç. Başlat menüsünü kapatmıyoruz:
+        # kullanıcı popup'ı kapatınca listeye geri dönmüş oluyor.
+        pencere = dugme.get_window()
+        if pencere is None:
+            return
+        _, kok_x, kok_y = pencere.get_origin()
+        tahsis = dugme.get_allocation()
+        # Klavye/fare yakalaması bizde; popup kendi yakalamasını
+        # alabilsin diye önce bırakıyoruz.
+        ekran = Gdk.Display.get_default()
+        if ekran is not None:
+            ekran.get_default_seat().ungrab()
+        self.guc_menusu.ac(kok_x + tahsis.x, kok_y + tahsis.y)
 
     def _disari_tiklandi(self, _pencere, olay):
         genislik = self.get_allocated_width()

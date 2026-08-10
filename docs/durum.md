@@ -6,6 +6,76 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## VirtualBox testi — açılış akışı bozuktu
+
+Gerçek makinede (UEFI, ses etkin) görülen sıra: splash geldi (sessiz) →
+söndü, konsol göründü → müzik ANCAK O ZAMAN başladı → splash ikinci kez
+geldi → masaüstüne geçildi ama müzik çalmaya devam etti.
+
+QEMU bunu yakalayamadı: ses arka ucu `none`, zamanlama farklı.
+
+**Kök sebep: `After=sound.target`.** Servis, udev ses kartını bulup
+`sound.target`'a ulaşılana kadar bekliyordu. Gerçek donanımda bu nokta
+açılışın çok ilerisinde; servis splash'i tutamayacak kadar geç
+başlıyordu. `plymouth-quit` çoktan koşmuş, splash sönmüş, konsol
+görünmüş oluyordu.
+
+**İkinci sebep: drop-in'deki `Wants=`.** `plymouth-quit.service` ses
+servisini `Wants=` ile de çekiyordu. Servis erken başlayamayınca
+plymouth-quit onu O ANDA başlatıyordu — müziğin splash'in sonunda
+başlayıp masaüstüne taşmasının açıklaması bu.
+
+Yapılanlar:
+
+- Servis artık `After=systemd-udev-trigger.service plymouth-start.service`
+  ile **erken** başlıyor; `Before=plymouth-quit.service
+  plymouth-quit-wait.service` sıralaması unit'in kendisinde de yazılı
+  (yalnızca drop-in'e güvenmiyoruz).
+- **Ses aygıtını script bekliyor**, systemd değil: `/dev/snd/pcmC*D*p`
+  belirene kadar en fazla 8 saniye. Başlama anı öngörülebilir oldu.
+- Drop-in'den `Wants=` kaldırıldı. Ses servisi hiç başlamazsa `After=`
+  etkisiz kalıyor ve splash normal zamanında kapanıyor: müziksiz ama
+  düzgün açılış. Müziğin masaüstüne taşmasından iyi bir hata biçimi.
+
+**Sıralama doğrulaması eklendi** (istenen kontrol): `boot-check` artık
+systemd'nin monotonik zaman damgalarını okuyup
+`plymouth-start ≤ ses başlangıcı ≤ ses bitişi ≤ plymouth-quit`
+sırasını denetliyor, `SPLASH-TIMING` satırıyla dört değeri de yazıyor ve
+`journalctl -b -u plymouth-start.service` üzerinden splash'in **kaç kez**
+başlatıldığını sayıyor (`SPLASH-COUNT`). Birden fazlaysa arada konsola
+düşülmüş demektir. Sıra bozuksa `RESULT=FAIL` ve ilgili unit'lerin
+journal dökümü seri konsola yazılıyor.
+
+### GRUB menüsü Karan OS markasına çevrildi
+
+`9600-grub-marka.hook.binary`: menü girdisi adları ("Live system
+(amd64)" → "Karan OS (amd64)"), turkuaz vurgulu renkler ve arka plan
+olarak `karan-gece.png`. Debian logosu/arka planı kalıntıları siliniyor.
+
+Bu hook **derlemeyi durdurmuyor** — 9500 (timeout) durduruyor çünkü o
+olmadan ISO hiç açılmıyor; marka ise kozmetik. Bir dosya beklenen yerde
+değilse uyarı yazıp devam ediyor ve ne bulduğunu günlüğe döküyor, ki
+live-build yapısı değişirse bir sonraki koşuda görelim.
+
+### Güç menüsü ve kompozitör
+
+Başlat menüsündeki dört güç ikonu yan yana diziliydi ve hangisinin ne
+olduğu ancak ipucu metniyle anlaşılıyordu. Yerine tek "Güç" düğmesi ve
+üstünde açılan popup kondu: Kilitle, Uyku, Kapat, Yeniden başlat —
+solda ikon, sağında metin, üzerine gelince satır vurgulanıyor.
+
+**picom eklendi.** Yuvarlatılmış köşe ve gölge ancak bileşikleme varken
+çiziliyor; kompozitörsüz Xvfb testinde kutunun etrafında **siyah bir
+çerçeve** çıktı (şeffaf pay siyah çiziliyor). İki taraflı çözüldü:
+picom autostart'tan başlıyor (`xrender` arka ucu — 3B gerektirmiyor,
+RAM'i az) ve panel `Gdk.Screen.is_composited()` ile bileşikleme yoksa
+kutuyu düz dikdörtgen çiziyor. Siyah çerçeve hiçbir durumda görünmüyor.
+
+LibreOffice şartnamedeki setup program listesinde zaten var (bölüm 7 ve
+bölüm 11 kategori listesi) — ek iş gerekmedi.
+
+---
+
 ## Koşu #7 — masaüstü geldi, iki sorun kaldı
 
 **Tuttu:** `USER-OK karan`, `WM-OK openbox calisiyor (10 saniyede)`,

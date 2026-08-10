@@ -15,6 +15,16 @@ fi
 # kalın çarpı imleci kalıyor, tema imleci yalnızca pencerelerde görünüyor.
 xsetroot -cursor_name left_ptr &
 
+# --- Kompozitör ------------------------------------------------------
+# Gölge ve yuvarlatılmış köşeler için. Panelden ÖNCE başlıyor: panel
+# açılışta bileşiklemenin var olup olmadığına bakıp güç menüsünü ona
+# göre çiziyor. xrender arka ucu, 3B gerektirmiyor.
+if command -v picom >/dev/null 2>&1; then
+	picom --backend xrender --config /etc/xdg/picom-karanos.conf &
+	# Panel bileşiklemeyi görebilsin diye kısa bir pay.
+	sleep 1
+fi
+
 # --- Görev çubuğu ve başlat menüsü (4. aşama) ------------------------
 # NEDEN GÜNLÜĞE YAZIYORUZ: panel ilk denemede canlı ortamda çöktü ve
 # çıktısı hiçbir yere gitmediği için sebebi görünmedi — duman testi

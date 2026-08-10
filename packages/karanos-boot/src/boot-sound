@@ -3,37 +3,71 @@
 #
 # NEDEN AYRI SERVİS: Plymouth'un ses desteği yok (bölüm 5).
 #
-# NEDEN SPLASH'İ BU TUTUYOR: systemd'nin plymouth-quit.service'i bu
-# servisi bekleyecek şekilde ayarlandı (drop-in). Servis Type=oneshot
-# olduğu için müzik bitene kadar "başlıyor" sayılıyor ve splash açık
-# kalıyor. Sistem müzikten önce hazır olsa bile splash bekliyor —
-# bölüm 5 madde 4'ün istediği bu.
+# NEDEN SPLASH'İ BU TUTUYOR: servis Type=oneshot ve unit dosyasında
+# `Before=plymouth-quit.service`. Müzik bitene kadar servis "başlıyor"
+# sayılıyor, dolayısıyla plymouth-quit bekliyor ve splash açık kalıyor.
+# Sistem müzikten önce hazır olsa bile splash bekliyor — bölüm 5 madde
+# 4'ün istediği bu.
 #
-# GÜVENLİK AĞI (bölüm 5 madde 5): ses aygıtı yoksa ya da çalma bir
-# şekilde takılırsa en fazla ${AZAMI_BEKLEME} saniye bekleyip devam
-# ediyoruz. Servisin TimeoutStartSec değeri de bunun biraz üstünde.
-# Müzik bir kez çalar, döngüye alınmaz.
+# SES AYGITINI BURADA BEKLİYORUZ, systemd'de DEĞİL:
+# Unit `After=sound.target` ile beklerse gerçek donanımda açılışın çok
+# ilerisine kayıyor ve splash'i tutamıyor (VirtualBox testinde müzik
+# masaüstüne kadar taştı). Servis erken başlıyor, ses aygıtının
+# gelmesini kısa ve sınırlı bir döngüyle burada bekliyoruz.
+#
+# GÜVENLİK AĞI (bölüm 5 madde 5): ses aygıtı hiç gelmezse ya da çalma
+# takılırsa toplam bekleme ${AYGIT_BEKLEME} + ${AZAMI_CALMA} saniyeyi
+# geçmiyor. Müzik bir kez çalar, döngüye alınmaz.
 
 set -u
 
 SES=/usr/share/karanos/boot/boot-sound.wav
-AZAMI_BEKLEME=10
+AYGIT_BEKLEME=8   # ses aygıtı için en fazla bu kadar bekle
+AZAMI_CALMA=10    # çalma en fazla bu kadar sürsün
 SONME_PAYI=0.5
 
-# Splash yoksa (örneğin `splash` çekirdek parametresi verilmemişse)
-# ortalıkta tutacak bir şey de yok; sesi yine de çalıyoruz.
+log() { echo "karanos-boot-sound: $*"; }
+
 plymouth_var=0
 if command -v plymouth >/dev/null 2>&1 && plymouth --ping >/dev/null 2>&1; then
 	plymouth_var=1
 fi
+log "plymouth: $plymouth_var"
 
-if [ -r "$SES" ] && command -v aplay >/dev/null 2>&1; then
-	# `timeout` olmazsa bozuk bir ses aygıtı açılışı süresiz kilitler.
-	timeout "$AZAMI_BEKLEME" aplay -q "$SES" >/dev/null 2>&1 || true
+# --- ses aygıtını bekle ---------------------------------------------
+# /dev/snd/pcmC*D*p = çalma (playback) aygıtı. Yalnızca /dev/snd
+# dizininin varlığına bakmak yetmiyor; controlC0 varken bile playback
+# aygıtı henüz oluşmamış olabiliyor.
+aygit=0
+i=0
+while [ "$i" -lt "$AYGIT_BEKLEME" ]; do
+	for d in /dev/snd/pcmC*D*p; do
+		if [ -e "$d" ]; then
+			aygit=1
+			break
+		fi
+	done
+	[ "$aygit" -eq 1 ] && break
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$aygit" -eq 1 ]; then
+	log "ses aygiti ${i} saniyede hazir"
 else
-	echo "karanos-boot: ses dosyasi ya da aplay yok, muzik atlandi" >&2
+	log "ses aygiti ${AYGIT_BEKLEME} saniyede gelmedi, muzik atlanacak"
 fi
 
+# --- çal -------------------------------------------------------------
+if [ "$aygit" -eq 1 ] && [ -r "$SES" ] && command -v aplay >/dev/null 2>&1; then
+	# `timeout` olmazsa bozuk bir ses aygıtı açılışı süresiz kilitler.
+	timeout "$AZAMI_CALMA" aplay -q "$SES" >/dev/null 2>&1
+	log "muzik bitti (aplay cikis $?)"
+else
+	log "ses dosyasi, aygit ya da aplay yok — muzik atlandi"
+fi
+
+# --- splash'i söndür --------------------------------------------------
 # Görsel ile sesin birlikte sönmesi için: müzik bitti, şimdi splash'e
 # "sönmeye başla" de, kısa fade-out'u bekle, sonra çık. plymouth-quit
 # bunun ardından devreye giriyor.
@@ -42,4 +76,5 @@ if [ "$plymouth_var" -eq 1 ]; then
 fi
 
 sleep "$SONME_PAYI"
+log "tamam"
 exit 0
