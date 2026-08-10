@@ -31,6 +31,18 @@ BASLANGIC_OPAK = 0.15;
 YAZI_OPAK      = 0.85;
 PARLAMA_OPAK   = 0.18;
 SONME_SURESI   = 0.5;   # saniye — kapanmadan önceki fade-out
+# Fade SIFIRA değil, bu orana kadar iniyor.
+#
+# NEDEN: plymouth-quit `--retain-splash` ile çıkıyor, yani ekranda kalan
+# SON KARE X ayağa kalkana kadar duruyor. Fade sıfıra inince o kare
+# bomboş oluyordu ve VirtualBox testinde masaüstünden önce ~3 saniye
+# siyah ekran görülüyordu. Görsel soluk da olsa ekranda kalınca o boşluk
+# "kararmış açılış ekranı" gibi görünüyor, siyah bir hiçlik gibi değil.
+#
+# Bölüm 5 "yumuşakça söner" diyor; sönme korunuyor, yalnızca dibe
+# vurmuyor. Kendi giriş ekranımız (5. aşama) devir teslimi biz
+# yönetince tam sönmeye dönülebilir.
+SONME_HEDEF    = 0.35;
 
 # Zemin: koyu paletteki yüzey renginden masaüstü zeminine ince degrade
 # (#17222C üstte, #0D141B altta)
@@ -111,9 +123,9 @@ fun Refresh()
         # Kapanış: görsel, yazı ve parlama birlikte söner
         gecen = (kare - sonme_karesi) / KARE_HIZI;
         k = 1 - (gecen / SONME_SURESI);
-        if (k < 0)
+        if (k < SONME_HEDEF)
           {
-            k = 0;
+            k = SONME_HEDEF;
           }
         logo_sprite.SetOpacity(logo_opak * k);
         yazi_sprite.SetOpacity(yazi_opak * k);

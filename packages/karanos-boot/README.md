@@ -96,3 +96,6 @@ Karan OS tarafında yapılanlar:
 VirtualBox tarafında yapılabilecek: makine ayarlarında **Ekran →
 Grafik Denetleyici** değerini `VBoxSVGA` yapmak. O zaman `vboxvideo`
 sürücüsü devreye giriyor (initramfs'te var) ve hata kayboluyor.
+
+**Doğrulandı:** VBoxSVGA'ya geçildiğinde hem `vmwgfx` hatası hem de
+splash sonrası konsol metni kayboldu.

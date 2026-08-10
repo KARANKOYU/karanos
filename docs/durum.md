@@ -6,6 +6,60 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## Üçüncü VirtualBox testi — siyah boşluk
+
+VBoxSVGA'ya geçince `vmwgfx` hatası ve splash sonrası konsol metni
+kayboldu. Yani teşhis doğruydu: vmwgfx bağlanıp çalışmayınca KMS devre
+dışı kalıyor ve Plymouth framebuffer'a düşüyordu.
+
+Kalan sorun: splash kapandıktan sonra masaüstünden önce ~3 saniye siyah
+ekran.
+
+### `After=display-manager.service` neden ÇÖZÜM DEĞİL
+
+İlk akla gelen, `plymouth-quit`'i giriş yöneticisinden sonraya almaktı.
+Debian'ın `lightdm.service` dosyasını okuyunca bunun döngü yaratacağı
+görüldü:
+
+```
+# replaces plymouth-quit since lightdm quits plymouth on its own
+Conflicts=plymouth-quit.service
+After=plymouth-quit.service
+OnFailure=plymouth-quit.service
+```
+
+lightdm zaten `plymouth-quit`'ten SONRA başlıyor. Ona `After=lightdm`
+eklemek karşılıklı bağımlılık olur; systemd döngüyü rastgele bir yerden
+kırar ve sonuç öngörülemez hâle gelir. Bu yol kapalı.
+
+### Gerçek sebep: retain-splash boş kareyi tutuyordu
+
+`plymouth quit --retain-splash` ekranda **son kareyi** bırakıyor. Ses
+servisi çıkmadan hemen önce splash'i sıfıra kadar söndürdüğü için o son
+kare bomboştu — tutulan şey siyahlıktı.
+
+Çözüm: fade artık sıfıra değil **%35'e** iniyor (`SONME_HEDEF`). Görsel
+soluk da olsa ekranda kalıyor, X ayağa kalkana kadar geçen süre
+"kararmış açılış ekranı" gibi görünüyor, siyah bir hiçlik gibi değil.
+
+Bölüm 5'in istediği "yumuşakça söner" korunuyor, yalnızca dibe
+vurmuyor. Kendi giriş ekranımız geldiğinde (5. aşama) devir teslimi biz
+yöneteceğiz; o zaman tam sönmeye dönülebilir.
+
+### DRM sürücüsü kapsaması
+
+Farklı hipervizörlerde aynı sorunun çıkmaması için initramfs'te bulunan
+sürücüler: `bochs`, `bochs_drm`, `qxl`, `virtio_gpu`, `vmwgfx`,
+`vboxvideo`, `simpledrm`. Gerçek donanımınkiler (`i915`, `amdgpu`,
+`nouveau`) initramfs-tools'un `most` listesinden zaten geliyor.
+
+`0300-plymouth.hook.chroot` artık hangilerinin gerçekten girdiğini
+tek tek yazıyor ve sanal makine sürücülerinden biri eksikse uyarıyor —
+"o hipervizörde splash görünmeyebilir" bilgisi derleme günlüğünde
+kalıyor.
+
+---
+
 ## İkinci VirtualBox testi — kalan iki sorun
 
 Müzik artık splash ekrandayken başlıyor (ilk düzeltme tuttu) ama iki şey

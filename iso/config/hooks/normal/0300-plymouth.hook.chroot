@@ -52,9 +52,22 @@ fi
 # DRM aygiti da yok ve Plymouth metin kipine dusuyor: splash yerine
 # cekirdek yazilari akiyor. Tam olarak bu yasandi.
 # /etc/initramfs-tools/modules icindeki listeden en az biri girmis olmali.
-drm_sayisi=$(echo "$icerik" | grep -cE '/(bochs|bochs_drm|qxl|virtio_gpu|vmwgfx|simpledrm|i915|amdgpu|nouveau)\.ko' || true)
+drm_bulunan=$(echo "$icerik" |
+	grep -oE '/(bochs|bochs_drm|qxl|virtio_gpu|vmwgfx|vboxvideo|simpledrm|i915|amdgpu|nouveau)\.ko' |
+	sed 's|^/||; s|\.ko$||' | sort -u | tr '\n' ' ')
+drm_sayisi=$(echo "$drm_bulunan" | wc -w)
 if [ "$drm_sayisi" -gt 0 ]; then
-	echo "I: initramfs'te $drm_sayisi ekran (DRM) surucusu var"
+	echo "I: initramfs'te $drm_sayisi ekran (DRM) surucusu var: $drm_bulunan"
+	# Sanal makine surucileri ayrica raporlanıyor: biri eksikse o
+	# hipervizorde Plymouth metin kipine duser ve splash gorunmez.
+	# VirtualBox'ta vmwgfx calismadigi icin vboxvideo, QEMU'da bochs
+	# kritik.
+	for gerekli in bochs qxl virtio_gpu vboxvideo vmwgfx; do
+		case " $drm_bulunan " in
+		*" $gerekli "*) echo "I:   ✓ $gerekli" ;;
+		*) echo "W:   ! $gerekli initramfs'te yok — o sanal makinede splash gorunmeyebilir" >&2 ;;
+		esac
+	done
 else
 	echo "E: initramfs'te hic DRM surucusu yok — Plymouth metin kipine duser" >&2
 	echo "E: /etc/initramfs-tools/modules okundu mu?" >&2
