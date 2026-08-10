@@ -6,6 +6,57 @@ Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 
 ---
 
+## İkinci VirtualBox testi — kalan iki sorun
+
+Müzik artık splash ekrandayken başlıyor (ilk düzeltme tuttu) ama iki şey
+kaldı.
+
+### Müzik görselin ortasında başlıyordu
+
+Script ses aygıtını (`/dev/snd/pcmC*D*p`) bekliyor; VirtualBox'ta ses
+modülü kök dosya sistemi bağlandıktan sonra yükleniyor, yani aygıt geç
+geliyor. İki taraflı düzeltildi:
+- Ses modülleri initramfs'e alındı (`snd_hda_intel`, `snd_intel8x0`,
+  `snd_ac97_codec`, `virtio_snd`) — aygıt çok daha erken hazır.
+- Yoklama saniyede birden 0,2 saniyede bire çıkarıldı; eskisi aygıt
+  hazır olduktan sonra ortalama yarım saniye daha bekletiyordu.
+
+Ölçüm eklendi: `SOUND-DELAY` satırı müziğin splash'ten kaç saniye sonra
+başladığını yazıyor, 3 saniyeyi geçerse uyarıyor. Ses servisinin kendi
+günlüğü de (`BOOTSOUND-LOG`) aygıtı kaç saniye beklediğini bildiriyor —
+gecikmenin kaynağı "servis geç başladı" mı "aygıt geç geldi" mi, ayırt
+edilebiliyor.
+
+### Splash → konsol → masaüstü sırası
+
+Sıralama artık doğru çalışıyordu (müzik splash'i tutuyordu) ama düz
+`plymouth quit` splash'i kapatıp sanal terminali bırakıyor; altında duran
+çekirdek/systemd metni ortaya çıkıyor ve X başlayana kadar ekranda
+kalıyor. Görülen konsol ekranı bu boşluk.
+
+Çözüm `plymouth-quit.service` için `ExecStart=-/usr/bin/plymouth quit
+--retain-splash`. Son kare framebuffer'da kalıyor, konsol metni yeniden
+çizilmiyor, X doğrudan üstüne açılıyor.
+
+**Tuzak:** drop-in aynı dosyadan hem `plymouth-quit.service.d/` hem
+`plymouth-quit-wait.service.d/` altına kuruluyordu. `ExecStart`
+değişikliği ikincisine de uygulanınca onun `plymouth --wait` komutunu
+ezerdi. İki ayrı dosyaya bölündü; sıralama ikisinde de, ExecStart
+yalnızca quit'te.
+
+### VirtualBox vmwgfx hatası
+
+VMSVGA denetleyicisiyle `vmwgfx` bağlanıyor ama çalışmıyor
+("unsupported hypervisor"). KMS devre dışı kalırsa Plymouth metin
+kipine düşer. `simpledrm` initramfs'te olduğu için UEFI framebuffer
+üstünde yine bir DRM aygıtı kalıyor. `boot-check` artık her açılışta
+`DRM-DEVICES` ve `SPLASH-RENDERER` satırlarını yazıyor, böylece hangi
+çizicinin seçildiği kayda giriyor. VirtualBox tarafında Grafik
+Denetleyici'yi `VBoxSVGA` yapmak hatayı tamamen kaldırıyor
+(`vboxvideo` initramfs'te var).
+
+---
+
 ## VirtualBox testi — açılış akışı bozuktu
 
 Gerçek makinede (UEFI, ses etkin) görülen sıra: splash geldi (sessiz) →

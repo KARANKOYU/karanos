@@ -73,3 +73,26 @@ Splash yalnızca açılış sırasında ekranda ve `plymouth-x11` Debian'da
 yok, yani yerelde çizdirilemiyor. Duman testi bu yüzden çekirdek
 başladıktan 10 saniye sonra ayrı bir kare alıyor:
 `tani-<mod>` yapıtındaki **`screen-<mod>-acilis.png`**.
+
+## VirtualBox notu — vmwgfx hatası
+
+VirtualBox'ın **VMSVGA** ekran denetleyicisiyle çekirdek şu hatayı
+veriyor:
+
+```
+vmwgfx: [drm] *ERROR* vmwgfx seems to be running on an unsupported hypervisor
+```
+
+Sebep VirtualBox'ın VMware'i tam taklit etmemesi; `vmwgfx` sürücüsü
+bağlanıyor ama çalışmıyor. Sonuç KMS'in devre dışı kalması olabilir ve
+Plymouth DRM yerine metin kipine düşer — splash görünmez.
+
+Karan OS tarafında yapılanlar:
+- `simpledrm` initramfs'te; vmwgfx başarısız olsa da UEFI framebuffer
+  üstünde bir DRM aygıtı kalıyor.
+- `boot-check` her açılışta `DRM-DEVICES` satırıyla `/dev/dri` içeriğini
+  ve Plymouth'un hangi çiziciyi seçtiğini bildiriyor.
+
+VirtualBox tarafında yapılabilecek: makine ayarlarında **Ekran →
+Grafik Denetleyici** değerini `VBoxSVGA` yapmak. O zaman `vboxvideo`
+sürücüsü devreye giriyor (initramfs'te var) ve hata kayboluyor.

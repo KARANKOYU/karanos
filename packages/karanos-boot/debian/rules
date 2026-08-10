@@ -74,7 +74,9 @@ override_dh_auto_install:
 	install -d $(DEST)/lib/systemd/system/plymouth-quit-wait.service.d
 	install -m644 src/plymouth-quit-dropin.conf \
 		$(DEST)/lib/systemd/system/plymouth-quit.service.d/karanos.conf
-	install -m644 src/plymouth-quit-dropin.conf \
+	# quit-wait için AYRI dosya: quit'inki ExecStart'ı değiştiriyor,
+	# aynısını buraya koyarsak `plymouth --wait` komutunu ezer.
+	install -m644 src/plymouth-quit-wait-dropin.conf \
 		$(DEST)/lib/systemd/system/plymouth-quit-wait.service.d/karanos.conf
 
 # Dosyalar zaten sıkıştırılmış biçimlerde (PNG, WAV); tekrar sıkıştırmak

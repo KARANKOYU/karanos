@@ -215,6 +215,34 @@ ply_bitir=$(zaman plymouth-quit.service InactiveExitTimestampMonotonic)
 sn() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
 log "SPLASH-TIMING start=$(sn "$ply_basla")s ses_basla=$(sn "$ses_basla")s ses_bit=$(sn "$ses_bit")s quit=$(sn "$ply_bitir")s"
 
+# Müzik splash'e göre ne kadar geç başlıyor? Bölüm 5 "aynı anda" diyor;
+# ses aygıtının hazır olmasını beklemek zorunda olduğumuz için sıfır
+# olamıyor ama küçük kalmalı. VirtualBox testinde müzik görselin
+# ortasında başlıyordu — ölçtüğümüz gecikme bu.
+if [ "$ply_basla" -ne 0 ] && [ "$ses_basla" -ge "$ply_basla" ]; then
+	gecikme=$((ses_basla - ply_basla))
+	log "SOUND-DELAY=$(sn "$gecikme")s (splash basladiktan sonra)"
+	if [ "$gecikme" -gt 3000000 ]; then
+		log "SOUND-DELAY-WARN muzik splash'ten 3 saniyeden gec basladi"
+	fi
+fi
+
+# Ses servisinin kendi ölçümü: aygıtın hazır olmasını kaç saniye
+# bekledi. Gecikmenin kaynağı bu mu, yoksa servis mi geç başlatıldı —
+# ayırt etmek için.
+journalctl -b --no-pager -o cat -u karanos-boot-sound.service 2>/dev/null |
+	grep -E "ses aygiti|muzik|plymouth:" | sed 's/^/KARANOS-CHECK: BOOTSOUND-LOG: /' || true
+
+# Plymouth hangi çizici (renderer) ile çalıştı? DRM bulunamayıp metin
+# kipine düşerse splash görünmüyor. VirtualBox'ta vmwgfx hatası
+# yüzünden bu riskli.
+ply_renderer=$(journalctl -b --no-pager 2>/dev/null |
+	grep -iE "plymouth.*(renderer|drm|frame-buffer|framebuffer)" | tail -3 || true)
+if [ -n "$ply_renderer" ]; then
+	echo "$ply_renderer" | sed 's/^/KARANOS-CHECK: SPLASH-RENDERER: /'
+fi
+log "DRM-DEVICES=$(ls -1 /dev/dri 2>/dev/null | tr '\n' ' ')"
+
 sira_hatasi=""
 if [ "$ply_basla" -eq 0 ]; then
 	sira_hatasi="${sira_hatasi} plymouth-start-hic-calismadi"

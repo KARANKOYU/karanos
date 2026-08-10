@@ -23,3 +23,18 @@ vmwgfx
 vboxvideo
 # Üreticiye özel sürücü yokken çekirdeğin kurduğu genel DRM aygıtı
 simpledrm
+
+# --- Ses kartları -----------------------------------------------------
+# NEDEN: açılış müziği ancak /dev/snd/pcm* belirince çalabiliyor. Ses
+# modülü kök dosya sistemi bağlandıktan sonra yüklenirse müzik açılış
+# ekranının ORTASINDA başlıyor (VirtualBox testinde birkaç saniye
+# gecikme görüldü). Modüller initramfs'te olunca aygıt çok daha erken
+# hazır oluyor ve müzik splash ile birlikte başlıyor.
+# QEMU/VirtualBox Intel HD Audio
+snd_hda_intel
+snd_hda_codec_generic
+# VirtualBox ICH AC97 (eski varsayılan)
+snd_intel8x0
+snd_ac97_codec
+# virtio ses (QEMU)
+virtio_snd

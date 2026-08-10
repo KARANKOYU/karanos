@@ -22,7 +22,11 @@
 set -u
 
 SES=/usr/share/karanos/boot/boot-sound.wav
-AYGIT_BEKLEME=8   # ses aygıtı için en fazla bu kadar bekle
+# Ses aygıtı için en fazla bu kadar bekle. Yoklama 0,2 saniyede bir:
+# saniyede bir yoklamak, aygıt hazır olduktan sonra ortalama yarım
+# saniye daha bekletiyordu ve müzik splash'e geç yetişiyordu.
+AYGIT_BEKLEME=8
+YOKLAMA=0.2
 AZAMI_CALMA=10    # çalma en fazla bu kadar sürsün
 SONME_PAYI=0.5
 
@@ -39,8 +43,9 @@ log "plymouth: $plymouth_var"
 # dizininin varlığına bakmak yetmiyor; controlC0 varken bile playback
 # aygıtı henüz oluşmamış olabiliyor.
 aygit=0
-i=0
-while [ "$i" -lt "$AYGIT_BEKLEME" ]; do
+adim=0
+azami_adim=$(( AYGIT_BEKLEME * 5 ))   # 0,2 saniyelik adımlar
+while [ "$adim" -lt "$azami_adim" ]; do
 	for d in /dev/snd/pcmC*D*p; do
 		if [ -e "$d" ]; then
 			aygit=1
@@ -48,12 +53,15 @@ while [ "$i" -lt "$AYGIT_BEKLEME" ]; do
 		fi
 	done
 	[ "$aygit" -eq 1 ] && break
-	i=$((i + 1))
-	sleep 1
+	adim=$((adim + 1))
+	sleep "$YOKLAMA"
 done
 
+# Ölçüyü günlüğe yazıyoruz: müzik splash'e göre ne kadar geç başlıyor
+# sorusunun cevabı bu satır.
+bekleme_ds=$(( adim * 2 ))   # 0,1 saniye biriminde
 if [ "$aygit" -eq 1 ]; then
-	log "ses aygiti ${i} saniyede hazir"
+	log "ses aygiti $((bekleme_ds / 10)).$((bekleme_ds % 10)) saniyede hazir"
 else
 	log "ses aygiti ${AYGIT_BEKLEME} saniyede gelmedi, muzik atlanacak"
 fi
