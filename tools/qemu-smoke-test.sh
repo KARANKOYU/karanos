@@ -28,6 +28,12 @@ fi
 
 [[ -f "$ISO" ]] || { echo "HATA: ISO bulunamadi: $ISO" >&2; exit 2; }
 
+# Donanım profili (madde 46A): CI farklı RAM/çekirdek/ekran kartı
+# bileşimlerini aynı scriptle dener. Varsayılanlar eski davranışla aynı.
+RAM_MB="${RAM_MB:-2560}"
+CPUS="${CPUS:-2}"
+VGA="${VGA:-std}"
+
 WORKDIR="$(mktemp -d)"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 trap 'rm -rf "$WORKDIR"' EXIT
@@ -89,12 +95,12 @@ OVMF_DIR="/usr/share/OVMF"
 qemu_args=(
 	-name "kavis-smoke-$MODE"
 	-cpu max
-	-smp 2
-	-m 2560
+	-smp "$CPUS"
+	-m "$RAM_MB"
 	-cdrom "$ISO"
 	-boot d
 	-display none
-	-vga std
+	-vga "$VGA"
 	-serial "file:$SERIAL"
 	-monitor "unix:$MONITOR,server,nowait"
 	-no-reboot
@@ -149,7 +155,7 @@ else
 	echo ">> KVM yok, yazilim oykunmesi (yavas) — timeout ${TIMEOUT}s"
 fi
 
-echo ">> Mod: $MODE"
+echo ">> Mod: $MODE (RAM=${RAM_MB}MB CPU=$CPUS VGA=$VGA)"
 echo ">> ISO: $ISO ($(du -h "$ISO" | cut -f1))"
 
 qemu-system-x86_64 "${qemu_args[@]}" &

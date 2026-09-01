@@ -1,13 +1,18 @@
 #!/bin/sh
 # Kavis — açılış müziğini çalar ve splash'i müzik bitene kadar tutar
 #
-# NEDEN AYRI SERVİS: Plymouth'un ses desteği yok (bölüm 5).
+# NEDEN AYRI SERVİS: Plymouth'un ses desteği yok (madde 30).
 #
 # NEDEN SPLASH'İ BU TUTUYOR: servis Type=oneshot ve unit dosyasında
 # `Before=plymouth-quit.service`. Müzik bitene kadar servis "başlıyor"
 # sayılıyor, dolayısıyla plymouth-quit bekliyor ve splash açık kalıyor.
-# Sistem müzikten önce hazır olsa bile splash bekliyor — bölüm 5 madde
-# 4'ün istediği bu.
+# Sistem müzikten önce hazır olsa bile splash bekliyor — madde 30'un
+# istediği bu. TEK İSTİSNA: boşluk tuşu — basılırsa müzik kesilir ve
+# splash hemen sönmeye başlar (plymouth watch-keystroke ile dinleniyor).
+#
+# AYARLAR (/etc/kavis/boot.conf, ileride Ayarlar uygulaması yazacak):
+#   MUZIK_CAL=0    → müzik hiç çalınmaz, splash beklemez
+#   MUZIGI_BEKLE=0 → müzik arka planda başlar, splash beklemez
 #
 # SES AYGITINI BURADA BEKLİYORUZ, systemd'de DEĞİL:
 # Unit `After=sound.target` ile beklerse gerçek donanımda açılışın çok
@@ -15,13 +20,14 @@
 # masaüstüne kadar taştı). Servis erken başlıyor, ses aygıtının
 # gelmesini kısa ve sınırlı bir döngüyle burada bekliyoruz.
 #
-# GÜVENLİK AĞI (bölüm 5 madde 5): ses aygıtı hiç gelmezse ya da çalma
-# takılırsa toplam bekleme ${AYGIT_BEKLEME} + ${AZAMI_CALMA} saniyeyi
-# geçmiyor. Müzik bir kez çalar, döngüye alınmaz.
+# GÜVENLİK AĞI: ses aygıtı hiç gelmezse ya da çalma takılırsa toplam
+# bekleme ${AYGIT_BEKLEME} + ${AZAMI_CALMA} saniyeyi geçmiyor. Müzik
+# bir kez çalar, döngüye alınmaz.
 
 set -u
 
 SES=/usr/share/kavis/boot/boot-sound.wav
+AYARLAR=/etc/kavis/boot.conf
 # Ses aygıtı için en fazla bu kadar bekle. Yoklama 0,2 saniyede bir:
 # saniyede bir yoklamak, aygıt hazır olduktan sonra ortalama yarım
 # saniye daha bekletiyordu ve müzik splash'e geç yetişiyordu.
@@ -31,6 +37,20 @@ AZAMI_CALMA=10    # çalma en fazla bu kadar sürsün
 SONME_PAYI=0.5
 
 log() { echo "kavis-boot-sound: $*"; }
+
+# --- ayarları oku ----------------------------------------------------
+# Değerler dosyada yoksa varsayılan davranış: çal ve bekle.
+MUZIK_CAL=1
+MUZIGI_BEKLE=1
+if [ -r "$AYARLAR" ]; then
+	# shellcheck disable=SC1090
+	. "$AYARLAR"
+fi
+
+if [ "$MUZIK_CAL" != "1" ]; then
+	log "muzik ayardan kapali (MUZIK_CAL=$MUZIK_CAL), atlandi"
+	exit 0
+fi
 
 plymouth_var=0
 if command -v plymouth >/dev/null 2>&1 && plymouth --ping >/dev/null 2>&1; then
@@ -66,19 +86,63 @@ else
 	log "ses aygiti ${AYGIT_BEKLEME} saniyede gelmedi, muzik atlanacak"
 fi
 
-# --- çal -------------------------------------------------------------
+calinabilir=0
 if [ "$aygit" -eq 1 ] && [ -r "$SES" ] && command -v aplay >/dev/null 2>&1; then
+	calinabilir=1
+fi
+
+# --- "bekleme" kapalıysa: arka planda çal, splash'i tutma -------------
+if [ "$MUZIGI_BEKLE" != "1" ]; then
+	if [ "$calinabilir" -eq 1 ]; then
+		timeout "$AZAMI_CALMA" aplay -q "$SES" >/dev/null 2>&1 &
+		log "muzik arka planda basladi (MUZIGI_BEKLE=$MUZIGI_BEKLE), splash tutulmuyor"
+	fi
+	exit 0
+fi
+
+# --- çal; boşluk tuşu müziği keser (madde 30 tek istisnası) -----------
+atlandi=0
+if [ "$calinabilir" -eq 1 ]; then
 	# `timeout` olmazsa bozuk bir ses aygıtı açılışı süresiz kilitler.
-	timeout "$AZAMI_CALMA" aplay -q "$SES" >/dev/null 2>&1
-	log "muzik bitti (aplay cikis $?)"
+	timeout "$AZAMI_CALMA" aplay -q "$SES" >/dev/null 2>&1 &
+	aplay_pid=$!
+
+	tus_pid=0
+	if [ "$plymouth_var" -eq 1 ]; then
+		# watch-keystroke boşluğa basılınca çıkar; basılmazsa aşağıda
+		# öldürülür. Tuş dinleme Plymouth'ta — X yok, tty yönetimi onda.
+		plymouth watch-keystroke --keys=" " >/dev/null 2>&1 &
+		tus_pid=$!
+	fi
+
+	# İki olaydan biri: müzik bitti YA DA boşluğa basıldı.
+	while kill -0 "$aplay_pid" 2>/dev/null; do
+		if [ "$tus_pid" -ne 0 ] && ! kill -0 "$tus_pid" 2>/dev/null; then
+			atlandi=1
+			kill "$aplay_pid" 2>/dev/null
+			break
+		fi
+		sleep 0.1
+	done
+	wait "$aplay_pid" 2>/dev/null
+	if [ "$tus_pid" -ne 0 ]; then
+		kill "$tus_pid" 2>/dev/null
+		wait "$tus_pid" 2>/dev/null
+	fi
+
+	if [ "$atlandi" -eq 1 ]; then
+		log "bosluk tusuyla atlandi, muzik kesildi"
+	else
+		log "muzik bitti"
+	fi
 else
 	log "ses dosyasi, aygit ya da aplay yok — muzik atlandi"
 fi
 
 # --- splash'i söndür --------------------------------------------------
-# Görsel ile sesin birlikte sönmesi için: müzik bitti, şimdi splash'e
-# "sönmeye başla" de, kısa fade-out'u bekle, sonra çık. plymouth-quit
-# bunun ardından devreye giriyor.
+# Görsel ile sesin birlikte sönmesi için: müzik bitti (ya da atlandı),
+# şimdi splash'e "sönmeye başla" de, kısa fade-out'u bekle, sonra çık.
+# plymouth-quit bunun ardından devreye giriyor.
 if [ "$plymouth_var" -eq 1 ]; then
 	plymouth update --status=kavis-sonlaniyor >/dev/null 2>&1 || true
 fi

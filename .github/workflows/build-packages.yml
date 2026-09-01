@@ -75,8 +75,11 @@ jobs:
           liste=$(dpkg-deb -c $deb)
           gerek "usr/share/plymouth/themes/kavis/kavis.script"     1
           gerek "usr/share/plymouth/themes/kavis/logo.png"           1
+          gerek "usr/share/plymouth/themes/kavis/urun-adi.png"       1
+          gerek "usr/share/plymouth/themes/kavis/acilis-ipuclari.png" 1
           gerek "usr/share/plymouth/themes/kavis/made-by-karan.png"  1
           gerek "usr/share/kavis/boot/boot-sound.wav"                1
+          gerek "etc/kavis/boot.conf"                                1
           gerek "lib/systemd/system/kavis-boot-sound.service"        1
           gerek "plymouth-quit.service.d/kavis.conf"                 1
 

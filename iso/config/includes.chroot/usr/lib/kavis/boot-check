@@ -165,6 +165,8 @@ fi
 # kendisi CI'daki "acilis" ekran karesinden bakılır.
 if [ -f /usr/share/plymouth/themes/kavis/kavis.script ] &&
 	[ -f /usr/share/plymouth/themes/kavis/logo.png ] &&
+	[ -f /usr/share/plymouth/themes/kavis/urun-adi.png ] &&
+	[ -f /usr/share/plymouth/themes/kavis/acilis-ipuclari.png ] &&
 	[ -f /usr/share/plymouth/themes/kavis/made-by-karan.png ]; then
 	secili=$(plymouth-set-default-theme 2>/dev/null || echo "?")
 	if [ "$secili" = "kavis" ]; then
@@ -327,6 +329,55 @@ if [ -d /sys/firmware/efi ]; then
 	log "SECURE-BOOT=${sb_state}"
 else
 	log "BOOT-MODE=BIOS"
+fi
+
+# 7) Kompozitör (madde 2): picom çalışmıyorsa menü/pencere kapanınca
+# artık görüntü kalıyor ve güç menüsünün köşeleri siyah çiziliyor.
+if pgrep -x picom >/dev/null 2>&1; then
+	log "PICOM-OK"
+else
+	fatal "PICOM-FAIL picom calismiyor" "picom"
+fi
+
+# 8) /users/karan dizin yapısı (madde 0)
+ev=$(getent passwd karan 2>/dev/null | cut -d: -f6)
+if [ "$ev" = "/users/karan" ]; then
+	eksik_dizin=""
+	for d in desktop downloads documents pictures videos music; do
+		[ -d "/users/karan/$d" ] || eksik_dizin="$eksik_dizin $d"
+	done
+	if [ -z "$eksik_dizin" ]; then
+		log "USERS-OK ev=/users/karan, 6 klasor hazir"
+	else
+		fatal "USERS-FAIL eksik klasor:$eksik_dizin" "users"
+	fi
+else
+	fatal "USERS-FAIL ev '$ev' (beklenen /users/karan)" "users"
+fi
+
+# 9) Güvenlik sertleştirme (madde 8): sysctl değerleri gerçekten uygulanmış mı
+sysctl_hata=""
+dogrula_sysctl() {
+	deger=$(cat "/proc/sys/$1" 2>/dev/null || echo "?")
+	if [ "$deger" != "$2" ]; then
+		sysctl_hata="$sysctl_hata $1=$deger"
+	fi
+}
+dogrula_sysctl kernel/unprivileged_userns_clone 0
+dogrula_sysctl kernel/kptr_restrict 2
+dogrula_sysctl kernel/dmesg_restrict 1
+dogrula_sysctl kernel/yama/ptrace_scope 1
+if [ -z "$sysctl_hata" ]; then
+	log "SYSCTL-OK 4 sertlestirme degeri uygulanmis"
+else
+	fatal "SYSCTL-FAIL beklenmeyen:$sysctl_hata" "sysctl"
+fi
+
+# 10) earlyoom (madde 8) — servis ayakta mı
+if systemctl is-active --quiet earlyoom.service 2>/dev/null; then
+	log "EARLYOOM-OK"
+else
+	fatal "EARLYOOM-FAIL servis calismiyor" "earlyoom"
 fi
 
 # 6) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm

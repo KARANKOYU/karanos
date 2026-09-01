@@ -1,0 +1,67 @@
+#!/bin/sh
+# Kavis — canlı kullanıcının evini /users/karan yapar (madde 0)
+#
+# NEDEN: görev listesi madde 0 dizin yapısını /users/karan altında
+# istiyor ve TÜM bileşenler bu yolları kullanacak. live-config'in
+# 0030-user-setup bileşeni kullanıcıyı /home/karan ile kurar; bu bileşen
+# hemen ardından (0031) çalışıp evi taşır ve standart klasörleri kurar.
+# Kalıcı kurulumda /users ayrı bir btrfs subvolume olacak (madde 16/27);
+# canlı oturumda sıradan bir dizin — bileşenler için fark yok.
+#
+# Kullanıcı sistemi ERTELENDİ (madde 0): tek kullanıcı karan, şifresiz
+# otomatik giriş. Kilit ekranı ve kullanıcı ekleme bilerek YOK.
+#
+# XDG klasör adları İngilizce küçük harf (madde 0'daki liste birebir);
+# /etc/xdg/user-dirs.conf enabled=False olduğu için xdg-user-dirs-update
+# bunları oturum açılışında yerel dile çevirmeye kalkmaz.
+
+set -e
+
+Kavis_dizinler() {
+	# Yalnız canlı oturumda ve bir kez
+	grep -q 'boot=live' /proc/cmdline || return 0
+	[ -e /var/lib/live/config/kavis-dizinler ] && return 0
+
+	KULLANICI=karan
+	YENI_EV=/users/$KULLANICI
+
+	if ! getent passwd "$KULLANICI" >/dev/null 2>&1; then
+		echo "kavis-dizinler: '$KULLANICI' yok (user-setup calismadi mi?)" >&2
+		return 0
+	fi
+
+	eski_ev=$(getent passwd "$KULLANICI" | cut -d: -f6)
+	if [ "$eski_ev" != "$YENI_EV" ]; then
+		mkdir -p /users
+		# -m ev içeriğini taşır; canlı oturumda ev bu noktada neredeyse
+		# boş (iskelet dosyaları), maliyeti yok.
+		usermod -d "$YENI_EV" -m "$KULLANICI"
+	fi
+
+	for d in desktop downloads documents pictures videos music; do
+		mkdir -p "$YENI_EV/$d"
+	done
+
+	# Bileşenler klasörleri XDG üzerinden bulur; elle yol kurcalamak yok.
+	mkdir -p "$YENI_EV/.config"
+	cat > "$YENI_EV/.config/user-dirs.dirs" <<XDG
+# Kavis madde 0: standart klasörler. Bu dosyayı xdg-user-dirs-update
+# yeniden yazmaz (/etc/xdg/user-dirs.conf enabled=False).
+XDG_DESKTOP_DIR="\$HOME/desktop"
+XDG_DOWNLOAD_DIR="\$HOME/downloads"
+XDG_DOCUMENTS_DIR="\$HOME/documents"
+XDG_PICTURES_DIR="\$HOME/pictures"
+XDG_VIDEOS_DIR="\$HOME/videos"
+XDG_MUSIC_DIR="\$HOME/music"
+XDG_TEMPLATES_DIR="\$HOME"
+XDG_PUBLICSHARE_DIR="\$HOME"
+XDG
+
+	chown -R "$KULLANICI:$KULLANICI" "$YENI_EV"
+
+	mkdir -p /var/lib/live/config
+	touch /var/lib/live/config/kavis-dizinler
+	echo "kavis-dizinler: ev $YENI_EV, klasörler hazır"
+}
+
+Kavis_dizinler

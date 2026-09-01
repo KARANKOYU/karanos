@@ -7,6 +7,7 @@ Build-Depends:
  ffmpeg,
  fonts-dejavu-core,
  librsvg2-bin,
+ python3,
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://github.com/KARANKOYU/karanos
@@ -19,14 +20,17 @@ Depends:
  plymouth-themes,
  alsa-utils,
 Description: Kavis açılış ekranı — Plymouth teması ve açılış müziği
- Açılışta ekranın ortasında Kavis görseli belirir: %15 opaklıkla
+ Sade koyu zeminde ortada koyu Kavis logosu belirir: %15 opaklıkla
  başlar, yaklaşık 1,5 saniyede tam görünür olur ve hafif bir parlama
- alır. Altında italik "made by Karan" yazısı durur.
+ alır. Altında ürün adı ve italik "made by Karan" imzası, en altta
+ "F3 — Gelişmiş menü" ve "Atlamak için boşluk tuşu" ipuçları durur.
  .
  Aynı anda açılış müziği çalar. Plymouth'un ses desteği olmadığı için
- müziği ayrı bir systemd servisi yönetir; açılış ekranı müzik bitip
- yarım saniye geçene kadar kapanmaz, müzik yarıda kesilmez. Ses aygıtı
- yoksa en fazla 10 saniye beklenir ve açılış devam eder.
+ müziği ayrı bir systemd servisi yönetir; açılış ekranı müzik bitene
+ kadar kapanmaz. Tek istisna boşluk tuşudur: basılırsa müzik kesilir
+ ve açılış hemen sürer. Davranış /etc/kavis/boot.conf ile kapatılıp
+ açılabilir. Ses aygıtı yoksa en fazla 10 saniye beklenir ve açılış
+ devam eder.
  .
- Görsel ve müzik ISO'ya gömülü gelir, /usr/share/kavis/boot/ altında
- durur ve yalnızca root yazabilir.
+ Müzik ISO'ya gömülü gelir, /usr/share/kavis/boot/ altında durur ve
+ yalnızca root yazabilir.

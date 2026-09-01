@@ -52,8 +52,19 @@ bu dosyayı kaynak olarak kullanacak.
 |---|---|---|
 | `boot.made_by` | made by Karan | made by Karan |
 | `boot.starting` | Kavis başlatılıyor… | Starting Kavis… |
+| `boot.advanced_hint` | F3 — Gelişmiş menü | F3 — Advanced menu |
+| `boot.skip_hint` | Atlamak için boşluk tuşu | Press space to skip |
+| `boot.advanced_title` | Gelişmiş menü | Advanced menu |
+| `boot.safe_mode` | Güvenli mod — düşük çözünürlük, sürücüsüz | Safe mode — low resolution, no drivers |
+| `boot.verbose` | Detaylı açılış kayıtları — sessiz açılışı kapat | Verbose boot — disable quiet boot |
+| `boot.ram_test` | RAM testi (memtest86+) | RAM test (memtest86+) |
+| `boot.ram_test_sb` | RAM testi (memtest86+, Secure Boot kapalıyken) | RAM test (memtest86+, requires Secure Boot off) |
+| `boot.uefi_setup` | UEFI/BIOS ayarlarına git | Enter UEFI/BIOS setup |
+| `boot.back` | Ana menüye dön | Back to main menu |
 
 > Not: `boot.made_by` her iki dilde aynı — imza olduğu için çevrilmiyor.
+> `boot.advanced_*` ve sonrası GRUB menüsünde kullanılıyor (madde 30, F3);
+> GRUB tek dilli olduğundan menü Türkçe (varsayılan dil) yazılıyor.
 
 ---
 

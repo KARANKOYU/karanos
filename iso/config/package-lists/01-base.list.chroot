@@ -53,6 +53,14 @@ grub-efi-arm64-bin
 grub-efi-arm64-signed
 #endif
 
+# --- RAM testi (madde 30 F3 + madde 50) ---
+# memtest86+ x86'ya özgü (MİMARİ kuralı): arm64'te paket de menü
+# girdisi de yok. GRUB girdilerini 9601 hook'u yazar; lb'nin kendi
+# --memtest entegrasyonu kullanılmıyor (auto/config'de none).
+#if ARCHITECTURES amd64
+memtest86+
+#endif
+
 # --- yerelleştirme ---
 locales
 console-setup
@@ -80,6 +88,11 @@ gdisk
 pciutils
 usbutils
 dmidecode
+
+# --- güvenlik ve dayanıklılık (madde 8) ---
+# RAM tükenmeden en obur süreci öldürür; ayarları /etc/default/earlyoom.
+# Debian paketi servisi kurulumda kendiliğinden etkinleştirir.
+earlyoom
 
 # --- temel komut satırı ---
 procps

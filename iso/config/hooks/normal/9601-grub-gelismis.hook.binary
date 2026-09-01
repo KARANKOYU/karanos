@@ -1,0 +1,157 @@
+#!/bin/sh
+# Kavis — GRUB'a "Gelişmiş menü (F3)" alt menüsünü ekler (madde 30)
+#
+# 9600 (marka) hook'undan SONRA çalışır; config.cfg o noktada Kavis
+# markalı durumda. Bu hook:
+#   1. Üst düzeydeki "güvenli mod" girdisini alt menüye taşır
+#   2. "Detaylı açılış kayıtları" girdisini üretir (quiet/splash'sız)
+#   3. memtest86+ girdilerini ekler (yalnız x86; BIOS'ta linux16,
+#      UEFI'de chainloader — imzasız olduğu için Secure Boot kapalıyken)
+#   4. UEFI'de "UEFI/BIOS ayarlarına git" (fwsetup) girdisini ekler
+#
+# Menü metinleri docs/kavis-arayuz-metinleri.md `boot.*` anahtarlarından
+# (GRUB tek dilli olduğu için varsayılan dil TR). Girdi başlıkları
+# "ad — tek satır açıklama" biçiminde: GRUB'un standart menüsü girdi
+# altına ayrı açıklama satırı çizemiyor; açıklama başlığın içinde.
+#
+# F3 kısayolu: trixie'nin GRUB 2.12'si submenu --hotkey=f3 destekliyor
+# (grub-core/commands/menuentry.c hotkey_aliases tablosundan doğrulandı).
+#
+# HENÜZ OLMAYANLAR BİLEREK YOK (madde 30'un tam listesi ileride):
+# A/B önceki sürüm (madde 27), snapshot listesi (26), kurtarma ortamı
+# (33), canlı moda geç (kurulu sistem yokken anlamsız). Kural: var
+# olmayan özelliğin menü girdisi olmaz — boş/çalışmayan girdi yasak.
+#
+# ÇALIŞMA DİZİNİ: binary hook'lar `binary/` dizininin İÇİNDE çalışır.
+# BU HOOK KOZMETİK DEĞİL ama DERLEMEYİ YİNE DE DURDURMAZ: alt menü
+# eklenemezse ISO normal girdiyle açılmaya devam eder; günlüğe uyarı
+# düşer ve CI'daki önyükleyici doğrulaması yakalar.
+
+set -e
+
+kok=""
+for aday in boot/grub ../binary/boot/grub binary/boot/grub; do
+	if [ -d "$aday" ]; then
+		kok="$aday"
+		break
+	fi
+done
+if [ -z "$kok" ]; then
+	echo "W: GRUB dizini bulunamadi, gelismis menu atlandi" >&2
+	exit 0
+fi
+
+CFG="$kok/config.cfg"
+if [ ! -f "$CFG" ]; then
+	echo "W: $CFG yok, gelismis menu atlandi" >&2
+	exit 0
+fi
+
+# --- ürün adı ve çekirdek satırları ----------------------------------
+AD=""
+for osr in ../chroot/etc/os-release chroot/etc/os-release; do
+	if [ -f "$osr" ]; then
+		AD=$(sed -n 's/^NAME="\?\([^"]*\)"\?$/\1/p' "$osr" | head -1)
+		break
+	fi
+done
+[ -n "$AD" ] || AD="Linux"
+
+# İlk normal girdinin linux/initrd satırları (girintileriyle).
+# "güvenli mod" girdisi atlanır; kalan ilk menuentry normal olandır.
+normal_linux=$(awk '
+	/^menuentry / { icinde = ($0 !~ /güvenli mod/) }
+	icinde && /^[ \t]*linux/  { print; exit }
+' "$CFG")
+normal_initrd=$(awk '
+	/^menuentry / { icinde = ($0 !~ /güvenli mod/) }
+	icinde && /^[ \t]*initrd/ { print; exit }
+' "$CFG")
+
+if [ -z "$normal_linux" ] || [ -z "$normal_initrd" ]; then
+	echo "W: config.cfg icinde linux/initrd satiri bulunamadi, gelismis menu atlandi" >&2
+	exit 0
+fi
+
+# --- güvenli mod bloğunu üst düzeyden al ------------------------------
+guvenli_blok=$(awk '
+	/^menuentry .*güvenli mod/ { al = 1 }
+	al { print }
+	al && /^\}/ { exit }
+' "$CFG")
+
+# Üst düzeyden güvenli mod girdisini sil
+awk '
+	/^menuentry .*güvenli mod/ { atla = 1 }
+	!atla { print }
+	atla && /^\}/ { atla = 0 }
+' "$CFG" > "$CFG.yeni"
+mv "$CFG.yeni" "$CFG"
+
+# --- detaylı açılış: quiet/splash olmadan -----------------------------
+# `quiet` çekirdek mesajlarını kısıyor, `splash` Plymouth'u başlatıyor;
+# ikisi ve plymouth bayrağı çıkınca metin akışı görünür.
+detayli_linux=$(printf '%s\n' "$normal_linux" \
+	| sed -e 's/ quiet//g' -e 's/ splash//g' \
+	      -e 's/ plymouth\.ignore-serial-consoles//g')
+
+# --- memtest86+ (yalnız x86 — MİMARİ kuralı) --------------------------
+# Paket chroot'a yalnız amd64'te giriyor (01-base listesindeki #if);
+# dosya yoksa girdi de yazılmaz, diğer mimarilerde menü sessizce
+# memtest'siz kalır.
+memtest_bin=0
+memtest_efi=0
+for c in ../chroot chroot; do
+	[ -d "$c" ] || continue
+	if [ -f "$c/boot/memtest86+x64.bin" ]; then
+		cp "$c/boot/memtest86+x64.bin" "$kok/../memtest86+x64.bin"
+		memtest_bin=1
+	fi
+	if [ -f "$c/boot/memtest86+x64.efi" ]; then
+		cp "$c/boot/memtest86+x64.efi" "$kok/../memtest86+x64.efi"
+		memtest_efi=1
+	fi
+	break
+done
+
+# --- alt menüyü yaz ---------------------------------------------------
+{
+	echo ""
+	echo "### $AD — gelişmiş menü (F3) ###"
+	echo "submenu \"Gelişmiş menü (F3)\" --hotkey=f3 {"
+
+	if [ -n "$guvenli_blok" ]; then
+		printf '%s\n' "$guvenli_blok" | sed 's/^/	/'
+	fi
+
+	echo "	menuentry \"Detaylı açılış kayıtları — sessiz açılışı kapat\" {"
+	printf '	%s\n' "$detayli_linux"
+	printf '	%s\n' "$normal_initrd"
+	echo "	}"
+
+	if [ "$memtest_bin" -eq 1 ]; then
+		echo "	if [ \"\$grub_platform\" = \"pc\" ]; then"
+		echo "		menuentry \"RAM testi (memtest86+)\" {"
+		echo "			linux16 /boot/memtest86+x64.bin"
+		echo "		}"
+		echo "	fi"
+	fi
+	if [ "$memtest_efi" -eq 1 ]; then
+		echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
+		echo "		menuentry \"RAM testi (memtest86+, Secure Boot kapalıyken)\" {"
+		echo "			chainloader /boot/memtest86+x64.efi"
+		echo "		}"
+		echo "	fi"
+	fi
+
+	echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
+	echo "		menuentry \"UEFI/BIOS ayarlarına git\" {"
+	echo "			fwsetup"
+	echo "		}"
+	echo "	fi"
+
+	echo "}"
+} >> "$CFG"
+
+echo "I: gelismis menu eklendi (guvenli=$([ -n "$guvenli_blok" ] && echo 1 || echo 0) memtest_bios=$memtest_bin memtest_efi=$memtest_efi)"
+grep -c '^menuentry\|^	menuentry\|^submenu' "$CFG" | sed 's/^/I: toplam girdi sayisi: /'

@@ -193,6 +193,20 @@ jobs:
           else
             echo "::warning::GRUB seri konsola yazmıyor, hata ayıklaması zorlaşır"
           fi
+          # 9601 hook'unun ürettiği gelişmiş menü: hem varlığı hem GRUB
+          # sözdizimi (bozuk config.cfg = menüsüz siyah ekran).
+          if grub-script-check grubcheck/config.cfg; then
+            echo "✓ config.cfg GRUB sözdizimi geçerli"
+          else
+            echo "::error::config.cfg GRUB sözdizimi HATALI — menü hiç açılmaz"
+            hata=1
+          fi
+          if grep -q '^submenu "Gelişmiş menü (F3)"' grubcheck/config.cfg; then
+            echo "✓ Gelişmiş menü (F3) var"
+          else
+            echo "::error::Gelişmiş menü (F3) config.cfg'de YOK — 9601 hook'u incele"
+            hata=1
+          fi
           rm -rf grubcheck
           exit $hata
 
@@ -213,8 +227,12 @@ jobs:
             echo "| Boyut | **${MB} MB** / ${LIMIT} MB |"
             echo "| sha256 | \`$(cut -d' ' -f1 "${{ steps.meta.outputs.iso_name }}.sha256")\` |"
           } >> "$GITHUB_STEP_SUMMARY"
+          # Madde 46A: boyut sınırı artık HATA — GitHub release sınırı ve
+          # kullanıcının indirme bütçesi; uyarı olarak kalınca büyüme
+          # sessizce birikiyordu.
           if [ "$MB" -gt "$LIMIT" ]; then
-            echo "::warning::ISO ${MB} MB — 1.5 GB hedefinin üstünde"
+            echo "::error::ISO ${MB} MB — ${LIMIT} MB sınırının ÜSTÜNDE"
+            exit 1
           fi
 
       - name: Paket listesini kaydet (boyut ayıklaması için)
@@ -249,7 +267,7 @@ jobs:
 
   # ------------------------------------------------------------------
   smoke-test:
-    name: QEMU ${{ matrix.mode }}
+    name: QEMU ${{ matrix.mode }} (${{ matrix.profil }})
     needs: build
     # Duman testi şimdilik yalnız amd64 için var (qemu-system-x86 + OVMF).
     # arm64 günü geldiğinde qemu-system-arm + AAVMF ile ayrı bir yol yazılacak.
@@ -260,8 +278,17 @@ jobs:
     timeout-minutes: 40
     strategy:
       fail-fast: false
+      # Madde 46A: üç açılış kipi varsayılan profille + iki donanım
+      # profili (2 GB/tek çekirdek ve 4 GB/4 çekirdek + virtio ekran)
+      # UEFI'de. Profil değerleri "Duman testi" adımındaki case'te.
       matrix:
         mode: [bios, uefi, secureboot]
+        profil: [varsayilan]
+        include:
+          - mode: uefi
+            profil: dusuk
+          - mode: uefi
+            profil: genis
     container:
       image: debian:trixie
     steps:
@@ -285,14 +312,45 @@ jobs:
       - name: Duman testi
         env:
           TIMEOUT: 900
-          SERIAL_OUT: ${{ github.workspace }}/tani/serial-${{ matrix.mode }}.log
+          SERIAL_OUT: ${{ github.workspace }}/tani/serial-${{ matrix.mode }}-${{ matrix.profil }}.log
           SCREENSHOT_DIR: ${{ github.workspace }}/tani
         run: |
           set -eu
           mkdir -p tani
           chmod +x tools/qemu-smoke-test.sh
+          # Donanım profilleri (madde 46A)
+          case "${{ matrix.profil }}" in
+            dusuk) export RAM_MB=2048 CPUS=1 ;;
+            genis) export RAM_MB=4096 CPUS=4 VGA=virtio ;;
+            varsayilan) : ;;
+          esac
           ISO=$(ls out/*.iso | head -1)
           tools/qemu-smoke-test.sh "$ISO" "${{ matrix.mode }}"
+
+      # Madde 46A: sonuçlar tablo hâlinde job summary'ye; boşta RAM
+      # 1 GB'ı aşarsa UYARI (canlı oturumda squashfs RAM overlay'i
+      # yüzünden kurulu sistemden yüksek çıkar — bu yüzden hata değil).
+      - name: Sonuç özeti
+        if: always()
+        run: |
+          set -eu
+          seri="tani/serial-${{ matrix.mode }}-${{ matrix.profil }}.log"
+          [ -f "$seri" ] || { echo "seri günlük yok"; exit 0; }
+          {
+            echo "### QEMU ${{ matrix.mode }} (${{ matrix.profil }})"
+            echo ""
+            echo "| Kontrol | Sonuç |"
+            echo "|---|---|"
+            grep -o 'KAVIS-CHECK: [A-Z-]*=\?[^\r]*' "$seri" \
+              | sed 's/^KAVIS-CHECK: //' \
+              | grep -E '^(RESULT|MEM-USED|BOOT-MODE|SECURE-BOOT|FAILED-CHECKS|SPLASH-TIMING|SOUND-DELAY)' \
+              | sed 's/^\([A-Z-]*\)=\?/| \1 | /; s/$/ |/' || true
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          mem=$(grep -o 'KAVIS-CHECK: MEM-USED=[0-9]*' "$seri" | grep -o '[0-9]*' | tail -1 || true)
+          if [ -n "${mem:-}" ] && [ "$mem" -gt 1024 ]; then
+            echo "::warning::Boşta RAM ${mem} MB — 1 GB hedefinin üstünde (${{ matrix.mode }}/${{ matrix.profil }})"
+          fi
 
       # Boot başarısız olursa ekran görüntüsü olmadan teşhis etmek zor. ISO
       # elle de indirilebiliyor ama 40 dakikalık koşuyu tahminle harcamamak
@@ -301,7 +359,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: tani-${{ matrix.mode }}
+          name: tani-${{ matrix.mode }}-${{ matrix.profil }}
           path: tani/
           retention-days: 7
           if-no-files-found: ignore

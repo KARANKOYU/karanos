@@ -1,0 +1,20 @@
+# Kavis — earlyoom ayarları (madde 8)
+#
+# earlyoom, RAM tükenmeden ÖNCE en obur süreci öldürüp sistemin
+# kilitlenmesini önler (çekirdeğin kendi OOM'u çok geç davranır).
+#
+# --avoid ŞART (madde 59 taraması: "yanlış süreci öldürüyor" earlyoom'un
+# en bilinen açık şikâyeti): oturumu ayakta tutan süreçler öldürülürse
+# kullanıcı siyah ekranda kalır — Kavis'in "masaüstüne güvenli dönüş"
+# ilkesine aykırı. Tarayıcı süreçleri gibi obur ama zararsız kurbanlar
+# --prefer ile öne alınıyor.
+#
+# DİKKAT — TIRNAK VE BOŞLUK YOK: servis dosyası $EARLYOOM_ARGS'ı kabuk
+# OLMADAN, systemd'nin kendi boşluk bölmesiyle açıyor; systemd tırnak
+# tanımaz. Bu yüzden regex'ler tek kelime olmalı — süreç adındaki
+# boşluk [[:space:]] ile yazılıyor ("Isolated Web Co" = Firefox'un
+# 15 karaktere kırpılmış comm adı).
+#
+# -r 3600: saatte bir bellek raporu (günlük dolmasın); bellek/takas
+# eşikleri varsayılan (%10/%5).
+EARLYOOM_ARGS=-r 3600 --avoid (^|/)(systemd|systemd-logind|dbus-daemon|Xorg|lightdm|openbox|picom|kavis-panel)$ --prefer (^|/)(firefox|firefox-esr|chromium|Web[[:space:]]Content|Isolated[[:space:]]Web[[:space:]]Co)$

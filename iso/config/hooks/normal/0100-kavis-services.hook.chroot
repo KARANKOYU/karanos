@@ -3,6 +3,9 @@
 set -e
 
 chmod 0755 /usr/lib/kavis/boot-check
+# live-config bileşeni çalıştırılabilir olmalı; includes.chroot izinleri
+# her ortamda korunmayabiliyor, garantiye alıyoruz.
+chmod 0755 /usr/lib/live/config/0031-kavis-dizinler
 
 systemctl enable kavis-boot-check.service
 

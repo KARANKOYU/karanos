@@ -1,14 +1,15 @@
 #!/usr/bin/make -f
 # Kavis açılış ekranı paketi
 #
-# Elle konulan iki kaynak (boot-image.png, boot-sound.mp3) paket ağacına
-# tools/build-packages.sh tarafından kopyalanıyor; aslı assets/boot/
-# altında duruyor.
+# Dışarıdan gelen kaynaklar (koyu-k-logo.svg, boot-sound.mp3, os-release)
+# paket ağacına tools/build-packages.sh tarafından kopyalanıyor; asılları
+# assets/ ve packages/kavis-theme/ altında duruyor.
 
 export DH_VERBOSE = 1
 
-GORSEL := src/boot/boot-image.png
+LOGO   := src/boot/koyu-k-logo.svg
 SES    := src/boot/boot-sound.mp3
+OSREL  := src/boot/os-release
 DEST   := debian/kavis-boot
 TEMA   := $(DEST)/usr/share/plymouth/themes/kavis
 VARLIK := $(DEST)/usr/share/kavis/boot
@@ -17,11 +18,11 @@ VARLIK := $(DEST)/usr/share/kavis/boot
 	dh $@
 
 override_dh_auto_build:
-	@for f in $(GORSEL) $(SES); do \
+	@for f in $(LOGO) $(SES) $(OSREL); do \
 		if [ ! -f "$$f" ]; then \
 			echo "HATA: $$f yok."; \
-			echo "Kaynaklar assets/boot/ altinda duruyor ve paket agacina"; \
-			echo "derleme sirasinda kopyalaniyor. Derlemek icin:"; \
+			echo "Kaynaklar depo agacinda baska yerde duruyor ve paket"; \
+			echo "agacina derleme sirasinda kopyalaniyor. Derlemek icin:"; \
 			echo "    tools/build-packages.sh kavis-boot"; \
 			exit 1; \
 		fi; \
@@ -32,20 +33,28 @@ override_dh_auto_install:
 	install -d $(TEMA)
 	install -m644 src/kavis.plymouth $(TEMA)/kavis.plymouth
 	install -m644 src/kavis.script   $(TEMA)/kavis.script
-	install -m644 $(GORSEL)            $(TEMA)/logo.png
 
-	# İtalik yazı: Plymouth bitmap font kullandığı için italik
-	# gösteremiyor. Yazıyı burada PNG'ye çeviriyoruz — açılışta yazı
-	# tipi bağımlılığı kalmıyor, sonuç her makinede aynı.
+	# Madde 30: splash'te HER ZAMAN koyu logo; fotoğraf yok.
+	rsvg-convert -w 512 -h 512 -o $(TEMA)/logo.png $(LOGO)
+
+	# Yazılar: Plymouth bitmap font kullandığı için metinler burada
+	# PNG'ye çevriliyor — açılışta yazı tipi bağımlılığı kalmıyor,
+	# sonuç her makinede aynı.
 	rsvg-convert -w 800 -o $(TEMA)/made-by-karan.png src/made-by-karan.svg
+	rsvg-convert -w 900 -o $(TEMA)/acilis-ipuclari.png src/acilis-ipuclari.svg
 
-	# --- Gömülü kaynaklar (bölüm 5: yalnızca root yazabilir) ---------
-	# Görselin aslı tema dizininde duruyor, buradaki bağ ona işaret
-	# ediyor. Tersi de olurdu ama tema dizini initramfs'e olduğu gibi
-	# kopyalanıyor; dışarı işaret eden bir bağ orada kırık kalırdı.
-	# Bu yoldan 432 KB tasarruf ediliyor.
+	# Ürün adı tek kaynaktan: os-release NAME değeri Türkçe kurallarla
+	# büyük harfe çevrilir (i→İ; Python'un upper()'ı bunu bilmez) ve
+	# şablona işlenir. Ad hiçbir kaynak dosyada sabit yazılı değil.
+	AD=$$(. $(OSREL) && printf '%s' "$$NAME" \
+		| python3 -c 'import sys; s=sys.stdin.read(); print(s.translate(str.maketrans("iı","İI")).upper(), end="")'); \
+	[ -n "$$AD" ] || { echo "HATA: os-release NAME bos"; exit 1; }; \
+	sed "s/@AD@/$$AD/" src/urun-adi.svg.in > debian/urun-adi.svg
+	rsvg-convert -w 800 -o $(TEMA)/urun-adi.png debian/urun-adi.svg
+	rm -f debian/urun-adi.svg
+
+	# --- Gömülü kaynaklar (yalnızca root yazabilir) ------------------
 	install -d $(VARLIK)
-	ln -sf ../../plymouth/themes/kavis/logo.png $(VARLIK)/boot-image.png
 
 	# Müzik WAV olarak gömülüyor. Sebep iki tane:
 	#   1. Sonuna 0,4 saniyelik fade-out ekleniyor — bölüm 5 "görsel ve
@@ -61,6 +70,12 @@ override_dh_auto_install:
 		-ar 44100 -ac 2 -c:a pcm_s16le \
 		$(VARLIK)/boot-sound.wav
 	chmod 644 $(VARLIK)/boot-sound.wav
+
+	# --- Açılış davranışı ayarları (madde 30) ------------------------
+	# dh, /etc altındaki dosyayı kendiliğinden conffile yapar; kullanıcı
+	# değişikliği paket güncellemesinde ezilmez.
+	install -d $(DEST)/etc/kavis
+	install -m644 src/boot.conf $(DEST)/etc/kavis/boot.conf
 
 	# --- Ses servisi --------------------------------------------------
 	install -d $(DEST)/usr/lib/kavis

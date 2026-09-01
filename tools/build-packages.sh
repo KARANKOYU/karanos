@@ -47,10 +47,15 @@ prepare_sources() {
 		;;
 	kavis-boot)
 		install -d packages/kavis-boot/src/boot
-		install -m644 assets/boot/boot-image.png \
-			packages/kavis-boot/src/boot/boot-image.png
+		# Madde 30: splash'te fotoğraf yok, HER ZAMAN koyu logo.
+		# boot-image.png artık kullanılmıyor (assets/'te duruyor).
+		install -m644 assets/logo/koyu-k-logo.svg \
+			packages/kavis-boot/src/boot/koyu-k-logo.svg
 		install -m644 assets/boot/boot-sound.mp3 \
 			packages/kavis-boot/src/boot/boot-sound.mp3
+		# Ürün adı tek kaynaktan: tema paketindeki os-release.
+		install -m644 packages/kavis-theme/src/os-release \
+			packages/kavis-boot/src/boot/os-release
 		;;
 	esac
 }

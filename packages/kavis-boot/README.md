@@ -3,18 +3,31 @@
 Açılış ekranı: Plymouth teması, açılış müziği ve splash'i müzik bitene
 kadar tutan systemd mekanizması.
 
-## Davranış (bölüm 5)
+## Davranış (madde 30)
 
-1. Görsel ekranın ortasında **%15 opaklıkla** belirir, ~1,5 saniyede
-   %100'e çıkar ve hafif bir parlama alır (parlama sonrasında yavaşça
-   nefes alır — donmuş ekran izlenimi vermesin diye)
-2. Altında italik **made by Karan**
+1. Sade koyu zemin (#0D141B) — duvar kâğıdı/fotoğraf yok. Ortada
+   **koyu logo** (kural: açılışta her zaman koyu-k-logo), **%15
+   opaklıkla** belirir, ~1,5 saniyede %100'e çıkar ve hafif bir parlama
+   alır (parlama sonrasında yavaşça nefes alır)
+2. Logonun altında ürün adı (**os-release NAME'den** derlemede üretilir,
+   Türkçe büyük harf kurallarıyla — "KAVİS"), altında italik
+   **made by Karan**, en altta iki ipucu satırı:
+   "F3 — Gelişmiş menü" ve "Atlamak için boşluk tuşu"
 3. Aynı anda açılış müziği çalar
 4. Splash müzik bitip **0,5 saniye** geçince kapanır; sistem daha erken
    hazır olsa bile bekler, müzik yarıda kesilmez. Kapanmadan önce görsel
-   ve ses birlikte söner
+   ve ses birlikte söner. **Tek istisna boşluk tuşu**: basılırsa müzik
+   kesilir ve açılış hemen sürer (`plymouth watch-keystroke` ile
+   boot-sound scripti dinliyor)
 5. Ses aygıtı yoksa ya da çalma takılırsa en fazla **10 saniye** beklenir
    ve açılış devam eder. Müzik bir kez çalar, döngüye girmez
+6. `/etc/kavis/boot.conf` ile davranış değiştirilebilir (Ayarlar bunu
+   madde 38'de yönetecek): `MUZIK_CAL=0` müzik hiç çalmaz,
+   `MUZIGI_BEKLE=0` müzik arka planda çalar, splash beklemez
+
+F3 gelişmiş menüsü GRUB tarafında: `iso/config/hooks/normal/`
+`9601-grub-gelismis.hook.binary` yazar (güvenli mod, detaylı kayıtlar,
+memtest86+ yalnız amd64, UEFI ayarları).
 
 ## Splash'i müzik bitene kadar ne tutuyor
 
@@ -28,7 +41,7 @@ plymouth-quit.service.d/kavis.conf → After=kavis-boot-sound.service
 ```
 
 Ses servisi başarısız olsa bile sonlandığı için açılış kilitlenmiyor.
-Servisin `TimeoutStartSec=20` değeri, script'in kendi 10 saniyelik
+Servisin `TimeoutStartSec=30` değeri, script'in kendi bekleme+çalma sınırlarının (8+10 sn)
 sınırının üstünde bir güvenlik ağı.
 
 ## Verilen kararlar

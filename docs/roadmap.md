@@ -12,7 +12,7 @@ verilir ve onay beklenir.
 
 | Sürüm | Gruplar | İçerik (özet) | Durum |
 |---|---|---|---|
-| 0.2 | A, A2, B | CI iyileşti, Kavis markası, picom, yeni boot splash + F3, autologin + `/users/karan`, güvenlik sertleştirme, CI test altyapısı | 🔨 A ✅, A2 ✅ (`docs/referans/`), B bekliyor |
+| 0.2 | A, A2, B | CI iyileşti, Kavis markası, picom, yeni boot splash + F3, autologin + `/users/karan`, güvenlik sertleştirme, CI test altyapısı | 🔨 A ✅, A2 ✅, B kodu hazır — ISO koşusu doğrulaması bekliyor |
 | 0.3 | C, D | C/Vala panel, görev çubuğu görünümü + sağ tık, pencere yönetimi/snap/Alt+Tab, sanal masaüstleri, takvim + bildirim, görev yöneticisi + küçük araçlar, ekran görüntüsü/kaydı | ⏳ |
 | 0.4 | E | Dosya yöneticisi (nemo), hızlı önizleme, terminal + editörler, disk/USB araçları, yazıcı, terminal kolaylıkları | ⏳ |
 | 0.5 | F | Ayarlar iskeleti + ekran + kişiselleştirme + çok dillilik + güç + ağ + hakkında + sistem sağlığı + donanım testi | ⏳ |

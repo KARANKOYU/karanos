@@ -9,6 +9,87 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Grup B — picom, açılış ekranı + F3, /users/karan, sertleştirme, CI testleri
+
+Madde 59 taraması önce yapıldı: `docs/referans/grup-b-taramasi.md`
+(earlyoom `--avoid` zorunluluğu ve memtest86+/Secure Boot gerçeği
+oradan geldi; picom kararları A2'deki `picom.md`'den).
+
+### Madde 2 — picom
+
+`picom-kavis.conf`: yuvarlak köşe (8px, panel/dock/tam ekran hariç) ve
+v12 aç/kapa animasyonları (0.15 sn `appear`/`disappear`) eklendi —
+ikisi de XRENDER'da çalışıyor (trixie picom 12.5, referans bulgusu),
+QEMU testleri bozulmuyor. `unredir-if-possible` açıldı: tam ekran
+pencere kompozitörü atlar (oyun moduna da hazırlık). Blur bilerek YOK —
+glx + gerçek GPU ister; madde 38'de koşullu açılacak. Yerel picom 10
+animasyon bloğunu tanımayıp uyarıyla geçiyor; panel ekran görüntüsü
+bu yüzden animasyonsuz ama sorunsuz çizildi.
+
+### Madde 30 — açılış ekranı ve F3
+
+- Splash yeniden: sade zemin + koyu logo + ürün adı + imza + iki ipucu
+  satırı. Ürün adı os-release NAME'den derlemede üretiliyor; Türkçe
+  büyük harf (i→İ) Python'un upper()'ı bilmediği için translate ile.
+  Yerleşim PIL simülasyonuyla gözle doğrulandı.
+- Boşluk atlaması: boot-sound scripti `plymouth watch-keystroke
+  --keys=" "` (komutsuz kullanımda tuşta çıkıyor; trixie plymouth
+  kaynağından doğrulandı) ile dinliyor; basılınca aplay öldürülüp fade
+  başlatılıyor.
+- `/etc/kavis/boot.conf` (conffile): MUZIK_CAL / MUZIGI_BEKLE —
+  Ayarlar'ın madde 38'de yöneteceği ilk ayar dosyası.
+- F3: GRUB 2.12 `submenu --hotkey=f3` destekliyor (kaynaktan
+  doğrulandı). 9601 hook'u güvenli modu alt menüye taşıyor, detaylı
+  kayıt girdisini quiet/splash'sız üretiyor, memtest86+ girdilerini
+  platforma göre yazıyor (BIOS linux16 / UEFI chainloader — EFI ikilisi
+  imzasız olduğundan başlık "Secure Boot kapalıyken" diyor). VAR OLMAYAN
+  özellik girdisi yok (A/B, snapshot, kurtarma sonraki gruplarda
+  eklenecek). Girdi altına ayrı açıklama satırı GRUB'un standart
+  menüsünde çizilemiyor; açıklama "ad — açıklama" olarak başlıkta.
+  Üretilen config sahte ağaçta 9600+9601 zinciriyle test edildi ve
+  `grub-script-check`'ten geçti; aynı kontrol CI'daki önyükleyici
+  doğrulamasına da eklendi.
+- boot-image.png artık kullanılmıyor (assets/'te duruyor); splash logosu
+  koyu-k-logo.svg'den üretiliyor.
+
+### Madde 0 — /users/karan
+
+live-config bileşeni `0031-kavis-dizinler` (user-setup'tan hemen sonra):
+evi `usermod -d -m` ile /users/karan'a taşıyor, 6 klasörü kuruyor,
+`user-dirs.dirs` yazıyor. `/etc/xdg/user-dirs.conf enabled=False` —
+yoksa ilk oturumda xdg-user-dirs-update klasör adlarını Türkçeleştirip
+yolları değiştirirdi. GEÇİCİ NOT: kullanıcı sistemi ertelendi (madde 0);
+kilit ekranı ve kullanıcı ekleme bilerek yok, madde 18'de gelecek.
+
+### Madde 8 — sertleştirme
+
+sysctl (userns_clone=0, kptr_restrict=2, dmesg_restrict=1,
+ptrace_scope=1) + algif_* kara listesi + earlyoom (`--avoid` ile
+oturum-kritik süreçler korumalı). AÇIK RİSK KAYDI: unprivileged_userns
+kapatmak Flatpak/bubblewrap ve Steam pressure-vessel'ı kırar; madde
+41/13 geldiğinde bu değer yeniden ele alınacak (setuid bwrap ya da
+değerin açılması) — sysctl dosyasında da not var.
+
+### Madde 46A — CI test altyapısı
+
+Duman matrisi: 3 açılış kipi (varsayılan profil) + UEFI'de iki donanım
+profili (dusuk: 2 GB/1 çekirdek; genis: 4 GB/4 çekirdek/virtio-vga) =
+5 iş. Boşta RAM > 1 GB uyarı (canlı oturum RAM overlay'i yüzünden hata
+değil — CLAUDE.md kuralı), ISO > 1536 MB artık HATA. Her koşu job
+summary'ye KAVIS-CHECK tablosu yazıyor. boot-check'e yeni kontroller:
+PICOM-OK, USERS-OK, SYSCTL-OK, EARLYOOM-OK + yeni splash dosyaları.
+
+### Doğrulama durumu
+
+Yerelde geçenler: check-config, check-packages (81 paket), shellcheck,
+YAML, üç paketin derlemesi, CI içerik/içe aktarma denetimlerinin yerel
+eşleri, GRUB hook zinciri + grub-script-check, splash yerleşim
+simülasyonu, panel ekran görüntüsü. ISO + QEMU doğrulaması CI koşusu
+gerektiriyor — Codespace token'ı tetikleyemediği için koşuyu kullanıcı
+başlatacak.
+
+---
+
 ## Çok-mimarili hazırlık + madde 59 (kullanıcı eki, 2026-09-01)
 
 Kullanıcı iki kalıcı kural ekledi; ikisi de `docs/gorev-listesi.md`'ye
