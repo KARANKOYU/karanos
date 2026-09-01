@@ -9,6 +9,50 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Grup C tamam: görev çubuğu aşamaları + "88 MB" gizemi çözüldü
+
+Dört aşama (2026-09-01, kullanıcı talimatı): picom hayalet pencere
+düzeltmesi (ayrı kayıt, aşağıda değil — commit 1ae8fba), panel
+yerleşimi, pencere düğmesi görünümü, gösterge popup'ları.
+
+**Yerleşim (Aşama 2):** sağ bölge (göstergeler+saat) artık ASLA
+ezilmiyor. Kök sebep: her pencere düğmesi sabit 190 px isteyince
+panelin en küçük genişliği ekranı aşıyordu. Pencere listesi
+ScrolledWindow'a alındı (en küçük genişliği çöker), düğmeler kalan
+alana eşit bölünüp daralıyor, sığmayınca kaydırma. 30 pencereyle
+Xvfb'de doğrulandı (saat bölgesi denetimi: 447 parlak piksel).
+
+**Görünüm (Aşama 3):** Windows 11 tarzı — yalnız ikon (başlık araç
+ipucunda, name_changed ile güncel), etkin pencere ortalanmış 16x3
+turkuaz çizgi (tam genişlik şerit değil; "açık renkli" için marka
+vurgusu turkuaz seçildi — palet dışına çıkılmadı), 180 ms geçişler.
+Düğme 48 px; 40 altında ikonlar 24→16 küçülür, sonra kaydırma.
+
+**Popup'lar (Aşama 4):** PanelPopup ortak temeli (tek popup kuralı,
+dışarı tıkla/Escape/tekrar tıkla kapanır; animasyon picom'dan bedava).
+Takvim=Gtk.Calendar (hazır ay okları; ISO'da gün adları TR yerelinden).
+Pil popup'ındaki güç planı seçimi ~/.config/kavis/power.conf'a yazılır,
+powerprofilesctl VARSA anında uygulanır — ISO'da yok, tam yaptırım
+madde 51'e (Grup F) bırakıldı; popup kendi daemon'unu büyütmesin diye.
+Ses arkayüzü amixer/ALSA (PipeWire'lı-sız fark etmez, daemon bağlantısı
+yok); alsa-utils panel Depends'ine eklendi. Gözden geçirmede bulunan
+açık: başlat menüsü ile popup'lar birbirinden habersizdi — karşılıklı
+kapatma eklendi.
+
+**88 MB gizemi:** kullanıcı VM'de 88 MB ölçtü ve "hâlâ Python" diye
+yorumladı. Python paneli 596c15b'den beri yok; gerçek suçlu GTK3'ün ilk
+pencerede GLX yoklaması: GPU'suz ortamda Mesa llvmpipe → ~50 MB libLLVM
+RSS'e biner. Önceki "33 MB" ölçümümüz İKİNCİ GTK istemcisi olduğu için
+llvmpipe sayfalarına dokunmamıştı — VM'in gerçeği ilk istemcidir.
+Çözüm: panel GL kullanmadığından main()'de GDK_GL=disable (override
+edilebilir). Taze X sunucusunda ilk istemci: RSS 85.2→34.3 MB,
+PSS 57.5→24.8 MB. boot-check artık PANEL-EXE + PANEL-RSS yazıyor;
+sonraki koşular bunu ISO içinden kanıtlayacak. DERS: RAM ölçümü
+"kaçıncı GTK istemcisisin"e duyarlı — hep taze sunucuda ilk istemci
+ölçülmeli.
+
+---
+
 ## v0.2-test3 YEŞİL: Grup B + C ISO'da doğrulandı
 
 Üç test etiketi turu: test1 GRUB hook hatasını, test2 doğrulama

@@ -13,7 +13,7 @@ verilir ve onay beklenir.
 | Sürüm | Gruplar | İçerik (özet) | Durum |
 |---|---|---|---|
 | 0.2 | A, A2, B | CI iyileşti, Kavis markası, picom, yeni boot splash + F3, autologin + `/users/karan`, güvenlik sertleştirme, CI test altyapısı | ✅ A, A2, B (v0.2-test3 koşusunda doğrulandı; VirtualBox el testi bekliyor) |
-| 0.3 | C, D | C/Vala panel, görev çubuğu görünümü + sağ tık, pencere yönetimi/snap/Alt+Tab, sanal masaüstleri, takvim + bildirim, görev yöneticisi + küçük araçlar, ekran görüntüsü/kaydı | 🔨 C ✅ (Vala panel v0.2-test3'te ISO'da doğrulandı), D bekliyor |
+| 0.3 | C, D | C/Vala panel, görev çubuğu görünümü + sağ tık, pencere yönetimi/snap/Alt+Tab, sanal masaüstleri, takvim + bildirim, görev yöneticisi + küçük araçlar, ekran görüntüsü/kaydı | 🔨 C ✅ TAM (Vala panel + 4 görev çubuğu aşaması: yerleşim, W11 görünüm, gösterge popup'ları; RAM 34 MB — v0.3-test1 doğrulaması bekliyor), D bekliyor |
 | 0.4 | E | Dosya yöneticisi (nemo), hızlı önizleme, terminal + editörler, disk/USB araçları, yazıcı, terminal kolaylıkları | ⏳ |
 | 0.5 | F | Ayarlar iskeleti + ekran + kişiselleştirme + çok dillilik + güç + ağ + hakkında + sistem sağlığı + donanım testi | ⏳ |
 | 0.6 | G | İndirme yöneticisi, Mağaza, Flatpak, Windows karşılıkları, güvenlik taraması, arama çubuğu | ⏳ |
