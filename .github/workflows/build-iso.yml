@@ -204,8 +204,9 @@ jobs:
               hata=1
             fi
           done
-          # Marka ve gelişmiş menü (9600 + 9601): ürün adı tek kaynaktan
-          . packages/kavis-theme/src/os-release
+          # Marka ve gelişmiş menü (9600 + 9601): ürün adı tek kaynaktan.
+          # Adım working-directory: out ile çalışıyor — yol depo köküne göre.
+          . "$GITHUB_WORKSPACE/packages/kavis-theme/src/os-release"
           markali=$(grep -c "menuentry \"$NAME" grubcheck/grub.cfg || true)
           if [ "$markali" -ge 1 ]; then
             echo "✓ markalı girdi sayısı: $markali"
