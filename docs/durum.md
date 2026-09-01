@@ -9,6 +9,37 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Grup A2 — referans incelemesi (madde 47)
+
+Dokuz proje sığ klonlanıp incelendi, özetler `docs/referans/` altında
+(dizin + kesişen bulgular: `docs/referans/README.md`), klonlar silindi.
+İnceleme paralel alt ajanlarla yapıldı; issue taramaları `gh api` ile.
+Kod kopyalanmadı.
+
+Sonraki grupları etkileyen en önemli bulgular:
+
+- **Grup B'yi doğrudan etkileyen:** trixie'nin picom 12.5'i yuvarlak köşe
+  ve animasyonu XRENDER'da destekliyor (VM'de güvenli); blur glx + gerçek
+  GPU şartına bağlanacak. Ayarlar entegrasyonu dosya + SIGUSR1.
+- **Grup I'yı etkileyen:** Calamares'te `/users` subvolume'ü yapılandırmayla
+  çıkıyor ama A/B kökü için özel Python modülü şart; btrfs swapfile ile
+  hibernate'te `resume_offset` üretilmiyor — en az riskli yol swap BÖLÜMÜ
+  (`suspend` seçeneği). Bu ikisi disk düzeni kararından önce okunacak.
+- **Madde 26 varsayımı düzeltildi:** mintupdate güncelleme öncesi otomatik
+  snapshot almıyor; otomatik btrfs snapshot bizim ek değerimiz olacak.
+- **Madde 36'nın ucuz yolu:** Nemo boşluk tuşunda `org.nemo.Preview`
+  D-Bus servisini çağırıyor, sağlayıcı trixie'de yok — o adı sahiplenen
+  kendi önizleyicimiz Nemo'ya yama gerektirmiyor.
+- **Trixie'de olmayanlar** (`docs/referans/README.md`'de tam liste):
+  ubuntu-drivers-common, gamescope (yalnız backports/contrib), bulky,
+  nemo-preview, scx. check-packages.sh ana arşive bakıyor; backports
+  kullanılacaksa araca istisna gerekecek.
+- **İlkeler:** polkit > sudoers NOPASSWD; her async işe zaman aşımı +
+  hata sayfası ("sonsuz spinner" Mint'in bir numaralı şikâyeti); mod
+  geçişlerinde masaüstüne güvenli dönüş garantisi (bazzite dersi).
+
+---
+
 ## Grup A — Kavis markası, CI iyileştirmesi, logolar, yol haritası
 
 Yeni çalışma düzeni: `docs/gorev-listesi.md` (58 madde, grup sırası).
