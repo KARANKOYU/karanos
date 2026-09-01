@@ -203,10 +203,23 @@ while (( elapsed < TIMEOUT )); do
 	# kapanmis oluyor, yani 3. asamanin ciktisi hic gorulemiyor.
 	# plymouth-x11 Debian'da olmadigi icin yerelde de cizdiremiyoruz;
 	# splash'i gormenin tek yolu bu erken kare.
+	# Splash'in ekranda oldugu araligi (profil hizina gore ~10-55 sn)
+	# tek kareyle tutturmak sansa kaliyordu (v0.2-test3: bes profilin
+	# hicbirinde kare splash'e denk gelmedi). Uc kare aliyoruz.
 	if (( kernel_seen == 1 && splash_shot == 0 && elapsed >= kernel_seen_at + 10 )); then
 		splash_shot=1
-		echo ">> acilis ekrani karesi aliniyor (${elapsed}s)"
-		snapshot "acilis"
+		echo ">> acilis ekrani karesi 1/3 (${elapsed}s)"
+		snapshot "acilis-1"
+	fi
+	if (( kernel_seen == 1 && splash_shot == 1 && elapsed >= kernel_seen_at + 25 )); then
+		splash_shot=2
+		echo ">> acilis ekrani karesi 2/3 (${elapsed}s)"
+		snapshot "acilis-2"
+	fi
+	if (( kernel_seen == 1 && splash_shot == 2 && elapsed >= kernel_seen_at + 40 )); then
+		splash_shot=3
+		echo ">> acilis ekrani karesi 3/3 (${elapsed}s)"
+		snapshot "acilis-3"
 	fi
 
 	# 240 saniyede cekirdek hala baslamadiysa onyukleyicide takiliyiz.

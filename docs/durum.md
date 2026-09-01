@@ -9,6 +9,27 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## v0.2-test3 YEŞİL: Grup B + C ISO'da doğrulandı
+
+Üç test etiketi turu: test1 GRUB hook hatasını, test2 doğrulama
+adımındaki yol hatasını yakaladı; test3 (koşu 33507673200) tamamen
+yeşil. Beş QEMU profili de RESULT=OK:
+
+- PANEL-OK (Vala panel ISO'da çalışıyor; masaüstü karesinde Başlat +
+  TR göstergesi + saat görünüyor — x11-xkb-utils düzeltmesi işledi)
+- USERS-OK ev=/users/karan + 6 klasör; SYSCTL-OK (4 değer);
+  EARLYOOM-OK; PICOM-OK; SPLASH-OK, SPLASH-COUNT=1
+- SOUND-DELAY 1.5–3.3 sn (yalnız dusuk/tek çekirdek profili 3.3 sn ile
+  uyarı eşiğinde — kabul edilebilir)
+- MEM-USED 298–388 MB (canlı overlay dahil) — 1 GB hedefinin çok altı
+- Derleme süresi apt önbelleğiyle ~9 dk'ya indi (eski 25-40 dk)
+
+Kalan pürüz: "acilis" ekran karesi splash aralığına denk gelmedi (tek
+kare, zamanlama şansa kalıyordu) — qemu-smoke-test artık 3 kare alıyor
+(acilis-1/2/3). Splash görsel onayı kullanıcının VirtualBox testinde.
+
+---
+
 ## v0.2-test1 kırmızı: GRUB hook'ları yanlış dosyayı hedefliyordu
 
 İlk test etiketi koşusu (33505209926) "Gelişmiş menü (F3) YOK" hatasıyla
