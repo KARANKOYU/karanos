@@ -9,4 +9,4 @@ Icon=kavis
 Terminal=false
 Categories=System;
 NoDisplay=true
-X-KaranOS-Autostart=true
+X-Kavis-Autostart=true
