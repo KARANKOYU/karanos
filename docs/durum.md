@@ -9,6 +9,19 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Otonom ISO tetikleme: test etiketleri (2026-09-01)
+
+Codespace token'ı workflow_dispatch yapamıyor (403, bilinen kısıt) ama
+etiket PUSH'u iş akışını tetikleyebiliyor. Çözüm: `v*-test*` biçimli
+etiketler (örn. v0.2-test1) derleme + tam QEMU matrisini koşturuyor,
+release işi bu etiketleri atlıyor (build-iso.yml'de `!contains(
+github.ref_name, '-test')`) — Releases sayfası test koşularıyla
+kirlenmeden ISO artifact olarak alınabiliyor. Gerçek sürüm etiketleri
+(v1.0 gibi) eskisi gibi release üretiyor. İlk kullanım: v0.2-test1
+(koşu 33505209926) — Grup B + C değişikliklerinin toplu doğrulaması.
+
+---
+
 ## Grup C — panel Vala'ya taşındı (madde 3)
 
 Madde 59 taraması: `docs/referans/grup-c-taramasi.md` (polybar
