@@ -1,31 +1,28 @@
 #!/bin/sh
 # Kavis — GRUB açılış menüsünü Kavis markasına çevir
 #
-# NEDEN VAR: menü hâlâ Debian markalıydı — "Debian GNU/Linux ... (trixie)"
-# başlığı, Debian logosu ve Debian'ın kırmızı/gri renkleri. Kullanıcının
-# gördüğü ilk ekran bu; dağıtımın kendi kimliğini taşımalı.
+# NEDEN VAR: menü Debian/live-build markalıydı — "Live system (amd64)"
+# girdileri, "Live Boot Menu with GRUB" başlığı, Debian'ın splash'i.
+# Kullanıcının gördüğü ilk ekran bu; dağıtımın kimliğini taşımalı.
+#
+# GERÇEK YERLEŞİM (v0.2-test1 koşusunda öğrenildi — ilk sürüm yanlış
+# dosyayı hedefliyordu):
+#   - Menü GİRDİLERİ grub.cfg VE loopback.cfg içinde (config.cfg'de
+#     DEĞİL; orada yalnız ayarlar var).
+#   - Görsel tema live-theme/theme.txt (gfxmenu) — ama YALNIZ
+#     /boot/grub/splash.png varken etkin (theme.cfg'deki koşul). İlk
+#     sürüm splash.png'yi "Debian kalıntısı" diye silip temayı istemeden
+#     kapatıyordu; doğrusu ÜZERİNE kendi arka planımızı yazmak.
 #
 # ÇALIŞMA DİZİNİ: binary hook'lar `binary/` dizininin İÇİNDE çalışır.
-# 9500 hook'unda bu bir kez ısırdı, aynı çoklu-yol yaklaşımı burada da.
 #
-# BU HOOK DERLEMEYİ DURDURMAZ. 9500 (timeout) durduruyor çünkü o olmadan
-# ISO hiç açılmıyor. Marka ise kozmetik: bir dosya beklediğimiz yerde
-# değilse uyarı yazıp devam ediyoruz, yoksa her live-build sürüm
-# değişikliği derlemeyi kırar. Ne bulduğunu günlüğe yazıyor ki yapı
-# değişirse bir sonraki koşuda görelim.
+# BU HOOK DERLEMEYİ DURDURMAZ (kozmetik) ama CI'daki "ISO içi
+# önyükleyici doğrulaması" adımı sonucu grub.cfg üzerinden denetler —
+# sessiz başarısızlık artık orada yakalanır.
 
 set -e
 
-# Yeni koyu palet (bölüm 4). GRUB yalnızca 16 adlandırılmış renk
-# tanıyor; turkuazın karşılığı "cyan", zeminin karşılığı "black".
-# Tam altıgen değerler yalnızca tema dosyasında kullanılabiliyor.
-RENK_NORMAL="light-gray/black"
-RENK_SECILI="black/cyan"
-
 # --- ürün adı: tek kaynaktan ------------------------------------------
-# Menü girdilerine yazılacak ad koda gömülü değil; chroot'a kurulmuş
-# os-release'ten okunuyor (kavis-theme paketi koyuyor). Okunamazsa
-# kozmetik hook felsefesine uygun biçimde markasız devam ediyoruz.
 AD=""
 for osr in ../chroot/etc/os-release chroot/etc/os-release; do
 	if [ -f "$osr" ]; then
@@ -46,45 +43,32 @@ for aday in boot/grub ../binary/boot/grub binary/boot/grub; do
 		break
 	fi
 done
-
 if [ -z "$kok" ]; then
 	echo "W: GRUB dizini bulunamadi, marka atlandi (calisma dizini: $(pwd))" >&2
 	exit 0
 fi
-
 echo "I: GRUB dizini: $kok"
-echo "I: icerigi:"
-ls -1 "$kok" | sed 's/^/I:   /'
 
-CFG="$kok/config.cfg"
-if [ ! -f "$CFG" ]; then
-	echo "W: $CFG yok, marka atlandi" >&2
-	exit 0
-fi
-
-# --- menü girdilerinin adları ----------------------------------------
-# live-build "Live system (amd64)" gibi adlar üretiyor. Kullanıcı ürün
-# adını görmeli. Sed yerine tek tek eşleme: beklenmedik bir ad gelirse
+# --- menü girdilerinin adları -----------------------------------------
+# Girdiler hem grub.cfg'de hem loopback.cfg'de (live-build ikisine de
+# basıyor). Sed yerine tek tek eşleme: beklenmedik bir ad gelirse
 # sessizce bozmak yerine olduğu gibi bırakıyoruz.
-sed -i \
-	-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (güvenli mod, \1)\"|" \
-	-e "s|menuentry \"Live system (\([^)]*\))\"|menuentry \"$AD (\1)\"|" \
-	-e "s|menuentry \"Debian GNU/Linux[^\"]*\"|menuentry \"$AD\"|" \
-	"$CFG"
+for cfg in "$kok/grub.cfg" "$kok/loopback.cfg"; do
+	[ -f "$cfg" ] || continue
+	sed -i \
+		-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (güvenli mod, \1)\"|" \
+		-e "s|menuentry \"Live system (\([^)]*\))\"|menuentry \"$AD (\1)\"|" \
+		-e "s|menuentry \"Live system, kernel \([^\"]*\)\"|menuentry \"$AD (çekirdek \1)\"|" \
+		-e "s|menuentry \"Debian GNU/Linux[^\"]*\"|menuentry \"$AD\"|" \
+		"$cfg"
+	adet=$(grep -c "menuentry \"$AD" "$cfg" || true)
+	echo "I: $(basename "$cfg"): $adet girdi markalandi"
+done
 
-# --- renkler ve başlık ------------------------------------------------
-cat >> "$CFG" <<EOF
-
-### $AD — marka ###
-set color_normal=${RENK_NORMAL}
-set color_highlight=${RENK_SECILI}
-set menu_color_normal=${RENK_NORMAL}
-set menu_color_highlight=${RENK_SECILI}
-EOF
-
-# --- arka plan --------------------------------------------------------
+# --- arka plan: gfxmenu temasının splash.png'si -----------------------
 # Kural (madde 1): GRUB'da HER ZAMAN koyu logo. kavis-theme derlemesi
-# koyu-k-logo'dan düz zeminli bir arka plan üretiyor; onu kopyalıyoruz.
+# koyu-k-logo'dan düz zeminli arka plan üretiyor; live-build temasının
+# beklediği ada (splash.png) yazıyoruz — tema etkin kalıyor.
 arka=""
 for aday in \
 	../chroot/usr/share/kavis/logo/grub-arkaplan.png \
@@ -95,29 +79,42 @@ do
 		break
 	fi
 done
-
 if [ -n "$arka" ]; then
-	cp "$arka" "$kok/kavis-arkaplan.png"
-	cat >> "$CFG" <<'EOF'
-# GRUB'un png modulu yoksa bu satir sessizce basarisiz olur ve menu duz
-# renk zeminde gorunur — okunurlugu bozmaz.
-if background_image /boot/grub/kavis-arkaplan.png; then
-	true
-fi
-EOF
-	echo "I: GRUB arka plani kondu ($arka)"
+	cp "$arka" "$kok/splash.png"
+	echo "I: GRUB arka plani (splash.png) kondu ($arka)"
 else
-	echo "W: grub-arkaplan.png bulunamadi, GRUB arka plani duz renk kalacak" >&2
+	echo "W: grub-arkaplan.png bulunamadi, live-build splash'i kaldi" >&2
 fi
 
-# --- Debian markalı kalıntılar ---------------------------------------
-# desktop-base'ten gelen Debian logosu/arka planı varsa kaldır.
-for artik in "$kok/splash.png" "$kok/debian.png" "$kok/themes/debian"; do
-	if [ -e "$artik" ]; then
-		rm -rf "$artik"
-		echo "I: Debian markali dosya kaldirildi: $artik"
-	fi
-done
+# --- gfxmenu temasını Kavis paletine çek ------------------------------
+TEMA="$kok/live-theme/theme.txt"
+if [ -f "$TEMA" ]; then
+	sed -i \
+		-e "s|^title-text: .*|title-text: \"$AD\"|" \
+		-e "s|^title-color: .*|title-color: \"#E6EDF3\"|" \
+		-e "s|item_color = \"[^\"]*\"|item_color = \"#8B9BA8\"|" \
+		-e "s|selected_item_color= \"[^\"]*\"|selected_item_color= \"#2DD4BF\"|" \
+		"$TEMA"
+	echo "I: gfxmenu temasi Kavis paletine cevrildi"
+else
+	echo "W: live-theme/theme.txt yok, tema paleti atlandi" >&2
+fi
+
+# --- metin kipi yedeği (tema yüklenemezse) ----------------------------
+# theme.cfg splash.png yoksa/tema kurulamazsa metin renklerine düşüyor;
+# oradaki cyan/blue yerine paletimiz geçerli olsun diye config.cfg'nin
+# SONUNA yazıyoruz (config.cfg theme.cfg'yi kaynakladıktan sonra
+# okunmaya devam ediyor, son yazan kazanıyor).
+CFG="$kok/config.cfg"
+if [ -f "$CFG" ]; then
+	cat >> "$CFG" <<EOF
+
+### $AD — metin kipi renkleri (gfxmenu yedegi) ###
+set color_normal=light-gray/black
+set color_highlight=black/cyan
+set menu_color_normal=light-gray/black
+set menu_color_highlight=black/cyan
+EOF
+fi
 
 echo "I: GRUB menusu $AD markasina cevrildi"
-grep -c "menuentry \"$AD" "$CFG" | sed 's/^/I: marka girdisi sayisi: /'

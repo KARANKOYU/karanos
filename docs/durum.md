@@ -9,6 +9,42 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## v0.2-test1 kırmızı: GRUB hook'ları yanlış dosyayı hedefliyordu
+
+İlk test etiketi koşusu (33505209926) "Gelişmiş menü (F3) YOK" hatasıyla
+düştü — doğrulama adımı tam görevini yaptı. Kök sebep: live-build'in
+gerçek yerleşiminde menü GİRDİLERİ `grub.cfg` ve `loopback.cfg` içinde;
+`config.cfg`'de yalnız ayarlar var. 9600/9601 hook'ları (ve benim sahte
+test ağacım) config.cfg'yi hedefliyordu — bu yüzden 9600'ün girdi
+yeniden adlandırması da ASLINDA HİÇ ÇALIŞMAMIŞTI ("marka girdisi
+sayisi: 0" günlükte duruyordu; kozmetik hook sessizce geçiyordu).
+
+İkinci bulgu: 9600, splash.png'yi "Debian kalıntısı" diye siliyordu ama
+theme.cfg gfxmenu temasını "splash.png varsa" koşuluna bağlıyor — yani
+hook, live-build'in görsel temasını istemeden kapatıp menüyü düz metne
+düşürüyordu.
+
+Düzeltme (iki hook yeniden yazıldı):
+- Girdi adlandırma artık grub.cfg + loopback.cfg'de; "çekirdek sürümlü"
+  girdi biçimi de kapsandı.
+- splash.png SİLİNMİYOR, üzerine kavis grub-arkaplan.png yazılıyor —
+  gfxmenu teması etkin kalıyor; live-theme/theme.txt başlığı ürün
+  adına, renkleri palete çevriliyor (madde 30'un "çirkin metin menüsü
+  olmasın" isteği asıl burada karşılanıyor).
+- live-build'in İngilizce "Utilities..." alt menüsü kaldırılıp içeriği
+  (fwsetup + ortam doğrulama) Türkçe olarak F3 menüsüne taşındı; yeni
+  `boot.verify_media` satırı metin tablosuna eklendi.
+- CI doğrulaması artık grub.cfg'yi de çıkarıp sözdizimi + markalı girdi
+  sayısı + F3 varlığını orada denetliyor.
+- Yerel sahte-ağaç testi gerçek live-build şablonlarından (sources.d.o)
+  kuruldu ve zincir + tüm CI kontrolleri yerelde geçti.
+
+Ders (durum.md'ye özellikle): kozmetik diye durdurmayan hook'lara CI
+tarafında zorunlu doğrulama eşlik etmeli — 9600 aylardır sessizce boşa
+çalışıyormuş, bunu ancak 9601'in zorunlu kontrolü açığa çıkardı.
+
+---
+
 ## Otonom ISO tetikleme: test etiketleri (2026-09-01)
 
 Codespace token'ı workflow_dispatch yapamıyor (403, bilinen kısıt) ama

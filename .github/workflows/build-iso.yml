@@ -176,10 +176,13 @@ jobs:
           set -eu
           ISO="${{ steps.meta.outputs.iso_name }}"
           rm -rf grubcheck && mkdir grubcheck
+          # Menü girdileri grub.cfg'de, ayarlar config.cfg'de — bu ayrım
+          # v0.2-test1'de öğrenildi; iki dosya da denetleniyor.
           xorriso -osirrox on -indev "$ISO" \
-            -extract /boot/grub/config.cfg grubcheck/config.cfg 2>/dev/null
-          echo "--- ISO içindeki config.cfg sonu ---"
-          tail -20 grubcheck/config.cfg
+            -extract /boot/grub/config.cfg grubcheck/config.cfg \
+            -extract /boot/grub/grub.cfg grubcheck/grub.cfg 2>/dev/null
+          echo "--- ISO içindeki grub.cfg sonu ---"
+          tail -25 grubcheck/grub.cfg
           echo "------------------------------------"
           hata=0
           if grep -q '^set timeout=' grubcheck/config.cfg; then
@@ -193,19 +196,31 @@ jobs:
           else
             echo "::warning::GRUB seri konsola yazmıyor, hata ayıklaması zorlaşır"
           fi
-          # 9601 hook'unun ürettiği gelişmiş menü: hem varlığı hem GRUB
-          # sözdizimi (bozuk config.cfg = menüsüz siyah ekran).
-          if grub-script-check grubcheck/config.cfg; then
-            echo "✓ config.cfg GRUB sözdizimi geçerli"
+          for f in config.cfg grub.cfg; do
+            if grub-script-check "grubcheck/$f"; then
+              echo "✓ $f GRUB sözdizimi geçerli"
+            else
+              echo "::error::$f GRUB sözdizimi HATALI — menü hiç açılmaz"
+              hata=1
+            fi
+          done
+          # Marka ve gelişmiş menü (9600 + 9601): ürün adı tek kaynaktan
+          . packages/kavis-theme/src/os-release
+          markali=$(grep -c "menuentry \"$NAME" grubcheck/grub.cfg || true)
+          if [ "$markali" -ge 1 ]; then
+            echo "✓ markalı girdi sayısı: $markali"
           else
-            echo "::error::config.cfg GRUB sözdizimi HATALI — menü hiç açılmaz"
+            echo "::error::grub.cfg'de '$NAME' adlı girdi YOK — 9600 hook'u incele"
             hata=1
           fi
-          if grep -q '^submenu "Gelişmiş menü (F3)"' grubcheck/config.cfg; then
+          if grep -q '^submenu "Gelişmiş menü (F3)"' grubcheck/grub.cfg; then
             echo "✓ Gelişmiş menü (F3) var"
           else
-            echo "::error::Gelişmiş menü (F3) config.cfg'de YOK — 9601 hook'u incele"
+            echo "::error::Gelişmiş menü (F3) grub.cfg'de YOK — 9601 hook'u incele"
             hata=1
+          fi
+          if grep -q "submenu 'Utilities" grubcheck/grub.cfg; then
+            echo "::warning::İngilizce Utilities alt menüsü hâlâ duruyor"
           fi
           rm -rf grubcheck
           exit $hata

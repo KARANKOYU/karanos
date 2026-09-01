@@ -60,6 +60,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `boot.ram_test` | RAM testi (memtest86+) | RAM test (memtest86+) |
 | `boot.ram_test_sb` | RAM testi (memtest86+, Secure Boot kapalıyken) | RAM test (memtest86+, requires Secure Boot off) |
 | `boot.uefi_setup` | UEFI/BIOS ayarlarına git | Enter UEFI/BIOS setup |
+| `boot.verify_media` | Açılış ortamının bütünlüğünü doğrula | Verify integrity of the boot medium |
 | `boot.back` | Ana menüye dön | Back to main menu |
 
 > Not: `boot.made_by` her iki dilde aynı — imza olduğu için çevrilmiyor.
