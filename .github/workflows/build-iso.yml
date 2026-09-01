@@ -378,11 +378,15 @@ jobs:
     # `needs` içindeki smoke-test elle koşuda kapatılabiliyor; atlanmış
     # bağımlılık normalde bu işi de atlatır. O yüzden koşul açık açık:
     # derleme başarılı + duman testi başarılı YA DA atlanmış olmalı.
+    # `v*-test*` etiketleri release ÜRETMEZ: Codespace token'ı
+    # workflow_dispatch yapamadığı (403) için derleme+test koşusunu
+    # başlatmanın tek otonom yolu etiket push'u — test etiketleri bu iş
+    # için var, Releases sayfasını kirletmesin.
     if: >-
       !cancelled() &&
       needs.build.result == 'success' &&
       (needs.smoke-test.result == 'success' || needs.smoke-test.result == 'skipped') &&
-      (github.ref_type == 'tag' ||
+      ((github.ref_type == 'tag' && !contains(github.ref_name, '-test')) ||
        (github.event_name == 'workflow_dispatch' && inputs.release))
     runs-on: ubuntu-latest
     permissions:
