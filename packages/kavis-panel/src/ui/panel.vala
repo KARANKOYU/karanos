@@ -15,10 +15,20 @@ namespace Kavis.Ui {
         public const int HEIGHT = 44;
         /* Window buttons shrink between these bounds before the list
          * starts scrolling (stage 2 rule: the right region is never
-         * squeezed, the window list is). */
-        private const int MAX_BUTTON_WIDTH = 190;
-        private const int MIN_BUTTON_WIDTH = 48;
+         * squeezed, the window list is). Icon-only since stage 3, so
+         * the bounds are near-square. */
+        private const int MAX_BUTTON_WIDTH = 48;
+        private const int MIN_BUTTON_WIDTH = 32;
         private const int BUTTON_SPACING = 2;
+        /* Below this button width the 24 px icons switch to 16 px
+         * ("icons shrink first, then the list scrolls"). */
+        private const int COMPACT_THRESHOLD = 40;
+        private const int ICON_NORMAL = 24;
+        private const int ICON_COMPACT = 16;
+        /* Active-window underline: short and centered, Windows 11
+         * style — not the full button width. */
+        private const int UNDERLINE_WIDTH = 16;
+        private const int UNDERLINE_HEIGHT = 3;
 
         private const string CSS = """
         .kavis-panel {
@@ -33,14 +43,33 @@ namespace Kavis.Ui {
           color: #E6EDF3;
           padding: 0 10px;
         }
+        .kavis-panel button {
+          transition: background-color 180ms ease;
+        }
         .kavis-panel button:hover {
           background-color: #1D2C38;
         }
-        /* Etkin pencere: altında turkuaz şerit — Windows'taki gibi hangi
-           pencerede olduğun bir bakışta belli olsun. */
+        /* Etkin öğe (sanal masaüstü düğmeleri): altında turkuaz şerit. */
         .kavis-panel button.active-item {
           background-color: #1D2C38;
           box-shadow: inset 0 -3px #2DD4BF;
+        }
+        /* Pencere düğmeleri (Windows 11 tarzı): yalnız ikon; etkin
+           pencerenin göstergesi tam genişlik şerit değil, düğmenin
+           ortasında kısa ince bir çizgi (.underline çocuğu). */
+        .kavis-panel button.window-item {
+          padding: 0 4px;
+        }
+        .kavis-panel button.window-item.active-item {
+          box-shadow: none;
+        }
+        .kavis-panel .underline {
+          background-color: transparent;
+          border-radius: 2px;
+          transition: background-color 180ms ease;
+        }
+        .kavis-panel button.active-item .underline {
+          background-color: #2DD4BF;
         }
         .kavis-panel button.start {
           padding: 0 14px;
@@ -67,7 +96,9 @@ namespace Kavis.Ui {
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
         private HashTable<ulong, Gtk.Button> window_buttons;
+        private HashTable<ulong, Gtk.Image> window_images;
         private int current_button_width = 0;
+        private int current_icon_size = ICON_NORMAL;
         private bool width_update_pending = false;
 
         public Panel () {
@@ -88,6 +119,8 @@ namespace Kavis.Ui {
             screen.force_update ();
             start_menu = new StartMenu ();
             window_buttons = new HashTable<ulong, Gtk.Button> (
+                direct_hash, direct_equal);
+            window_images = new HashTable<ulong, Gtk.Image> (
                 direct_hash, direct_equal);
 
             build ();
@@ -263,6 +296,7 @@ namespace Kavis.Ui {
                 window_box.remove (child);
             }
             window_buttons.remove_all ();
+            window_images.remove_all ();
 
             unowned Wnck.Workspace? active_workspace =
                 screen.get_active_workspace ();
@@ -324,33 +358,108 @@ namespace Kavis.Ui {
             window_buttons.foreach ((xid, button) => {
                 button.set_size_request (width, -1);
             });
+
+            int icon_size = (width >= COMPACT_THRESHOLD)
+                ? ICON_NORMAL : ICON_COMPACT;
+            if (icon_size != current_icon_size) {
+                current_icon_size = icon_size;
+                refresh_icons ();
+            }
         }
 
         private Gtk.Button window_button (Wnck.Window window, bool active) {
             var button = new Gtk.Button ();
             button.set_relief (Gtk.ReliefStyle.NONE);
+            button.get_style_context ().add_class ("window-item");
             if (active) {
                 button.get_style_context ().add_class ("active-item");
             }
-            var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-            var icon = window.get_mini_icon ();
-            if (icon != null) {
-                box.pack_start (new Gtk.Image.from_pixbuf (icon),
-                                false, false, 0);
-            }
-            var label = new Gtk.Label (window.get_name () ?? "");
-            label.set_xalign (0);
-            label.set_ellipsize (Pango.EllipsizeMode.END);
-            label.set_max_width_chars (20);
-            box.pack_start (label, true, true, 0);
-            button.add (box);
+
+            /* Icon centered, thin underline pinned to the bottom. The
+             * underline is always in the layout (transparent when
+             * inactive) so activation never shifts the icon. */
+            var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            var image = new Gtk.Image.from_pixbuf (
+                window_icon (window, current_icon_size));
+            image.set_valign (Gtk.Align.CENTER);
+            column.pack_start (image, true, true, 0);
+
+            var underline = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            underline.get_style_context ().add_class ("underline");
+            underline.set_size_request (UNDERLINE_WIDTH, UNDERLINE_HEIGHT);
+            underline.set_halign (Gtk.Align.CENTER);
+            column.pack_end (underline, false, false, 0);
+
+            button.add (column);
+
+            /* Icon-only buttons: the full window title lives in the
+             * tooltip and follows later title changes. */
             button.set_tooltip_text (window.get_name () ?? "");
+            hook_name_changed (window);
+            window_images.insert (window.get_xid (), image);
+
             unowned Wnck.Window target = window;
             button.clicked.connect (() => activate_window (target));
             if (current_button_width > 0) {
                 button.set_size_request (current_button_width, -1);
             }
             return button;
+        }
+
+        /* The window's own icon scaled to `size`; a generic themed icon
+         * when the window has none (libwnck would fall back to a bare
+         * X pictogram). */
+        private static Gdk.Pixbuf? window_icon (Wnck.Window window,
+                                                int size) {
+            Gdk.Pixbuf? icon = null;
+            if (window.get_icon_is_fallback ()) {
+                try {
+                    icon = Gtk.IconTheme.get_default ().load_icon (
+                        "application-x-executable", size, 0);
+                } catch (Error e) {
+                    icon = null;
+                }
+            }
+            if (icon == null) {
+                icon = window.get_icon ();
+            }
+            if (icon == null) {
+                return null;
+            }
+            if (icon.get_width () != size || icon.get_height () != size) {
+                icon = icon.scale_simple (size, size,
+                                          Gdk.InterpType.BILINEAR);
+            }
+            return icon;
+        }
+
+        /* Keep tooltips in sync with title changes without rebuilding
+         * the whole list. Connected once per window (flagged on the
+         * object); the handler dies with the window. */
+        private void hook_name_changed (Wnck.Window window) {
+            if (window.get_data<bool> ("kavis-name-hooked")) {
+                return;
+            }
+            window.set_data<bool> ("kavis-name-hooked", true);
+            unowned Wnck.Window target = window;
+            window.name_changed.connect (() => {
+                var button = window_buttons.lookup (target.get_xid ());
+                if (button != null) {
+                    button.set_tooltip_text (target.get_name () ?? "");
+                }
+            });
+        }
+
+        /* Re-render every taskbar icon at the current size (called when
+         * crossing the compact threshold). */
+        private void refresh_icons () {
+            foreach (unowned Wnck.Window window in screen.get_windows ()) {
+                var image = window_images.lookup (window.get_xid ());
+                if (image != null) {
+                    image.set_from_pixbuf (
+                        window_icon (window, current_icon_size));
+                }
+            }
         }
 
         private void activate_window (Wnck.Window window) {
