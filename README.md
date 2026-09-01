@@ -13,7 +13,7 @@
 
 ## Nedir
 
-x86_64 mimarisinde, Debian trixie tabanlı bir masaüstü dağıtımı. Kendi açılış
+Debian trixie tabanlı bir masaüstü dağıtımı; bugün amd64 ISO'su üretiliyor, kod çok-mimarili yazılıyor (arm64 hazırlığı — bkz. docs/gorev-listesi.md, MİMARİ ilkesi). Kendi açılış
 ekranı, giriş ekranı, görev çubuğu, ayarlar uygulaması ve uygulama mağazası
 var. Kendi çekirdeğimizi derlemiyoruz — Debian'ın imzalı çekirdeğini
 kullanıyoruz, böylece Secure Boot açık kalabiliyor.

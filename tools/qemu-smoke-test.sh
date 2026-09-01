@@ -17,6 +17,15 @@ ISO="${1:?kullanim: $0 <iso-dosyasi> [bios|uefi|secureboot]}"
 MODE="${2:-bios}"
 TIMEOUT="${TIMEOUT:-900}"
 
+# Çok-mimarili hazırlık: bu test qemu-system-x86_64 + OVMF'e yazıldı.
+# arm64 desteği istendiğinde qemu-system-aarch64 + AAVMF yolu eklenecek;
+# o güne kadar başka mimaride sessizce (hata vermeden) atlanır.
+MIMARI="${KAVIS_MIMARI:-amd64}"
+if [[ "$MIMARI" != "amd64" ]]; then
+	echo "NOT: duman testi yalnız amd64 için var; $MIMARI atlandı."
+	exit 0
+fi
+
 [[ -f "$ISO" ]] || { echo "HATA: ISO bulunamadi: $ISO" >&2; exit 2; }
 
 WORKDIR="$(mktemp -d)"

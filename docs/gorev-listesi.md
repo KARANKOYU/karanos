@@ -18,6 +18,28 @@ koyu-k-logo.svg / acik-k-logo.svg KALIR; git deposu adına dokunulmaz.
 İSİM BİR DAHA SABİTLENMEZ: görünen ad tek kaynakta (/etc/os-release +
 tek sabit), her yer oradan okur. Sürüm ve depo adresi de aynı kaynaktan.
 
+**MİMARİ (çok-mimarili hazırlık, 2026-09-01 eki):** Şu an yalnız amd64
+ISO'su üretilir ama kod baştan çok mimarili yazılır; hedef ileride arm64
+(Snapdragon dizüstüler). Kurallar:
+- Paket tanımlarında `Architecture: amd64` sabiti yok — mimariden bağımsız
+  paketler `all`, derlenenler `any`. Scriptlerde `$(dpkg
+  --print-architecture)`; "amd64" dizesi elle yazılmaz.
+- Derleme hattı (live-build, CI) mimariyi DEĞİŞKENDEN alır
+  (`KAVIS_MIMARI`, varsayılan amd64); arm64 ISO'su tek satır değişiklikle
+  üretilebilmeli. arm64 derlemesi ayrıca istenene kadar CI'a EKLENMEZ.
+- x86'ya özgü her şey mimari kontrolüyle sarılır ve diğer mimarilerde
+  SESSİZCE devre dışı kalır, hata vermez:
+  - kavis-gameopt (AMD X3D CCD pinleme) — yalnız x86_64 + AMD
+  - Steam, Proton, Lutris, Heroic — arm64'te mağazada gösterilmez veya
+    "bu mimaride çalışmıyor" notuyla gösterilir
+  - NVIDIA tescilli sürücüsü, DRI_PRIME/PRIME offload — donanıma göre
+  - memtest86+ — x86'ya özel, arm64'te F3 menüsünde görünmez
+- Sürücü yardımcısı ve donanım testleri donanımı ÇALIŞMA ANINDA tespit
+  eder, x86 varsayımıyla yazılmaz.
+- Bir özellik mimari yüzünden kapalıysa kullanıcıya sade bir açıklama
+  gösterilir; boş menü veya çöken uygulama olmaz.
+- x86'ya özgü assembly/intrinsics kullanılmaz; gerekiyorsa alternatifli.
+
 **PERFORMANS:** İşi abartılı zorlaştırmadığı sürece HER ZAMAN en hızlı ve
 en az RAM yiyen yol. Python ve shell yerine C/C++ tercih:
 - Sürekli çalışan bileşenler (panel, servisler): C, C++ veya Vala.
@@ -333,6 +355,22 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     sonradan tekrar açılabilir; Windows'tan gelene kısayol karşılıkları.
 58. **YOL HARİTASI:** docs/roadmap.md — grup→sürüm eşlemesi, 1.0 minimumu,
     2.0 ertelemeleri. Her grup bitiminde güncellenir.
+59. **SORUN ÖNLEME TARAMASI (2026-09-01 eki).** Her grubun BAŞINDA, o
+    gruptaki maddelerle ilgili projelerin GitHub issue'larına bakılır ve
+    tekrar eden sorunlar çıkarılır. Amaç: başkalarının düştüğü tuzağa
+    baştan düşmemek.
+    - SADECE ilgili projelere, sadece o grupla ilgili konuya bakılır.
+      Örnek: Grup E'ye başlarken nemo'nun dosya yöneticisi issue'ları,
+      Grup H'ye başlarken gamescope ve bazzite'ın oyun modu issue'ları.
+    - En çok 👍 almış ve en çok yorumlanmış issue'lara bakılır, hepsi
+      okunmaz. Kapanmış olanlar da değerli — nasıl çözmüşler.
+    - Çıktı: "bu özellikte insanlar en çok şundan şikâyet ediyor, biz
+      şöyle yaparsak bu sorunu baştan önleriz" listesi.
+    - Bulunanlar docs/referans/ altındaki ilgili özet dosyasına eklenir
+      ve kullanıcıya kısa bir liste hâlinde söylenir; gerekirse ilgili
+      maddenin gereksinimleri güncellenir.
+    - SINIR: grup başına 15 dakika ve makul token; ilk 20-30 issue
+      yeterli. Bu bir araştırma projesi değil, hata önleme adımı.
 
 ## Yapılış sırası (gruplar)
 

@@ -32,6 +32,13 @@ concurrency:
   group: iso-${{ github.ref }}
   cancel-in-progress: true
 
+# Hedef mimari TEK yerden (çok-mimarili hazırlık kuralı). arm64 ISO'su
+# istendiği gün burada değer değiştirmek (veya matrise almak) yetmeli;
+# auto/config ve paket listeleri değişkene/koşullara göre davranıyor.
+# arm64 derlemesi bilinçli olarak CI'a EKLENMEDİ — kota.
+env:
+  KAVIS_MIMARI: amd64
+
 jobs:
   # ------------------------------------------------------------------
   # ISO'ya giren .deb ile test edilen .deb aynı koşunun ürünü olsun diye
@@ -54,6 +61,7 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       iso_name: ${{ steps.meta.outputs.iso_name }}
       product: ${{ steps.meta.outputs.product }}
+      mimari: ${{ steps.meta.outputs.mimari }}
     steps:
       - name: Derleme bağımlılıkları
         run: |
@@ -62,8 +70,15 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends \
             live-build debootstrap squashfs-tools xorriso \
-            dosfstools mtools grub-pc-bin grub-efi-amd64-bin \
+            dosfstools mtools \
             ca-certificates git curl rsync file sudo
+          # Önyükleyici araçları hedef mimariye göre (grub-pc yalnız x86)
+          case "$KAVIS_MIMARI" in
+            amd64) apt-get install -y --no-install-recommends \
+                     grub-pc-bin grub-efi-amd64-bin ;;
+            arm64) apt-get install -y --no-install-recommends \
+                     grub-efi-arm64-bin ;;
+          esac
 
       - uses: actions/checkout@v7
 
@@ -79,10 +94,11 @@ jobs:
           # Ürün adı/kimliği tek kaynaktan: tema paketindeki os-release.
           # ISO adına küçük harfli kimlik (ID), görünen yerlere NAME gider.
           . packages/kavis-theme/src/os-release
-          echo "version=${VERSION}"                     >> "$GITHUB_OUTPUT"
-          echo "iso_name=${ID}-${VERSION}-amd64.iso"    >> "$GITHUB_OUTPUT"
-          echo "product=${NAME}"                        >> "$GITHUB_OUTPUT"
-          echo "Sürüm: ${NAME} ${VERSION}"
+          echo "version=${VERSION}"                            >> "$GITHUB_OUTPUT"
+          echo "iso_name=${ID}-${VERSION}-${KAVIS_MIMARI}.iso" >> "$GITHUB_OUTPUT"
+          echo "product=${NAME}"                               >> "$GITHUB_OUTPUT"
+          echo "mimari=${KAVIS_MIMARI}"                        >> "$GITHUB_OUTPUT"
+          echo "Sürüm: ${NAME} ${VERSION} (${KAVIS_MIMARI})"
 
       # apt paket önbelleği (madde 22): live-build indirdiği tüm .deb'leri
       # ve debootstrap arşivini iso/cache altında tutuyor. Bunu koşular
@@ -235,7 +251,11 @@ jobs:
   smoke-test:
     name: QEMU ${{ matrix.mode }}
     needs: build
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.smoke_test }}
+    # Duman testi şimdilik yalnız amd64 için var (qemu-system-x86 + OVMF).
+    # arm64 günü geldiğinde qemu-system-arm + AAVMF ile ayrı bir yol yazılacak.
+    if: >-
+      needs.build.outputs.mimari == 'amd64' &&
+      (github.event_name != 'workflow_dispatch' || inputs.smoke_test)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:

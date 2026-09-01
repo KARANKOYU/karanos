@@ -21,6 +21,28 @@ fi
 # Sürüm: CI ortam değişkeninden gelir, yoksa geliştirme sürümü
 KAVIS_VERSION="${KAVIS_VERSION:-${VERSION_ID}-dev}"
 
+# Mimari TEK değişkenden (çok-mimarili hazırlık kuralı). Bugün yalnızca
+# amd64 ISO'su üretiliyor; arm64 istendiğinde KAVIS_MIMARI=arm64 vermek
+# yetmeli, bu dosyada başka değişiklik gerekmemeli. amd64 dizesi aşağıda
+# yalnızca bu case bloğunda geçer.
+KAVIS_MIMARI="${KAVIS_MIMARI:-amd64}"
+case "$KAVIS_MIMARI" in
+amd64)
+	# BIOS (grub-pc) + UEFI; Debian'ın imzalı shim/grub'u ile Secure Boot.
+	ONYUKLEYICILER="grub-pc,grub-efi"
+	;;
+arm64)
+	# BIOS kavramı yok; yalnız UEFI. Debian arm64 için de imzalı
+	# shim/grub dağıtıyor. NOT: arm64 derlemesi HENÜZ CI'da yok ve hiç
+	# denenmedi — bu dal "o gün geldiğinde tek satır yeter" hazırlığı.
+	ONYUKLEYICILER="grub-efi"
+	;;
+*)
+	echo "HATA: desteklenmeyen mimari: $KAVIS_MIMARI (amd64|arm64)" >&2
+	exit 1
+	;;
+esac
+
 # Açılış satırı.
 # NOT: `quiet splash` şu an KAPALI — 1. aşamada boot mesajlarını görmek
 # istiyoruz. 3. aşamada (Plymouth teması) açılacak.
@@ -56,13 +78,13 @@ lb config noauto \
 	--mode debian \
 	--distribution trixie \
 	--parent-distribution trixie \
-	--architecture amd64 \
+	--architecture "$KAVIS_MIMARI" \
 	--archive-areas "main contrib non-free non-free-firmware" \
 	--parent-archive-areas "main contrib non-free non-free-firmware" \
 	--binary-images iso-hybrid \
-	--bootloaders "grub-pc,grub-efi" \
+	--bootloaders "$ONYUKLEYICILER" \
 	--uefi-secure-boot enable \
-	--linux-flavours amd64 \
+	--linux-flavours "$KAVIS_MIMARI" \
 	--debian-installer none \
 	--memtest none \
 	--win32-loader false \

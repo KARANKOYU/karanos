@@ -9,6 +9,37 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Çok-mimarili hazırlık + madde 59 (kullanıcı eki, 2026-09-01)
+
+Kullanıcı iki kalıcı kural ekledi; ikisi de `docs/gorev-listesi.md`'ye
+işlendi (MİMARİ ilkesi + madde 59) ve CLAUDE.md'ye özetlendi.
+
+Mevcut kodda yapılan mimari temizliği:
+
+- `iso/auto/config`: mimari `KAVIS_MIMARI` değişkeninden (varsayılan
+  amd64); önyükleyici seçimi case ile — amd64'te grub-pc+grub-efi,
+  arm64'te yalnız grub-efi (BIOS x86'ya özgü).
+- `01-base.list.chroot`: çekirdek ve GRUB paketleri live-build'in
+  `#if ARCHITECTURES` koşullarına alındı; arm64 karşılıkları yazıldı
+  (denenmedi, ilk arm64 derlemesinde doğrulanacak).
+- `tools/check-packages.sh`: hedef mimari `KAVIS_MIMARI`'den, indeks
+  `binary-$MIMARI`, `#if ARCHITECTURES` blokları live-build gibi
+  yorumlanıyor. İki mimari de yerelde doğrulandı: amd64 79/79,
+  arm64 78/78 paket arşivde var (arm64 grub-pc-bin içermiyor).
+- `build-iso.yml`: workflow düzeyinde `env: KAVIS_MIMARI: amd64` (tek
+  satır değişiklik noktası); ISO adı, derleme bağımlılıkları ve duman
+  testi kapısı bu değişkenden. Duman testi yalnız amd64'te koşuyor
+  (qemu-system-x86 + OVMF); arm64 CI'a bilinçli olarak EKLENMEDİ (kota).
+- `qemu-smoke-test.sh`: amd64 dışında sessizce atlıyor.
+- Paketler zaten `Architecture: all` — değişiklik gerekmedi.
+
+Not: x86'ya özgü ÖZELLİK kapıları (gameopt, Steam, memtest86+, NVIDIA)
+henüz var olmayan bileşenlere ait; kuralları gorev-listesi'nde duruyor ve
+ilgili maddeler yazılırken uygulanacak (ilk örnek: Grup B'de memtest86+
+yalnız amd64 F3 menüsüne girecek).
+
+---
+
 ## Grup A2 — referans incelemesi (madde 47)
 
 Dokuz proje sığ klonlanıp incelendi, özetler `docs/referans/` altında

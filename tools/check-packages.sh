@@ -7,6 +7,10 @@
 # altındaki her adın gerçekten var olduğunu kontrol eder.
 #
 # Kullanım:  tools/check-packages.sh
+#            KAVIS_MIMARI=arm64 tools/check-packages.sh   # başka mimari için
+#
+# Paket listelerindeki `#if ARCHITECTURES <mimariler>` ... `#endif` blokları
+# live-build'deki gibi yorumlanır: hedef mimari blokta yoksa satırlar atlanır.
 
 set -euo pipefail
 
@@ -16,16 +20,19 @@ CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kavis-pkgcheck"
 SUITE="trixie"
 MIRROR="https://deb.debian.org/debian"
 AREAS=(main contrib non-free non-free-firmware)
+# Hedef mimari değişkenden; "amd64" dizesi koda gömülmez (çok-mimarili
+# hazırlık kuralı). auto/config ile aynı varsayılan.
+MIMARI="${KAVIS_MIMARI:-amd64}"
 
 mkdir -p "$CACHE_DIR"
 
-echo "==> Debian $SUITE paket indeksleri (önbellek: $CACHE_DIR)"
-INDEX="$CACHE_DIR/paketler.txt"
+echo "==> Debian $SUITE/$MIMARI paket indeksleri (önbellek: $CACHE_DIR)"
+INDEX="$CACHE_DIR/paketler-$MIMARI.txt"
 
 if [[ ! -s "$INDEX" || -n "${REFRESH:-}" ]]; then
 	: > "$INDEX"
 	for area in "${AREAS[@]}"; do
-		url="$MIRROR/dists/$SUITE/$area/binary-amd64/Packages.xz"
+		url="$MIRROR/dists/$SUITE/$area/binary-$MIMARI/Packages.xz"
 		echo "    indiriliyor: $area"
 		curl -fsSL "$url" | xz -d | grep -E '^(Package|Provides): ' >> "$INDEX"
 	done
@@ -46,7 +53,22 @@ total=0
 
 for list in "$LIST_DIR"/*.list.chroot; do
 	echo "==> $(basename "$list")"
+	# live-build koşul durumu: 1 = satırlar hedef mimari için geçerli
+	blok_gecerli=1
 	while IFS= read -r line; do
+		# #if ARCHITECTURES a b ... / #endif bloklarını live-build gibi yorumla
+		if [[ "$line" =~ ^#if[[:space:]]+ARCHITECTURES[[:space:]]+(.+)$ ]]; then
+			blok_gecerli=0
+			for m in ${BASH_REMATCH[1]}; do
+				[[ "$m" == "$MIMARI" ]] && blok_gecerli=1
+			done
+			continue
+		fi
+		if [[ "$line" =~ ^#endif ]]; then
+			blok_gecerli=1
+			continue
+		fi
+		(( blok_gecerli )) || continue
 		pkg="${line%%#*}"
 		pkg="$(echo "$pkg" | tr -d '[:space:]')"
 		[[ -z "$pkg" ]] && continue
@@ -54,7 +76,7 @@ for list in "$LIST_DIR"/*.list.chroot; do
 		if grep -qxF "$pkg" "$INDEX"; then
 			printf '    \033[32m✓\033[0m %s\n' "$pkg"
 		else
-			printf '    \033[31m✗ %s — trixie/amd64 arşivinde YOK\033[0m\n' "$pkg"
+			printf '    \033[31m✗ %s — trixie/%s arşivinde YOK\033[0m\n' "$pkg" "$MIMARI"
 			fail=$((fail + 1))
 		fi
 	done < "$list"
@@ -91,7 +113,7 @@ for ctrl in "$REPO_ROOT"/packages/*/debian/control; do
 		if grep -qxF "$pkg" "$INDEX"; then
 			printf '    \033[32m✓\033[0m %s\n' "$pkg"
 		else
-			printf '    \033[31m✗ %s — trixie/amd64 arşivinde YOK\033[0m\n' "$pkg"
+			printf '    \033[31m✗ %s — trixie/%s arşivinde YOK\033[0m\n' "$pkg" "$MIMARI"
 			echo "$pkg" >> "$CACHE_DIR/eksik"
 		fi
 	done

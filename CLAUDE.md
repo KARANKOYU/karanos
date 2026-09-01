@@ -23,6 +23,16 @@ ve `KARANKOYU/karanos` adresleri.
 Logo kuralı (madde 1): açılış ekranı ve GRUB **her zaman koyu logo**;
 başlat düğmesi/hakkında etkin temaya göre (`marka.logo_yolu()`).
 
+## Mimari — çok-mimarili hazırlık
+
+Bugün yalnız **amd64** ISO'su üretilir ama kod baştan çok mimarili yazılır
+(hedef: ileride arm64). Kurallar `docs/gorev-listesi.md` MİMARİ ilkesinde;
+kısaca: "amd64" dizesi koda gömülmez (`KAVIS_MIMARI` değişkeni /
+`dpkg --print-architecture`), paketler `all`/`any`, x86'ya özgü her şey
+mimari kontrolüyle sarılıp diğer mimarilerde sessizce ve açıklamalı
+kapanır, donanım çalışma anında tespit edilir. arm64 derlemesi istenene
+kadar CI'a eklenmez.
+
 ## Kaynak belgeler
 
 | Dosya | Ne için |
@@ -107,6 +117,10 @@ başarısız saymaz.
 - Geliştirme `docs/gorev-listesi.md` sonundaki GRUP sırasına göre yürür
   (A → A2 → B → ... → K). Her grubun sonunda DUR: özet ver, commit et,
   kullanıcıdan onay bekle; "devam" denmeden sonraki gruba geçme.
+- Her grubun BAŞINDA sorun önleme taraması yap (madde 59): ilgili
+  projelerin en çok oy/yorum almış issue'larından tekrar eden şikâyetleri
+  çıkar, docs/referans/ altına işle, kullanıcıya kısa liste ver.
+  Sınır: grup başına ~15 dk, ilk 20-30 issue.
 - Performans kuralı: sürekli çalışan bileşenler C/C++/Vala; kullanıcı
   uygulamalarında C/C++ tercih (iş 3 katına çıkıyorsa Python kabul);
   ISO scriptleri shell. Hazır ve hızlı araç varsa kur-ayarla, yeniden

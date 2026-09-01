@@ -1,3 +1,7 @@
+# NOT (çok-mimarili hazırlık): buradaki bochs/qxl/vmwgfx/vboxvideo
+# modülleri x86 sanal makinelerine özgü. initramfs-tools var olmayan
+# modülü sessizce atladığı için bu dosya arm64'te de zararsızdır;
+# virtio_gpu ve simpledrm orada da geçerlidir.
 # Kavis — initramfs'e zorla alınacak çekirdek modülleri
 #
 # NEDEN: Plymouth açılış ekranını DRM (KMS) aygıtına çiziyor. Sürücü

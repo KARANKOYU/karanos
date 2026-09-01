@@ -4,7 +4,14 @@
 # kendiliğinden gelmez. Bir şey eksik kalıyorsa buraya açıkça yazılacak.
 
 # --- çekirdek ve canlı sistem ---
+# Çekirdek paketi mimariye göre: live-build'in #if ARCHITECTURES koşulu
+# `lb config --architecture` değerine bakar (çok-mimarili hazırlık kuralı).
+#if ARCHITECTURES amd64
 linux-image-amd64
+#endif
+#if ARCHITECTURES arm64
+linux-image-arm64
+#endif
 live-boot
 live-config
 live-config-systemd
@@ -32,11 +39,19 @@ sudo
 
 # --- önyükleyici (ISO'nun imzalı EFI dosyalarını buradan alır) ---
 grub-common
+shim-signed
+mtools
+#if ARCHITECTURES amd64
+# BIOS açılışı yalnız x86'da var (grub-pc-bin).
 grub-pc-bin
 grub-efi-amd64-bin
 grub-efi-amd64-signed
-shim-signed
-mtools
+#endif
+#if ARCHITECTURES arm64
+# Denenmedi: arm64 ISO'su ilk kez üretilirken doğrulanacak.
+grub-efi-arm64-bin
+grub-efi-arm64-signed
+#endif
 
 # --- yerelleştirme ---
 locales
