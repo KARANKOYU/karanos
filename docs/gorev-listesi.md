@@ -391,9 +391,33 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
 - **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29
 - **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44
 - **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50
-- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11 + userns
-  değişimi ve beş karşı koruma (madde 8 notu: AppArmor, /tmp noexec,
-  Flatpak dar izin, servis sertleştirme, güvenlik unattended-upgrades)
+- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11 + aşağıdaki
+  "Grup G ek maddesi" (userns açılışı + telafi önlemleri)
+
+  ### Grup G ek maddesi: unprivileged user namespace'i açma + telafi önlemleri
+
+  Bağlam: Grup B'de `kernel.unprivileged_userns_clone=0` yapıldı.
+  Flatpak ve Steam pressure-vessel bu ayar kapalıyken çalışmıyor.
+  Grup G'de 1'e çekilecek. (Bu bir boolean — 0 veya 1, başka değer yok.)
+
+  Grup G'de yapılacaklar:
+  1. `kernel.unprivileged_userns_clone = 1`. Diğer sertleştirmeler
+     AYNEN kalacak: kptr_restrict=2, dmesg_restrict=1,
+     kernel.yama.ptrace_scope=1, algif_* kara listesi.
+  2. Telafi önlemleri (1 yapmadan ÖNCE bunlar hazır olacak):
+     - Tüm kavis-* servislerinde ProtectSystem=strict + PrivateTmp=yes
+       + NoNewPrivileges=yes; yazma gereken yollar için ReadWritePaths=
+       istisnası. Panelin ~/.config/kavis erişimi kırılmamalı.
+     - /tmp + /dev/shm için noexec/nosuid/nodev.
+       RİSK: bazı .deb postinst betikleri ve Steam bootstrap /tmp'ten
+       çalıştırma yapıyor olabilir. Uygulamadan önce araştırılacak;
+       kırılma varsa /tmp bırakılıp yalnız /dev/shm sertleştirilecek.
+     - Flatpak varsayılanı dar: `--nofilesystem=host`, uygulama bazında
+       genişletme.
+     - AppArmor profilleri.
+  3. CI: Grup B testlerinde userns=0 bekleyen kontrol 1'e çevrilecek,
+     KAVIS-CHECK tablosuna "userns açık + telafi önlemleri var" satırı.
+  4. docs/ güvenlik notlarına takasın gerekçesi yazılacak.
 - **GRUP H** — oyun ve cihazlar: 13, 14, 25, 54, 53 (VM'de tam test
   edilemez)
 - **GRUP I** — kurulum akışı (27C A/B + 51A swap baştan hesaba katılır):
