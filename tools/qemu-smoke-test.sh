@@ -308,6 +308,13 @@ if [[ -n "$mem_line" ]]; then
 	echo "  (canli mod olcumu kurulu sistemden yuksektir)"
 	echo "===================================="
 
+	# Panelin kendi maliyeti (madde 3: tasima sonrasi RAM olcumu).
+	panel_rss=$(grep -o 'PANEL-RSS=[0-9]*MB' "$SERIAL" 2>/dev/null | tail -1 || true)
+	panel_exe=$(grep -o 'PANEL-EXE=[^ ]*' "$SERIAL" 2>/dev/null | tail -1 || true)
+	if [[ -n "$panel_rss" ]]; then
+		printf '  panel  : %s (%s)\n' "${panel_rss#PANEL-RSS=}" "${panel_exe#PANEL-EXE=}"
+	fi
+
 	if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
 		{
 			echo "### QEMU $MODE"
@@ -315,6 +322,9 @@ if [[ -n "$mem_line" ]]; then
 			echo "| Alan | Değer |"
 			echo "|---|---|"
 			echo "| Boşta RAM (canlı) | **${mem_mb} MB** — ${mem_verdict} |"
+			if [[ -n "$panel_rss" ]]; then
+				echo "| Panel RSS | ${panel_rss#PANEL-RSS=} |"
+			fi
 			echo "| Hedef | 1024 MB normal / 1536 MB sınır |"
 		} >> "$GITHUB_STEP_SUMMARY"
 	fi

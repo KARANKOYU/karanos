@@ -2,7 +2,7 @@
 # Görünen ad (NAME), kimlik (ID), sürüm ve adresler yalnızca burada
 # tanımlı. Kod içinde "Kavis" yazılmaz; çalışan sistemde /etc/os-release,
 # derleme sırasında da bu dosya okunur (iso/auto/config, hook'lar,
-# kavis_panel/marka.py). İsim bir gün yine değişirse iş bu dosyayla
+# kavis-panel/src/logic/brand.vala). İsim bir gün yine değişirse iş bu dosyayla
 # assets/logo/ altındaki görsellerden ibaret kalsın.
 PRETTY_NAME="Kavis 1.0"
 NAME="Kavis"

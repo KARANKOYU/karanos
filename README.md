@@ -22,7 +22,7 @@ kullanıyoruz, böylece Secure Boot açık kalabiliyor.
 |---|---|
 | Taban | Debian stable (trixie), `live-build` |
 | Görüntü sunucusu / WM | X11 + Openbox |
-| Kendi yazılımlarımız | Python 3 + GTK3 (PyGObject) |
+| Kendi yazılımlarımız | Vala → C/GObject (GTK3 + libwnck), tek ikili |
 | Kök dosya sistemi | btrfs (`@` + `@users`) |
 | Kurulum aracı | Calamares |
 | Hedef ISO boyutu | 1.5 GB altı |

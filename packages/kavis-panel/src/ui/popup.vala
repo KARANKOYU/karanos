@@ -73,6 +73,9 @@ namespace Kavis.Ui {
 
         /* At most one popup open — opening any dismisses the other. */
         private static unowned PanelPopup? open_popup = null;
+        /* The start menu takes part in the same exclusivity: opening a
+         * popup closes it and vice versa (Panel sets this once). */
+        public static unowned StartMenu? start_menu = null;
         private static bool css_loaded = false;
 
         protected Gtk.Box content;
@@ -144,6 +147,9 @@ namespace Kavis.Ui {
             if (open_popup != null && open_popup != this) {
                 open_popup.dismiss ();
             }
+            if (start_menu != null && start_menu.get_visible ()) {
+                start_menu.dismiss ();
+            }
 
             refresh_content ();
             show_all ();
@@ -190,6 +196,14 @@ namespace Kavis.Ui {
                            null, null, null);
             }
             open_popup = this;
+        }
+
+        /* Close whichever popup is open (the start menu calls this when
+         * it opens — same exclusivity, opposite direction). */
+        public static void dismiss_open () {
+            if (open_popup != null) {
+                open_popup.dismiss ();
+            }
         }
 
         public void dismiss () {

@@ -123,6 +123,8 @@ namespace Kavis.Ui {
             screen = Wnck.Screen.get_default ();
             screen.force_update ();
             start_menu = new StartMenu ();
+            /* Start menu and indicator popups close one another. */
+            PanelPopup.start_menu = start_menu;
             window_buttons = new HashTable<ulong, Gtk.Button> (
                 direct_hash, direct_equal);
             window_images = new HashTable<ulong, Gtk.Image> (

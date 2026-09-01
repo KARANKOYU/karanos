@@ -85,6 +85,9 @@ namespace Kavis.Ui {
 
         /* Open the menu above the taskbar. */
         public void open (int x, int y) {
+            /* Same exclusivity as the indicator popups: at most one
+             * floating surface above the panel. */
+            PanelPopup.dismiss_open ();
             app_list = Apps.all_apps ();
             search_entry.set_text ("");
             render_list (app_list, true);

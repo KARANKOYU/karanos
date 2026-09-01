@@ -122,7 +122,7 @@ fi
 # Görev çubuğu (4. aşama) çalışıyor mu
 # Panel yoksa masaüstü Windows benzeri olmuyor; ekran görüntüsünde de
 # yalnızca duvar kağıdı görünür.
-# Panel Python + GTK yüklüyor; öykünmeli QEMU'da bu birkaç saniye
+# Panel GTK + Wnck yüklüyor; öykünmeli QEMU'da bu birkaç saniye
 # sürüyor. Pencere yöneticisinde yaptığım hatanın aynısını burada da
 # yapmayalım: anında bakmak yanlış negatif veriyor, bekleyerek bakıyoruz.
 panel_up=0
@@ -138,6 +138,18 @@ done
 
 if [ "$panel_up" -eq 1 ]; then
 	log "PANEL-OK kavis-panel calisiyor (${i} saniyede)"
+	# Vala taşımasının kanıtı + gerçek RAM maliyeti (madde 3 "bitince
+	# RAM tekrar ölçülür"). exe yolu ikilinin çalıştığını, VmRSS
+	# yorumlayıcısız maliyeti gösterir. GTK'nın yüklemesi bitsin diye
+	# kısa bir bekleme — erken ölçüm olduğundan küçük çıkıyor.
+	sleep 3
+	panel_pid=$(pgrep -x kavis-panel | head -1 || true)
+	if [ -n "$panel_pid" ] && [ -r "/proc/$panel_pid/status" ]; then
+		panel_exe=$(readlink "/proc/$panel_pid/exe" 2>/dev/null || echo "?")
+		panel_rss_kb=$(awk '/^VmRSS:/ { print $2 }' "/proc/$panel_pid/status")
+		log "PANEL-EXE=$panel_exe"
+		log "PANEL-RSS=$((panel_rss_kb / 1024))MB"
+	fi
 else
 	fatal "PANEL-FAIL kavis-panel calismiyor" "panel"
 	echo "--- KAVIS-TANI: panel neden calismiyor ---"
@@ -154,8 +166,9 @@ else
 			echo "#   (okunamadi)"
 		fi
 	done
-	echo "# python modulu yuklenebiliyor mu:"
-	python3 -c "import kavis_panel.panel" 2>&1 | sed 's/^/#   /'
+	echo "# ikili ve bagimliliklari:"
+	ldd /usr/bin/kavis-panel 2>&1 | grep -i "not found" | sed 's/^/#   /' \
+		|| echo "#   (tum kutuphaneler bulundu)"
 	echo "--- KAVIS-TANI sonu ---"
 fi
 
