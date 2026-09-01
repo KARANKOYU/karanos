@@ -11,7 +11,7 @@ kalmış olabilir, yenilerde İngilizce).
 Ürün adı KODA GÖMÜLMEZ. Tek kaynak:
 `packages/kavis-theme/src/os-release` (kurulu sistemde `/etc/os-release`).
 Ad, sürüm ve adresler yalnızca oradan okunur — shell tarafında
-`. /etc/os-release`, Python tarafında `kavis_panel/marka.py`,
+`. /etc/os-release`, panelde `src/logic/brand.vala`,
 derlemede `iso/auto/config` ve iş akışının "Sürüm bilgisi" adımı.
 İsim yine değişirse iş, o dosya + `assets/logo/` görsellerinden ibaret
 olmalı.

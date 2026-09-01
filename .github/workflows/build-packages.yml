@@ -32,7 +32,7 @@ jobs:
             build-essential debhelper dpkg-dev fakeroot \
             librsvg2-bin x11-apps python3 ca-certificates git \
             ffmpeg fonts-dejavu-core \
-            python3-gi gir1.2-gtk-3.0 gir1.2-wnck-3.0 python3-xlib
+            valac libgtk-3-dev libwnck-3-dev libx11-dev
 
       - uses: actions/checkout@v7
 
@@ -99,39 +99,19 @@ jobs:
 
           exit $hata
 
-      # Panel saf Python; sözdizimi hatası ya da eksik bir gi modülü
-      # .deb derlemesini durdurmuyor, ISO'da sessizce çöküyor ve sebebi
-      # ancak QEMU koşusundan sonra görülüyor. Modülleri burada, ekran
-      # gerektirmeden içe aktarıp o sınıfı hatayı 10 saniyede yakalıyoruz.
-      # (Gtk.Window() ekran ister ama `import` istemiyor.)
-      - name: kavis-panel içe aktarılabiliyor mu
+      # Panel artık derlenmiş Vala ikilisi (madde 3): derleme hataları
+      # zaten .deb aşamasında yakalanıyor. Burada ikilinin gerçekten
+      # çalıştığını ve metin tablosunun tutarlı olduğunu ekransız
+      # --metin-denetimi kipiyle doğruluyoruz.
+      - name: kavis-panel ikilisi çalışıyor mu
         run: |
           set -eu
           rm -rf kp && mkdir kp
-          dpkg-deb -x out/packages/kavis-panel_*_all.deb kp
-          PYTHONPATH=kp/usr/lib/python3/dist-packages python3 - <<'PY'
-          import kavis_panel.panel as panel
-          import kavis_panel.baslat as baslat
-          import kavis_panel.gosterge as gosterge
-          import kavis_panel.guc as guc
-          import kavis_panel.uygulamalar as uygulamalar
-          import kavis_panel.metinler as metinler
-          import kavis_panel.marka as marka
-          # Metin tablosundaki anahtarlar gerçekten karşılık veriyor mu:
-          # M() eksik anahtarda anahtarın kendisini döndürüyor, o yüzden
-          # sessizce "panel.start" yazan bir düğme çıkabilir.
-          eksik = [a for a in metinler.METINLER if metinler.M(a) == a]
-          assert not eksik, f"karsiligi olmayan anahtar: {eksik}"
-          assert panel.YUKSEKLIK > 0
-          assert baslat.GENISLIK > 0
-          assert callable(guc.kapat) and callable(gosterge.Saat)
-          assert uygulamalar.KATEGORI_SIRASI
-          # Ürün kimliği: ekransız makinede de ad dönmeli ve logo seçimi
-          # koyu logoya düşmeli (tek tema koyu).
-          assert marka.urun_adi()
-          assert marka.logo_yolu().endswith("koyu-k-logo.svg")
-          print("kavis-panel modulleri yuklendi, metin tablosu tutarli")
-          PY
+          dpkg-deb -x out/packages/kavis-panel_*.deb kp
+          test -x kp/usr/bin/kavis-panel
+          test -f kp/usr/share/applications/kavis-panel.desktop
+          kp/usr/bin/kavis-panel --metin-denetimi
+          echo "kavis-panel ikilisi calisiyor, metin tablosu tutarli"
 
       - name: Boyut özeti
         run: |

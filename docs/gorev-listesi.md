@@ -64,6 +64,9 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
 - Her fonksiyonun üstünde açıklama (ne yapar, parametreler, dönüş, hata).
   C/C++ için Doxygen, Python için docstring. Açıklamalar İNGİLİZCE;
   kullanıcıya görünen metinler TR+EN.
+- Kod TANIMLAYICILARI da İngilizce (2026-09-01 eki): sınıf/fonksiyon/
+  değişken/sabit adları (BaslatMenusu→StartMenu, GENISLIK→WIDTH gibi).
+  Kullanıcıya görünen metinler ayrı (TR+EN).
 - Her paketin kökünde README.md; docs/ altında mimari belgesi.
 - Karmaşık yerlerde NEDEN yazılır, ne yapıldığı değil.
 - Sihirli sayı ve sabit kodlanmış yol yok.

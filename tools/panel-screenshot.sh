@@ -21,7 +21,7 @@ cd "$REPO_ROOT"
 OUT="${1:-$REPO_ROOT/out/panel.png}"
 
 for pkg in kavis-panel kavis-theme; do
-	if ! ls out/packages/${pkg}_*_all.deb >/dev/null 2>&1; then
+	if ! ls out/packages/${pkg}_*.deb >/dev/null 2>&1; then
 		echo "==> $pkg yok, derleniyor"
 		tools/build-packages.sh "$pkg" >/dev/null
 	fi
@@ -35,11 +35,10 @@ for cmd in Xvfb openbox xdotool /usr/bin/python3; do
 done
 
 ROOT=$(mktemp -d)
-dpkg-deb -x "$(ls -1 out/packages/kavis-panel_*_all.deb | head -1)" "$ROOT"
+dpkg-deb -x "$(ls -1 out/packages/kavis-panel_*.deb | head -1)" "$ROOT"
 dpkg-deb -x "$(ls -1 out/packages/kavis-theme_*_all.deb | head -1)" "$ROOT"
 
 export XDG_DATA_DIRS="$ROOT/usr/share:${XDG_DATA_DIRS:-/usr/share}"
-export PYTHONPATH="$ROOT/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"
 export GTK_THEME=Kavis:dark
 export XCURSOR_PATH="$ROOT/usr/share/icons"
 # Logo dosyaları gerçek sistemde /usr/share/kavis/logo altında; burada
@@ -99,7 +98,7 @@ fi
 	>/dev/null 2>&1 &
 ORNEK_PID=$!
 
-/usr/bin/python3 "$ROOT/usr/bin/kavis-panel" >"$ROOT/panel.log" 2>&1 &
+"$ROOT/usr/bin/kavis-panel" >"$ROOT/panel.log" 2>&1 &
 PANEL_PID=$!
 
 for _ in $(seq 1 40); do

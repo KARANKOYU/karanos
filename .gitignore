@@ -58,3 +58,7 @@ serial-*.log
 .claude/
 *.swp
 .DS_Store
+
+# Vala derleme ara ürünü (dh_auto_clean siler ama derleme sonrası kalır)
+packages/kavis-panel/kavis-panel
+*.ddeb

@@ -1,3 +1,13 @@
+kavis-panel (1.1) unstable; urgency=medium
+
+  * Panel Python'dan Vala'ya taşındı (madde 3): 117 MB RAM kabul
+    edilemezdi. Aynı görünüm ve davranış; iş mantığı src/logic/,
+    arayüz src/ui/ altında. Strut için python3-xlib yerine doğrudan
+    libX11. setxkbmap'in paketi (x11-xkb-utils) bağımlılığa eklendi —
+    eskiden eksikti ve klavye göstergesi sessizce "TR"ye düşüyordu.
+
+ -- Karan <farukyildiz3207@gmail.com>  Tue, 01 Sep 2026 12:00:00 +0300
+
 kavis-panel (1.0) stable; urgency=medium
 
   * İlk sürüm: görev çubuğu (başlat düğmesi, pencere listesi, sanal

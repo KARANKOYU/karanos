@@ -16,7 +16,7 @@ Kullanım kuralı (görev listesi madde 1):
 | GRUB menü arka planı | HER ZAMAN `koyu-k-logo.svg` |
 | Başlat düğmesi, görev çubuğu, hakkında | etkin temaya göre otomatik |
 
-Tema seçimini yapan tek yer `kavis-panel` içindeki `marka.py`; sistem
+Tema seçimini yapan tek yer `kavis-panel` içindeki `src/logic/brand.vala`; sistem
 bugün tek temalı (koyu) olduğu için pratikte koyu logo görünür.
 
 Tüm ikon boyutları SVG'lerden türetilir (`rsvg-convert` ile), elle PNG

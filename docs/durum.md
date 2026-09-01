@@ -9,6 +9,61 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Grup C — panel Vala'ya taşındı (madde 3)
+
+Madde 59 taraması: `docs/referans/grup-c-taramasi.md` (polybar
+issue'larından: panel OPAK kalacak, XEmbed tepsisine hiç girilmeyecek,
+olay tabanlı mimari korunacak).
+
+### Neden Vala (C değil)
+
+Vala GObject/GTK için C'ye derleniyor: çalışma zamanı maliyeti C ile
+aynı (yorumlayıcı yok, GI yok), kod C'nin üçte biri. "İş 3 katına
+çıkıyorsa" eşiğine takılmadan derlenmiş panel elde etmenin yolu bu —
+performans kuralındaki denge cümlesinin kendisi.
+
+### Ölçümler (aynı makinede, aynı Xvfb, 6 sn boşta)
+
+| | Python (eski) | Vala (yeni) |
+|---|---|---|
+| RSS | 103 MB | 33 MB |
+| PSS | 75 MB | 23 MB |
+
+Kullanıcının VM ölçümü (117 MB) bu makinedeki 103'e denk düşüyor;
+ISO'da GTK kütüphaneleri başka süreçlerle paylaşıldığı için gerçek ek
+maliyet PSS'e daha yakın olacak. .deb 15 KB'den 29 KB'ye çıktı ama
+ISO'dan tüm Python+PyGObject yığını çıktı (02-x11 listesinden python3,
+python3-gi, python3-gi-cairo, gir1.2-gtk-3.0 silindi) — net kazanç hem
+RAM hem ISO boyutu.
+
+### Yapı
+
+- İş mantığı `src/logic/` (strings, brand, apps, power), arayüz
+  `src/ui/` (panel, start_menu, power_menu, indicators) — madde 3'ün
+  ayrım şartı dosya düzeyinde.
+- Kod tanımlayıcıları İNGİLİZCE (kullanıcının 2026-09-01 kuralı;
+  CLAUDE.md ve gorev-listesi'ne işlendi). Eski shell scriptlerindeki
+  Türkçe yerel değişkenler dokunuldukça çevrilecek — toplu yeniden
+  adlandırma churn'ü bilerek yapılmadı.
+- Strut artık doğrudan libX11 `XChangeProperty` — python3-xlib'in var
+  olma sebebi PyGObject'in eksiğiydi. BUYUT=1 testiyle doğrulandı.
+- `--metin-denetimi` kipi: ekransız metin tablosu denetimi; CI'daki
+  Python import kontrolünün yerini aldı (yerelde birebir çalıştırıldı).
+
+### Taşımada yakalanan eski hatalar
+
+1. **setxkbmap bağımlılığı hiç yoktu**: ikili `x11-xkb-utils`
+   paketinde; ne panelin Depends'inde ne ISO listesindeydi. Klavye
+   göstergesi ISO'da sessizce "TR" varsayılanına düşüyordu. Yeni paket
+   bağımlılığı bildiriyor.
+2. **Logo SVG'si gdk-pixbuf SVG yükleyicisiz açılmıyor**: `librsvg2-common`
+   ISO listesinde vardı ama panelin bağımlılığı değildi; shlibs dinamik
+   yükleyiciyi göremez. Açık bağımlılık yapıldı.
+3. Vala 0.56'da `partial` anahtar sözcük — strut dizisinin adı bu yüzden
+   `strut_values` (aynı tuzağa düşecek sonraki kişi için not).
+
+---
+
 ## Karar: userns Grup G'de açılacak, karşılığında beş koruma (2026-09-01)
 
 Kullanıcı kararı: `kernel.unprivileged_userns_clone` şu an 0 (madde 8),
