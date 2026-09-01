@@ -1,9 +1,0 @@
-#!/bin/sh
-# Karan OS — kendi systemd servislerimizi etkinleştir
-set -e
-
-chmod 0755 /usr/lib/karanos/boot-check
-
-systemctl enable karanos-boot-check.service
-
-echo "I: karanos servisleri etkinlestirildi"

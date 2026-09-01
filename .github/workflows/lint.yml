@@ -34,4 +34,4 @@ jobs:
             tools/*.sh \
             iso/auto/config iso/auto/build iso/auto/clean \
             iso/config/hooks/normal/*.hook.* \
-            iso/config/includes.chroot/usr/lib/karanos/boot-check
+            iso/config/includes.chroot/usr/lib/kavis/boot-check

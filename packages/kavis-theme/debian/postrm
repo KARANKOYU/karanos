@@ -1,0 +1,21 @@
+#!/bin/sh
+# os-release yönlendirmesini geri al. Bunu postrm'de yapıyoruz çünkü
+# dosyamızın önce silinmiş olması gerekiyor — aksi hâlde base-files'ın
+# aslı geri taşınamaz.
+set -e
+
+DIVERTED=/usr/lib/os-release
+ORIGINAL=/usr/lib/os-release.debian
+
+case "$1" in
+remove | purge | disappear)
+	if dpkg-divert --list "$DIVERTED" | grep -q kavis-theme; then
+		dpkg-divert --package kavis-theme --remove --rename \
+			--divert "$ORIGINAL" "$DIVERTED"
+	fi
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0

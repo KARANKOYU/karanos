@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Karan OS — paket listelerini Debian trixie arşivine karşı doğrula
+# Kavis — paket listelerini Debian trixie arşivine karşı doğrula
 #
 # ISO'yu yerelde derlemiyoruz, ama paket adı yazım hatası yüzünden
 # 40 dakikalık CI derlemesini çöpe atmak da istemiyoruz.
@@ -12,7 +12,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LIST_DIR="$REPO_ROOT/iso/config/package-lists"
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/karanos-pkgcheck"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kavis-pkgcheck"
 SUITE="trixie"
 MIRROR="https://deb.debian.org/debian"
 AREAS=(main contrib non-free non-free-firmware)
@@ -79,7 +79,7 @@ for ctrl in "$REPO_ROOT"/packages/*/debian/control; do
 		| sort -u | while IFS= read -r pkg; do
 		# Kendi paketlerimiz Debian arşivinde yok, packages/ altında
 		# derleniyorlar. Aranırsa hep "bulunamadı" derdi.
-		if [[ "$pkg" == karanos-* ]]; then
+		if [[ "$pkg" == kavis-* ]]; then
 			if [[ -d "$REPO_ROOT/packages/$pkg" ]]; then
 				printf '    \033[32m✓\033[0m %s (kendi paketimiz)\n' "$pkg"
 			else

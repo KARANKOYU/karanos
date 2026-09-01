@@ -1,4 +1,4 @@
-# Karan OS — X11 + Openbox + terminal (1. aşama)
+# Kavis — X11 + Openbox + terminal (1. aşama)
 #
 # Kendi bileşenlerimiz (panel, greeter, ayarlar) henüz yok; bu liste
 # "boot ediyor ve grafik arayüz açılıyor" iskeletini kuruyor.
@@ -15,7 +15,7 @@ x11-utils
 # --- pencere yöneticisi ---
 openbox
 
-# --- giriş yöneticisi (5. aşamada karanos-greeter ile değişecek) ---
+# --- giriş yöneticisi (5. aşamada kavis-greeter ile değişecek) ---
 lightdm
 lightdm-gtk-greeter
 

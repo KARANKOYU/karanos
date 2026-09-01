@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/logo/k-logo.svg" width="120" alt="Karan OS">
+  <img src="assets/logo/koyu-k-logo.svg" width="120" alt="Kavis">
 </p>
 
-<h1 align="center">Karan OS</h1>
+<h1 align="center">Kavis</h1>
 
 <p align="center">
   Debian tabanlı, Windows benzeri masaüstüne sahip kişisel Linux dağıtımı.<br>
@@ -31,11 +31,11 @@ kullanıyoruz, böylece Secure Boot açık kalabiliyor.
 ## Depo yapısı
 
 ```
-karanos/
+kavis/
 ├── assets/       elle konulan kaynak dosyalar (logo, açılış görseli/müziği)
 ├── docs/         kurulum ve tasarım notları
 ├── iso/          live-build yapılandırması
-├── packages/     karanos-* .deb paketlerinin kaynağı
+├── packages/     kavis-* .deb paketlerinin kaynağı
 ├── installer/    Calamares yapılandırması + ön kontrol modülü
 ├── tools/        geliştirme yardımcıları (kontroller, QEMU testi)
 └── .github/workflows/   ISO derleme + paket üretimi
@@ -73,30 +73,18 @@ Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
 
 | Dosya | Durum |
 |---|---|
-| `assets/logo/k-logo.svg` | ✅ hazır |
+| `assets/logo/koyu-k-logo.svg` | ✅ hazır |
+| `assets/logo/acik-k-logo.svg` | ✅ hazır |
 | `assets/boot/boot-image.png` | ⏳ [özellikler](assets/boot/README.md) |
 | `assets/boot/boot-sound.mp3` | ⏳ [özellikler](assets/boot/README.md) |
 
 ## Geliştirme sırası
 
-| # | Aşama | Durum |
-|---|---|---|
-| 1 | Boot eden çıplak ISO (X11 + Openbox + terminal) | ✅ BIOS/UEFI/Secure Boot üçü de açılıyor |
-| 2 | Tema paketi (renkler, logo, imleç, GTK) | 🔨 paket hazır, masaüstü oturumu düzeltildi, CI doğrulaması bekliyor |
-| 3 | Açılış ekranı (görsel + parlama + mp3) | 🔨 paket hazır, CI doğrulaması bekliyor |
-| 4 | Panel: görev çubuğu + başlat menüsü | 🔨 çubuk + menü çalışıyor; snap, Alt+Tab, masaüstü simgeleri kaldı |
-| 5 | Giriş ekranı + kilit ekranı | ⏳ |
-| 6 | Kullanıcı/dizin yapısı + bind mount koruması | ⏳ |
-| 7 | Kurulum sihirbazı | ⏳ |
-| 8 | Ayarlar uygulaması | ⏳ |
-| 9 | Karan OS Mağaza | ⏳ |
-| 10 | Görev yöneticisi + küçük araçlar | ⏳ |
-| 11 | Calamares kurulum aracı + canlı mod | ⏳ |
-| 12 | Kurtarma ortamı | ⏳ |
-| 13 | APT deposu + GitHub Actions | ⏳ |
-| 14 | Gerçek donanımda test | ⏳ |
+Geliştirme, gruplar hâlinde ilerleyen madde listesine göre yürüyor; hangi
+grup bitince hangi sürümün çıkacağı yol haritasında:
+[`docs/roadmap.md`](docs/roadmap.md)
 
 Karar günlüğü: [`docs/durum.md`](docs/durum.md) ·
-Tam görev tanımı: [`docs/karanos-claude-code-prompt.md`](docs/karanos-claude-code-prompt.md) ·
-Arayüz metinleri (TR/EN): [`docs/karanos-arayuz-metinleri.md`](docs/karanos-arayuz-metinleri.md) ·
+Eski görev tanımı (Karan OS dönemi): [`docs/kavis-claude-code-prompt.md`](docs/kavis-claude-code-prompt.md) ·
+Arayüz metinleri (TR/EN): [`docs/kavis-arayuz-metinleri.md`](docs/kavis-arayuz-metinleri.md) ·
 GitHub kurulumu: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Karan OS — GRUB menüsüne geri sayım ve seri konsol ekle
+# Kavis — GRUB menüsüne geri sayım ve seri konsol ekle
 #
 # NEDEN VAR:
 # live-build'in ürettiği boot/grub/config.cfg dosyasında `set timeout`
@@ -45,7 +45,7 @@ echo "I: GRUB yapilandirmasi bulundu: $CFG"
 
 cat >> "$CFG" <<'EOF'
 
-### Karan OS ###
+### Kavis ###
 # Menü 10 saniye görünür, sonra ilk girdi (Live system) kendiliğinden açılır.
 set default=0
 set timeout=10

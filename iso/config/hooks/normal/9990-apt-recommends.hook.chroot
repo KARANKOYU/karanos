@@ -1,5 +1,5 @@
 #!/bin/sh
-# Karan OS — kurulu sistemde "Recommends" tekrar açılsın
+# Kavis — kurulu sistemde "Recommends" tekrar açılsın
 #
 # ISO derlenirken --apt-recommends false kullanıyoruz (hafiflik, prompt 20).
 # Ama kullanıcı sisteme kurduktan sonra mağazadan bir program yüklediğinde
@@ -10,10 +10,10 @@
 # etkilemez — sadece kurulu sistemin davranışını düzeltir.
 set -e
 
-cat > /etc/apt/apt.conf.d/99karanos-recommends <<'EOF'
-// Karan OS: ISO derlemesinde kapalı olan Recommends, kullanıcı sisteminde açık.
+cat > /etc/apt/apt.conf.d/99kavis-recommends <<'EOF'
+// Kavis: ISO derlemesinde kapalı olan Recommends, kullanıcı sisteminde açık.
 APT::Install-Recommends "true";
 APT::Install-Suggests "false";
 EOF
 
-echo "I: /etc/apt/apt.conf.d/99karanos-recommends yazildi"
+echo "I: /etc/apt/apt.conf.d/99kavis-recommends yazildi"

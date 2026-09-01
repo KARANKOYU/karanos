@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Karan OS — ISO duman testi (QEMU)
+# Kavis — ISO duman testi (QEMU)
 #
 # Kullanım:  tools/qemu-smoke-test.sh <iso-dosyasi> [bios|uefi|secureboot]
 #
-# ISO'yu QEMU'da açar, seri konsolu dinler ve /usr/lib/karanos/boot-check
-# script'inin yazdığı "KARANOS-CHECK: RESULT=OK" satırını bekler.
+# ISO'yu QEMU'da açar, seri konsolu dinler ve /usr/lib/kavis/boot-check
+# script'inin yazdığı "KAVIS-CHECK: RESULT=OK" satırını bekler.
 #
 # Bu test GitHub Actions'ta çalışır. Yerelde de çalışır ama Codespaces'te
 # KVM olmadığı için yavaştır (yazılım öykünmesi). Amaç her değişiklikte
@@ -78,7 +78,7 @@ OVMF_DIR="/usr/share/OVMF"
 # dizi ayraci degil.
 # shellcheck disable=SC2054
 qemu_args=(
-	-name "karanos-smoke-$MODE"
+	-name "kavis-smoke-$MODE"
 	-cpu max
 	-smp 2
 	-m 2560
@@ -159,11 +159,11 @@ while (( elapsed < TIMEOUT )); do
 		echo ">> QEMU beklenmedik sekilde kapandi (${elapsed}s)"
 		break
 	fi
-	if grep -q "KARANOS-CHECK: RESULT=OK" "$SERIAL" 2>/dev/null; then
+	if grep -q "KAVIS-CHECK: RESULT=OK" "$SERIAL" 2>/dev/null; then
 		result="OK"
 		break
 	fi
-	if grep -q "KARANOS-CHECK: RESULT=FAIL" "$SERIAL" 2>/dev/null; then
+	if grep -q "KAVIS-CHECK: RESULT=FAIL" "$SERIAL" 2>/dev/null; then
 		result="FAIL"
 		break
 	fi
@@ -177,7 +177,7 @@ while (( elapsed < TIMEOUT )); do
 	# gorunmuyor. Bu yuzden cekirdegin ya da systemd'nin herhangi bir
 	# yasam belirtisine bakiyoruz — amac "onyukleyicide mi takildik"
 	# sorusunu ayirt etmek.
-	if (( kernel_seen == 0 )) && grep -qE "Linux version|systemd\[1\]|Welcome to|KARANOS-CHECK|Reached target" "$SERIAL" 2>/dev/null; then
+	if (( kernel_seen == 0 )) && grep -qE "Linux version|systemd\[1\]|Welcome to|KAVIS-CHECK|Reached target" "$SERIAL" 2>/dev/null; then
 		kernel_seen=1
 		kernel_seen_at=$elapsed
 		echo ">> cekirdek basladi (${elapsed}s)"
@@ -240,8 +240,8 @@ kill "$QEMU_PID" 2>/dev/null || true
 wait "$QEMU_PID" 2>/dev/null || true
 
 echo
-echo "===== KARANOS-CHECK satirlari ====="
-grep "KARANOS-CHECK" "$SERIAL" || echo "(hic satir yok)"
+echo "===== KAVIS-CHECK satirlari ====="
+grep "KAVIS-CHECK" "$SERIAL" || echo "(hic satir yok)"
 echo "==================================="
 
 # --- Bosta RAM kullanimi (prompt 20: 1 GB normal, 1.5 GB mutlak sinir) ---
@@ -301,7 +301,7 @@ OK)
 	;;
 FAIL)
 	echo ">> SONUC: BASARISIZ — boot-check FAIL dondu ($MODE)"
-	grep "KARANOS-CHECK: FAILED-CHECKS=" "$SERIAL" 2>/dev/null || true
+	grep "KAVIS-CHECK: FAILED-CHECKS=" "$SERIAL" 2>/dev/null || true
 	exit 1
 	;;
 BLANK)

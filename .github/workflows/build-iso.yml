@@ -3,6 +3,12 @@ name: ISO derle ve test et
 # Yerelde ISO DERLEMEYECEĞİZ — Codespace 2 çekirdek, derleme 40+ dakika ve
 # ~15 GB disk ister. Tüm derleme ve QEMU testi burada, GitHub'ın makinesinde.
 
+# TETİKLEYİCİLER (madde 22): her push'ta derleme YOK — her commit 25-40
+# dakika sürüyor ve Actions kotasını yakıyordu. ISO yalnızca iki yolla
+# derlenir:
+#   1. Actions sekmesinden elle (Run workflow)
+#   2. v* etiketi push edilince (yayın)
+# Hızlı kontroller (lint.yml) her push'ta koşmaya devam ediyor.
 on:
   workflow_dispatch:
     inputs:
@@ -14,24 +20,13 @@ on:
         description: "QEMU duman testini çalıştır"
         type: boolean
         default: true
+      release:
+        description: "Bitince taslak öndeğerlendirme sürümü (pre-release) yayınla"
+        type: boolean
+        default: false
   push:
     tags:
       - "v*"
-    branches:
-      - main
-    # Sık commit ediyoruz (Codespace beklenmedik anda kapanabiliyor) ama
-    # her commit 40 dakikalık derlemeyi hak etmiyor. Yalnızca ISO'nun
-    # içeriğini gerçekten değiştiren yollar tetikliyor.
-    #
-    # DİKKAT: tools/ burada YOK. tools/qemu-smoke-test.sh ya da
-    # tools/build-packages.sh değiştiğinde derleme kendiliğinden
-    # koşmuyor — o değişiklikleri denemek için Actions sekmesinden
-    # "Run workflow" ile elle başlatmak gerekiyor.
-    paths:
-      - "iso/**"
-      - "packages/**"
-      - "assets/**"
-      - ".github/workflows/build-iso.yml"
 
 concurrency:
   group: iso-${{ github.ref }}
@@ -58,6 +53,7 @@ jobs:
     outputs:
       version: ${{ steps.meta.outputs.version }}
       iso_name: ${{ steps.meta.outputs.iso_name }}
+      product: ${{ steps.meta.outputs.product }}
     steps:
       - name: Derleme bağımlılıkları
         run: |
@@ -80,31 +76,52 @@ jobs:
           else
             VERSION="${{ inputs.version || 'main-dev' }}"
           fi
-          echo "version=${VERSION}"                        >> "$GITHUB_OUTPUT"
-          echo "iso_name=karanos-${VERSION}-amd64.iso"     >> "$GITHUB_OUTPUT"
-          echo "Sürüm: ${VERSION}"
+          # Ürün adı/kimliği tek kaynaktan: tema paketindeki os-release.
+          # ISO adına küçük harfli kimlik (ID), görünen yerlere NAME gider.
+          . packages/kavis-theme/src/os-release
+          echo "version=${VERSION}"                     >> "$GITHUB_OUTPUT"
+          echo "iso_name=${ID}-${VERSION}-amd64.iso"    >> "$GITHUB_OUTPUT"
+          echo "product=${NAME}"                        >> "$GITHUB_OUTPUT"
+          echo "Sürüm: ${NAME} ${VERSION}"
+
+      # apt paket önbelleği (madde 22): live-build indirdiği tüm .deb'leri
+      # ve debootstrap arşivini iso/cache altında tutuyor. Bunu koşular
+      # arasında saklamak, değişmeyen paketlerin her koşuda yeniden
+      # inmesini engelliyor. Anahtar paket listelerine bağlı: listeler
+      # değişince yeni önbellek yazılır, kısmi eşleşme (restore-keys)
+      # eskisinden başlar.
+      - name: live-build önbelleği
+        uses: actions/cache@v4
+        with:
+          path: iso/cache
+          key: lb-cache-${{ hashFiles('iso/config/package-lists/**', 'iso/auto/config') }}
+          restore-keys: |
+            lb-cache-
 
       - name: live-build yapılandır
         working-directory: iso
         env:
-          KARANOS_VERSION: ${{ steps.meta.outputs.version }}
+          KAVIS_VERSION: ${{ steps.meta.outputs.version }}
         run: |
           set -eux
           chmod +x auto/config auto/build auto/clean
           # .hook.chroot ve .hook.binary — ikisi de çalıştırılabilir olmalı
           chmod +x config/hooks/normal/*.hook.*
-          lb clean --purge || true
+          # --purge KULLANMA: cache/ dizinini de siler ve actions/cache ile
+          # geri getirilen apt önbelleğini çöpe atar. Temiz CI çalışma
+          # alanında purge'un sildiği başka bir şey de yok.
+          lb clean || true
           lb config
 
       # live-build, config/packages.chroot/ altındaki .deb'leri chroot'a
       # kendiliğinden kuruyor. APT deposu 13. aşamada gelene kadar
-      # karanos-* paketleri ISO'ya bu yoldan giriyor.
+      # kavis-* paketleri ISO'ya bu yoldan giriyor.
       # DİKKAT: `lb config`ten SONRA indiriliyor — lb'nin config ağacını
       # yeniden kurduğu bir durumda .deb'lerin silinmemesi için.
-      - name: karanos-* paketlerini indir
+      - name: kavis-* paketlerini indir
         uses: actions/download-artifact@v8
         with:
-          name: karanos-packages
+          name: kavis-packages
           path: iso/config/packages.chroot
 
       - name: Yerleşen paketleri göster
@@ -113,7 +130,7 @@ jobs:
       - name: ISO derle
         working-directory: iso
         env:
-          KARANOS_VERSION: ${{ steps.meta.outputs.version }}
+          KAVIS_VERSION: ${{ steps.meta.outputs.version }}
         run: |
           set -eux
           lb build
@@ -123,7 +140,9 @@ jobs:
         working-directory: iso
         run: |
           set -eux
-          SRC=$(ls -1 karanos-amd64.hybrid.iso live-image-amd64.hybrid.iso 2>/dev/null | head -1)
+          # Dosya adı auto/config'deki --image-name'den (os-release ID)
+          # gelir; ada bağımlı kalmamak için her .hybrid.iso kabul ediliyor.
+          SRC=$(ls -1 ./*.hybrid.iso 2>/dev/null | head -1)
           mkdir -p ../out
           mv "$SRC" "../out/${{ steps.meta.outputs.iso_name }}"
           cd ../out
@@ -196,7 +215,7 @@ jobs:
       - name: ISO'yu yükle
         uses: actions/upload-artifact@v7
         with:
-          name: karanos-iso
+          name: kavis-iso
           path: out/
           retention-days: 14
           compression-level: 0
@@ -240,7 +259,7 @@ jobs:
       - name: ISO'yu indir
         uses: actions/download-artifact@v8
         with:
-          name: karanos-iso
+          name: kavis-iso
           path: out
 
       - name: Duman testi
@@ -252,7 +271,7 @@ jobs:
           set -eu
           mkdir -p tani
           chmod +x tools/qemu-smoke-test.sh
-          ISO=$(ls out/karanos-*.iso | head -1)
+          ISO=$(ls out/*.iso | head -1)
           tools/qemu-smoke-test.sh "$ISO" "${{ matrix.mode }}"
 
       # Boot başarısız olursa ekran görüntüsü olmadan teşhis etmek zor. ISO
@@ -268,37 +287,58 @@ jobs:
           if-no-files-found: ignore
 
   # ------------------------------------------------------------------
+  # NEDEN DAHA ÖNCE HİÇ ÇALIŞMADI (madde 22 incelemesi): iş yalnızca
+  # `github.ref_type == 'tag'` iken koşuyordu ve depoya bugüne dek hiç
+  # v* etiketi push edilmedi — yani adım hatalı değildi, hiç tetiklenmedi.
+  # Üstüne `draft: true` vardı: etiket atılsaydı bile sürüm taslak olarak
+  # oluşacak, Releases sayfasında görünmeyecekti.
+  # Düzeltme: (1) elle koşuda "release" kutusu işaretlenirse de yayınlanır
+  # (pre-release olarak, v<sürüm> etiketiyle), (2) taslak kapatıldı.
   release:
     name: Releases'e yükle
     needs: [build, smoke-test]
-    if: github.ref_type == 'tag'
+    # `needs` içindeki smoke-test elle koşuda kapatılabiliyor; atlanmış
+    # bağımlılık normalde bu işi de atlatır. O yüzden koşul açık açık:
+    # derleme başarılı + duman testi başarılı YA DA atlanmış olmalı.
+    if: >-
+      !cancelled() &&
+      needs.build.result == 'success' &&
+      (needs.smoke-test.result == 'success' || needs.smoke-test.result == 'skipped') &&
+      (github.ref_type == 'tag' ||
+       (github.event_name == 'workflow_dispatch' && inputs.release))
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/download-artifact@v8
         with:
-          name: karanos-iso
+          name: kavis-iso
           path: out
 
       - name: Release oluştur
         uses: softprops/action-gh-release@v3
         with:
-          name: Karan OS ${{ needs.build.outputs.version }}
-          draft: true
+          name: ${{ needs.build.outputs.product }} ${{ needs.build.outputs.version }}
+          # Elle koşuda etiket yok; sürümden bir etiket adı türetiliyor ve
+          # o koşunun commit'ine iliştiriliyor. Etiket push'unda bu iki
+          # satır etkisiz (mevcut etiket kullanılır).
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', needs.build.outputs.version) }}
+          target_commitish: ${{ github.sha }}
+          draft: false
+          prerelease: ${{ github.ref_type != 'tag' }}
           files: |
-            out/karanos-*.iso
-            out/karanos-*.iso.sha256
+            out/*.iso
+            out/*.iso.sha256
             out/SHA256SUMS
           body: |
-            ## Karan OS ${{ needs.build.outputs.version }}
+            ## ${{ needs.build.outputs.product }} ${{ needs.build.outputs.version }}
 
             **Dosya:** `${{ needs.build.outputs.iso_name }}`
 
             ### Kurulum
             1. ISO'yu indir, `SHA256SUMS` ile doğrula
             2. USB'ye yaz (balenaEtcher, Rufus veya `dd`)
-            3. USB'den aç → "Kurmadan dene" veya "Karan OS'u kur"
+            3. USB'den aç → canlı sistemi dene veya kur
 
             Doğrulama:
             ```

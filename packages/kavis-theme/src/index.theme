@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Kavis
+Name[tr]=Kavis
+Comment=Kavis görünümü (koyu)
+Comment[en]=Kavis look and feel (dark)
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Kavis
+MetacityTheme=Kavis
+IconTheme=Kavis
+CursorTheme=Kavis-Cursors
+ButtonLayout=:minimize,maximize,close

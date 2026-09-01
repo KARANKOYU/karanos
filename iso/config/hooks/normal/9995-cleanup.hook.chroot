@@ -1,5 +1,5 @@
 #!/bin/sh
-# Karan OS — ISO boyutunu düşüren son temizlik (hedef: 1.5 GB altı)
+# Kavis — ISO boyutunu düşüren son temizlik (hedef: 1.5 GB altı)
 set -e
 
 # APT önbelleği ve indeksleri

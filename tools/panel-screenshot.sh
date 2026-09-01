@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Karan OS — görev çubuğunu Xvfb'de çalıştırıp PNG olarak kaydeder
+# Kavis — görev çubuğunu Xvfb'de çalıştırıp PNG olarak kaydeder
 #
 # NEDEN VAR: panelin nasıl göründüğünü öğrenmenin tek yolu ISO derleyip
-# QEMU'da açmak olmasın. Bu script karanos-panel ve karanos-theme
+# QEMU'da açmak olmasın. Bu script kavis-panel ve kavis-theme
 # .deb'lerini geçici bir dizine açar, Xvfb + Openbox başlatır, paneli
 # ve birkaç örnek pencereyi çalıştırıp ekranı PNG'ye alır.
 #
@@ -20,7 +20,7 @@ cd "$REPO_ROOT"
 
 OUT="${1:-$REPO_ROOT/out/panel.png}"
 
-for pkg in karanos-panel karanos-theme; do
+for pkg in kavis-panel kavis-theme; do
 	if ! ls out/packages/${pkg}_*_all.deb >/dev/null 2>&1; then
 		echo "==> $pkg yok, derleniyor"
 		tools/build-packages.sh "$pkg" >/dev/null
@@ -35,16 +35,19 @@ for cmd in Xvfb openbox xdotool /usr/bin/python3; do
 done
 
 ROOT=$(mktemp -d)
-dpkg-deb -x "$(ls -1 out/packages/karanos-panel_*_all.deb | head -1)" "$ROOT"
-dpkg-deb -x "$(ls -1 out/packages/karanos-theme_*_all.deb | head -1)" "$ROOT"
+dpkg-deb -x "$(ls -1 out/packages/kavis-panel_*_all.deb | head -1)" "$ROOT"
+dpkg-deb -x "$(ls -1 out/packages/kavis-theme_*_all.deb | head -1)" "$ROOT"
 
 export XDG_DATA_DIRS="$ROOT/usr/share:${XDG_DATA_DIRS:-/usr/share}"
 export PYTHONPATH="$ROOT/usr/lib/python3/dist-packages${PYTHONPATH:+:$PYTHONPATH}"
-export GTK_THEME=Karan:dark
+export GTK_THEME=Kavis:dark
 export XCURSOR_PATH="$ROOT/usr/share/icons"
+# Logo dosyaları gerçek sistemde /usr/share/kavis/logo altında; burada
+# .deb geçici köke açıldığı için panele yerini söylüyoruz.
+export KAVIS_LOGO_DIZIN="$ROOT/usr/share/kavis/logo"
 
-# Gercek sistemde /etc/gtk-3.0/settings.ini simge temasini Karan yapiyor
-# (karanos-theme paketinden geliyor). Burada onu XDG_CONFIG_HOME ile
+# Gercek sistemde /etc/gtk-3.0/settings.ini simge temasini Kavis yapiyor
+# (kavis-theme paketinden geliyor). Burada onu XDG_CONFIG_HOME ile
 # taklit ediyoruz; olmazsa baslat dugmesinde K logosu yerine genel bir
 # simge cikiyor ve ekran goruntusu yaniltici oluyor.
 mkdir -p "$ROOT/config/gtk-3.0"
@@ -64,12 +67,12 @@ for _ in $(seq 1 40); do
 	sleep 0.25
 done
 
-# Openbox'ı Karan temasıyla başlat (ISO'da bunu 0200 hook'u yapıyor)
+# Openbox'ı Kavis temasıyla başlat (ISO'da bunu 0200 hook'u yapıyor)
 RC="$ROOT/rc.xml"
 awk '
 	/<theme>/            { intheme = 1 }
 	intheme && !done && /<name>/ {
-		sub(/<name>[^<]*<\/name>/, "<name>Karan</name>")
+		sub(/<name>[^<]*<\/name>/, "<name>Kavis</name>")
 		done = 1
 	}
 	{ print }
@@ -82,13 +85,13 @@ sleep 1
 # oyle cizilsin. Yoksa panel "bilesikleme yok" moduna dusuyor.
 if command -v picom >/dev/null 2>&1; then
 	picom --backend xrender \
-		--config "$REPO_ROOT/iso/config/includes.chroot/etc/xdg/picom-karanos.conf" \
+		--config "$REPO_ROOT/iso/config/includes.chroot/etc/xdg/picom-kavis.conf" \
 		>"$ROOT/picom.log" 2>&1 &
 	sleep 2
 fi
 
 if command -v xwallpaper >/dev/null 2>&1; then
-	xwallpaper --zoom "$ROOT/usr/share/backgrounds/karanos/karan.png" || true
+	xwallpaper --zoom "$ROOT/usr/share/backgrounds/kavis/kavis.png" || true
 fi
 
 # Pencere listesinin boş görünmemesi için iki örnek pencere
@@ -96,11 +99,11 @@ fi
 	>/dev/null 2>&1 &
 ORNEK_PID=$!
 
-/usr/bin/python3 "$ROOT/usr/bin/karanos-panel" >"$ROOT/panel.log" 2>&1 &
+/usr/bin/python3 "$ROOT/usr/bin/kavis-panel" >"$ROOT/panel.log" 2>&1 &
 PANEL_PID=$!
 
 for _ in $(seq 1 40); do
-	if xdotool search --name "karanos-panel" >/dev/null 2>&1; then break; fi
+	if xdotool search --name "kavis-panel" >/dev/null 2>&1; then break; fi
 	if ! kill -0 "$PANEL_PID" 2>/dev/null; then
 		echo "HATA: panel cikti, gunluk:" >&2
 		cat "$ROOT/panel.log" >&2
@@ -114,7 +117,7 @@ sleep 3
 # panelin ustunde durur, altini kaplamaz. Pencereyi buyutup panelin
 # yerinde olup olmadigina bakiyoruz.
 if [[ "${BUYUT:-0}" == "1" ]]; then
-	ornek_id=$(xdotool search --name "^Karan OS$" | head -1 || true)
+	ornek_id=$(xdotool search --name "^Kavis$" | head -1 || true)
 	if [[ -n "$ornek_id" ]]; then
 		xdotool windowactivate "$ornek_id" 2>/dev/null || true
 		wmctrl -i -r "$ornek_id" -b add,maximized_vert,maximized_horz \

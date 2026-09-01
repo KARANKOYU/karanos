@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Karan OS — packages/ altındaki .deb'leri derler
+# Kavis — packages/ altındaki .deb'leri derler
 #
 # Kullanım:
 #   tools/build-packages.sh            # hepsini derle
-#   tools/build-packages.sh karanos-theme [...]
+#   tools/build-packages.sh kavis-theme [...]
 #
 # Çıktı: out/packages/*.deb
 #
@@ -38,17 +38,19 @@ fi
 # ayrı düşmesinler.
 prepare_sources() {
 	case "$1" in
-	karanos-theme)
-		install -d packages/karanos-theme/src/logo
-		install -m644 assets/logo/k-logo.svg \
-			packages/karanos-theme/src/logo/k-logo.svg
+	kavis-theme)
+		install -d packages/kavis-theme/src/logo
+		install -m644 assets/logo/koyu-k-logo.svg \
+			packages/kavis-theme/src/logo/koyu-k-logo.svg
+		install -m644 assets/logo/acik-k-logo.svg \
+			packages/kavis-theme/src/logo/acik-k-logo.svg
 		;;
-	karanos-boot)
-		install -d packages/karanos-boot/src/boot
+	kavis-boot)
+		install -d packages/kavis-boot/src/boot
 		install -m644 assets/boot/boot-image.png \
-			packages/karanos-boot/src/boot/boot-image.png
+			packages/kavis-boot/src/boot/boot-image.png
 		install -m644 assets/boot/boot-sound.mp3 \
-			packages/karanos-boot/src/boot/boot-sound.mp3
+			packages/kavis-boot/src/boot/boot-sound.mp3
 		;;
 	esac
 }

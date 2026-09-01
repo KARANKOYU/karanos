@@ -1,4 +1,4 @@
-# Karan OS — initramfs'e zorla alınacak çekirdek modülleri
+# Kavis — initramfs'e zorla alınacak çekirdek modülleri
 #
 # NEDEN: Plymouth açılış ekranını DRM (KMS) aygıtına çiziyor. Sürücü
 # initramfs'te yoksa DRM aygıtı da yok; Plymouth metin kipine düşüyor ve

@@ -1,0 +1,118 @@
+/* Kavis — GTK3 açık tema  ·  SİSTEME KURULMUYOR
+ *
+ * DİKKAT: Bu dosya pakete GİRMİYOR ve hiçbir yerden seçilemiyor.
+ * Kavis tek temalı: koyu. Açık tema kimliğe uymadığı için kaldırıldı;
+ * Ayarlar > Görünüm'de "Tema: Açık/Koyu" seçeneği de yok.
+ *
+ * Dosya silinmedi, kaynak olarak duruyor: ileride tekrar istenirse
+ * paletin açık karşılığı burada hazır. Kurulmasını istersen
+ * debian/rules içindeki install satırını geri ekle.
+ *
+ * Mantık gtk-dark.css ile aynı: Adwaita içe aktarılır, renkler ezilir.
+ *
+ * NEDEN RENKLER BİREBİR AYNI DEĞİL: #2DD4BF açık bir turkuaz. Koyu
+ * zeminde parlıyor, ama beyaz zeminde üstüne beyaz yazı okunmuyor
+ * (kontrast oranı ~1.7). Bu yüzden açık temada turkuaz ve mavi
+ * koyulaştırılmış tonlarıyla kullanılıyor: #0D9488 ve #2563EB. Marka
+ * degradesinin yönü ve karakteri korunuyor, yalnızca değeri düşüyor.
+ */
+
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+
+/* --- kimlik renkleri (açık zemine uyarlanmış) ----------------------- */
+@define-color kavis_teal    #0D9488;
+@define-color kavis_blue    #2563EB;
+@define-color kavis_ground  #EEF2F6;
+@define-color kavis_surface #FFFFFF;
+@define-color kavis_hover   #E2E9EF;
+@define-color kavis_border  #CBD6DF;
+@define-color kavis_text    #1B2732;
+@define-color kavis_text2   #5C6B78;
+
+/* --- Adwaita'nın renk değişkenlerini ez ----------------------------- */
+@define-color theme_selected_bg_color @kavis_teal;
+@define-color theme_selected_fg_color #FFFFFF;
+@define-color selected_bg_color       @kavis_teal;
+@define-color selected_fg_color       #FFFFFF;
+@define-color theme_fg_color          @kavis_text;
+@define-color theme_text_color        @kavis_text;
+@define-color text_color              @kavis_text;
+@define-color fg_color                @kavis_text;
+@define-color theme_bg_color          @kavis_ground;
+@define-color bg_color                @kavis_ground;
+@define-color theme_base_color        @kavis_surface;
+@define-color base_color              @kavis_surface;
+@define-color insensitive_fg_color    alpha(@kavis_text2, 0.6);
+@define-color insensitive_bg_color    #E6EBF0;
+@define-color borders                 @kavis_border;
+@define-color unfocused_borders       #D9E1E8;
+@define-color link_color              @kavis_blue;
+@define-color visited_link_color      #1E4FB8;
+@define-color warning_color           #D97706;
+@define-color error_color             #DC2626;
+@define-color success_color           #16A34A;
+
+/* --- vurgu alan bileşenler ------------------------------------------ */
+progressbar > trough > progress,
+levelbar block.filled,
+scale highlight {
+	background-image: linear-gradient(to right, @kavis_teal, @kavis_blue);
+	border-color: @kavis_teal;
+}
+
+scale slider:hover,
+scale slider:active {
+	border-color: @kavis_teal;
+}
+
+switch:checked {
+	background-image: linear-gradient(to right, @kavis_teal, @kavis_blue);
+	border-color: @kavis_teal;
+}
+
+check:checked,
+check:indeterminate,
+radio:checked,
+radio:indeterminate {
+	background-image: linear-gradient(to bottom, @kavis_teal, @kavis_blue);
+	border-color: @kavis_teal;
+}
+
+entry:focus,
+spinbutton:focus:not(.vertical),
+textview text:focus {
+	border-color: @kavis_teal;
+	box-shadow: inset 0 0 0 1px alpha(@kavis_teal, 0.55);
+}
+
+button:checked,
+button.suggested-action {
+	background-image: linear-gradient(to bottom, @kavis_teal, @kavis_blue);
+	border-color: shade(@kavis_teal, 0.9);
+	color: #FFFFFF;
+	text-shadow: none;
+}
+
+button.suggested-action:hover {
+	background-image: linear-gradient(to bottom, shade(@kavis_teal, 1.08),
+	                                             shade(@kavis_blue, 1.08));
+}
+
+*:focus-visible {
+	outline-color: alpha(@kavis_teal, 0.75);
+}
+
+notebook > header > tabs > tab:checked {
+	box-shadow: inset 0 -3px @kavis_teal;
+}
+
+headerbar {
+	background-image: linear-gradient(to bottom, #FFFFFF, @kavis_ground);
+	border-bottom-color: @kavis_border;
+}
+
+selection,
+:selected {
+	background-color: @kavis_teal;
+	color: #FFFFFF;
+}

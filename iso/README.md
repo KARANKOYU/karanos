@@ -1,6 +1,6 @@
 # iso/ — ISO yapılandırması
 
-Debian trixie tabanlı Karan OS ISO'sunun `live-build` yapılandırması.
+Debian trixie tabanlı Kavis ISO'sunun `live-build` yapılandırması.
 
 ## ⚠️ Bu klasörde yerelde derleme YAPMA
 
@@ -11,7 +11,7 @@ ISO **GitHub Actions'ta** derlenir. Codespace'te derlemenin iki sorunu var:
 
 Bunun yerine: **derleme + QEMU testi Actions'ta**, sonuç seri konsol
 günlüğü ve ekran görüntüsü olarak geri gelir. ISO'yu VirtualBox'ta ya da
-USB'de denemek istediğinde `karanos-iso` yapıtından indirirsin (~1 MB/s ile
+USB'de denemek istediğinde `kavis-iso` yapıtından indirirsin (~1 MB/s ile
 10 dakika kadar).
 
 ## Derlemeyi başlatma
@@ -23,7 +23,7 @@ GitHub → **Actions** sekmesi → **"ISO derle ve test et"** → **Run workflow
 
 Sonuç:
 - **Summary** bölümünde ISO boyutu ve sha256
-- **Artifacts** altında `karanos-iso` (14 gün saklanır)
+- **Artifacts** altında `kavis-iso` (14 gün saklanır)
 - Her boot modu için `serial-bios`, `serial-uefi`, `serial-secureboot` günlükleri
 
 ## Push etmeden önce yerelde çalıştırılacak kontroller
@@ -52,12 +52,12 @@ iso/
     │   ├── 02-x11.list.chroot        X11 + Openbox + terminal + Python/GTK
     │   └── 03-firmware.list.chroot   Wi-Fi/ses/grafik firmware'i (prompt 16)
     ├── includes.chroot/              ISO'ya olduğu gibi kopyalanan dosyalar
-    │   ├── etc/lightdm/lightdm.conf.d/60-karanos-live.conf   canlı otomatik giriş (geçici)
+    │   ├── etc/lightdm/lightdm.conf.d/60-kavis-live.conf   canlı otomatik giriş (geçici)
     │   ├── etc/xdg/openbox/autostart                          oturum başlangıcı
-    │   ├── etc/systemd/system/karanos-boot-check.service      CI duman testi
-    │   └── usr/lib/karanos/boot-check                         "boot ettim mi" script'i
+    │   ├── etc/systemd/system/kavis-boot-check.service      CI duman testi
+    │   └── usr/lib/kavis/boot-check                         "boot ettim mi" script'i
     └── hooks/normal/
-        ├── 0100-karanos-services.hook.chroot   servisleri etkinleştir
+        ├── 0100-kavis-services.hook.chroot   servisleri etkinleştir
         ├── 9990-apt-recommends.hook.chroot     kurulu sistemde Recommends'i aç
         └── 9995-cleanup.hook.chroot            boyut temizliği
 ```
@@ -74,11 +74,11 @@ iso/
 | `quiet splash` **kapalı** | 1. aşamada boot mesajlarını görmek istiyoruz. 3. aşamada (Plymouth) açılacak. |
 | GRUB'a elle `set timeout=10` ekleniyor | **live-build bunu koymuyor.** Timeout tanımsızken GRUB menüsü sonsuza kadar tuş bekler; ilk CI koşusunda üç QEMU testi de bu yüzden takıldı. `hooks/normal/9500-grub-timeout.hook.binary` ekliyor. |
 | GRUB seri konsola da yazıyor | live-build `terminal_output gfxterm` diyor, yani GRUB çıktısı sadece ekranda. Seri konsol eklenmezse önyükleyici hatası CI günlüğünde hiç görünmüyor. |
-| lightdm otomatik giriş | Geçici. 5. aşamada `karanos-greeter` gelince kalkacak; kurulan sistemde Calamares bu dosyayı siliyor. |
+| lightdm otomatik giriş | Geçici. 5. aşamada `kavis-greeter` gelince kalkacak; kurulan sistemde Calamares bu dosyayı siliyor. |
 
 ## Bir sonraki aşamaya geçince değişecekler
 
-- **2. aşama:** `karanos-theme` paketi listeye girer, `/etc/os-release` değişir
-- **3. aşama:** `plymouth` + `karanos-boot` girer, açılış satırına `quiet splash` eklenir
-- **4. aşama:** `openbox/autostart` içine `karanos-panel` eklenir
-- **5. aşama:** `lightdm` yerine `karanos-greeter`, `60-karanos-live.conf` silinir
+- **2. aşama:** `kavis-theme` paketi listeye girer, `/etc/os-release` değişir
+- **3. aşama:** `plymouth` + `kavis-boot` girer, açılış satırına `quiet splash` eklenir
+- **4. aşama:** `openbox/autostart` içine `kavis-panel` eklenir
+- **5. aşama:** `lightdm` yerine `kavis-greeter`, `60-kavis-live.conf` silinir

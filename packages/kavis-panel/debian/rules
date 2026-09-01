@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+
+DEST := debian/kavis-panel
+PYDIR := $(DEST)/usr/lib/python3/dist-packages
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -d $(PYDIR)/kavis_panel
+	install -m644 src/kavis_panel/*.py $(PYDIR)/kavis_panel/
+	install -d $(DEST)/usr/bin
+	install -m755 src/kavis-panel $(DEST)/usr/bin/kavis-panel
+	install -d $(DEST)/usr/share/applications
+	install -m644 src/kavis-panel.desktop \
+		$(DEST)/usr/share/applications/kavis-panel.desktop

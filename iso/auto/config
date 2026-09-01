@@ -1,5 +1,5 @@
 #!/bin/sh
-# Karan OS — live-build yapılandırması
+# Kavis — live-build yapılandırması
 #
 # Bu dosya `lb config` çalıştığında otomatik yürütülür.
 # ELLE `lb config` PARAMETRESİ VERME — her şey burada dursun ki
@@ -7,8 +7,19 @@
 
 set -e
 
+# Ürün kimliği TEK kaynaktan: tema paketindeki os-release. Görünen ad
+# (NAME) ve kimlik (ID) buraya elle yazılmıyor — isim değişirse yalnızca
+# o dosya güncellenir. Bu script iso/ dizininden çalışır (lb config).
+OS_RELEASE="../packages/kavis-theme/src/os-release"
+if [ ! -f "$OS_RELEASE" ]; then
+	echo "HATA: $OS_RELEASE yok — ürün kimliği okunamadı." >&2
+	exit 1
+fi
+# shellcheck disable=SC1090
+. "$OS_RELEASE"
+
 # Sürüm: CI ortam değişkeninden gelir, yoksa geliştirme sürümü
-KARANOS_VERSION="${KARANOS_VERSION:-1.0-dev}"
+KAVIS_VERSION="${KAVIS_VERSION:-${VERSION_ID}-dev}"
 
 # Açılış satırı.
 # NOT: `quiet splash` şu an KAPALI — 1. aşamada boot mesajlarını görmek
@@ -17,7 +28,7 @@ KARANOS_VERSION="${KARANOS_VERSION:-1.0-dev}"
 # seri portu olmayan gerçek donanımda hiçbir etkisi yok.
 BOOTAPPEND="boot=live components \
 username=karan \
-hostname=karanos \
+hostname=${ID} \
 user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin \
 locales=tr_TR.UTF-8 \
 timezone=Europe/Istanbul \
@@ -62,10 +73,10 @@ lb config noauto \
 	--backports false \
 	--firmware-binary false \
 	--firmware-chroot false \
-	--image-name "karanos" \
-	--iso-application "Karan OS" \
-	--iso-publisher "Karan OS; https://github.com/KARANKOYU/karanos" \
-	--iso-volume "Karan OS ${KARANOS_VERSION}" \
+	--image-name "${ID}" \
+	--iso-application "${NAME}" \
+	--iso-publisher "${NAME}; ${HOME_URL}" \
+	--iso-volume "${NAME} ${KAVIS_VERSION}" \
 	--bootappend-live "${BOOTAPPEND}" \
 	"${@}"
 

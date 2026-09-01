@@ -1,8 +1,76 @@
-# Karan OS — durum ve karar günlüğü
+# Kavis — durum ve karar günlüğü
 
 Bu dosya "ne yapıldı" listesi değil, **neden öyle yapıldı** kaydı.
 Kod okununca anlaşılmayan kararlar, denenip vazgeçilen yollar ve bir kez
 ısırmış tuzaklar burada. En yeni en üstte.
+
+NOT: 2026-09-01 öncesi kayıtlar "Karan OS" adını ve `karanos-*` paket
+adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
+
+---
+
+## Grup A — Kavis markası, CI iyileştirmesi, logolar, yol haritası
+
+Yeni çalışma düzeni: `docs/gorev-listesi.md` (58 madde, grup sırası).
+Grup A'nın kararları:
+
+### Marka değişikliği nasıl yapıldı
+
+- `karanos` → `kavis` her yerde: paket adları, dizinler, systemd
+  servisleri, Plymouth teması, hostname, ISO adı, `KARANOS_VERSION` →
+  `KAVIS_VERSION`, `KARANOS-CHECK` → `KAVIS-CHECK`. GTK/simge/imleç
+  teması `Karan` → `Kavis`, duvar kağıtları `karan-*` → `kavis-*`.
+- DOKUNULMAYANLAR: sistem kullanıcısı `karan`, `made-by-karan.svg`
+  ("made by Karan" kişi imzası), logo dosya adları, depo adı ve
+  `KARANKOYU/karanos` adresleri, paket imzalarındaki "Karan" kişi adı.
+- `docs/durum.md` geçmişi ve `docs/kavis-claude-code-prompt.md` (eski
+  görev tanımı) kasten YENİDEN YAZILMADI — tarihsel kayıt. Eski prompt
+  dosyasının başına "tarihsel" notu kondu.
+- Kullanıcı CI'ı yeşile çevirmek için web'den `koyu-k-logo.svg`'yi
+  `k-logo.svg`'ye çevirmişti (commit 48c0a80); ad kurala göre
+  `koyu-k-logo.svg`'ye geri alındı, derleme iki yeni ada bağlandı.
+
+### İsim bir daha sabitlenmesin (tek kaynak)
+
+Tek kaynak `packages/kavis-theme/src/os-release` (kurulu sistemde
+`/etc/os-release`). Okuyanlar: `iso/auto/config` (`. os-release` ile
+NAME/ID/HOME_URL), iş akışının "Sürüm bilgisi" adımı (ISO adı ID'den),
+`9600-grub-marka.hook.binary` (menü adları chroot'un os-release'inden),
+`kavis_panel/marka.py` (panel/hakkında; tek fallback sabiti orada).
+Adı denetleyen kontroller de ada değil "Debian kimliği kalmış mı"ya
+bakıyor (`ID=debian` görürsek devralma başarısız).
+
+### Madde 22 — CI
+
+- ISO artık push'ta DERLENMİYOR; yalnızca elle (workflow_dispatch) ve
+  `v*` etiketi. `build-packages.yml`'nin push tetikleyicisi de kalktı
+  (paketler her ISO koşusunda zaten derlenip doğrulanıyor). Push'ta
+  yalnızca lint koşuyor.
+- apt önbelleği: `iso/cache` (live-build'in debootstrap + .deb
+  önbelleği) `actions/cache` ile saklanıyor; anahtar paket listelerinin
+  hash'i. Bunun için `lb clean --purge` → `lb clean` yapıldı: purge
+  cache'i de siliyor ve geri getirilen önbelleği çöpe atıyordu.
+- "Releases'e yükle" neden hiç çalışmadı: adım yalnızca etiket push'unda
+  koşuyordu ve depoya bugüne dek HİÇ `v*` etiketi atılmamış; üstelik
+  `draft: true` idi (etiket olsaydı bile sürüm taslakta kalacaktı).
+  Düzeltme: taslak kapatıldı; elle koşuda "release" kutusu işaretlenirse
+  pre-release olarak da yayınlanabiliyor.
+
+### Madde 1 — logolar
+
+- `koyu-k-logo.svg` + `acik-k-logo.svg` tema paketiyle
+  `/usr/share/kavis/logo/` altına kuruluyor.
+- Boot splash ve GRUB: her zaman koyu logo. GRUB arka planı artık duvar
+  kağıdı değil; `gen-wallpapers.py --grub` koyu logoyu düz zeminde, üst
+  üçte birlik bölgede çiziyor (menü metni ortada — çakışmasın diye).
+- Başlat düğmesi: `marka.logo_resmi()` etkin temaya göre seçiyor
+  (bugün tek tema koyu olduğundan pratikte hep koyu logo).
+
+### Kod dili kararı
+
+Görev listesi gereği fonksiyon açıklamaları artık İNGİLİZCE (ilk örnek
+`marka.py`). Eski dosyaların Türkçe yorumları yeniden yazılmadı —
+çeviri uğruna churn yaratmamak için; dokunulan yerlerde kademeli geçiş.
 
 ---
 

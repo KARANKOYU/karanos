@@ -1,0 +1,140 @@
+/* Kavis — GTK3 KOYU tema (VARSAYILAN)
+ *
+ * NEDEN BÖYLE: sıfırdan GTK teması yazmak binlerce satır ve her GTK
+ * güncellemesinde bozulan bir bakım yükü. Bunun yerine GTK'nın kendi
+ * Adwaita'sını içe aktarıp yalnızca renkleri ve birkaç bileşeni
+ * değiştiriyoruz. Yeni bir GTK sürümü geldiğinde tema kendiliğinden
+ * onunla uyumlu kalıyor.
+ *
+ * Bu dosya varsayılan görünüm. GTK, `gtk-application-prefer-dark-theme`
+ * açıkken tema dizinindeki gtk-dark.css'i yüklüyor; ayar
+ * /etc/gtk-3.0/settings.ini içinde açık geliyor. Açık tema ikinci
+ * seçenek olarak gtk.css'te duruyor.
+ *
+ * Palet (bölüm 4):
+ *   turkuaz #2DD4BF · mavi #4F92F7 · zemin #0D141B · panel #121C26
+ *   yüzey #17222C · üzerine gelince #1D2C38 · kenarlık #233A45
+ *   metin #E6EDF3 · ikincil metin #8B9BA8
+ */
+
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+
+/* --- kimlik renkleri ------------------------------------------------ */
+@define-color kavis_teal    #2DD4BF;
+@define-color kavis_blue    #4F92F7;
+@define-color kavis_ground  #0D141B;
+@define-color kavis_panel   #121C26;
+@define-color kavis_surface #17222C;
+@define-color kavis_hover   #1D2C38;
+@define-color kavis_border  #233A45;
+@define-color kavis_text    #E6EDF3;
+@define-color kavis_text2   #8B9BA8;
+
+/* --- Adwaita'nın renk değişkenlerini ez ----------------------------- */
+/* Turkuaz açık bir renk; üstündeki yazı beyaz değil KOYU olmalı, yoksa
+ * seçili satırlar okunmuyor. */
+@define-color theme_selected_bg_color @kavis_teal;
+@define-color theme_selected_fg_color @kavis_ground;
+@define-color selected_bg_color       @kavis_teal;
+@define-color selected_fg_color       @kavis_ground;
+@define-color theme_fg_color          @kavis_text;
+@define-color theme_text_color        @kavis_text;
+@define-color text_color              @kavis_text;
+@define-color fg_color                @kavis_text;
+@define-color theme_bg_color          @kavis_surface;
+@define-color bg_color                @kavis_surface;
+@define-color theme_base_color        @kavis_ground;
+@define-color base_color              @kavis_ground;
+@define-color insensitive_fg_color    alpha(@kavis_text2, 0.7);
+@define-color insensitive_bg_color    #141E28;
+@define-color borders                 @kavis_border;
+@define-color unfocused_borders       #1E313C;
+@define-color link_color              @kavis_blue;
+@define-color visited_link_color      #7FAEF9;
+@define-color warning_color           #F59E0B;
+@define-color error_color             #EF4444;
+@define-color success_color           #22C55E;
+
+/* --- vurgu alan bileşenler ------------------------------------------ */
+/* Turkuaz-mavi degrade yalnızca "bu şey aktif" diyen yerlerde: seçim
+ * çubuğu, ilerleme çubuğu, açık anahtar. Her yerde kullanılınca göz
+ * yoruyor. */
+progressbar > trough > progress,
+levelbar block.filled,
+scale highlight {
+	background-image: linear-gradient(to right, @kavis_teal, @kavis_blue);
+	border-color: @kavis_teal;
+}
+
+scale slider:hover,
+scale slider:active {
+	border-color: @kavis_teal;
+}
+
+switch:checked {
+	background-image: linear-gradient(to right, @kavis_teal, @kavis_blue);
+	border-color: @kavis_teal;
+}
+
+check:checked,
+check:indeterminate,
+radio:checked,
+radio:indeterminate {
+	background-image: linear-gradient(to bottom, @kavis_teal, @kavis_blue);
+	border-color: @kavis_teal;
+	color: @kavis_ground;
+}
+
+entry:focus,
+spinbutton:focus:not(.vertical),
+textview text:focus {
+	border-color: @kavis_teal;
+	box-shadow: inset 0 0 0 1px alpha(@kavis_teal, 0.55);
+}
+
+button:checked,
+button.suggested-action {
+	background-image: linear-gradient(to bottom, @kavis_teal, @kavis_blue);
+	border-color: shade(@kavis_teal, 0.85);
+	color: @kavis_ground;
+	text-shadow: none;
+}
+
+button.suggested-action:hover {
+	background-image: linear-gradient(to bottom, shade(@kavis_teal, 1.08),
+	                                             shade(@kavis_blue, 1.08));
+}
+
+button:hover,
+row:hover {
+	background-color: @kavis_hover;
+}
+
+/* Odak halkası turkuaz — klavyeyle gezerken nerede olduğun belli olsun */
+*:focus-visible {
+	outline-color: alpha(@kavis_teal, 0.8);
+}
+
+/* Etkin sekme ve seçili kenar çubuğu satırı altında ince turkuaz şerit */
+notebook > header > tabs > tab:checked {
+	box-shadow: inset 0 -3px @kavis_teal;
+}
+
+headerbar {
+	background-image: linear-gradient(to bottom, @kavis_hover, @kavis_surface);
+	border-bottom-color: @kavis_border;
+	color: @kavis_text;
+}
+
+/* Panel rengi menülerde de kullanılıyor — görev çubuğuyla aynı yüzey */
+menu,
+popover > contents {
+	background-color: @kavis_panel;
+	border: 1px solid @kavis_border;
+}
+
+selection,
+:selected {
+	background-color: @kavis_teal;
+	color: @kavis_ground;
+}

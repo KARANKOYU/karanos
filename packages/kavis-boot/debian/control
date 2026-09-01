@@ -1,0 +1,32 @@
+Source: kavis-boot
+Section: misc
+Priority: optional
+Maintainer: Karan <farukyildiz3207@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ ffmpeg,
+ fonts-dejavu-core,
+ librsvg2-bin,
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/KARANKOYU/karanos
+
+Package: kavis-boot
+Architecture: all
+Depends:
+ ${misc:Depends},
+ plymouth,
+ plymouth-themes,
+ alsa-utils,
+Description: Kavis açılış ekranı — Plymouth teması ve açılış müziği
+ Açılışta ekranın ortasında Kavis görseli belirir: %15 opaklıkla
+ başlar, yaklaşık 1,5 saniyede tam görünür olur ve hafif bir parlama
+ alır. Altında italik "made by Karan" yazısı durur.
+ .
+ Aynı anda açılış müziği çalar. Plymouth'un ses desteği olmadığı için
+ müziği ayrı bir systemd servisi yönetir; açılış ekranı müzik bitip
+ yarım saniye geçene kadar kapanmaz, müzik yarıda kesilmez. Ses aygıtı
+ yoksa en fazla 10 saniye beklenir ve açılış devam eder.
+ .
+ Görsel ve müzik ISO'ya gömülü gelir, /usr/share/kavis/boot/ altında
+ durur ve yalnızca root yazabilir.

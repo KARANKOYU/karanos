@@ -1,0 +1,42 @@
+[Unit]
+Description=Kavis açılış müziği ve açılış ekranı bekleme
+Documentation=file:///usr/share/doc/kavis-boot/README.md
+
+# NEDEN `sound.target` YOK:
+# İlk sürüm `After=sound.target` ile bekliyordu. sound.target ancak udev
+# ses kartını bulup yapılandırdıktan sonra ulaşılıyor; gerçek donanımda
+# bu açılışın çok ilerisinde oluyordu. Sonuç VirtualBox testinde şuydu:
+# splash sessiz geldi, söndü, konsol göründü, müzik ancak o noktada
+# başladı ve masaüstüne kadar taşındı. Yani servis splash'i tutamayacak
+# kadar geç başlıyordu.
+#
+# Artık servis mümkün olan en erken noktada başlıyor ve ses aygıtını
+# BEKLEMEYİ script'in kendisi yapıyor (sınırlı süreyle). Böylece
+# başlama anı öngörülebilir ve splash'i tutan sıralama işliyor.
+DefaultDependencies=no
+After=systemd-udev-trigger.service plymouth-start.service
+Wants=systemd-udev-trigger.service
+
+# Splash'i müzik bitene kadar tutan asıl mekanizma BU İKİ SATIR.
+# plymouth-quit tarafındaki drop-in'ler de aynı sıralamayı söylüyor;
+# iki yönden birden yazmak, drop-in bir şekilde devreye girmezse bile
+# sıralamanın korunmasını sağlıyor.
+Before=plymouth-quit.service plymouth-quit-wait.service
+
+# Açılış ekranı gösterilmiyorsa müziği de çalmıyoruz: kurtarma modunda
+# ya da `splash` verilmemişken sessiz açılmak doğru davranış.
+ConditionKernelCommandLine=splash
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/kavis/boot-sound
+# Script kendi içinde sınırlıyor (ses aygıtını beklemek + çalmak toplam
+# ~15 saniyeyi geçmiyor); bu değer onun üstünde bir güvenlik ağı.
+# Aşılırsa servis başarısız sayılır ama açılış durmaz.
+TimeoutStartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=sysinit.target

@@ -1,9 +1,9 @@
 #!/bin/sh
-# Karan OS — /etc/os-release'i karanos-theme'in sürümüne geri döndür
+# Kavis — /etc/os-release'i kavis-theme'in sürümüne geri döndür
 #
 # NEDEN GEREKLİ:
 # Debian'da /etc/os-release, /usr/lib/os-release'e giden bir sembolik
-# bağdır. karanos-theme paketi /usr/lib/os-release'i dpkg-divert ile
+# bağdır. kavis-theme paketi /usr/lib/os-release'i dpkg-divert ile
 # devralıyor, dolayısıyla bağ da bizim dosyamıza çıkmalı.
 #
 # Ama live-build derlemenin erken bir aşamasında /etc/os-release'i
@@ -27,12 +27,15 @@ ETC=/etc/os-release
 LIB=/usr/lib/os-release
 
 if [ ! -f "$LIB" ]; then
-	echo "E: $LIB yok — karanos-theme kurulmamis mi?" >&2
+	echo "E: $LIB yok — kavis-theme kurulmamis mi?" >&2
 	exit 1
 fi
 
-if ! grep -q '^PRETTY_NAME="Karan OS' "$LIB"; then
-	echo "E: $LIB bizim dosyamiz degil, dpkg-divert calismamis." >&2
+# Ürün adı koda gömülü değil (tek kaynak: kavis-theme'deki os-release).
+# "Bizim dosyamız mı" testi tersinden: Debian kimliği hâlâ duruyorsa
+# dpkg-divert çalışmamış demektir.
+if grep -q '^ID=debian$' "$LIB"; then
+	echo "E: $LIB hâlâ Debian'ın dosyasi, dpkg-divert calismamis." >&2
 	head -3 "$LIB" >&2
 	exit 1
 fi
@@ -52,8 +55,8 @@ fi
 mv "$ETC.yeni" "$ETC"
 chmod 0644 "$ETC"
 
-if grep -q '^PRETTY_NAME="Karan OS' "$ETC"; then
-	echo "I: /etc/os-release Karan OS olarak yazildi"
+if ! grep -q '^ID=debian$' "$ETC"; then
+	echo "I: /etc/os-release devralindi"
 	grep -E '^(PRETTY_NAME|ID|IMAGE_ID|BUILD_ID)=' "$ETC" | sed 's/^/I:   /'
 else
 	echo "E: /etc/os-release yazilamadi" >&2

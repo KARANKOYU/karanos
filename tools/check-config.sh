@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Karan OS — push etmeden önce çalıştırılacak hızlı kontroller
+# Kavis — push etmeden önce çalıştırılacak hızlı kontroller
 #
 # ISO derlemesi CI'da 40 dakika sürüyor. Yazım hatası yüzünden o süreyi
 # harcamamak için sözdizimi ve dosya bütünlüğü burada kontrol edilir.
@@ -31,7 +31,7 @@ sozdizimi() {
 echo "==> Script sözdizimi"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
          iso/config/hooks/normal/*.hook.* \
-         iso/config/includes.chroot/usr/lib/karanos/* \
+         iso/config/includes.chroot/usr/lib/kavis/* \
          packages/*/tools/*.py \
          packages/*/debian/pre* packages/*/debian/post* \
          tools/*.sh; do
@@ -43,7 +43,7 @@ echo
 echo "==> Çalıştırma izinleri"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
          iso/config/hooks/normal/*.hook.* \
-         iso/config/includes.chroot/usr/lib/karanos/* \
+         iso/config/includes.chroot/usr/lib/kavis/* \
          packages/*/debian/rules packages/*/tools/*.py \
          tools/*.sh; do
 	[[ -f "$f" ]] || continue
@@ -62,8 +62,10 @@ done
 
 echo
 echo "==> Elle konulacak kaynak dosyalar"
-[[ -f assets/logo/k-logo.svg ]] && ok "assets/logo/k-logo.svg" \
-	|| bad "assets/logo/k-logo.svg eksik"
+[[ -f assets/logo/koyu-k-logo.svg ]] && ok "assets/logo/koyu-k-logo.svg" \
+	|| bad "assets/logo/koyu-k-logo.svg eksik"
+[[ -f assets/logo/acik-k-logo.svg ]] && ok "assets/logo/acik-k-logo.svg" \
+	|| bad "assets/logo/acik-k-logo.svg eksik"
 [[ -f assets/boot/boot-image.png ]] && ok "assets/boot/boot-image.png" \
 	|| warn "assets/boot/boot-image.png henüz konulmadı (3. aşamada lazım)"
 [[ -f assets/boot/boot-sound.mp3 ]] && ok "assets/boot/boot-sound.mp3" \

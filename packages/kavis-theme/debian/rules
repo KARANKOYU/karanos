@@ -1,0 +1,123 @@
+#!/usr/bin/make -f
+# Kavis görünüm paketi
+#
+# Simgeler, imleçler ve duvar kağıtları depoda ikili dosya olarak
+# durmuyor; hepsi burada, logolar ve tools/ altındaki üreteçlerden
+# derleme sırasında üretiliyor.
+
+export DH_VERBOSE = 1
+
+# İki logo var: koyu tema için koyu-k-logo, açık tema için acik-k-logo.
+# İkisi de kuruluyor; hangi bağlamda hangisinin kullanılacağı kural:
+#   - açılış ekranı ve GRUB: HER ZAMAN koyu logo
+#   - başlat düğmesi / hakkında: etkin temaya göre (bkz. kavis-panel)
+# Sistem bugün tek temalı (koyu) olduğu için simge teması koyu logodan
+# üretiliyor.
+LOGO_KOYU := src/logo/koyu-k-logo.svg
+LOGO_ACIK := src/logo/acik-k-logo.svg
+DEST    := debian/kavis-theme
+THEME   := $(DEST)/usr/share/themes/Kavis
+ICONS   := $(DEST)/usr/share/icons/Kavis
+CURSORS := $(DEST)/usr/share/icons/Kavis-Cursors
+WALL    := $(DEST)/usr/share/backgrounds/kavis
+SHARE   := $(DEST)/usr/share/kavis
+
+# Simgenin gerçekten üretileceği boyutlar. Aradaki boyutları GTK
+# kendisi ölçekliyor, hepsini üretmeye gerek yok.
+ICON_SIZES := 16 22 24 32 48 64 128 256
+
+# Aynı görsel bu adlarla da isteniyor: başlat menüsü "start-here",
+# hakkında pencereleri "distributor-logo" arıyor.
+ICON_ALIASES := start-here distributor-logo
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	@for f in $(LOGO_KOYU) $(LOGO_ACIK); do \
+		if [ ! -f "$$f" ]; then \
+			echo "HATA: $$f yok."; \
+			echo "Logolar depo kökünde assets/logo/ altında duruyor ve paket"; \
+			echo "ağacına derleme sırasında kopyalanıyor. Derlemek için:"; \
+			echo "    tools/build-packages.sh kavis-theme"; \
+			exit 1; \
+		fi; \
+	done
+
+override_dh_auto_install:
+	# --- GTK3 / GTK2 / Openbox teması --------------------------------
+	install -d $(THEME)/gtk-3.0 $(THEME)/gtk-2.0 $(THEME)/openbox-3
+	# Kavis tek temalı: koyu. Aynı dosya hem gtk.css hem gtk-dark.css
+	# olarak kuruluyor — böylece gtk-application-prefer-dark-theme
+	# kapatılsa ya da bir uygulama açık temayı zorlasa bile görünüm
+	# değişmiyor. src/gtk-3.0/gtk-light.css kasten KURULMUYOR.
+	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk.css
+	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
+	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
+	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc
+	install -m644 src/index.theme          $(THEME)/index.theme
+
+	# --- Sistem geneli varsayılanlar ---------------------------------
+	install -d $(DEST)/etc/gtk-3.0 $(DEST)/etc/gtk-2.0
+	install -m644 src/settings.ini $(DEST)/etc/gtk-3.0/settings.ini
+	printf 'gtk-theme-name="Kavis"\ngtk-icon-theme-name="Kavis"\ngtk-font-name="DejaVu Sans 10"\n' \
+		> $(DEST)/etc/gtk-2.0/gtkrc
+
+	# --- Logolar ------------------------------------------------------
+	# Uygulamalar (panel, hakkında) logoyu sabit yoldan, temaya göre
+	# seçerek okuyor. Dosya adları assets/ altındakilerle birebir aynı.
+	install -d $(SHARE)/logo
+	install -m644 $(LOGO_KOYU) $(SHARE)/logo/koyu-k-logo.svg
+	install -m644 $(LOGO_ACIK) $(SHARE)/logo/acik-k-logo.svg
+	# GRUB arka planı: her zaman koyu logo, düz zemin (madde 1).
+	# 9600-grub-marka.hook.binary bunu ISO'daki GRUB'a kopyalıyor.
+	python3 tools/gen-wallpapers.py --grub $(SHARE)/logo/grub-arkaplan.png
+
+	# --- Simge teması --------------------------------------------------
+	install -d $(ICONS)/scalable/apps
+	install -m644 $(LOGO_KOYU) $(ICONS)/scalable/apps/kavis.svg
+	set -e; for s in $(ICON_SIZES); do \
+		install -d $(ICONS)/$${s}x$${s}/apps; \
+		rsvg-convert -w $$s -h $$s -o $(ICONS)/$${s}x$${s}/apps/kavis.png $(LOGO_KOYU); \
+	done
+	set -e; for a in $(ICON_ALIASES); do \
+		ln -sf kavis.svg $(ICONS)/scalable/apps/$$a.svg; \
+		for s in $(ICON_SIZES); do \
+			ln -sf kavis.png $(ICONS)/$${s}x$${s}/apps/$$a.png; \
+		done; \
+	done
+	{ \
+		echo "[Icon Theme]"; \
+		echo "Name=Kavis"; \
+		echo "Comment=Kavis simgeleri"; \
+		echo "Inherits=Adwaita,hicolor"; \
+		printf "Directories=scalable/apps"; \
+		for s in $(ICON_SIZES); do printf ",%sx%s/apps" $$s $$s; done; \
+		echo ""; \
+		echo ""; \
+		echo "[scalable/apps]"; \
+		echo "Size=48"; echo "MinSize=8"; echo "MaxSize=512"; \
+		echo "Context=Applications"; echo "Type=Scalable"; \
+		for s in $(ICON_SIZES); do \
+			echo ""; \
+			echo "[$${s}x$${s}/apps]"; \
+			echo "Size=$$s"; echo "Context=Applications"; echo "Type=Fixed"; \
+		done; \
+	} > $(ICONS)/index.theme
+
+	# --- İmleç teması ---------------------------------------------------
+	install -d $(CURSORS)/cursors
+	python3 tools/gen-cursors.py $(CURSORS)/cursors
+	printf '[Icon Theme]\nName=Kavis\nComment=Kavis imleçleri\nInherits=Adwaita\n' \
+		> $(CURSORS)/index.theme
+	cp $(CURSORS)/index.theme $(CURSORS)/cursor.theme
+
+	# --- Duvar kağıtları -------------------------------------------------
+	install -d $(WALL)
+	python3 tools/gen-wallpapers.py $(WALL)
+
+	# --- Dağıtım kimliği -------------------------------------------------
+	# /etc/os-release, /usr/lib/os-release'e bağ. Dosyayı base-files'tan
+	# dpkg-divert ile devralıyoruz (bkz. debian/preinst).
+	install -d $(DEST)/usr/lib
+	install -m644 src/os-release $(DEST)/usr/lib/os-release

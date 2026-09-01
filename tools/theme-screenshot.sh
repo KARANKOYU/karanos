@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Karan OS — temayı Xvfb'de çizdirip PNG olarak kaydeder
+# Kavis — temayı Xvfb'de çizdirip PNG olarak kaydeder
 #
 # NEDEN VAR: temanın nasıl göründüğünü öğrenmenin tek yolu ISO derleyip
-# QEMU'da açmak olmasın. Bu script karanos-theme .deb'ini geçici bir
+# QEMU'da açmak olmasın. Bu script kavis-theme .deb'ini geçici bir
 # dizine açar, Xvfb + Openbox başlatır, duvar kağıdını ve tema önizleme
 # penceresini çizer, ekranı PNG'ye alır. Codespace'te ~10 saniye sürüyor.
 #
@@ -17,12 +17,12 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 OUT="${1:-$REPO_ROOT/out/tema.png}"
-DEB=$(ls -1 out/packages/karanos-theme_*_all.deb 2>/dev/null | head -1 || true)
+DEB=$(ls -1 out/packages/kavis-theme_*_all.deb 2>/dev/null | head -1 || true)
 
 if [[ -z "$DEB" ]]; then
 	echo "==> paket yok, derleniyor"
-	tools/build-packages.sh karanos-theme >/dev/null
-	DEB=$(ls -1 out/packages/karanos-theme_*_all.deb | head -1)
+	tools/build-packages.sh kavis-theme >/dev/null
+	DEB=$(ls -1 out/packages/kavis-theme_*_all.deb | head -1)
 fi
 
 for cmd in Xvfb openbox xwallpaper /usr/bin/python3; do
@@ -39,12 +39,12 @@ dpkg-deb -x "$DEB" "$ROOT"
 # Temayı sisteme kurmuyoruz — GTK'ya XDG_DATA_DIRS ile gösteriyoruz.
 # Böylece Codespace'in kendi /usr'ı ellenmiyor.
 export XDG_DATA_DIRS="$ROOT/usr/share:${XDG_DATA_DIRS:-/usr/share}"
-# Karan OS tek temali: koyu. ":dark" soneki GTK'ya tema dizinindeki
+# Kavis tek temali: koyu. ":dark" soneki GTK'ya tema dizinindeki
 # gtk-dark.css'i yukletiyor; zaten gtk.css de ayni dosyanin kopyasi,
 # yani sonek olmasa da sonuc degismez.
-export GTK_THEME=Karan:dark
+export GTK_THEME=Kavis:dark
 export XCURSOR_PATH="$ROOT/usr/share/icons"
-export XCURSOR_THEME=Karan-Cursors
+export XCURSOR_THEME=Kavis-Cursors
 
 DISPLAY_NUM=99
 export DISPLAY=":$DISPLAY_NUM"
@@ -67,7 +67,7 @@ RC="$ROOT/rc.xml"
 awk '
 	/<theme>/            { intheme = 1 }
 	intheme && !done && /<name>/ {
-		sub(/<name>[^<]*<\/name>/, "<name>Karan</name>")
+		sub(/<name>[^<]*<\/name>/, "<name>Kavis</name>")
 		done = 1
 	}
 	{ print }
@@ -76,7 +76,7 @@ sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$
 
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1
-xwallpaper --zoom "$ROOT/usr/share/backgrounds/karanos/karan.png" || true
+xwallpaper --zoom "$ROOT/usr/share/backgrounds/kavis/kavis.png" || true
 /usr/bin/python3 tools/ornek-pencere.py \
 	>"$ROOT/preview.log" 2>&1 &
 PREVIEW_PID=$!
@@ -85,7 +85,7 @@ PREVIEW_PID=$!
 # yavas makinede kare pencere cizilmeden aliniyor ve ekran goruntusunde
 # yalnizca duvar kagidi cikiyor.
 for _ in $(seq 1 40); do
-	if xdotool search --name "Karan OS" >/dev/null 2>&1; then break; fi
+	if xdotool search --name "Kavis" >/dev/null 2>&1; then break; fi
 	if ! kill -0 "$PREVIEW_PID" 2>/dev/null; then
 		echo "HATA: onizleme penceresi cikti, gunluk:" >&2
 		cat "$ROOT/preview.log" >&2

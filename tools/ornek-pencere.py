@@ -10,7 +10,7 @@ ekran görüntüsü alırken bunu açıyor.
 gösterecek başka bir şey yoktu). 4. aşamada gerçek panel gelince
 buraya, geliştirme araçlarının arasına taşındı.
 
-Etiketler docs/karanos-arayuz-metinleri.md içindeki `appearance.*`
+Etiketler docs/kavis-arayuz-metinleri.md içindeki `appearance.*`
 anahtarlarından alınmıştır; bu pencereye özgü metin uydurulmadı.
 """
 
@@ -30,10 +30,10 @@ def row(label, widget):
 
 
 def build():
-	win = Gtk.Window(title="Karan OS")
+	win = Gtk.Window(title="Kavis")
 	win.set_default_size(520, 380)
 	win.set_position(Gtk.WindowPosition.CENTER)
-	win.set_icon_name("karanos")
+	win.set_icon_name("kavis")
 	win.connect("destroy", Gtk.main_quit)
 
 	outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
@@ -44,18 +44,18 @@ def build():
 	head.set_markup('<span size="x-large" weight="bold">Görünüm</span>')
 	outer.pack_start(head, False, False, 0)
 
-	# "Tema: Açık / Koyu" seçeneği kasten yok: Karan OS tek temalı (koyu).
+	# "Tema: Açık / Koyu" seçeneği kasten yok: Kavis tek temalı (koyu).
 	# Aynı bileşeni göstermek için yerine duvar kağıdı seçici kondu —
 	# eskisi var olmayan bir ayarı gösteriyordu ve ekran görüntüsünde
 	# "sistem açık temada" izlenimi veriyordu.
 	combo = Gtk.ComboBoxText()
-	for text in ("karan", "karan-gece", "karan-duz"):
+	for text in ("kavis", "kavis-gece", "kavis-duz"):
 		combo.append_text(text)
 	combo.set_active(0)
 	outer.pack_start(row("Duvar kağıdı", combo), False, False, 0)
 
 	entry = Gtk.Entry()
-	entry.set_text("Karan")
+	entry.set_text("Kavis-Cursors")
 	outer.pack_start(row("İmleç teması", entry), False, False, 0)
 
 	scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 16, 64, 8)

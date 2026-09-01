@@ -1,5 +1,5 @@
 #!/bin/sh
-# Karan OS — GRUB açılış menüsünü Karan OS markasına çevir
+# Kavis — GRUB açılış menüsünü Kavis markasına çevir
 #
 # NEDEN VAR: menü hâlâ Debian markalıydı — "Debian GNU/Linux ... (trixie)"
 # başlığı, Debian logosu ve Debian'ın kırmızı/gri renkleri. Kullanıcının
@@ -21,6 +21,23 @@ set -e
 # Tam altıgen değerler yalnızca tema dosyasında kullanılabiliyor.
 RENK_NORMAL="light-gray/black"
 RENK_SECILI="black/cyan"
+
+# --- ürün adı: tek kaynaktan ------------------------------------------
+# Menü girdilerine yazılacak ad koda gömülü değil; chroot'a kurulmuş
+# os-release'ten okunuyor (kavis-theme paketi koyuyor). Okunamazsa
+# kozmetik hook felsefesine uygun biçimde markasız devam ediyoruz.
+AD=""
+for osr in ../chroot/etc/os-release chroot/etc/os-release; do
+	if [ -f "$osr" ]; then
+		AD=$(sed -n 's/^NAME="\?\([^"]*\)"\?$/\1/p' "$osr" | head -1)
+		break
+	fi
+done
+if [ -z "$AD" ]; then
+	echo "W: os-release'ten urun adi okunamadi, marka atlandi" >&2
+	exit 0
+fi
+echo "I: urun adi (os-release): $AD"
 
 kok=""
 for aday in boot/grub ../binary/boot/grub binary/boot/grub; do
@@ -46,19 +63,19 @@ if [ ! -f "$CFG" ]; then
 fi
 
 # --- menü girdilerinin adları ----------------------------------------
-# live-build "Live system (amd64)" gibi adlar üretiyor. Kullanıcı
-# "Karan OS" görmeli. Sed yerine tek tek eşleme: beklenmedik bir ad
-# gelirse sessizce bozmak yerine olduğu gibi bırakıyoruz.
+# live-build "Live system (amd64)" gibi adlar üretiyor. Kullanıcı ürün
+# adını görmeli. Sed yerine tek tek eşleme: beklenmedik bir ad gelirse
+# sessizce bozmak yerine olduğu gibi bırakıyoruz.
 sed -i \
-	-e 's|menuentry "Live system (\([^)]*\) fail-safe mode)"|menuentry "Karan OS (güvenli mod, \1)"|' \
-	-e 's|menuentry "Live system (\([^)]*\))"|menuentry "Karan OS (\1)"|' \
-	-e 's|menuentry "Debian GNU/Linux[^"]*"|menuentry "Karan OS"|' \
+	-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (güvenli mod, \1)\"|" \
+	-e "s|menuentry \"Live system (\([^)]*\))\"|menuentry \"$AD (\1)\"|" \
+	-e "s|menuentry \"Debian GNU/Linux[^\"]*\"|menuentry \"$AD\"|" \
 	"$CFG"
 
 # --- renkler ve başlık ------------------------------------------------
 cat >> "$CFG" <<EOF
 
-### Karan OS — marka ###
+### $AD — marka ###
 set color_normal=${RENK_NORMAL}
 set color_highlight=${RENK_SECILI}
 set menu_color_normal=${RENK_NORMAL}
@@ -66,12 +83,12 @@ set menu_color_highlight=${RENK_SECILI}
 EOF
 
 # --- arka plan --------------------------------------------------------
-# Duvar kağıdının en sakin olanını kullanıyoruz; menü yazısı üstünde
-# okunur kalsın diye desenli olan değil.
+# Kural (madde 1): GRUB'da HER ZAMAN koyu logo. kavis-theme derlemesi
+# koyu-k-logo'dan düz zeminli bir arka plan üretiyor; onu kopyalıyoruz.
 arka=""
 for aday in \
-	../chroot/usr/share/backgrounds/karanos/karan-gece.png \
-	chroot/usr/share/backgrounds/karanos/karan-gece.png
+	../chroot/usr/share/kavis/logo/grub-arkaplan.png \
+	chroot/usr/share/kavis/logo/grub-arkaplan.png
 do
 	if [ -f "$aday" ]; then
 		arka="$aday"
@@ -80,17 +97,17 @@ do
 done
 
 if [ -n "$arka" ]; then
-	cp "$arka" "$kok/karanos-arkaplan.png"
+	cp "$arka" "$kok/kavis-arkaplan.png"
 	cat >> "$CFG" <<'EOF'
 # GRUB'un png modulu yoksa bu satir sessizce basarisiz olur ve menu duz
 # renk zeminde gorunur — okunurlugu bozmaz.
-if background_image /boot/grub/karanos-arkaplan.png; then
+if background_image /boot/grub/kavis-arkaplan.png; then
 	true
 fi
 EOF
 	echo "I: GRUB arka plani kondu ($arka)"
 else
-	echo "W: karan-gece.png bulunamadi, GRUB arka plani duz renk kalacak" >&2
+	echo "W: grub-arkaplan.png bulunamadi, GRUB arka plani duz renk kalacak" >&2
 fi
 
 # --- Debian markalı kalıntılar ---------------------------------------
@@ -102,5 +119,5 @@ for artik in "$kok/splash.png" "$kok/debian.png" "$kok/themes/debian"; do
 	fi
 done
 
-echo "I: GRUB menusu Karan OS markasina cevrildi"
-grep -c 'menuentry "Karan OS' "$CFG" | sed 's/^/I: Karan OS girdisi sayisi: /'
+echo "I: GRUB menusu $AD markasina cevrildi"
+grep -c "menuentry \"$AD" "$CFG" | sed 's/^/I: marka girdisi sayisi: /'

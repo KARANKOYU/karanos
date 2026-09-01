@@ -1,5 +1,5 @@
 #!/bin/sh
-# Karan OS — Openbox'ı Karan temasına geçir
+# Kavis — Openbox'ı Kavis temasına geçir
 #
 # NEDEN HOOK, NEDEN DOSYAYI KOMPLE DEĞİŞTİRMİYORUZ:
 # Openbox'ın pencere teması GTK temasından bağımsız; /etc/xdg/openbox/rc.xml
@@ -23,7 +23,7 @@ fi
 awk '
 	/<theme>/            { intheme = 1 }
 	intheme && !done && /<name>/ {
-		sub(/<name>[^<]*<\/name>/, "<name>Karan</name>")
+		sub(/<name>[^<]*<\/name>/, "<name>Kavis</name>")
 		done = 1
 	}
 	{ print }
@@ -33,8 +33,8 @@ mv "$RC.yeni" "$RC"
 # Windows benzeri başlık çubuğu: simge, başlık, sonra küçült/büyüt/kapat
 sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$RC"
 
-if grep -q '<name>Karan</name>' "$RC"; then
-	echo "I: Openbox teması Karan olarak ayarlandi"
+if grep -q '<name>Kavis</name>' "$RC"; then
+	echo "I: Openbox teması Kavis olarak ayarlandi"
 else
 	echo "E: rc.xml'e tema adi yazilamadi" >&2
 	exit 1

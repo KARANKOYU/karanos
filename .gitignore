@@ -17,7 +17,7 @@ iso/config/bootstrap
 iso/config/chroot
 iso/config/common
 iso/config/source
-# ISO'ya girecek karanos-*.deb'ler CI'da buraya indirilir, depoda durmaz
+# ISO'ya girecek kavis-*.deb'ler CI'da buraya indirilir, depoda durmaz
 iso/config/packages.chroot/
 
 # Paket ağacına derleme sırasında kopyalanan kaynaklar — aslı assets/ altında
@@ -37,7 +37,7 @@ packages/*/src/boot/
 **/debian/*.debhelper
 **/debian/*.debhelper.log
 **/debian/debhelper-build-stamp
-**/debian/karanos-*/
+**/debian/kavis-*/
 **/debian/tmp/
 
 # Python

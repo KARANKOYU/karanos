@@ -1,8 +1,0 @@
-[Plymouth Theme]
-Name=Karan OS
-Description=Karan OS açılış ekranı — görsel %15'ten %100'e parlar, altında "made by Karan"
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/karanos
-ScriptFile=/usr/share/plymouth/themes/karanos/karanos.script

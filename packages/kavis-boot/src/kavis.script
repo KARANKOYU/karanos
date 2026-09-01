@@ -1,0 +1,187 @@
+# Kavis — Plymouth açılış ekranı (script eklentisi)
+#
+# Bölüm 5'teki davranış:
+#   1. Ortadaki görsel %15 opaklıkla başlar, ~1.5 saniyede %100'e çıkar
+#      ve hafif bir parlama (glow) alır
+#   2. Altında italik "made by Karan" yazısı
+#   3. Müziği ayrı bir systemd servisi çalar (Plymouth'un ses desteği yok)
+#   4. Splash müzik bittikten 0.5 sn sonra kapanır; kapanmadan önce
+#      görsel yumuşakça söner
+#
+# NEDEN İTALİK YAZI PNG: Plymouth bitmap font kullanıyor, italik
+# desteği yok. Yazıyı kendi framebuffer programımızla çizmek Plymouth'u
+# ikinci kez yazmak demekti. Metin, paket derlenirken SVG'den PNG'ye
+# çevriliyor: açılışta hiçbir yazı tipi bağımlılığı kalmıyor ve sonuç
+# her makinede birebir aynı.
+#
+# DİL KISITI: Plymouth'un script dili küçük bir dil. Burada bilerek
+# yalnızca kesin desteklenen yapılar kullanılıyor:
+#   - `++` yok, `kare = kare + 1` yazılıyor
+#   - gövdesiz `return;` yok, her dal if/else ile ayrılıyor
+#   - Sprite'ın opaklığı geri okunamıyor (GetOpacity yok), bu yüzden
+#     opaklıklar ayrı değişkenlerde tutuluyor
+#
+# ZAMANLAMA: Refresh saniyede ~50 kez çağrılıyor. Gerçek saat okumak
+# yerine kare sayıyoruz — Plymouth'ta güvenilir bir zaman kaynağı yok.
+
+# --- ayarlar ---------------------------------------------------------
+KARE_HIZI      = 50.0;
+PARLAMA_SURESI = 1.5;   # saniye — %15'ten %100'e
+BASLANGIC_OPAK = 0.15;
+YAZI_OPAK      = 0.85;
+PARLAMA_OPAK   = 0.18;
+SONME_SURESI   = 0.5;   # saniye — kapanmadan önceki fade-out
+# Fade SIFIRA değil, bu orana kadar iniyor.
+#
+# NEDEN: plymouth-quit `--retain-splash` ile çıkıyor, yani ekranda kalan
+# SON KARE X ayağa kalkana kadar duruyor. Fade sıfıra inince o kare
+# bomboş oluyordu ve VirtualBox testinde masaüstünden önce ~3 saniye
+# siyah ekran görülüyordu. Görsel soluk da olsa ekranda kalınca o boşluk
+# "kararmış açılış ekranı" gibi görünüyor, siyah bir hiçlik gibi değil.
+#
+# Bölüm 5 "yumuşakça söner" diyor; sönme korunuyor, yalnızca dibe
+# vurmuyor. Kendi giriş ekranımız (5. aşama) devir teslimi biz
+# yönetince tam sönmeye dönülebilir.
+SONME_HEDEF    = 0.35;
+
+# Zemin: koyu paletteki yüzey renginden masaüstü zeminine ince degrade
+# (#17222C üstte, #0D141B altta)
+Window.SetBackgroundTopColor(0.090, 0.133, 0.173);
+Window.SetBackgroundBottomColor(0.051, 0.078, 0.106);
+
+ekran_w = Window.GetWidth();
+ekran_h = Window.GetHeight();
+
+# --- görseller -------------------------------------------------------
+logo_ham = Image("logo.png");
+yazi_ham = Image("made-by-karan.png");
+
+# Görsel ekranın en fazla üçte birini kaplasın; küçük ekranda taşmasın,
+# büyük ekranda kaybolmasın.
+hedef_h = ekran_h / 3;
+olcek = hedef_h / logo_ham.GetHeight();
+if (logo_ham.GetWidth() * olcek > ekran_w * 0.6)
+  {
+    olcek = (ekran_w * 0.6) / logo_ham.GetWidth();
+  }
+
+logo_w = logo_ham.GetWidth() * olcek;
+logo_h = logo_ham.GetHeight() * olcek;
+logo = logo_ham.Scale(logo_w, logo_h);
+
+# Parlama: aynı görselin biraz büyütülmüş kopyası, arkada, düşük opaklık
+parlama_w = logo_w * 1.10;
+parlama_h = logo_h * 1.10;
+parlama = logo_ham.Scale(parlama_w, parlama_h);
+
+# Yazı görselin altında, genişliği görselin yarısından biraz fazla
+yazi_w = logo_w * 0.62;
+yazi_olcek = yazi_w / yazi_ham.GetWidth();
+yazi_h = yazi_ham.GetHeight() * yazi_olcek;
+yazi = yazi_ham.Scale(yazi_w, yazi_h);
+
+# --- yerleşim --------------------------------------------------------
+# Görsel + yazı birlikte dikeyde ortalanıyor
+bosluk = logo_h * 0.10;
+toplam_h = logo_h + bosluk + yazi_h;
+ust = (ekran_h - toplam_h) / 2;
+
+logo_x = (ekran_w - logo_w) / 2;
+logo_y = ust;
+yazi_x = (ekran_w - yazi_w) / 2;
+yazi_y = ust + logo_h + bosluk;
+
+parlama_sprite = Sprite(parlama);
+parlama_sprite.SetPosition(logo_x - (parlama_w - logo_w) / 2,
+                           logo_y - (parlama_h - logo_h) / 2, 1);
+parlama_sprite.SetOpacity(0);
+
+logo_sprite = Sprite(logo);
+logo_sprite.SetPosition(logo_x, logo_y, 2);
+logo_sprite.SetOpacity(BASLANGIC_OPAK);
+
+yazi_sprite = Sprite(yazi);
+yazi_sprite.SetPosition(yazi_x, yazi_y, 2);
+yazi_sprite.SetOpacity(0);
+
+# --- durum -----------------------------------------------------------
+kare = 0;
+sonuyor = 0;
+sonme_karesi = 0;
+
+# Sprite'tan opaklık geri okunamadığı için kendimiz tutuyoruz.
+logo_opak = BASLANGIC_OPAK;
+yazi_opak = 0;
+parlama_opak = 0;
+
+fun Refresh()
+  {
+    kare = kare + 1;
+
+    if (sonuyor == 1)
+      {
+        # Kapanış: görsel, yazı ve parlama birlikte söner
+        gecen = (kare - sonme_karesi) / KARE_HIZI;
+        k = 1 - (gecen / SONME_SURESI);
+        if (k < SONME_HEDEF)
+          {
+            k = SONME_HEDEF;
+          }
+        logo_sprite.SetOpacity(logo_opak * k);
+        yazi_sprite.SetOpacity(yazi_opak * k);
+        parlama_sprite.SetOpacity(parlama_opak * k);
+      }
+    else
+      {
+        t = kare / KARE_HIZI;
+        if (t < PARLAMA_SURESI)
+          {
+            # Açılış: %15 → %100
+            ilerleme = t / PARLAMA_SURESI;
+            logo_opak = BASLANGIC_OPAK + (1 - BASLANGIC_OPAK) * ilerleme;
+            yazi_opak = YAZI_OPAK * ilerleme;
+            parlama_opak = PARLAMA_OPAK * ilerleme;
+          }
+        else
+          {
+            logo_opak = 1;
+            yazi_opak = YAZI_OPAK;
+            # Parlama hafifçe nefes alsın — donmuş ekran izlenimi
+            # vermesin. Genlik küçük, dikkat dağıtmıyor.
+            parlama_opak = PARLAMA_OPAK
+                           + 0.07 * Math.Sin((t - PARLAMA_SURESI) * 1.6);
+          }
+        logo_sprite.SetOpacity(logo_opak);
+        yazi_sprite.SetOpacity(yazi_opak);
+        parlama_sprite.SetOpacity(parlama_opak);
+      }
+  }
+
+fun SonmeyiBaslat()
+  {
+    if (sonuyor == 0)
+      {
+        sonuyor = 1;
+        sonme_karesi = kare;
+      }
+  }
+
+# Ses servisi müzik bitince `plymouth update --status=kavis-sonlaniyor`
+# çağırıyor; fade-out'u o tetikliyor. Böylece görsel ile ses aynı anda
+# sönüyor.
+fun DurumDegisti(durum)
+  {
+    if (durum == "kavis-sonlaniyor")
+      {
+        SonmeyiBaslat();
+      }
+  }
+
+fun Cikis()
+  {
+    SonmeyiBaslat();
+  }
+
+Plymouth.SetRefreshFunction(Refresh);
+Plymouth.SetUpdateStatusFunction(DurumDegisti);
+Plymouth.SetQuitFunction(Cikis);

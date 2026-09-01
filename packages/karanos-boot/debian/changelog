@@ -1,7 +1,0 @@
-karanos-boot (1.0) stable; urgency=medium
-
-  * İlk sürüm: Plymouth teması (parlayan görsel + "made by Karan"),
-    açılış müziği servisi ve splash'i müzik bitene kadar tutan
-    plymouth-quit drop-in'i.
-
- -- Karan <farukyildiz3207@gmail.com>  Thu, 06 Aug 2026 00:00:00 +0300

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Kavis Görev Çubuğu
+Name[en]=Kavis Taskbar
+Comment=Görev çubuğu ve başlat menüsü
+Comment[en]=Taskbar and start menu
+Exec=/usr/bin/kavis-panel
+Icon=kavis
+Terminal=false
+Categories=System;
+NoDisplay=true
+X-KaranOS-Autostart=true

@@ -1,11 +1,11 @@
-# Karan OS — Openbox oturum başlangıcı
+# Kavis — Openbox oturum başlangıcı
 
 # --- Duvar kağıdı ----------------------------------------------------
-# karanos-theme paketinden geliyor. Paket yoksa (çıplak ISO) düz renge
+# kavis-theme paketinden geliyor. Paket yoksa (çıplak ISO) düz renge
 # düşüyoruz ki ekran yine de "açıldı" desin.
 if command -v xwallpaper >/dev/null 2>&1 &&
-	[ -f /usr/share/backgrounds/karanos/karan.png ]; then
-	xwallpaper --zoom /usr/share/backgrounds/karanos/karan.png &
+	[ -f /usr/share/backgrounds/kavis/kavis.png ]; then
+	xwallpaper --zoom /usr/share/backgrounds/kavis/kavis.png &
 else
 	xsetroot -solid "#0D141B" &
 fi
@@ -20,7 +20,7 @@ xsetroot -cursor_name left_ptr &
 # açılışta bileşiklemenin var olup olmadığına bakıp güç menüsünü ona
 # göre çiziyor. xrender arka ucu, 3B gerektirmiyor.
 if command -v picom >/dev/null 2>&1; then
-	picom --backend xrender --config /etc/xdg/picom-karanos.conf &
+	picom --backend xrender --config /etc/xdg/picom-kavis.conf &
 	# Panel bileşiklemeyi görebilsin diye kısa bir pay.
 	sleep 1
 fi
@@ -34,17 +34,17 @@ fi
 # NEDEN YENİDEN DENİYORUZ: panel Wnck üzerinden pencere yöneticisine
 # bağlanıyor; openbox otomatik başlangıcı çalıştırdığında bazen henüz
 # tam hazır olmuyor. Üç deneme, aralarında birer saniye.
-KARANOS_PANEL_LOG="${XDG_RUNTIME_DIR:-/tmp}/karanos-panel.log"
-export KARANOS_PANEL_LOG
+KAVIS_PANEL_LOG="${XDG_RUNTIME_DIR:-/tmp}/kavis-panel.log"
+export KAVIS_PANEL_LOG
 
-if command -v karanos-panel >/dev/null 2>&1; then
+if command -v kavis-panel >/dev/null 2>&1; then
 	(
 		deneme=1
 		while [ "$deneme" -le 3 ]; do
-			echo "--- karanos-panel denemesi $deneme ---" >>"$KARANOS_PANEL_LOG"
-			karanos-panel >>"$KARANOS_PANEL_LOG" 2>&1 && exit 0
+			echo "--- kavis-panel denemesi $deneme ---" >>"$KAVIS_PANEL_LOG"
+			kavis-panel >>"$KAVIS_PANEL_LOG" 2>&1 && exit 0
 			echo "--- panel cikti (kod $?), yeniden deneniyor ---" \
-				>>"$KARANOS_PANEL_LOG"
+				>>"$KAVIS_PANEL_LOG"
 			deneme=$((deneme + 1))
 			sleep 1
 		done

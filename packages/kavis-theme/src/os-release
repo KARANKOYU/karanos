@@ -1,0 +1,18 @@
+# ÜRÜN KİMLİĞİNİN TEK KAYNAĞI.
+# Görünen ad (NAME), kimlik (ID), sürüm ve adresler yalnızca burada
+# tanımlı. Kod içinde "Kavis" yazılmaz; çalışan sistemde /etc/os-release,
+# derleme sırasında da bu dosya okunur (iso/auto/config, hook'lar,
+# kavis_panel/marka.py). İsim bir gün yine değişirse iş bu dosyayla
+# assets/logo/ altındaki görsellerden ibaret kalsın.
+PRETTY_NAME="Kavis 1.0"
+NAME="Kavis"
+VERSION_ID="1.0"
+VERSION="1.0"
+VERSION_CODENAME=trixie
+ID=kavis
+ID_LIKE=debian
+HOME_URL="https://github.com/KARANKOYU/karanos"
+SUPPORT_URL="https://github.com/KARANKOYU/karanos/issues"
+BUG_REPORT_URL="https://github.com/KARANKOYU/karanos/issues"
+LOGO=kavis
+ANSI_COLOR="0;38;2;45;212;191"

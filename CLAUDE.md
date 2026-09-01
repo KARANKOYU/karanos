@@ -1,24 +1,45 @@
-# Karan OS — çalışma kuralları
+# Kavis — çalışma kuralları
 
 Debian trixie tabanlı, Windows benzeri masaüstüne sahip kişisel dağıtım.
-Proje dili **Türkçe**: kod yorumları, commit mesajları, belgeler ve arayüz
-metinleri Türkçe yazılır.
+Proje dili **Türkçe**: commit mesajları, belgeler ve arayüz metinleri
+Türkçe. Fonksiyon açıklamaları (Doxygen/docstring) ise **İngilizce**
+(görev listesi "kod kalitesi" kuralı; eski dosyalarda Türkçe yorum
+kalmış olabilir, yenilerde İngilizce).
+
+## Marka — Kavis (eski adı Karan OS)
+
+Ürün adı KODA GÖMÜLMEZ. Tek kaynak:
+`packages/kavis-theme/src/os-release` (kurulu sistemde `/etc/os-release`).
+Ad, sürüm ve adresler yalnızca oradan okunur — shell tarafında
+`. /etc/os-release`, Python tarafında `kavis_panel/marka.py`,
+derlemede `iso/auto/config` ve iş akışının "Sürüm bilgisi" adımı.
+İsim yine değişirse iş, o dosya + `assets/logo/` görsellerinden ibaret
+olmalı.
+
+Değişmeyenler: sistem kullanıcısı `karan`, logo dosya adları
+(`koyu-k-logo.svg` / `acik-k-logo.svg`), git deposunun adı (`karanos`)
+ve `KARANKOYU/karanos` adresleri.
+
+Logo kuralı (madde 1): açılış ekranı ve GRUB **her zaman koyu logo**;
+başlat düğmesi/hakkında etkin temaya göre (`marka.logo_yolu()`).
 
 ## Kaynak belgeler
 
 | Dosya | Ne için |
 |---|---|
-| `docs/karanos-claude-code-prompt.md` | Tam görev tanımı. Bölüm 17 geliştirme sırası, bölüm 20 kurallar, bölüm 21 GitHub kurulumu. |
-| `docs/karanos-arayuz-metinleri.md` | Arayüzde görünen **bütün** TR/EN metinler. |
+| `docs/gorev-listesi.md` | GÜNCEL görev listesi: 58 madde + grup sırası + değişmez kurallar. Asıl yönerge bu. |
+| `docs/roadmap.md` | Hangi grup bitince hangi sürüm çıkacak; her grup sonunda güncellenir. |
+| `docs/kavis-arayuz-metinleri.md` | Arayüzde görünen **bütün** TR/EN metinler. |
+| `docs/kavis-claude-code-prompt.md` | ESKİ görev tanımı (Karan OS dönemi). Tarihsel bağlam; yeni listeyle çelişirse yeni liste kazanır. |
 | `docs/github-kurulumu.md` | GitHub tarafında ne oluşturulacağı (depolar, Pages, GPG, secret'lar). |
 
 **Arayüzde görünecek hiçbir metni kendin uydurma.** Etiket, buton yazısı,
-hata mesajı, bildirim — hepsi `docs/karanos-arayuz-metinleri.md` içindeki
+hata mesajı, bildirim — hepsi `docs/kavis-arayuz-metinleri.md` içindeki
 tablolardan alınır. Tabloda karşılığı yoksa uydurmak yerine sor.
 
 ## Renk kimliği
 
-**Karan OS tek temalı: KOYU.** Açık tema yok — ne varsayılan olarak, ne
+**Kavis tek temalı: KOYU.** Açık tema yok — ne varsayılan olarak, ne
 seçenek olarak. Ayarlar > Görünüm'de "Tema: Açık/Koyu" seçeneği
 bulunmuyor. Yeni aşamalarda açık tema için ek iş yapılmaz.
 
@@ -38,10 +59,10 @@ bulunmuyor. Yeni aşamalarda açık tema için ek iş yapılmaz.
 Turkuaz açık bir renk: üstüne gelen yazı **koyu** olmalı (`#0D141B`),
 beyaz değil.
 
-`packages/karanos-theme/src/gtk-3.0/gtk-light.css` depoda duruyor ama
+`packages/kavis-theme/src/gtk-3.0/gtk-light.css` depoda duruyor ama
 **pakete girmiyor**; ileride istenirse diye kaynak olarak saklanıyor.
 
-Renk değiştirmek gerekirse tek kaynak `packages/karanos-theme/` — CSS
+Renk değiştirmek gerekirse tek kaynak `packages/kavis-theme/` — CSS
 dosyalarındaki `@define-color` blokları ve `tools/gen-*.py` başındaki
 sabitler.
 
@@ -58,7 +79,7 @@ Geliştirme GitHub Codespaces'te yapılıyor: Debian konteyner, **2 çekirdek**,
   — 40 dakikalık koşuyu tahminle harcama.
 - Kullanıcının bağlantısı ~1 MB/s. ISO'yu indirip **VirtualBox'ta elle test
   edebiliyor**; "bunu gözünle görmen lazım" diyebileceğin durumlarda
-  `karanos-iso` yapıtını indirmesini istemek makul.
+  `kavis-iso` yapıtını indirmesini istemek makul.
 
 ## Push etmeden önce
 
@@ -83,11 +104,23 @@ başarısız saymaz.
 
 ## Yöntem
 
-- Her aşamada **önce kısa bir plan sun, onay al, sonra kodla** (bölüm 20).
-- Geliştirme sırası bölüm 17'deki 14 aşama. Sırayı atlama.
+- Geliştirme `docs/gorev-listesi.md` sonundaki GRUP sırasına göre yürür
+  (A → A2 → B → ... → K). Her grubun sonunda DUR: özet ver, commit et,
+  kullanıcıdan onay bekle; "devam" denmeden sonraki gruba geçme.
+- Performans kuralı: sürekli çalışan bileşenler C/C++/Vala; kullanıcı
+  uygulamalarında C/C++ tercih (iş 3 katına çıkıyorsa Python kabul);
+  ISO scriptleri shell. Hazır ve hızlı araç varsa kur-ayarla, yeniden
+  yazma. Basit yolu seçtiysen nedenini tek cümleyle söyle.
+- Başka projeden TEK SATIR kod kopyalama — yaklaşımı öğren, sıfırdan yaz.
+  apt ile hazır program kurmak serbest.
+- Her grubun sonunda kendi kodunu gözden geçir (mantık hatası, sızıntı,
+  yarım iş, çift iş) ve ne bulduğunu söyle.
 - Commit mesajları Türkçe, ne yapıldığını değil **neyi neden düzelttiğini**
   anlatır.
 - Commit mesajlarına `Co-Authored-By` satırı **ekleme**.
+- Yeni CI doğrulama adımını önce Codespace'te aynı komutlarla çalıştır;
+  yerelde geçmeyeni push etme. Yeni bağımlılık → hem paketin `Depends`
+  alanına hem iş akışının kurulum adımına.
 
 ## Bilinen tuzaklar
 

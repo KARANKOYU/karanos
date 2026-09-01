@@ -7,8 +7,8 @@ assets/boot/boot-image.png     ← açılış görseli
 assets/boot/boot-sound.mp3     ← açılış müziği
 ```
 
-Bu iki dosya `karanos-boot` paketine gömülür ve kurulu sistemde
-`/usr/share/karanos/boot/` altında, `root:root 0644` izniyle durur.
+Bu iki dosya `kavis-boot` paketine gömülür ve kurulu sistemde
+`/usr/share/kavis/boot/` altında, `root:root 0644` izniyle durur.
 Kullanıcı bunları **değiştiremez** (prompt 5. bölüm) — ne setup'ta ne ayarlarda
 bir seçenek olacak.
 
@@ -89,7 +89,7 @@ ffmpeg -i kaynak.mp3 -af "silenceremove=start_periods=1:start_threshold=-50dB,lo
 
 ### Neden MP3, WAV değil
 
-Açılışın çok erken bir anında, `karanos-boot-sound.service` adlı küçük bir
+Açılışın çok erken bir anında, `kavis-boot-sound.service` adlı küçük bir
 systemd servisi sesi `mpg123` ile çalacak (Plymouth'un kendi ses desteği yok).
 `mpg123` ~1 MB'lık, bağımlılığı az bir araç; MP3'ü doğrudan ALSA'ya veriyor.
 WAV kullanmak dosyayı 10 kat büyütür, ISO'ya bedava yer kaybettirir.

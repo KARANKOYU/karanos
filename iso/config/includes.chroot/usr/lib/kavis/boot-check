@@ -1,0 +1,343 @@
+#!/bin/sh
+# Kavis — açılış duman testi (yalnızca canlı oturumda çalışır)
+#
+# Amaç: her değişiklikte ISO'yu indirip elle açmadan, açılışın gerçekten
+# grafik arayüze kadar geldiğini bilmek. Bu script durumu seri konsola tek
+# satırlık işaretler hâlinde yazar; CI bu satırları arar.
+
+set -u
+
+log() { echo "KAVIS-CHECK: $*"; }
+
+# Ölümcül sayılan hatalar burada birikir. En sonda RESULT=FAIL veriyoruz.
+# NEDEN: 1. ve 2. aşamada grafik oturum hiç açılmadığı hâlde bu script
+# RESULT=OK yazıyordu, çünkü pencere yöneticisinin yokluğu yalnızca
+# "uyarı" sayılıyordu. CI iki kez yanlış yeşil yandı. Artık masaüstünün
+# gerçekten ayakta olması testin geçme şartı.
+olumcul=""
+fatal() {
+	log "$1"
+	olumcul="${olumcul} ${2}"
+}
+
+# 0) Canlı kullanıcı oluşturuldu mu
+# live-config bu kullanıcıyı user-setup ile yaratıyor. Paket eksikse
+# kullanıcı hiç oluşmuyor ve oturum açılamıyor — bu kontrol o durumu
+# doğrudan gösterir.
+if getent passwd karan >/dev/null 2>&1; then
+	log "USER-OK karan ($(getent passwd karan | cut -d: -f6,7))"
+else
+	fatal "USER-FAIL canli kullanici 'karan' yok — user-setup kurulu mu?" "kullanici"
+fi
+
+# 1) X sunucusu ayağa kalktı mı
+x_up=0
+i=0
+while [ "$i" -lt 120 ]; do
+	if pgrep -x Xorg >/dev/null 2>&1 || pgrep -x X >/dev/null 2>&1; then
+		x_up=1
+		break
+	fi
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$x_up" -ne 1 ]; then
+	log "X-FAIL Xorg 120 saniyede baslamadi"
+	log "RESULT=FAIL"
+	exit 1
+fi
+log "X-OK Xorg calisiyor (${i} saniyede)"
+
+# 2) Pencere yöneticisi
+# Pencere yöneticisi yoksa masaüstü diye bir şey yok demektir: X boş bir
+# kök pencere gösterir, ekran görüntüsü simsiyah çıkar. Bu durumda
+# tahmin yürütmek yerine oturumun neden açılmadığını buradan döküyoruz —
+# aksi hâlde her denemede 40 dakikalık CI koşusu harcanıyor.
+wm_up=0
+i=0
+while [ "$i" -lt 60 ]; do
+	if pgrep -x openbox >/dev/null 2>&1; then
+		wm_up=1
+		break
+	fi
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$wm_up" -eq 1 ]; then
+	log "WM-OK openbox calisiyor (${i} saniyede)"
+else
+	fatal "WM-FAIL openbox calismiyor — oturum acilmamis" "oturum"
+	echo "--- KAVIS-TANI: oturum neden acilmadi ---"
+	echo "# systemctl is-active lightdm: $(systemctl is-active lightdm 2>&1)"
+	echo "# kullanici karan: $(getent passwd karan 2>&1 || echo YOK)"
+	echo "# oturum dosyalari:"
+	ls -1 /usr/share/xsessions/ 2>&1 | sed 's/^/#   /'
+	echo "# calisan surecler:"
+	ps -eo comm= 2>/dev/null | sort -u \
+		| grep -iE '^(x|xorg|lightdm|openbox|dbus)' | sed 's/^/#   /'
+	for f in /var/log/lightdm/lightdm.log \
+		/var/log/lightdm/seat0-greeter.log \
+		/var/log/lightdm/x-0.log; do
+		echo "# ===== $f ====="
+		if [ -r "$f" ]; then
+			tail -n 25 "$f" 2>&1 | sed 's/^/#   /'
+		else
+			echo "#   (okunamadi)"
+		fi
+	done
+	echo "# ===== journalctl -u lightdm ====="
+	journalctl -u lightdm --no-pager -n 30 2>&1 | sed 's/^/#   /'
+	echo "--- KAVIS-TANI sonu ---"
+fi
+
+# 3) Tema paketi ISO'ya girdi mi ve dosyaları yerinde mi
+# Ekran görüntüsünde "renkli bir şey" görmek yetmiyor; parçaların
+# tek tek yerinde olduğunu da bilelim.
+theme_eksik=""
+for f in /usr/share/themes/Kavis/gtk-3.0/gtk.css \
+	/usr/share/themes/Kavis/openbox-3/themerc \
+	/etc/gtk-3.0/settings.ini; do
+	[ -f "$f" ] || theme_eksik="${theme_eksik} ${f}"
+done
+if [ -z "$theme_eksik" ]; then
+	log "THEME-OK gtk+openbox teması yerinde"
+else
+	fatal "THEME-FAIL eksik:${theme_eksik}" "tema"
+fi
+
+if [ -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr ]; then
+	log "CURSOR-OK $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l) imleç adı"
+else
+	fatal "CURSOR-FAIL imleç teması yok" "imlec"
+fi
+
+if [ -f /usr/share/backgrounds/kavis/kavis.png ]; then
+	log "WALLPAPER-OK"
+else
+	fatal "WALLPAPER-FAIL duvar kagidi yok" "duvarkagidi"
+fi
+
+# Görev çubuğu (4. aşama) çalışıyor mu
+# Panel yoksa masaüstü Windows benzeri olmuyor; ekran görüntüsünde de
+# yalnızca duvar kağıdı görünür.
+# Panel Python + GTK yüklüyor; öykünmeli QEMU'da bu birkaç saniye
+# sürüyor. Pencere yöneticisinde yaptığım hatanın aynısını burada da
+# yapmayalım: anında bakmak yanlış negatif veriyor, bekleyerek bakıyoruz.
+panel_up=0
+i=0
+while [ "$i" -lt 45 ]; do
+	if pgrep -f "kavis-panel" >/dev/null 2>&1; then
+		panel_up=1
+		break
+	fi
+	i=$((i + 1))
+	sleep 1
+done
+
+if [ "$panel_up" -eq 1 ]; then
+	log "PANEL-OK kavis-panel calisiyor (${i} saniyede)"
+else
+	fatal "PANEL-FAIL kavis-panel calismiyor" "panel"
+	echo "--- KAVIS-TANI: panel neden calismiyor ---"
+	echo "# kavis-panel yolu: $(command -v kavis-panel 2>&1 || echo YOK)"
+	echo "# paket kurulu mu: $(dpkg-query -W -f='${Status}' kavis-panel 2>&1)"
+	# Openbox otomatik başlangıcı panelin çıktısını buraya yazıyor.
+	# Kullanıcının çalışma dizini root'un değil, o yüzden ikisine de bak.
+	for f in /run/user/1000/kavis-panel.log /tmp/kavis-panel.log \
+		/home/karan/.xsession-errors; do
+		echo "# ===== $f ====="
+		if [ -r "$f" ]; then
+			tail -n 30 "$f" 2>&1 | sed 's/^/#   /'
+		else
+			echo "#   (okunamadi)"
+		fi
+	done
+	echo "# python modulu yuklenebiliyor mu:"
+	python3 -c "import kavis_panel.panel" 2>&1 | sed 's/^/#   /'
+	echo "--- KAVIS-TANI sonu ---"
+fi
+
+# Açılış ekranı (3. aşama): tema seçili mi, kaynaklar yerinde mi
+# Splash'in gerçekten göründüğünü buradan anlayamayız (o sırada bu script
+# henüz çalışmıyor); parçaların yerinde olduğunu doğruluyoruz. Görüntünün
+# kendisi CI'daki "acilis" ekran karesinden bakılır.
+if [ -f /usr/share/plymouth/themes/kavis/kavis.script ] &&
+	[ -f /usr/share/plymouth/themes/kavis/logo.png ] &&
+	[ -f /usr/share/plymouth/themes/kavis/made-by-karan.png ]; then
+	secili=$(plymouth-set-default-theme 2>/dev/null || echo "?")
+	if [ "$secili" = "kavis" ]; then
+		log "SPLASH-OK tema kavis"
+	else
+		fatal "SPLASH-FAIL varsayilan tema '$secili'" "splash"
+	fi
+else
+	fatal "SPLASH-FAIL plymouth temasi eksik" "splash"
+fi
+
+if [ -f /usr/share/kavis/boot/boot-sound.wav ]; then
+	log "BOOTSOUND-OK $(stat -c %s /usr/share/kavis/boot/boot-sound.wav) bayt"
+else
+	fatal "BOOTSOUND-FAIL acilis muzigi yok" "acilis-muzigi"
+fi
+
+# Ses servisi çalıştı mı — çalmadıysa splash'i tutan mekanizma da
+# devreye girmemiş demektir.
+ses_durum=$(systemctl is-active kavis-boot-sound.service 2>/dev/null || echo yok)
+log "BOOTSOUND-SERVICE=${ses_durum}"
+
+# --- Açılış sırası doğrulaması --------------------------------------
+# NEDEN GEREKLİ: QEMU'da ses arka ucu "none" ve zamanlama gerçek
+# donanımdan farklı, bu yüzden akış bozukluğu orada görünmüyordu.
+# VirtualBox testinde şu yaşandı: splash geldi (sessiz), söndü, konsol
+# göründü, müzik ANCAK O ZAMAN başladı, splash ikinci kez geldi ve müzik
+# masaüstüne taştı. Beklenen sıra:
+#
+#   plymouth-start  ≤  ses servisi başlangıcı  ≤  ses servisi bitişi
+#                                              ≤  plymouth-quit
+#
+# Zaman damgalarını systemd'nin kendi monotonik sayaçlarından okuyoruz
+# (mikrosaniye); journalctl metnini ayrıştırmaktan daha güvenilir.
+zaman() {
+	deger=$(systemctl show -p "$2" --value "$1" 2>/dev/null || echo 0)
+	case "$deger" in
+	'' | *[!0-9]*) echo 0 ;;
+	*) echo "$deger" ;;
+	esac
+}
+
+ply_basla=$(zaman plymouth-start.service InactiveExitTimestampMonotonic)
+ses_basla=$(zaman kavis-boot-sound.service InactiveExitTimestampMonotonic)
+ses_bit=$(zaman kavis-boot-sound.service ActiveEnterTimestampMonotonic)
+ply_bitir=$(zaman plymouth-quit.service InactiveExitTimestampMonotonic)
+
+sn() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
+log "SPLASH-TIMING start=$(sn "$ply_basla")s ses_basla=$(sn "$ses_basla")s ses_bit=$(sn "$ses_bit")s quit=$(sn "$ply_bitir")s"
+
+# Müzik splash'e göre ne kadar geç başlıyor? Bölüm 5 "aynı anda" diyor;
+# ses aygıtının hazır olmasını beklemek zorunda olduğumuz için sıfır
+# olamıyor ama küçük kalmalı. VirtualBox testinde müzik görselin
+# ortasında başlıyordu — ölçtüğümüz gecikme bu.
+if [ "$ply_basla" -ne 0 ] && [ "$ses_basla" -ge "$ply_basla" ]; then
+	gecikme=$((ses_basla - ply_basla))
+	log "SOUND-DELAY=$(sn "$gecikme")s (splash basladiktan sonra)"
+	if [ "$gecikme" -gt 3000000 ]; then
+		log "SOUND-DELAY-WARN muzik splash'ten 3 saniyeden gec basladi"
+	fi
+fi
+
+# Ses servisinin kendi ölçümü: aygıtın hazır olmasını kaç saniye
+# bekledi. Gecikmenin kaynağı bu mu, yoksa servis mi geç başlatıldı —
+# ayırt etmek için.
+journalctl -b --no-pager -o cat -u kavis-boot-sound.service 2>/dev/null |
+	grep -E "ses aygiti|muzik|plymouth:" | sed 's/^/KAVIS-CHECK: BOOTSOUND-LOG: /' || true
+
+# Plymouth hangi çizici (renderer) ile çalıştı? DRM bulunamayıp metin
+# kipine düşerse splash görünmüyor. VirtualBox'ta vmwgfx hatası
+# yüzünden bu riskli.
+ply_renderer=$(journalctl -b --no-pager 2>/dev/null |
+	grep -iE "plymouth.*(renderer|drm|frame-buffer|framebuffer)" | tail -3 || true)
+if [ -n "$ply_renderer" ]; then
+	echo "$ply_renderer" | sed 's/^/KAVIS-CHECK: SPLASH-RENDERER: /'
+fi
+log "DRM-DEVICES=$(ls -1 /dev/dri 2>/dev/null | tr '\n' ' ')"
+
+sira_hatasi=""
+if [ "$ply_basla" -eq 0 ]; then
+	sira_hatasi="${sira_hatasi} plymouth-start-hic-calismadi"
+fi
+if [ "$ses_basla" -eq 0 ]; then
+	sira_hatasi="${sira_hatasi} ses-servisi-hic-calismadi"
+elif [ "$ses_basla" -lt "$ply_basla" ]; then
+	sira_hatasi="${sira_hatasi} ses-splash-ten-once-basladi"
+fi
+# plymouth-quit ses servisi bitmeden koştuysa splash müziği kesmiş ya da
+# müzik splash'i aşmış demektir — ikisi de bölüm 5'e aykırı.
+if [ "$ply_bitir" -ne 0 ] && [ "$ses_bit" -ne 0 ] && [ "$ply_bitir" -lt "$ses_bit" ]; then
+	sira_hatasi="${sira_hatasi} quit-muzik-bitmeden-calisti"
+fi
+
+# Splash kaç kez gösterildi? Birden fazlaysa arada konsola düşülmüş
+# demektir (gerçek donanımda görülen belirti).
+splash_adet=$(journalctl -b --no-pager -u plymouth-start.service 2>/dev/null |
+	grep -c "Started plymouth-start" || true)
+[ -n "$splash_adet" ] || splash_adet=0
+log "SPLASH-COUNT=${splash_adet}"
+if [ "$splash_adet" -gt 1 ]; then
+	sira_hatasi="${sira_hatasi} splash-birden-fazla-baslatildi"
+fi
+
+if [ -z "$sira_hatasi" ]; then
+	log "SPLASH-ORDER-OK"
+else
+	fatal "SPLASH-ORDER-FAIL${sira_hatasi}" "splash-sirasi"
+	echo "--- KAVIS-TANI: acilis sirasi ---"
+	journalctl -b --no-pager -o short-monotonic \
+		-u plymouth-start.service -u kavis-boot-sound.service \
+		-u plymouth-quit.service -u plymouth-quit-wait.service 2>&1 |
+		tail -n 40 | sed 's/^/#   /'
+	echo "--- KAVIS-TANI sonu ---"
+fi
+
+# Plymouth script'i ayrıştırılabildi mi?
+# Tema script'inde bir sözdizimi hatası olursa splash sessizce boş kalır;
+# açılış devam ettiği için hiçbir yerde hata görünmez. Plymouth ayrıştırma
+# hatalarını günlüğe yazıyor, burada onu arıyoruz.
+ply_hata=$(journalctl -b --no-pager 2>/dev/null |
+	grep -iE 'plymouth.*(parse|syntax|error).*(script|theme)|kavis\.script' |
+	head -3 || true)
+if [ -n "$ply_hata" ]; then
+	fatal "SPLASH-SCRIPT-FAIL plymouth tema script'inde hata" "splash-script"
+	echo "$ply_hata" | sed 's/^/#   /'
+else
+	log "SPLASH-SCRIPT-OK ayristirma hatasi yok"
+fi
+
+# os-release dpkg-divert ile devralınmıştı; gerçekten devraldı mı.
+# Ürün adı koda gömülmüyor (tek kaynak ilkesi): Debian kimliği hâlâ
+# duruyorsa devralma başarısız demektir.
+if [ -f /etc/os-release ] && ! grep -q '^ID=debian$' /etc/os-release; then
+	log "OSRELEASE-OK $(. /etc/os-release && echo "$PRETTY_NAME")"
+else
+	fatal "OSRELEASE-FAIL $(grep '^PRETTY_NAME=' /etc/os-release 2>/dev/null)" "os-release"
+fi
+
+# 4) Firmware yüklendi mi (Wi-Fi/ekran kartı için kritik — prompt 16)
+if [ -d /lib/firmware ] && [ -n "$(ls -A /lib/firmware 2>/dev/null)" ]; then
+	log "FIRMWARE-OK $(find /lib/firmware -type f 2>/dev/null | wc -l) dosya"
+else
+	log "FIRMWARE-WARN /lib/firmware bos"
+fi
+
+# 5) EFI ile mi açıldı, BIOS ile mi
+if [ -d /sys/firmware/efi ]; then
+	log "BOOT-MODE=UEFI"
+	# efivars dosyasi: ilk 4 bayt oznitelik, 5. bayt SecureBoot degeri (0/1)
+	sb_state="okunamadi"
+	for sb in /sys/firmware/efi/efivars/SecureBoot-*; do
+		[ -r "$sb" ] || continue
+		sb_val=$(od -An -t u1 -j 4 -N 1 "$sb" 2>/dev/null | tr -d ' \n')
+		case "$sb_val" in
+		1) sb_state="on" ;;
+		0) sb_state="off" ;;
+		esac
+		break
+	done
+	log "SECURE-BOOT=${sb_state}"
+else
+	log "BOOT-MODE=BIOS"
+fi
+
+# 6) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
+mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
+log "MEM-USED=${mem_used_mb}MB"
+
+if [ -n "$olumcul" ]; then
+	log "FAILED-CHECKS=${olumcul# }"
+	log "RESULT=FAIL"
+	exit 1
+fi
+
+log "RESULT=OK"
+exit 0
