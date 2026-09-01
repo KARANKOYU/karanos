@@ -86,14 +86,17 @@ jobs:
         id: meta
         run: |
           set -eu
+          # Ürün adı/kimliği tek kaynaktan: tema paketindeki os-release.
+          # ISO adına küçük harfli kimlik (ID), görünen yerlere NAME gider.
+          # DİKKAT: os-release kendi VERSION="1.0" değişkenini de tanımlar;
+          # bu yüzden ÖNCE kaynaklanır, koşunun sürümü SONRA yazılır —
+          # v0.2-test3'te sıra tersti ve ISO adı yanlışlıkla 1.0 olmuştu.
+          . packages/kavis-theme/src/os-release
           if [ "${{ github.ref_type }}" = "tag" ]; then
             VERSION="${GITHUB_REF_NAME#v}"
           else
             VERSION="${{ inputs.version || 'main-dev' }}"
           fi
-          # Ürün adı/kimliği tek kaynaktan: tema paketindeki os-release.
-          # ISO adına küçük harfli kimlik (ID), görünen yerlere NAME gider.
-          . packages/kavis-theme/src/os-release
           echo "version=${VERSION}"                            >> "$GITHUB_OUTPUT"
           echo "iso_name=${ID}-${VERSION}-${KAVIS_MIMARI}.iso" >> "$GITHUB_OUTPUT"
           echo "product=${NAME}"                               >> "$GITHUB_OUTPUT"
