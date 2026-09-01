@@ -90,8 +90,22 @@ def build():
 	return win
 
 
+def extra_window(index):
+	"""Open one small plain window; used to crowd the taskbar."""
+	win = Gtk.Window(title=f"Kavis {index}")
+	win.set_default_size(200, 120)
+	win.add(Gtk.Label(label=f"{index}"))
+	win.show_all()
+	return win
+
+
 def main():
 	build()
+	# KAVIS_ORNEK_SAYISI=N: görev çubuğu sıkışma testi için N-1 ek küçük
+	# pencere aç (Aşama 2: 30 pencereyle saat hâlâ görünüyor mu).
+	import os
+	count = int(os.environ.get("KAVIS_ORNEK_SAYISI", "1"))
+	extras = [extra_window(i) for i in range(2, count + 1)]  # noqa: F841
 	# CI'da kimse kapatmıyor; QEMU testi bitene kadar açık kalması yeterli
 	# ama sonsuza kadar açık kalmasın diye üst sınır koyuyoruz.
 	GLib.timeout_add_seconds(900, Gtk.main_quit)

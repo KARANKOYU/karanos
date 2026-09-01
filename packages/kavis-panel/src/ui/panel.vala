@@ -13,7 +13,12 @@ namespace Kavis.Ui {
     public class Panel : Gtk.Window {
 
         public const int HEIGHT = 44;
+        /* Window buttons shrink between these bounds before the list
+         * starts scrolling (stage 2 rule: the right region is never
+         * squeezed, the window list is). */
         private const int MAX_BUTTON_WIDTH = 190;
+        private const int MIN_BUTTON_WIDTH = 48;
+        private const int BUTTON_SPACING = 2;
 
         private const string CSS = """
         .kavis-panel {
@@ -59,8 +64,11 @@ namespace Kavis.Ui {
 
         private unowned Wnck.Screen screen;
         private StartMenu start_menu;
+        private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
         private HashTable<ulong, Gtk.Button> window_buttons;
+        private int current_button_width = 0;
+        private bool width_update_pending = false;
 
         public Panel () {
             Object (type: Gtk.WindowType.TOPLEVEL);
@@ -127,10 +135,25 @@ namespace Kavis.Ui {
             box.pack_start (start_button, false, false, 0);
 
             /* --- window list --- */
-            window_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 2);
-            box.pack_start (window_box, true, true, 6);
+            /* Inside a ScrolledWindow so its minimum width collapses:
+             * however many windows are open, the panel window never
+             * demands more than the screen and the right region keeps
+             * its natural size. Buttons first shrink toward
+             * MIN_BUTTON_WIDTH; past that the list scrolls (overlay
+             * scrollbar + mouse wheel). */
+            window_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, BUTTON_SPACING);
+            window_scroll = new Gtk.ScrolledWindow (null, null);
+            window_scroll.set_policy (Gtk.PolicyType.AUTOMATIC,
+                                      Gtk.PolicyType.NEVER);
+            window_scroll.add (window_box);
+            window_scroll.size_allocate.connect (() => {
+                queue_button_width_update ();
+            });
+            box.pack_start (window_scroll, true, true, 6);
 
             /* --- right edge --- */
+            /* Packed with expand=false: it always gets exactly its
+             * natural width, no matter how crowded the window list is. */
             var right = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
             right.pack_start (new WorkspaceIndicator (screen), false, false, 0);
             right.pack_start (new KeyboardIndicator (), false, false, 0);
@@ -259,6 +282,48 @@ namespace Kavis.Ui {
                 window_box.pack_start (button, false, false, 0);
             }
             window_box.show_all ();
+            current_button_width = 0;   /* count changed — recompute */
+            queue_button_width_update ();
+        }
+
+        /* Coalesce width updates into one idle pass: size_allocate fires
+         * in bursts, and setting size requests from inside an allocate
+         * cycle triggers GTK re-layout warnings. */
+        private void queue_button_width_update () {
+            if (width_update_pending) {
+                return;
+            }
+            width_update_pending = true;
+            Idle.add (() => {
+                width_update_pending = false;
+                update_button_widths ();
+                return Source.REMOVE;
+            });
+        }
+
+        /* Fit the window buttons to the space the list actually got:
+         * equal widths, clamped to [MIN_BUTTON_WIDTH, MAX_BUTTON_WIDTH].
+         * Below the minimum the ScrolledWindow takes over and scrolls. */
+        private void update_button_widths () {
+            uint count = window_buttons.size ();
+            if (count == 0) {
+                return;
+            }
+            int available = window_scroll.get_allocated_width ()
+                - (int) (count - 1) * BUTTON_SPACING;
+            if (available <= 1) {
+                return;
+            }
+            int width = available / (int) count;
+            width = int.min (MAX_BUTTON_WIDTH,
+                             int.max (MIN_BUTTON_WIDTH, width));
+            if (width == current_button_width) {
+                return;
+            }
+            current_button_width = width;
+            window_buttons.foreach ((xid, button) => {
+                button.set_size_request (width, -1);
+            });
         }
 
         private Gtk.Button window_button (Wnck.Window window, bool active) {
@@ -282,7 +347,9 @@ namespace Kavis.Ui {
             button.set_tooltip_text (window.get_name () ?? "");
             unowned Wnck.Window target = window;
             button.clicked.connect (() => activate_window (target));
-            button.set_property ("width-request", MAX_BUTTON_WIDTH);
+            if (current_button_width > 0) {
+                button.set_size_request (current_button_width, -1);
+            }
             return button;
         }
 
