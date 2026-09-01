@@ -255,6 +255,13 @@ if [[ "$result" == "OK" ]]; then
 		if ! python3 "$REPO_ROOT/tools/screen-not-blank.py" "$ppm"; then
 			result="BLANK"
 			echo "::error::Masaustu karesi bos ($MODE) — oturum acilmis gorunuyor ama ekranda hicbir sey yok"
+		# Panelin sag bolgesi (saat/gostergeler) gercekten cizilmis mi?
+		# picom'un damage hatasi bu bolgeyi siyah birakiyordu; tum ekran
+		# denetimi duvar kagidi yuzunden bunu yakalayamiyor (VM'de
+		# dogrulanan hata, Asama 1).
+		elif ! python3 "$REPO_ROOT/tools/screen-clock-visible.py" "$ppm"; then
+			result="BLANK"
+			echo "::error::Panelin saat bolgesi bos ($MODE) — picom hayalet cizim belirtisi"
 		fi
 	else
 		echo "!! masaustu karesi alinamadi, ekran denetimi atlandi"
