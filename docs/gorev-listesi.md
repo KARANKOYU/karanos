@@ -103,7 +103,10 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
 8. **Güvenlik sertleştirme:** algif_* kara liste,
    kernel.unprivileged_userns_clone=0, kptr_restrict=2, dmesg_restrict=1,
    yama.ptrace_scope=1 — ISO'ya gömülü. earlyoom. (/usr salt-okunur
-   madde 17'de.)
+   madde 17'de.) NOT (2026-09-01 kararı): userns Grup G'de 1 yapılacak
+   (Flatpak + Steam zorunluluğu); karşılığında AppArmor, /tmp noexec,
+   Flatpak dar izinleri, kavis-* servis sertleştirmesi ve yalnız-güvenlik
+   unattended-upgrades gelecek — ayrıntı durum.md'de.
 9. **Ayarlar iskeleti:** bölümler, gezinme, arama, ayar okuma/kaydetme.
 10. **Ekran ayarları:** çözünürlük, DRM'den okunan yenileme hızları,
     %100-200 fractional scaling, yönlendirme, çoklu monitör, gece ışığı
@@ -385,7 +388,9 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
 - **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29
 - **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44
 - **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50
-- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11
+- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11 + userns
+  değişimi ve beş karşı koruma (madde 8 notu: AppArmor, /tmp noexec,
+  Flatpak dar izin, servis sertleştirme, güvenlik unattended-upgrades)
 - **GRUP H** — oyun ve cihazlar: 13, 14, 25, 54, 53 (VM'de tam test
   edilemez)
 - **GRUP I** — kurulum akışı (27C A/B + 51A swap baştan hesaba katılır):

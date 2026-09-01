@@ -9,6 +9,37 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Karar: userns Grup G'de açılacak, karşılığında beş koruma (2026-09-01)
+
+Kullanıcı kararı: `kernel.unprivileged_userns_clone` şu an 0 (madde 8),
+**Grup G'de 1 yapılacak.** Gerekçe: Flatpak/bubblewrap ve Steam
+pressure-vessel ayrıcalıksız kullanıcı ad alanlarını kullanıyor; 0
+kalırsa mağazanın Flatpak tarafı (madde 41) ve Oyun Modu (madde 13)
+çalışmaz.
+
+Karşılığında Grup G'de eklenecek korumalar:
+
+1. **AppArmor** etkin, Debian'ın hazır profilleri açık; tarayıcı ve
+   riskli uygulamalar profil altında.
+2. **/tmp, /var/tmp, /dev/shm** noexec + nosuid + nodev ile bağlanacak.
+3. **Flatpak'e varsayılan dar izinler**: mağaza kurulumda ev dizininin
+   tamamını açmayacak, yalnız gerekli klasörler; Ayarlar'dan
+   genişletilebilir.
+4. **Tüm kavis-* systemd servisleri sertleştirilecek**:
+   ProtectSystem=strict, ProtectHome=read-only (gerekmeyenlerde),
+   PrivateTmp=yes, NoNewPrivileges=yes, RestrictSUIDSGID=yes,
+   MemoryDenyWriteExecute=yes (uygunsa), CapabilityBoundingSet dar.
+5. **unattended-upgrades yalnız güvenlik deposu için açık** — madde
+   26'daki "kullanıcıya sormadan hiçbir şey kurulmaz" kuralının tek ve
+   bilinçli istisnası; kullanıcı kapatabilir.
+
+Bu not `docs/gorev-listesi.md`'de madde 8 ve Grup G kapsamına da
+işlendi; sysctl dosyasındaki yorum karara işaret ediyor. Ayrıca modprobe
+kara liste dosyası kullanıcı isteğiyle `kavis-blacklist.conf` adını aldı
+(`blacklist algif_aead` zaten dört algif girdisiyle birlikte içindeydi).
+
+---
+
 ## Grup B — picom, açılış ekranı + F3, /users/karan, sertleştirme, CI testleri
 
 Madde 59 taraması önce yapıldı: `docs/referans/grup-b-taramasi.md`
