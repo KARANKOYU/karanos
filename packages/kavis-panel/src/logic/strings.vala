@@ -36,6 +36,24 @@ namespace Kavis.Strings {
         { "panel.task_manager",       "Görev Yöneticisi",          "Task Manager" },
         { "panel.taskbar_settings",   "Görev çubuğu ayarları",     "Taskbar settings" },
         { "panel.no_results",         "Sonuç bulunamadı",          "No results found" },
+
+        /* Gösterge popup'ları (Aşama 4) — "Güç", "Ses / Ekran /
+         * Klavye" ve "İlk kurulum" tablolarından. */
+        { "power.charging",           "Şarj oluyor",               "Charging" },
+        { "power.remaining",          "%s kaldı",                  "%s remaining" },
+        { "power.hours_short",        "sa",                        "h" },
+        { "power.minutes_short",      "dk",                        "min" },
+        { "power.plan",               "Güç planı",                 "Power plan" },
+        { "power.plan_performance",   "Tam performans",            "High performance" },
+        { "power.plan_normal",        "Normal",                    "Balanced" },
+        { "power.plan_saver",         "Tasarruf",                  "Power saver" },
+        { "power.when_plugged",       "Şarjdayken",                "When plugged in" },
+        { "power.when_battery",       "Şarjda değilken",           "On battery" },
+        { "sound.volume",             "Ses seviyesi",              "Volume" },
+        { "sound.mute",               "Sessize al",                "Mute" },
+        { "keyboard.layout",          "Klavye düzeni",             "Keyboard layout" },
+        { "setup.keyboard_trq",       "Türkçe Q",                  "Turkish Q" },
+        { "setup.keyboard_en",        "İngilizce (ABD)",           "English (US)" },
     };
 
     private bool turkish_selected;
@@ -86,7 +104,14 @@ namespace Kavis.Strings {
                 stderr.printf ("bos metin: %s\n", e.key);
                 errors++;
             }
-            if (!e.key.has_prefix ("panel.")) {
+            /* Keys must come from a table the panel actually mirrors —
+             * a typo'd prefix would silently bypass the doc tables. */
+            bool known_prefix = e.key.has_prefix ("panel.")
+                || e.key.has_prefix ("power.")
+                || e.key.has_prefix ("sound.")
+                || e.key.has_prefix ("keyboard.")
+                || e.key.has_prefix ("setup.");
+            if (!known_prefix) {
                 stderr.printf ("beklenmeyen anahtar oneki: %s\n", e.key);
                 errors++;
             }

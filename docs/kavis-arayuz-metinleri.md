@@ -106,6 +106,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `setup.keyboard` | Klavye düzeni | Keyboard layout |
 | `setup.keyboard_trq` | Türkçe Q | Turkish Q |
 | `setup.keyboard_trf` | Türkçe F | Turkish F |
+| `setup.keyboard_en` | İngilizce (ABD) | English (US) |
 | `setup.keyboard_us` | İngilizce (ABD) | English (US) |
 | `setup.timezone` | Saat dilimi | Time zone |
 | `setup.timezone_detected` | Konumuna göre bulundu | Detected from your location |
@@ -370,6 +371,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `sound.output` | Çıkış aygıtı | Output device |
 | `sound.input` | Mikrofon | Microphone |
 | `sound.volume` | Ses seviyesi | Volume |
+| `sound.mute` | Sessize al | Mute |
 | `sound.system_sounds` | Sistem sesleri | System sounds |
 | `display.resolution` | Çözünürlük | Resolution |
 | `display.refresh_rate` | Yenileme hızı | Refresh rate |
@@ -401,6 +403,8 @@ bu dosyayı kaynak olarak kullanacak.
 | `power.auto_switch` | Otomatik geçiş | Switch automatically |
 | `power.charging` | Şarj oluyor | Charging |
 | `power.remaining` | %s kaldı | %s remaining |
+| `power.hours_short` | sa | h |
+| `power.minutes_short` | dk | min |
 | `power.battery_low` | Pil azalıyor (%%%d) | Battery low (%d%%) |
 | `power.battery_critical` | Pil kritik seviyede | Battery critically low |
 | `power.battery_health` | Pil sağlığı | Battery health |

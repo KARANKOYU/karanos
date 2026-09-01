@@ -146,6 +146,14 @@ if [[ "${MENU:-0}" == "1" || "${GUC:-0}" == "1" ]]; then
 	sleep 3
 fi
 
+# POPUP=1: saat gostergesine tikla, takvim popup'i acik hâlde cek (Asama 4).
+if [[ "${POPUP:-0}" == "1" ]]; then
+	genislik=$(xdotool getdisplaygeometry | cut -d' ' -f1)
+	yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)
+	xdotool mousemove $((genislik - 45)) $((yukseklik - 22)) click 1
+	sleep 2
+fi
+
 # GUC=1: baslat menusundeki guc dugmesine de bas, popup acik kalsin.
 # Guc dugmesi menunun sol alt kosesinde (menu x=0'dan basliyor).
 if [[ "${GUC:-0}" == "1" ]]; then

@@ -1,21 +1,36 @@
 /* Right-edge indicators of the taskbar (UI layer).
  *
+ * Since stage 4 each indicator is a flat button that toggles a small
+ * popup above the panel (calendar, battery + power plan, keyboard
+ * layout, volume). System access lives in the logic namespaces
+ * (Battery, Keyboard, Volume); these files only draw.
+ *
  * No system tray (XEmbed / StatusNotifier) here — that is its own task
- * and comes later with the notification infrastructure (item 37). These
- * read straight from the system, no helper daemon.
+ * and comes later with the notification infrastructure (item 37).
  */
 
 namespace Kavis.Ui {
 
-    /* Clock and date. Seconds are not shown (a future
-     * appearance.show_seconds setting may enable them), so a redraw per
-     * minute is enough: we poll every 30 s and rewrite — missing the
-     * exact minute boundary by at most half a second, and
+    /* Clock and date; clicking opens the monthly calendar. Seconds are
+     * not shown, so a redraw per minute is enough: we poll every 30 s —
+     * missing the exact minute boundary by at most half a second, and
      * self-correcting after suspend. */
-    public class Clock : Gtk.Label {
+    public class Clock : Gtk.Button {
+
+        private Gtk.Label text_label;
+        private CalendarPopup popup;
+
         public Clock () {
-            get_style_context ().add_class ("clock");
-            set_justify (Gtk.Justification.CENTER);
+            set_relief (Gtk.ReliefStyle.NONE);
+            get_style_context ().add_class ("indicator-button");
+            text_label = new Gtk.Label ("");
+            text_label.get_style_context ().add_class ("clock");
+            text_label.set_justify (Gtk.Justification.CENTER);
+            add (text_label);
+
+            popup = new CalendarPopup ();
+            clicked.connect (() => popup.toggle_at (this));
+
             refresh ();
             Timeout.add_seconds (30, () => {
                 refresh ();
@@ -25,15 +40,28 @@ namespace Kavis.Ui {
 
         private void refresh () {
             var now = new DateTime.now_local ();
-            set_markup ("<small>%s\n%s</small>".printf (
+            text_label.set_markup ("<small>%s\n%s</small>".printf (
                 now.format ("%H:%M"), now.format ("%d.%m.%Y")));
         }
     }
 
-    /* Active keyboard layout (TR/EN). */
-    public class KeyboardIndicator : Gtk.Label {
+    /* Active keyboard layout (TR/EN); clicking opens the switcher. */
+    public class KeyboardIndicator : Gtk.Button {
+
+        private Gtk.Label text_label;
+        private KeyboardPopup popup;
+
         public KeyboardIndicator () {
-            get_style_context ().add_class ("indicator");
+            set_relief (Gtk.ReliefStyle.NONE);
+            get_style_context ().add_class ("indicator-button");
+            text_label = new Gtk.Label ("");
+            text_label.get_style_context ().add_class ("indicator");
+            add (text_label);
+
+            popup = new KeyboardPopup ();
+            popup.changed.connect (() => refresh ());
+            clicked.connect (() => popup.toggle_at (this));
+
             refresh ();
             Timeout.add_seconds (2, () => {
                 refresh ();
@@ -42,87 +70,89 @@ namespace Kavis.Ui {
         }
 
         private void refresh () {
-            set_text (current_layout ().up ());
-        }
-
-        /* Reads the layout from setxkbmap. With several layouts the
-         * first listed is shown, not necessarily the active group;
-         * reading the active group needs an XKB call and will be fixed
-         * together with the settings app (item 10/34). Failure falls
-         * back to "tr" — the product default. */
-        private static string current_layout () {
-            string output;
-            try {
-                Process.spawn_sync (null,
-                    { "setxkbmap", "-query" }, null,
-                    SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
-                    null, out output, null, null);
-            } catch (SpawnError e) {
-                return "tr";
-            }
-            foreach (unowned string line in output.split ("\n")) {
-                if (line.has_prefix ("layout:")) {
-                    var value = line.substring (7).strip ();
-                    return value.split (",")[0];
-                }
-            }
-            return "tr";
+            text_label.set_text (Keyboard.current_layout ().up ());
         }
     }
 
-    /* Battery percentage; stays hidden on machines without a battery. */
-    public class BatteryIndicator : Gtk.Label {
-        private string? battery_path;
+    /* Master volume; clicking opens the slider popup. Hidden when no
+     * mixer control is readable (no sound hardware). */
+    public class VolumeIndicator : Gtk.Button {
 
-        public BatteryIndicator () {
-            get_style_context ().add_class ("indicator");
-            battery_path = find_battery ();
+        private Gtk.Image icon;
+        private VolumePopup popup;
+
+        public VolumeIndicator () {
+            set_relief (Gtk.ReliefStyle.NONE);
+            get_style_context ().add_class ("indicator-button");
+            icon = new Gtk.Image.from_icon_name (
+                "audio-volume-high-symbolic", Gtk.IconSize.BUTTON);
+            add (icon);
+            set_tooltip_text (Strings.get ("sound.volume"));
+
+            if (!Volume.available ()) {
+                set_no_show_all (true);
+                hide ();
+                return;
+            }
+
+            popup = new VolumePopup ();
+            popup.changed.connect (() => refresh ());
+            clicked.connect (() => popup.toggle_at (this));
+
             refresh ();
-            if (battery_path != null) {
-                Timeout.add_seconds (30, () => {
-                    refresh ();
-                    return Source.CONTINUE;
-                });
-            }
-        }
-
-        private static string? find_battery () {
-            try {
-                var dir = Dir.open ("/sys/class/power_supply");
-                string? entry;
-                while ((entry = dir.read_name ()) != null) {
-                    if (entry.has_prefix ("BAT")) {
-                        var candidate = "/sys/class/power_supply/" + entry;
-                        if (FileUtils.test (candidate + "/capacity",
-                                            FileTest.EXISTS)) {
-                            return candidate;
-                        }
-                    }
-                }
-            } catch (FileError e) {
-                /* No directory means no battery — staying hidden is the
-                 * normal desktop-machine path, not an error. */
-            }
-            return null;
+            Timeout.add_seconds (10, () => {
+                refresh ();
+                return Source.CONTINUE;
+            });
         }
 
         private void refresh () {
-            if (battery_path == null) {
-                hide ();
+            var state = Volume.read ();
+            icon.set_from_icon_name (
+                VolumePopup.icon_for (state.percent, state.muted),
+                Gtk.IconSize.BUTTON);
+        }
+    }
+
+    /* Battery percentage; the whole button stays hidden on machines
+     * without a battery (stage 4 rule: no battery indicator on
+     * desktops). Clicking opens charge details and power plans. */
+    public class BatteryIndicator : Gtk.Button {
+
+        private Gtk.Label text_label;
+        private BatteryPopup popup;
+
+        public BatteryIndicator () {
+            set_relief (Gtk.ReliefStyle.NONE);
+            get_style_context ().add_class ("indicator-button");
+            text_label = new Gtk.Label ("");
+            text_label.get_style_context ().add_class ("indicator");
+            add (text_label);
+
+            if (!Battery.present ()) {
                 set_no_show_all (true);
-                return;
-            }
-            string percent;
-            string status;
-            try {
-                FileUtils.get_contents (battery_path + "/capacity", out percent);
-                FileUtils.get_contents (battery_path + "/status", out status);
-            } catch (FileError e) {
                 hide ();
                 return;
             }
-            unowned string mark = (status.strip () == "Charging") ? "⚡" : "";
-            set_text ("%s%%%s".printf (mark, percent.strip ()));
+
+            popup = new BatteryPopup ();
+            clicked.connect (() => popup.toggle_at (this));
+
+            refresh ();
+            Timeout.add_seconds (30, () => {
+                refresh ();
+                return Source.CONTINUE;
+            });
+        }
+
+        private void refresh () {
+            int percent = Battery.percent ();
+            if (percent < 0) {
+                text_label.set_text ("");
+                return;
+            }
+            unowned string mark = Battery.charging () ? "⚡" : "";
+            text_label.set_text ("%s%%%d".printf (mark, percent));
         }
     }
 

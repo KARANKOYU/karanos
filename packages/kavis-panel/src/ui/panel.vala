@@ -85,6 +85,11 @@ namespace Kavis.Ui {
           color: #8B9BA8;
           padding: 0 8px;
         }
+        /* Gösterge düğmeleri (Aşama 4): etiketlerin kendi iç boşluğu
+           var, düğme fazladan genişletmesin. */
+        .kavis-panel button.indicator-button {
+          padding: 0 2px;
+        }
         .kavis-start-menu {
           background-color: #17222C;
           border: 1px solid #233A45;
@@ -190,6 +195,7 @@ namespace Kavis.Ui {
             var right = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
             right.pack_start (new WorkspaceIndicator (screen), false, false, 0);
             right.pack_start (new KeyboardIndicator (), false, false, 0);
+            right.pack_start (new VolumeIndicator (), false, false, 0);
             right.pack_start (new BatteryIndicator (), false, false, 0);
             right.pack_start (new Clock (), false, false, 0);
 

@@ -21,6 +21,7 @@ Depends:
  openbox,
  x11-xkb-utils,
  librsvg2-common,
+ alsa-utils,
 Description: Kavis görev çubuğu ve başlat menüsü
  Ekranın altında duran görev çubuğu: solda K logolu başlat düğmesi,
  ortada o anki sanal masaüstünün açık pencereleri, sağda masaüstü
