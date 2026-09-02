@@ -8,6 +8,13 @@
 # Kalıcı kurulumda /users ayrı bir btrfs subvolume olacak (madde 16/27);
 # canlı oturumda sıradan bir dizin — bileşenler için fark yok.
 #
+# test10 USERS-FAIL dersi: 0230 hook'u (test8 E3) /home'u /users'a bağ
+# yaptığından beri user-setup'ın yazdığı /home/karan FİZİKSEL olarak
+# /users/karan'ın kendisi. usermod -m'yi kendi üstüne "taşımaya"
+# zorlamak hata verip set -e ile betiği mkdir'lardan ÖNCE öldürüyordu.
+# Artık gerçek yol karşılaştırılır, klasörler bağdan ve usermod'dan
+# BAĞIMSIZ kurulur ve sonda test -d ile doğrulanır.
+#
 # Kullanıcı sistemi ERTELENDİ (madde 0): tek kullanıcı karan, şifresiz
 # otomatik giriş. Kilit ekranı ve kullanıcı ekleme bilerek YOK.
 #
@@ -31,13 +38,24 @@ Kavis_dizinler() {
 	fi
 
 	eski_ev=$(getent passwd "$KULLANICI" | cut -d: -f6)
-	if [ "$eski_ev" != "$YENI_EV" ]; then
+	eski_gercek=$(readlink -f "$eski_ev" 2>/dev/null || echo "$eski_ev")
+	if [ "$eski_ev" = "$YENI_EV" ]; then
+		: # kayıt zaten doğru
+	elif [ "$eski_gercek" = "$YENI_EV" ]; then
+		# /home bağı üzerinden aynı dizin: taşınacak bir şey yok,
+		# yalnız passwd kaydı /users/karan'a çevrilir (-m YOK).
+		usermod -d "$YENI_EV" "$KULLANICI" \
+			|| echo "kavis-dizinler: passwd kaydi duzeltilemedi" >&2
+	else
 		mkdir -p /users
 		# -m ev içeriğini taşır; canlı oturumda ev bu noktada neredeyse
-		# boş (iskelet dosyaları), maliyeti yok.
-		usermod -d "$YENI_EV" -m "$KULLANICI"
+		# boş (iskelet dosyaları), maliyeti yok. Başarısızlık betiği
+		# ÖLDÜRMEZ — klasörler aşağıda her durumda kurulur.
+		usermod -d "$YENI_EV" -m "$KULLANICI" \
+			|| echo "kavis-dizinler: ev tasinamadi ($eski_ev)" >&2
 	fi
 
+	# Klasörler doğrudan /users/karan altına, bağdan bağımsız.
 	for d in desktop downloads documents pictures videos music; do
 		mkdir -p "$YENI_EV/$d"
 	done
@@ -53,7 +71,7 @@ XDG_DOCUMENTS_DIR="\$HOME/documents"
 XDG_PICTURES_DIR="\$HOME/pictures"
 XDG_VIDEOS_DIR="\$HOME/videos"
 XDG_MUSIC_DIR="\$HOME/music"
-XDG_TEMPLATES_DIR="\$HOME"
+XDG_TEMPLATES_DIR="\$HOME/Templates"
 XDG_PUBLICSHARE_DIR="\$HOME"
 XDG
 
@@ -61,7 +79,16 @@ XDG
 
 	mkdir -p /var/lib/live/config
 	touch /var/lib/live/config/kavis-dizinler
-	echo "kavis-dizinler: ev $YENI_EV, klasörler hazır"
+
+	# Doğrulama: eksik klasör canlı günlükte anında görünsün —
+	# boot-check'in USERS-FAIL'ini beklemeye gerek kalmasın.
+	for d in desktop downloads documents pictures videos music; do
+		if ! test -d "$YENI_EV/$d"; then
+			echo "kavis-dizinler: HATA — $YENI_EV/$d olusmadi" >&2
+			return 1
+		fi
+	done
+	echo "kavis-dizinler: ev $YENI_EV, klasörler hazır (doğrulandı)"
 }
 
 Kavis_dizinler
