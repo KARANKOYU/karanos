@@ -56,6 +56,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `boot.advanced_hint` | F3 — Gelişmiş menü | F3 — Advanced menu |
 | `boot.autoboot_countdown` | %d saniye içinde otomatik başlıyor | Starting automatically in %d seconds |
 | `boot.skip_hint` | Atlamak için boşluk tuşu | Press space to skip |
+| `boot.starting_short` | Başlatılıyor… | Starting… |
 | `boot.advanced_title` | Gelişmiş menü | Advanced menu |
 | `boot.safe_mode` | Güvenli mod — düşük çözünürlük, sürücüsüz | Safe mode — low resolution, no drivers |
 | `boot.verbose` | Detaylı açılış kayıtları — sessiz açılışı kapat | Verbose boot — disable quiet boot |

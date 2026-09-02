@@ -42,6 +42,7 @@ override_dh_auto_install:
 	# sonuç her makinede aynı.
 	rsvg-convert -w 800 -o $(TEMA)/made-by-karan.png src/made-by-karan.svg
 	rsvg-convert -w 900 -o $(TEMA)/acilis-ipuclari.png src/acilis-ipuclari.svg
+	rsvg-convert -w 900 -o $(TEMA)/baslatiliyor.png src/baslatiliyor.svg
 
 	# Ürün adı tek kaynaktan: os-release NAME değeri Türkçe kurallarla
 	# büyük harfe çevrilir (i→İ; Python'un upper()'ı bunu bilmez) ve

@@ -61,6 +61,9 @@ logo_ham  = Image("logo.png");
 ad_ham    = Image("urun-adi.png");
 imza_ham  = Image("made-by-karan.png");
 ipucu_ham = Image("acilis-ipuclari.png");
+# Boşlukla atlanınca ipuçlarının yerine geçen tek satır (madde 6
+# düzeltmesi): görsel karşılık — splash erken kapanmaz, retain sürer.
+baslat_ham = Image("baslatiliyor.png");
 
 # Logo ekranın en fazla dörtte birini kaplasın; küçük ekranda taşmasın,
 # büyük ekranda kaybolmasın.
@@ -101,6 +104,11 @@ if (ipucu_w > ipucu_ham.GetWidth())
 ipucu_olcek = ipucu_w / ipucu_ham.GetWidth();
 ipucu_h = ipucu_ham.GetHeight() * ipucu_olcek;
 ipucu = ipucu_ham.Scale(ipucu_w, ipucu_h);
+
+# "Başlatılıyor…" aynı ölçekle küçültülür — yazı boyu ipuçlarıyla aynı.
+baslat_w = baslat_ham.GetWidth() * ipucu_olcek;
+baslat_h = baslat_ham.GetHeight() * ipucu_olcek;
+baslat = baslat_ham.Scale(baslat_w, baslat_h);
 
 # --- yerleşim --------------------------------------------------------
 # Logo + ad + imza bloğu dikeyde ortalanır (blok, ipuçlarından bağımsız)
@@ -144,6 +152,7 @@ ipucu_sprite.SetOpacity(0);
 kare = 0;
 sonuyor = 0;
 sonme_karesi = 0;
+atlandi = 0;
 
 # Sprite'tan opaklık geri okunamadığı için kendimiz tutuyoruz.
 logo_opak = BASLANGIC_OPAK;
@@ -159,7 +168,9 @@ fun Refresh()
     if (sonuyor == 1)
       {
         # Kapanış: her şey birlikte söner; ipuçları tamamen kaybolur
-        # (kapanan ekranda "boşluk tuşu" yazısı yanıltıcı olur).
+        # (kapanan ekranda "boşluk tuşu" yazısı yanıltıcı olur). Boşlukla
+        # atlanmışsa satır artık "Başlatılıyor…" — o yanıltmaz, retain
+        # karesinde okunur kalsın diye ötekilerle aynı orana iner.
         gecen = (kare - sonme_karesi) / KARE_HIZI;
         k = 1 - (gecen / SONME_SURESI);
         if (k < SONME_HEDEF)
@@ -170,6 +181,10 @@ fun Refresh()
         if (ki < 0)
           {
             ki = 0;
+          }
+        if (atlandi == 1)
+          {
+            ki = k;
           }
         logo_sprite.SetOpacity(logo_opak * k);
         ad_sprite.SetOpacity(ad_opak * k);
@@ -218,14 +233,27 @@ fun SonmeyiBaslat()
       }
   }
 
-# Ses servisi müzik bitince (ya da boşlukla atlanınca)
-# `plymouth update --status=kavis-sonlaniyor` çağırıyor; fade-out'u o
-# tetikliyor. Böylece görsel ile ses aynı anda sönüyor.
+# Ses servisi müzik bitince `--status=kavis-sonlaniyor` (fade-out),
+# boşlukla atlanınca `--status=kavis-atlandi` gönderiyor. Atlamada
+# splash ERKEN KAPANMAZ (madde 6 düzeltmesi): yalnız ipucu satırları
+# "Başlatılıyor…" ile değişir; fade, plymouth-quit geldiğinde Cikis()
+# üzerinden yine çalışır ve retain karesi bu yazıyla kalır.
 fun DurumDegisti(durum)
   {
     if (durum == "kavis-sonlaniyor")
       {
         SonmeyiBaslat();
+      }
+    if (durum == "kavis-atlandi")
+      {
+        if (atlandi == 0)
+          {
+            atlandi = 1;
+            ipucu_sprite.SetImage(baslat);
+            ipucu_sprite.SetPosition((ekran_w - baslat_w) / 2,
+                                     ekran_h - baslat_h - (ekran_h * 0.05),
+                                     2);
+          }
       }
   }
 

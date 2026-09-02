@@ -139,14 +139,20 @@ else
 	log "ses dosyasi, aygit ya da aplay yok — muzik atlandi"
 fi
 
-# --- splash'i söndür --------------------------------------------------
-# Görsel ile sesin birlikte sönmesi için: müzik bitti (ya da atlandı),
-# şimdi splash'e "sönmeye başla" de, kısa fade-out'u bekle, sonra çık.
-# plymouth-quit bunun ardından devreye giriyor.
+# --- splash'e haber ver ----------------------------------------------
+# Müzik kendiliğinden bittiyse: "sönmeye başla" (görsel ile ses birlikte
+# söner), kısa fade-out'u bekle. Boşlukla ATLANDIYSA (madde 6
+# düzeltmesi): splash erken sönmez — yalnız ipucu satırı "Başlatılıyor…"
+# olur; fade, plymouth-quit geldiğinde script'in Cikis'iyle çalışır ve
+# retain karesi o yazıyla kalır.
 if [ "$plymouth_var" -eq 1 ]; then
-	plymouth update --status=kavis-sonlaniyor >/dev/null 2>&1 || true
+	if [ "$atlandi" -eq 1 ]; then
+		plymouth update --status=kavis-atlandi >/dev/null 2>&1 || true
+	else
+		plymouth update --status=kavis-sonlaniyor >/dev/null 2>&1 || true
+		sleep "$SONME_PAYI"
+	fi
 fi
 
-sleep "$SONME_PAYI"
 log "tamam"
 exit 0
