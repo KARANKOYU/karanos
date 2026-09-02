@@ -74,32 +74,57 @@ namespace Kavis.Ui {
         }
     }
 
-    /* Master volume; clicking opens the shared quick-settings popup
-     * (Grup D 2b — W11 behavior). Hidden when no mixer control is
-     * readable (no sound hardware). */
-    public class VolumeIndicator : Gtk.Button {
+    /* Status cluster (sonraki-isler 1): Wi-Fi + volume + battery are
+     * ONE button, hovered together W11-style; clicking opens the
+     * shared quick settings, they are not clickable individually.
+     * Right click merges the old per-tool quick actions (mute +
+     * output devices, Wi-Fi disconnect / network settings, power
+     * plans) so nothing from the madde 3 contract is lost. Hidden
+     * entirely when none of the three exists. */
+    public class StatusCluster : Gtk.Button {
 
-        private Gtk.Image icon;
+        private Gtk.Image? wifi_icon = null;
+        private Gtk.Image? volume_icon = null;
+        private Gtk.Label? battery_label = null;
+        private bool has_wifi;
+        private bool has_volume;
+        private bool has_battery;
 
-        public VolumeIndicator () {
+        public StatusCluster () {
             set_relief (Gtk.ReliefStyle.NONE);
             get_style_context ().add_class ("indicator-button");
-            icon = new Gtk.Image.from_icon_name (
-                "audio-volume-high-symbolic", Gtk.IconSize.BUTTON);
-            add (icon);
-            set_tooltip_text (_("Volume"));
 
-            if (!Volume.available ()) {
+            has_wifi = Quick.wifi_available ();
+            has_volume = Volume.available ();
+            has_battery = Battery.present ();
+            if (!has_wifi && !has_volume && !has_battery) {
                 set_no_show_all (true);
                 hide ();
                 return;
             }
 
+            var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            row.set_margin_start (6);
+            row.set_margin_end (6);
+            if (has_wifi) {
+                wifi_icon = new Gtk.Image.from_icon_name (
+                    "network-wireless-symbolic", Gtk.IconSize.BUTTON);
+                row.pack_start (wifi_icon, false, false, 0);
+            }
+            if (has_volume) {
+                volume_icon = new Gtk.Image.from_icon_name (
+                    "audio-volume-high-symbolic", Gtk.IconSize.BUTTON);
+                row.pack_start (volume_icon, false, false, 0);
+            }
+            if (has_battery) {
+                battery_label = new Gtk.Label ("");
+                row.pack_start (battery_label, false, false, 0);
+            }
+            add (row);
+
             clicked.connect (() => {
                 QuickSettingsPopup.get_default ().toggle_at (this);
             });
-            /* Madde 3 sözleşmesi: sağ tık araca özel hızlı işlemler —
-             * sessize alma + çıkış aygıtı seçimi. */
             button_press_event.connect ((event) => {
                 if (event.button == 3) {
                     show_menu (event);
@@ -108,98 +133,109 @@ namespace Kavis.Ui {
                 return false;
             });
 
-            refresh ();
+            refresh_fast ();
+            refresh_slow ();
             Timeout.add_seconds (10, () => {
-                refresh ();
+                refresh_fast ();
+                return Source.CONTINUE;
+            });
+            Timeout.add_seconds (30, () => {
+                refresh_slow ();
                 return Source.CONTINUE;
             });
         }
 
+        /* Ses ikonu ve Wi-Fi araç ipucu (10 sn). */
+        private void refresh_fast () {
+            if (volume_icon != null) {
+                var state = Volume.read ();
+                volume_icon.set_from_icon_name (
+                    Volume.icon_name (state.percent, state.muted),
+                    Gtk.IconSize.BUTTON);
+            }
+            if (has_wifi) {
+                string ssid = Quick.wifi_ssid ();
+                set_tooltip_text (
+                    ssid != "" ? ssid : _("Wi-Fi"));
+            }
+        }
+
+        /* Pil yüzdesi (30 sn). */
+        private void refresh_slow () {
+            if (battery_label == null) {
+                return;
+            }
+            int percent = Battery.percent ();
+            if (percent < 0) {
+                battery_label.set_text ("");
+                return;
+            }
+            unowned string mark = Battery.charging () ? "⚡" : "";
+            /* Yüzde biçimi dile göre değişir (TR: %93, EN: 93%) —
+             * biçim dizgesinin kendisi çevrilir. */
+            battery_label.set_text (mark + _("%d%%").printf (percent));
+        }
+
         private void show_menu (Gdk.EventButton event) {
             var menu = new Gtk.Menu ();
-            var mute = new Gtk.MenuItem.with_label (
-                _("Mute"));
-            mute.activate.connect (() => {
-                Volume.toggle_mute ();
-                Timeout.add (150, () => {
-                    refresh ();
-                    return Source.REMOVE;
-                });
-            });
-            menu.append (mute);
-            if (Quick.sound_output_available ()) {
-                menu.append (new Gtk.SeparatorMenuItem ());
-                unowned SList<Gtk.RadioMenuItem>? group = null;
-                foreach (unowned Quick.SoundOutput sink in
-                         Quick.sound_outputs ()) {
-                    var item = new Gtk.RadioMenuItem.with_label (
-                        group, sink.description);
-                    group = item.get_group ();
-                    item.set_active (sink.active);
-                    string name = sink.name;
-                    bool was_active = sink.active;
-                    item.activate.connect (() => {
-                        if (item.get_active () && !was_active) {
-                            Quick.sound_set_output (name);
-                        }
+            if (has_volume) {
+                var mute = new Gtk.MenuItem.with_label (_("Mute"));
+                mute.activate.connect (() => {
+                    Volume.toggle_mute ();
+                    Timeout.add (150, () => {
+                        refresh_fast ();
+                        return Source.REMOVE;
                     });
-                    menu.append (item);
+                });
+                menu.append (mute);
+                if (Quick.sound_output_available ()) {
+                    unowned SList<Gtk.RadioMenuItem>? group = null;
+                    foreach (unowned Quick.SoundOutput sink in
+                             Quick.sound_outputs ()) {
+                        var item = new Gtk.RadioMenuItem.with_label (
+                            group, sink.description);
+                        group = item.get_group ();
+                        item.set_active (sink.active);
+                        string name = sink.name;
+                        bool was_active = sink.active;
+                        item.activate.connect (() => {
+                            if (item.get_active () && !was_active) {
+                                Quick.sound_set_output (name);
+                            }
+                        });
+                        menu.append (item);
+                    }
                 }
+            }
+            if (has_wifi) {
+                if (menu.get_children ().length () > 0) {
+                    menu.append (new Gtk.SeparatorMenuItem ());
+                }
+                var disconnect = new Gtk.MenuItem.with_label (
+                    _("Disconnect"));
+                disconnect.set_sensitive (Quick.wifi_ssid () != "");
+                disconnect.activate.connect (() => {
+                    Quick.wifi_disconnect ();
+                });
+                menu.append (disconnect);
+                var settings = new Gtk.MenuItem.with_label (
+                    _("Network settings"));
+                settings.activate.connect (() => {
+                    Launch.settings ("network");
+                });
+                menu.append (settings);
+            }
+            if (has_battery) {
+                if (menu.get_children ().length () > 0) {
+                    menu.append (new Gtk.SeparatorMenuItem ());
+                }
+                append_plan_menus (menu);
             }
             menu.show_all ();
             menu.popup_at_pointer (event);
         }
 
-        private void refresh () {
-            var state = Volume.read ();
-            icon.set_from_icon_name (
-                Volume.icon_name (state.percent, state.muted),
-                Gtk.IconSize.BUTTON);
-        }
-    }
-
-    /* Battery percentage; the whole button stays hidden on machines
-     * without a battery (stage 4 rule: no battery indicator on
-     * desktops). Clicking opens the shared quick-settings popup
-     * (Grup D 2b); the power-plan choice moved to the RIGHT-CLICK
-     * menu so it stays one click away until Settings arrives. */
-    public class BatteryIndicator : Gtk.Button {
-
-        private Gtk.Label text_label;
-
-        public BatteryIndicator () {
-            set_relief (Gtk.ReliefStyle.NONE);
-            get_style_context ().add_class ("indicator-button");
-            text_label = new Gtk.Label ("");
-            text_label.get_style_context ().add_class ("indicator");
-            add (text_label);
-
-            if (!Battery.present ()) {
-                set_no_show_all (true);
-                hide ();
-                return;
-            }
-
-            clicked.connect (() => {
-                QuickSettingsPopup.get_default ().toggle_at (this);
-            });
-            button_press_event.connect ((event) => {
-                if (event.button == 3) {
-                    show_plan_menu (event);
-                    return true;
-                }
-                return false;
-            });
-
-            refresh ();
-            Timeout.add_seconds (30, () => {
-                refresh ();
-                return Source.CONTINUE;
-            });
-        }
-
-        private void show_plan_menu (Gdk.EventButton event) {
-            var menu = new Gtk.Menu ();
+        private void append_plan_menus (Gtk.Menu menu) {
             bool[] sources = { true, false };
             string[] source_keys = {
                 N_("When plugged in"), N_("On battery")
@@ -230,8 +266,6 @@ namespace Kavis.Ui {
                 source_item.set_submenu (submenu);
                 menu.append (source_item);
             }
-            menu.show_all ();
-            menu.popup_at_pointer (event);
         }
 
         /* Anahtar birleştirme gettext'e çevrilemez (msgid sabit metin
@@ -245,18 +279,6 @@ namespace Kavis.Ui {
             default:
                 return _("Balanced");
             }
-        }
-
-        private void refresh () {
-            int percent = Battery.percent ();
-            if (percent < 0) {
-                text_label.set_text ("");
-                return;
-            }
-            unowned string mark = Battery.charging () ? "⚡" : "";
-            /* Yüzde biçimi dile göre değişir (TR: %93, EN: 93%) —
-             * biçim dizgesinin kendisi çevrilir. */
-            text_label.set_text (mark + _("%d%%").printf (percent));
         }
     }
 

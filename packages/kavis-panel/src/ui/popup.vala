@@ -40,6 +40,8 @@ namespace Kavis.Ui {
         .kavis-popup label.dim {
           color: #8B9BA8;
         }
+        /* Hover kuralı (sonraki-isler 1): panelle AYNI — beyaz %9,
+           basılıyken %14, 140 ms; dinlenmede kenarlık yok. */
         .kavis-popup button {
           background-image: none;
           background-color: transparent;
@@ -47,13 +49,13 @@ namespace Kavis.Ui {
           border-radius: 6px;
           color: #E6EDF3;
           padding: 8px 10px;
-          transition: background-color 180ms ease;
+          transition: background-color 140ms ease;
         }
         .kavis-popup button:hover {
-          background-color: #1D2C38;
+          background-color: rgba(255, 255, 255, 0.09);
         }
         .kavis-popup button:active {
-          background-color: #233A45;
+          background-color: rgba(255, 255, 255, 0.14);
         }
         /* Takvim (saat popup'ı): koyu zemin, bugünün günü turkuaz. */
         .kavis-popup calendar {
@@ -260,6 +262,9 @@ namespace Kavis.Ui {
             }
 
             anchor_widget = anchor;
+            /* Popup açıkken çapa göstergenin hover kutusu KALIR —
+             * hangisinin açık olduğu belli olsun (sonraki-isler 1). */
+            anchor.get_style_context ().add_class ("popup-open");
             refresh_content ();
             show_all ();
             refit ();
@@ -380,6 +385,10 @@ namespace Kavis.Ui {
             }
             seat_ungrab ();
             hide ();
+            if (anchor_widget != null) {
+                anchor_widget.get_style_context ()
+                    .remove_class ("popup-open");
+            }
             if (open_popup == this) {
                 open_popup = null;
             }

@@ -47,27 +47,33 @@ namespace Kavis.Ui {
           background-color: #121C26;
           border-top: 1px solid #233A45;
         }
+        /* Hover kuralı (sonraki-isler 1): panelde tıklanabilir her
+           şey aynı kutu — beyaz %9, basılıyken %14, 6px köşe, 140 ms;
+           dinlenmede kenarlık yok. Düğmeler panel yüksekliğinin
+           tamamını kaplamayı sürdürüyor (kenar boşluğu verilmedi):
+           ekranın en alt pikseline tıklama çalışmalı — Fitts. */
         .kavis-panel button {
           border: none;
-          /* W11 tarzı yumuşak köşeli hover kutuları. Düğmeler panel
-             yüksekliğinin tamamını kaplamayı sürdürüyor (kenar boşluğu
-             verilmedi): ekranın en alt pikseline tıklama çalışmaya
-             devam etmeli — Fitts. */
           border-radius: 6px;
           background-image: none;
           background-color: transparent;
           color: #E6EDF3;
           padding: 0 10px;
-        }
-        .kavis-panel button {
-          transition: background-color 180ms ease;
+          transition: background-color 140ms ease;
         }
         .kavis-panel button:hover {
-          background-color: #1D2C38;
+          background-color: rgba(255, 255, 255, 0.09);
+        }
+        .kavis-panel button:active {
+          background-color: rgba(255, 255, 255, 0.14);
+        }
+        /* Açık popup'ı olan gösterge: kutu, popup kapanana dek kalır. */
+        .kavis-panel button.popup-open {
+          background-color: rgba(255, 255, 255, 0.09);
         }
         /* Etkin öğe (sanal masaüstü düğmeleri): altında turkuaz şerit. */
         .kavis-panel button.active-item {
-          background-color: #1D2C38;
+          background-color: rgba(255, 255, 255, 0.09);
           box-shadow: inset 0 -3px #2DD4BF;
         }
         /* Pencere düğmeleri (Windows 11 tarzı): yalnız ikon; etkin
@@ -89,9 +95,6 @@ namespace Kavis.Ui {
         }
         .kavis-panel button.start {
           padding: 0 12px;
-        }
-        .kavis-panel button.start:hover {
-          background-color: #17222C;
         }
         /* Masaüstünü göster şeridi: köşede 8 px'lik W11 kalıntısı —
            yuvarlatma ve iç boşluk almaz. */
@@ -363,16 +366,17 @@ namespace Kavis.Ui {
             /* --- right edge --- */
             /* Packed with expand=false: it always gets exactly its
              * natural width, no matter how crowded the window list is. */
-            right_box = new Gtk.Box (axis, 0);
-            /* Kavis araç çubuğu (madde 3): göstergelerin solunda,
-             * yalnız kendi araçlarımız — üçüncü parti tepsi ayrı iş. */
-            right_box.pack_start (new UsbIndicator (), false, false, 0);
-            right_box.pack_start (new WifiIndicator (), false, false, 0);
+            /* Sağ bölge grupları (sonraki-isler 1), aralarında 6px:
+             * [masaüstleri][dil][araçlar][Wi-Fi+ses+pil][saat].
+             * Wi-Fi/ses/pil StatusCluster'da TEK düğme; Kavis araç
+             * şeridi (madde 3) yalnız kendi araçlarımız — üçüncü
+             * parti tepsi ayrı iş. */
+            right_box = new Gtk.Box (axis, 6);
             right_box.pack_start (new WorkspaceIndicator (screen, axis),
                                   false, false, 0);
             right_box.pack_start (new KeyboardIndicator (), false, false, 0);
-            right_box.pack_start (new VolumeIndicator (), false, false, 0);
-            right_box.pack_start (new BatteryIndicator (), false, false, 0);
+            right_box.pack_start (new UsbIndicator (), false, false, 0);
+            right_box.pack_start (new StatusCluster (), false, false, 0);
             right_box.pack_start (new Clock (), false, false, 0);
 
             var show_desktop = new Gtk.Button ();
