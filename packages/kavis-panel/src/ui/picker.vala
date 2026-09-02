@@ -79,7 +79,7 @@ namespace Kavis.Ui {
         private bool switching = false;
         /* G5: üst çubuktan sürükleme (POPUP pencerede begin_move_drag
          * işlemez — override-redirect; elle taşınır) + son konum
-         * panel.conf'ta. */
+         * kavis.conf'ta. */
         private bool dragging = false;
         private int drag_dx = 0;
         private int drag_dy = 0;

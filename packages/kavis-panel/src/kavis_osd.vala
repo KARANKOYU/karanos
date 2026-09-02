@@ -14,7 +14,7 @@
  * (150 ms solma picom'un genel pencere animasyonundan). Arka arkaya
  * basışta sayaç sıfırlanır, kutu yerinde kalır.
  *
- * ~/.config/kavis/panel.conf [osd] enabled=false hepsini susturur
+ * ~/.config/kavis/kavis.conf [osd] enabled=false hepsini susturur
  * (Ayarlar Grup F'de düzenleyecek).
  */
 
@@ -198,16 +198,24 @@ namespace Kavis.Osd {
         private bool caps_state;
         private bool num_state;
         private bool enabled = true;
+        private FileMonitor? config_monitor = null;
 
         public Daemon () {
-            /* Kapatma anahtarı (Ayarlar Grup F): panel.conf [osd]. */
-            var file = new KeyFile ();
+            /* Kapatma anahtarı (Ayarlar Grup F): kavis.conf [osd]. */
+            var file = Kavis.Config.load ();
             try {
-                file.load_from_file (Path.build_filename (
-                    Environment.get_user_config_dir (), "kavis",
-                    "panel.conf"), KeyFileFlags.NONE);
                 enabled = file.get_boolean ("osd", "enabled");
             } catch (Error e) { }
+            /* Canlı ayar (1A-2): Ayarlar anahtarı değiştirince süreç
+             * yeniden başlatılmadan geçerli olsun. */
+            config_monitor = Kavis.Config.watch (() => {
+                var fresh = Kavis.Config.load ();
+                try {
+                    enabled = fresh.get_boolean ("osd", "enabled");
+                } catch (Error e) {
+                    enabled = true;
+                }
+            });
 
             service = new OsdService ();
             Bus.own_name (BusType.SESSION, "org.kavis.Osd",

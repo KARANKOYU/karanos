@@ -103,7 +103,7 @@ namespace Kavis.Ui {
             content.pack_start (calendar, false, false, 0);
         }
 
-        /* Daraltılınca yalnız başlık satırı kalır; durum panel.conf'ta
+        /* Daraltılınca yalnız başlık satırı kalır; durum kavis.conf'ta
          * hatırlanır ([clock] calendar_collapsed). */
         private void set_calendar_collapsed (bool collapsed, bool save) {
             calendar.set_no_show_all (collapsed);

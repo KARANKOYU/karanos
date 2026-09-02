@@ -1,7 +1,7 @@
 /* System sound playback (business logic — no widget code).
  * Sonraki-isler 6b: kavis-theme'in sentezlenmiş freedesktop ses
  * temasını çalar. Yeni daemon YOK — paplay (PipeWire/Pulse) varsa o,
- * yoksa aplay. panel.conf [sounds] enabled=false hepsini susturur
+ * yoksa aplay. kavis.conf [sounds] enabled=false hepsini susturur
  * (Ayarlar Grup F).
  */
 
@@ -17,9 +17,7 @@ namespace Kavis.Sounds {
         checked = true;
         var file = new KeyFile ();
         try {
-            file.load_from_file (Path.build_filename (
-                Environment.get_user_config_dir (), "kavis",
-                "panel.conf"), KeyFileFlags.NONE);
+            file.load_from_file (Config.path (), KeyFileFlags.NONE);
             enabled = file.get_boolean ("sounds", "enabled");
         } catch (Error e) { }
         return enabled;

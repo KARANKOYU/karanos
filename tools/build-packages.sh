@@ -59,15 +59,19 @@ prepare_sources() {
 			packages/kavis-panel/src/logic/emoji_names.vala
 		install -m644 packages/kavis-common/power.vala \
 			packages/kavis-panel/src/logic/power.vala
+		install -m644 packages/kavis-common/config.vala \
+			packages/kavis-panel/src/logic/config.vala
 		# Çeviriler (Grup D işi c): po/ kanonik, panel derlemede
 		# msgfmt ile .mo üretir ve kavis.mo'yu paket olarak taşır.
 		rm -rf packages/kavis-panel/po
 		cp -r po packages/kavis-panel/po
 		;;
 	kavis-settings)
-		install -d packages/kavis-settings/src
+		install -d packages/kavis-settings/src/logic
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-settings/src/appinit.vala
+		install -m644 packages/kavis-common/config.vala \
+			packages/kavis-settings/src/logic/config.vala
 		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src

@@ -120,36 +120,34 @@ namespace Kavis {
             }
         }
 
-        private static string config_path () {
-            return Path.build_filename (
-                Environment.get_user_config_dir (), "kavis", "panel.conf");
-        }
-
         public static PanelConfig load () {
             var config = new PanelConfig ();
+            /* Tek dosya (1A-2): kavis.conf; eski panel.conf ilk
+             * yüklemede içe alınır ([panel] → [taskbar]). */
+            Config.migrate ();
             var file = new KeyFile ();
             try {
-                file.load_from_file (config_path (), KeyFileFlags.NONE);
+                file.load_from_file (Config.path (), KeyFileFlags.NONE);
             } catch (Error e) {
                 return config;   /* first run: defaults */
             }
             try {
                 config.position = Position.from_id (
-                    file.get_string ("panel", "position"));
+                    file.get_string ("taskbar", "position"));
             } catch (Error e) { }
             try {
                 config.thickness = Thickness.from_id (
-                    file.get_string ("panel", "size"));
+                    file.get_string ("taskbar", "size"));
             } catch (Error e) { }
             try {
                 config.alignment = Alignment.from_id (
-                    file.get_string ("panel", "align"));
+                    file.get_string ("taskbar", "align"));
             } catch (Error e) { }
             try {
-                config.monitor = file.get_string ("panel", "monitor");
+                config.monitor = file.get_string ("taskbar", "monitor");
             } catch (Error e) { }
             try {
-                config.autohide = file.get_boolean ("panel", "autohide");
+                config.autohide = file.get_boolean ("taskbar", "autohide");
             } catch (Error e) { }
             try {
                 config.calendar_collapsed =
@@ -166,29 +164,27 @@ namespace Kavis {
         }
 
         public void save () {
-            var file = new KeyFile ();
-            /* panel.conf carries other groups too ([clipboard] limit);
-             * writing a fresh KeyFile would silently drop them. */
-            try {
-                file.load_from_file (config_path (), KeyFileFlags.KEEP_COMMENTS);
-            } catch (Error e) { }
-            file.set_string ("panel", "position", position.id ());
-            file.set_string ("panel", "align", alignment.id ());
-            file.set_string ("panel", "size", thickness.id ());
-            file.set_string ("panel", "monitor", monitor);
-            file.set_boolean ("panel", "autohide", autohide);
+            /* kavis.conf başka grupları da taşıyor ([clipboard],
+             * [appearance]...); sıfırdan KeyFile onları sessizce
+             * düşürürdü — önce yükle. */
+            var file = Config.load ();
+            file.set_string ("taskbar", "position", position.id ());
+            file.set_string ("taskbar", "align", alignment.id ());
+            file.set_string ("taskbar", "size", thickness.id ());
+            file.set_string ("taskbar", "monitor", monitor);
+            file.set_boolean ("taskbar", "autohide", autohide);
             file.set_boolean ("clock", "calendar_collapsed",
                               calendar_collapsed);
             file.set_integer ("picker", "x", picker_x);
             file.set_integer ("picker", "y", picker_y);
             file.set_boolean ("usb", "sync", usb_sync);
-            string path = config_path ();
-            DirUtils.create_with_parents (Path.get_dirname (path), 0755);
-            try {
-                FileUtils.set_contents (path, file.to_data ());
-            } catch (Error e) {
-                warning ("kavis-panel: panel.conf yazilamadi: %s", e.message);
-            }
+            Config.save (file);
+        }
+
+        /* Ayarlar'dan gelen değişikliği diske yeni yazılmış hâliyle
+         * yeniden okumak için: tekil örneği tazeler. */
+        public static void reload () {
+            instance = load ();
         }
     }
 }

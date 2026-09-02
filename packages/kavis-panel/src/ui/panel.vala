@@ -130,6 +130,7 @@ namespace Kavis.Ui {
 
         private unowned Wnck.Screen screen;
         private PanelConfig config;
+        private FileMonitor? config_monitor = null;
         private int thickness;
         /* Arka plan sınıfını taşıyan kök kutu: app_paintable pencerede
          * GTK pencerenin CSS arka planını ÇİZMEZ (PanelPopup/Overview
@@ -268,6 +269,28 @@ namespace Kavis.Ui {
             if (config.autohide) {
                 schedule_hide ();
             }
+
+            /* Canlı ayar (1A-2): Ayarlar kavis.conf'u yazınca görev
+             * çubuğu kendini tazeler. Yerleşim inşa zamanı sabit
+             * (kutu eksenleri, strut) — yerinde yeniden inşa exec'ten
+             * pahalı ve hataya açık, restart_self zaten var. Panelin
+             * KENDİ save()'i de izleyiciyi tetikler; alanlar zaten
+             * eşit olduğundan döngü oluşmaz. */
+            config_monitor = Config.watch (() => {
+                var fresh = PanelConfig.load ();
+                if (fresh.position != config.position
+                    || fresh.thickness != config.thickness
+                    || fresh.alignment != config.alignment
+                    || fresh.monitor != config.monitor
+                    || fresh.autohide != config.autohide) {
+                    config.position = fresh.position;
+                    config.thickness = fresh.thickness;
+                    config.alignment = fresh.alignment;
+                    config.monitor = fresh.monitor;
+                    config.autohide = fresh.autohide;
+                    restart_self ();
+                }
+            });
         }
 
         private void update_acrylic () {
