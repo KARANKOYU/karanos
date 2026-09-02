@@ -127,6 +127,11 @@ jobs:
       - name: kavis-panel ikilisi ve çeviriler
         run: |
           set -eu
+          # check-i18n → gen-pot `git ls-files` kullanıyor (kopya
+          # dosyaları dışarıda bırakmanın tek güvenilir yolu). Konteyner
+          # root koşuyor, depo başka kullanıcıya ait → git "dubious
+          # ownership" ile reddediyor (v0.3-test7 kırmızısının sebebi).
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           rm -rf kp && mkdir kp
           dpkg-deb -x out/packages/kavis-panel_*.deb kp
           test -x kp/usr/bin/kavis-panel
