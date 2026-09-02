@@ -74,6 +74,9 @@ namespace Kavis.Ui {
         }
 
         private void refresh () {
+            /* 2F: X düzeni sapmışsa (aygıt yeniden takılması) önce
+             * yapılandırılana geri çek, sonra göster. */
+            Keyboard.enforce ();
             text_label.set_text (Keyboard.current_layout ().up ());
         }
     }
