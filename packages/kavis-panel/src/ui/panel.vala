@@ -131,6 +131,8 @@ namespace Kavis.Ui {
         private uint hide_timer = 0;
         /* Bildirim toast'ları (madde 37) — referans yaşasın diye alan. */
         private ToastManager toast_manager;
+        /* Genel bakış (madde 55). */
+        private Overview overview;
         private HashTable<ulong, Gtk.Button> window_buttons;
         private HashTable<ulong, Gtk.Image> window_images;
         private int current_button_width = 0;
@@ -173,9 +175,18 @@ namespace Kavis.Ui {
              * popup'ı kurulurken sunucuya bağlanıyor. */
             Notifications.start ();
             toast_manager = new ToastManager (Notifications.server);
+            /* org.kavis.Panel: openbox kısayolları buraya sesleniyor
+             * (W-Tab genel bakış — madde 55, W-v pano — madde 7). */
+            PanelBus.start ();
 
             screen = Wnck.Screen.get_default ();
             screen.force_update ();
+            overview = new Overview (screen);
+            if (PanelBus.service != null) {
+                PanelBus.service.overview_requested.connect (() => {
+                    overview.toggle ();
+                });
+            }
             start_menu = new StartMenu ();
             /* Start menu and indicator popups close one another. */
             PanelPopup.start_menu = start_menu;

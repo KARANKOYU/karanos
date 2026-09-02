@@ -199,6 +199,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `panel.monitor_primary` | Birincil ekran | Primary monitor |
 | `panel.menu_autohide` | Otomatik gizle | Auto-hide |
 | `panel.display_settings` | Ekran ayarları | Display settings |
+| `panel.desktop_n` | Masaüstü %d | Desktop %d |
 | `panel.no_results` | Sonuç bulunamadı | No results found |
 | `desktop.my_computer` | Bilgisayarım | This PC |
 | `desktop.trash` | Çöp Kutusu | Trash |
@@ -556,6 +557,8 @@ bu dosyayı kaynak olarak kullanacak.
 | `notif.dnd` | Rahatsız etme | Do not disturb |
 | `game.mode` | Oyun Modu | Game Mode |
 | `focus.mode` | Odaklanma | Focus |
+| `focus.finished` | Odaklanma süresi bitti | Focus session finished |
+| `notif.missed` | %d yeni bildirim | %d new notifications |
 | `capture.image` | Görsel | Image |
 | `capture.video` | Video | Video |
 | `capture.mode_area` | Alan seç | Select area |

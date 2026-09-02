@@ -83,6 +83,11 @@ namespace Kavis.Strings {
         { "game.mode",                "Oyun Modu",                 "Game Mode" },
         { "focus.mode",               "Odaklanma",                 "Focus" },
         { "common.clear",             "Temizle",                   "Clear" },
+
+        /* Genel bakış + odaklanma (madde 55). */
+        { "panel.desktop_n",          "Masaüstü %d",               "Desktop %d" },
+        { "focus.finished",           "Odaklanma süresi bitti",    "Focus session finished" },
+        { "notif.missed",             "%d yeni bildirim",          "%d new notifications" },
     };
 
     private bool turkish_selected;

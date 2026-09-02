@@ -46,6 +46,9 @@ namespace Kavis {
         public GenericArray<NotificationEntry> history =
             new GenericArray<NotificationEntry> ();
         public bool dnd = false;
+        /* DND sırasında bastırılanlar — kapatılınca toplu özet
+         * gösterilir (madde 55: "sonra toplu göster"). */
+        private int suppressed = 0;
 
         private uint32 next_id = 1;
 
@@ -79,6 +82,9 @@ namespace Kavis {
             history_changed ();
 
             /* DND: kritik olmayanlar sessizce yalnız geçmişe düşer. */
+            if (dnd && !entry.critical) {
+                suppressed++;
+            }
             if (!dnd || entry.critical) {
                 int timeout = (expire_timeout > 0)
                     ? expire_timeout : DEFAULT_TIMEOUT_MS;
@@ -130,7 +136,24 @@ namespace Kavis {
 
         [DBus (visible = false)]
         public void set_dnd (bool enabled) {
+            bool was = dnd;
             dnd = enabled;
+            /* DND kapandı → kaçanların özeti tek toast (madde 55). */
+            if (was && !enabled && suppressed > 0) {
+                var summary_entry = new NotificationEntry ();
+                summary_entry.id = 0;
+                summary_entry.app_name = "";
+                summary_entry.app_icon = "notification-symbolic";
+                summary_entry.summary =
+                    Strings.get ("notif.missed").printf (suppressed);
+                summary_entry.body = "";
+                summary_entry.critical = false;
+                summary_entry.timestamp = new DateTime.now_local ();
+                toast_requested (summary_entry, 5000);
+            }
+            if (!enabled) {
+                suppressed = 0;
+            }
         }
     }
 

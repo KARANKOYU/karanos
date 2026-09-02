@@ -22,6 +22,7 @@ namespace Kavis.Ui {
         private QuickTile? bt_tile = null;
         private QuickTile? night_tile = null;
         private QuickTile? game_tile = null;
+        private QuickTile? focus_tile = null;
         private QuickTile? dnd_tile = null;
         private Gtk.Scale? brightness_slider = null;
         private bool updating = false;
@@ -117,6 +118,17 @@ namespace Kavis.Ui {
                 Quick.gamemode_set (on);
             });
             grid.add (game_tile);
+
+            /* Odaklanma (madde 55): süreli DND; bitince bildirim. */
+            focus_tile = new QuickTile ("alarm-symbolic", "focus.mode");
+            focus_tile.toggled_by_user.connect ((on) => {
+                if (on) {
+                    Focus.start ();
+                } else {
+                    Focus.cancel ();
+                }
+            });
+            grid.add (focus_tile);
 
             dnd_tile = new QuickTile ("notifications-disabled-symbolic",
                                       "notif.dnd");
@@ -263,6 +275,7 @@ namespace Kavis.Ui {
                 night_tile.set_state (Quick.night_enabled ());
             }
             game_tile.set_state (Quick.gamemode_enabled ());
+            focus_tile.set_state (Focus.active ());
             dnd_tile.set_state (Notifications.server != null
                                 && Notifications.server.dnd);
             if (brightness_slider != null) {

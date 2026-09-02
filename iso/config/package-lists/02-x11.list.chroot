@@ -59,3 +59,9 @@ brightnessctl
 # nemo-desktop, nemo paketinin içinde; Grup E dosya yöneticisi olarak
 # yine nemo'yu kullanacak (madde 39) — erken gelmesi çift iş değil.
 nemo
+
+# --- panel DBus köprüsü (madde 55/7) ---
+# Openbox kısayolları çalışan panele gdbus ile sesleniyor (W-Tab genel
+# bakış, W-v pano geçmişi). libglib2.0-bin gdbus'ı içerir; Recommends
+# kapalıyken kendiliğinden gelmiyor.
+libglib2.0-bin
