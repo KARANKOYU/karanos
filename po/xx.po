@@ -78,32 +78,14 @@ msgstr "⟪Num Lock off····⟫"
 msgid "%d%%"
 msgstr "⟪%d%%··⟫"
 
-msgid "Internet"
-msgstr "⟪Internet···⟫"
-
-msgid "Office"
-msgstr "⟪Office··⟫"
-
-msgid "Sound & Video"
-msgstr "⟪Sound & Video·····⟫"
-
-msgid "Graphics"
-msgstr "⟪Graphics···⟫"
-
-msgid "Development"
-msgstr "⟪Development····⟫"
-
-msgid "Games"
-msgstr "⟪Games··⟫"
-
-msgid "Accessories"
-msgstr "⟪Accessories····⟫"
+msgid "Apps"
+msgstr "⟪Apps··⟫"
 
 msgid "System"
 msgstr "⟪System··⟫"
 
-msgid "Settings"
-msgstr "⟪Settings···⟫"
+msgid "%s tools"
+msgstr "⟪%s tools···⟫"
 
 msgid "Focus session finished"
 msgstr "⟪Focus session finished········⟫"
@@ -116,6 +98,9 @@ msgstr "⟪%d new notifications········⟫"
 
 msgid "Notifications"
 msgstr "⟪Notifications·····⟫"
+
+msgid "Settings"
+msgstr "⟪Settings···⟫"
 
 msgid "Clear all"
 msgstr "⟪Clear all···⟫"
@@ -422,6 +407,9 @@ msgstr "⟪Processor···⟫"
 
 msgid "Memory"
 msgstr "⟪Memory··⟫"
+
+msgid "Graphics"
+msgstr "⟪Graphics···⟫"
 
 msgid "Disk"
 msgstr "⟪Disk··⟫"

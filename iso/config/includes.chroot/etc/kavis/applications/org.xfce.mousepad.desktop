@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Notepad
+Name[tr]=Not Defteri
+Comment=Simple text editor
+Comment[tr]=Sade metin editörü
+Exec=mousepad %U
+Icon=org.xfce.mousepad
+Terminal=false
+Categories=Utility;TextEditor;
+MimeType=text/plain;application/x-zerosize;

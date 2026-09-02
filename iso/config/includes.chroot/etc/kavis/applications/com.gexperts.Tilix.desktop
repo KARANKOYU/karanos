@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal
+Name[tr]=Terminal
+Comment=Command line with tabs and split panes
+Comment[tr]=Sekmeli ve bölünebilir komut satırı
+Exec=tilix
+Icon=com.gexperts.Tilix
+Terminal=false
+Categories=System;TerminalEmulator;
+StartupWMClass=tilix

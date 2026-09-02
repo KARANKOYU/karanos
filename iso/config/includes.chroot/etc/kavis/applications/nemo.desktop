@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+Name[tr]=Dosyalar
+Comment=Browse your files
+Comment[tr]=Dosyalarına göz at
+Exec=nemo %U
+Icon=system-file-manager
+Terminal=false
+StartupNotify=false
+Categories=Utility;Core;
+MimeType=inode/directory;application/x-gnome-saved-search;

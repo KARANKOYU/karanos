@@ -161,7 +161,7 @@ namespace Kavis.Ui {
         }
 
         private Gtk.Label header_label (string category) {
-            unowned string name = Apps.category_display_name (category);
+            string name = Apps.category_display (category);
             var label = new Gtk.Label (null);
             label.set_xalign (0);
             label.set_markup ("<b>%s</b>".printf (Markup.escape_text (name)));

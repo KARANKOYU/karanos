@@ -8,41 +8,24 @@
 
 namespace Kavis.Apps {
 
-    /* Start-menu category order. Keys are XDG main categories, ordered
-     * by everyday usage (daily apps on top, system tools at the
-     * bottom), not like Windows' alphabetical "All apps". */
+    /* Start-menu groups (3B sadeleşme): only three — everyday apps,
+     * system tools, and our own utilities. The nine-way XDG split
+     * scattered a dozen apps into near-empty groups. */
     public const string[] CATEGORY_ORDER = {
-        "Network", "Office", "AudioVideo", "Graphics", "Development",
-        "Game", "Utility", "System", "Settings",
+        "Apps", "System", "Kavis",
     };
 
-    private struct CategoryName {
-        public unowned string key;
-        public unowned string name;   /* EN msgid; çeviri po/'dan */
-    }
-
-    /* XDG category → display name. The names are English msgids
-     * translated via po/ (gettext); will be merged with the store
-     * categories in item 12. */
-    private const CategoryName[] CATEGORY_NAMES = {
-        { "Network",     "Internet" },
-        { "Office",      "Office" },
-        { "AudioVideo",  "Sound & Video" },
-        { "Graphics",    "Graphics" },
-        { "Development", "Development" },
-        { "Game",        "Games" },
-        { "Utility",     "Accessories" },
-        { "System",      "System" },
-        { "Settings",    "Settings" },
-        { "Other",       "Other" },
-    };
-
-    /* xgettext markers for the const table above (N_ cannot sit in a
-     * const initializer); never called. */
-    private void category_translation_markers () {
-        N_("Internet"); N_("Office"); N_("Sound & Video");
-        N_("Graphics"); N_("Development"); N_("Games");
-        N_("Accessories"); N_("System"); N_("Settings"); N_("Other");
+    /* Group display name. "Kavis" carries the product name — which is
+     * NEVER hard-coded (marka kuralı) — so this is a function, not a
+     * const table. */
+    public string category_display (string key) {
+        switch (key) {
+        case "Apps":   return _("Apps");
+        case "System": return _("System");
+        case "Kavis":  return _("%s tools").printf (
+            Brand.product_name ());
+        }
+        return _("Apps");
     }
 
     public class App : Object {
@@ -83,20 +66,20 @@ namespace Kavis.Apps {
     }
 
     private string pick_category (AppInfo app_info) {
-        string raw = "";
         var desktop = app_info as GLib.DesktopAppInfo;
-        if (desktop != null) {
-            raw = desktop.get_categories () ?? "";
+        string id = (desktop != null) ? (desktop.get_id () ?? "") : "";
+        if (id.has_prefix ("kavis-")) {
+            return "Kavis";
         }
-        var owned_categories = raw.split (";");
-        foreach (unowned string key in CATEGORY_ORDER) {
-            foreach (unowned string c in owned_categories) {
-                if (c == key) {
-                    return key;
-                }
+        string raw = (desktop != null)
+            ? (desktop.get_categories () ?? "") : "";
+        foreach (unowned string c in raw.split (";")) {
+            if (c == "System" || c == "Settings"
+                || c == "TerminalEmulator") {
+                return "System";
             }
         }
-        return "Other";
+        return "Apps";
     }
 
     /* Apps to show in the menu, sorted by name. should_show() applies
@@ -137,23 +120,14 @@ namespace Kavis.Apps {
         return prefix_hits;
     }
 
-    /* Display name of a category, consistent with the UI language. */
-    public unowned string category_display_name (string category) {
-        foreach (unowned CategoryName cn in CATEGORY_NAMES) {
-            if (cn.key == category) {
-                return _(cn.name);
-            }
-        }
-        return category;
-    }
 
     public struct CategoryGroup {
         public unowned string category;
         public GenericArray<App> apps;
     }
 
-    /* Group by category, in CATEGORY_ORDER order ("Other" last).
-     * Empty categories are omitted. */
+    /* Group by category, in CATEGORY_ORDER order. Empty categories
+     * are omitted ("Other" kalktı — üç grup her şeyi kapsar). */
     public CategoryGroup[] by_category (GenericArray<App> list) {
         var buckets = new HashTable<string, GenericArray<App>> (
             str_hash, str_equal);
@@ -172,10 +146,6 @@ namespace Kavis.Apps {
             if (bucket != null) {
                 ordered += CategoryGroup () { category = key, apps = bucket };
             }
-        }
-        var other = buckets.lookup ("Other");
-        if (other != null) {
-            ordered += CategoryGroup () { category = "Other", apps = other };
         }
         return ordered;
     }

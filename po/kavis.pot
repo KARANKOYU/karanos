@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 18:57+0000\n"
+"POT-Creation-Date: 2026-09-02 19:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,7 +80,6 @@ msgstr ""
 
 #: packages/kavis-common/picker_data.vala:50
 #: packages/kavis-common/picker_data.vala:56
-#: packages/kavis-panel/src/logic/apps.vala:45
 msgid "Other"
 msgstr ""
 
@@ -132,51 +131,25 @@ msgstr ""
 
 #: packages/kavis-panel/src/kavis_osd.vala:270
 #: packages/kavis-panel/src/kavis_osd.vala:283
-#: packages/kavis-panel/src/ui/indicators.vala:185
+#: packages/kavis-panel/src/ui/indicators.vala:188
 #: packages/kavis-panel/src/ui/quick_settings.vala:671
 #, c-format
 msgid "%d%%"
 msgstr ""
 
-#: packages/kavis-panel/src/logic/apps.vala:43
-msgid "Internet"
+#: packages/kavis-panel/src/logic/apps.vala:23
+#: packages/kavis-panel/src/logic/apps.vala:28
+msgid "Apps"
 msgstr ""
 
-#: packages/kavis-panel/src/logic/apps.vala:43
-msgid "Office"
-msgstr ""
-
-#: packages/kavis-panel/src/logic/apps.vala:43
-msgid "Sound & Video"
-msgstr ""
-
-#: packages/kavis-panel/src/logic/apps.vala:44
-#: packages/kavis-settings/src/logic/sysinfo.vala:108
-msgid "Graphics"
-msgstr ""
-
-#: packages/kavis-panel/src/logic/apps.vala:44
-msgid "Development"
-msgstr ""
-
-#: packages/kavis-panel/src/logic/apps.vala:44
-msgid "Games"
-msgstr ""
-
-#: packages/kavis-panel/src/logic/apps.vala:45
-msgid "Accessories"
-msgstr ""
-
-#: packages/kavis-panel/src/logic/apps.vala:45
+#: packages/kavis-panel/src/logic/apps.vala:24
 #: packages/kavis-settings/src/ui/window.vala:113
 msgid "System"
 msgstr ""
 
-#: packages/kavis-panel/src/logic/apps.vala:45
-#: packages/kavis-panel/src/ui/indicator_popups.vala:39
-#: packages/kavis-panel/src/ui/quick_settings.vala:379
-#: packages/kavis-settings/src/ui/window.vala:77
-msgid "Settings"
+#: packages/kavis-panel/src/logic/apps.vala:25
+#, c-format
+msgid "%s tools"
 msgstr ""
 
 #: packages/kavis-panel/src/logic/focus.vala:50
@@ -195,6 +168,12 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:32
 msgid "Notifications"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:39
+#: packages/kavis-panel/src/ui/quick_settings.vala:379
+#: packages/kavis-settings/src/ui/window.vala:77
+msgid "Settings"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:46
@@ -223,46 +202,46 @@ msgstr ""
 msgid "English (US)"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:136
+#: packages/kavis-panel/src/ui/indicators.vala:139
 msgid "Network, sound, battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:191
+#: packages/kavis-panel/src/ui/indicators.vala:194
 #: packages/kavis-panel/src/ui/quick_settings.vala:292
 msgid "Mute"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:224
+#: packages/kavis-panel/src/ui/indicators.vala:227
 msgid "Disconnect"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:231
+#: packages/kavis-panel/src/ui/indicators.vala:234
 msgid "Network settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:258
+#: packages/kavis-panel/src/ui/indicators.vala:261
 #: packages/kavis-panel/src/ui/quick_settings.vala:466
 #: packages/kavis-settings/src/ui/page_power.vala:17
 msgid "When plugged in"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:258
+#: packages/kavis-panel/src/ui/indicators.vala:261
 #: packages/kavis-panel/src/ui/quick_settings.vala:469
 #: packages/kavis-settings/src/ui/page_power.vala:20
 msgid "On battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:294
+#: packages/kavis-panel/src/ui/indicators.vala:297
 #: packages/kavis-panel/src/ui/quick_settings.vala:489
 msgid "High performance"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:296
+#: packages/kavis-panel/src/ui/indicators.vala:299
 #: packages/kavis-panel/src/ui/quick_settings.vala:491
 msgid "Power saver"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:298
+#: packages/kavis-panel/src/ui/indicators.vala:301
 #: packages/kavis-panel/src/ui/quick_settings.vala:491
 #: packages/kavis-settings/src/ui/page_power.vala:79
 msgid "Balanced"
@@ -667,6 +646,10 @@ msgstr ""
 #: packages/kavis-settings/src/logic/sysinfo.vala:107
 #: packages/kavis-tools/src/tasks.vala:79
 msgid "Memory"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/sysinfo.vala:108
+msgid "Graphics"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/sysinfo.vala:109

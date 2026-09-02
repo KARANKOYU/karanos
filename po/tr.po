@@ -7,26 +7,14 @@ msgstr ""
 "Language: tr\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Internet"
-msgstr "İnternet"
 
-msgid "Office"
-msgstr "Ofis"
 
-msgid "Sound & Video"
-msgstr "Ses ve Video"
 
 msgid "Graphics"
 msgstr "Grafik"
 
-msgid "Development"
-msgstr "Geliştirme"
 
-msgid "Games"
-msgstr "Oyun"
 
-msgid "Accessories"
-msgstr "Araçlar"
 
 msgid "System"
 msgstr "Sistem"
@@ -34,8 +22,6 @@ msgstr "Sistem"
 msgid "Settings"
 msgstr "Ayarlar"
 
-msgid "Other"
-msgstr "Diğer"
 
 msgid "Focus session finished"
 msgstr "Odaklanma süresi bitti"
@@ -460,8 +446,8 @@ msgstr "Aç"
 msgid "Store app coming soon"
 msgstr "Mağaza uygulaması yakında"
 
-msgid "OK"
-msgstr "Tamam"
+msgid "Other"
+msgstr "Diğer"
 
 msgid "Sign out"
 msgstr "Oturumu kapat"
@@ -831,3 +817,9 @@ msgstr "Varsayılan küme"
 
 msgid "Pin and reorder from the taskbar itself (right-click or drag)"
 msgstr "Sabitleme ve sıralama görev çubuğunun kendisinden (sağ tık ya da sürükle)"
+
+msgid "Apps"
+msgstr "Uygulamalar"
+
+msgid "%s tools"
+msgstr "%s araçları"
