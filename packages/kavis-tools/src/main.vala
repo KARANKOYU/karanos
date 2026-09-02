@@ -26,11 +26,12 @@ int main (string[] args) {
         window = new Kavis.Tools.EmojiWindow ();
         break;
     case "capture":
+        /* PrtScr akışı kendi ana döngüsünü yönetir: seçici pencere,
+         * ardından pano bekleyişi ya da kayıt çubuğu. */
         if (args.length > 2 && args[2] == "--quick") {
             return Kavis.Tools.Capture.quick ();
         }
-        window = Kavis.Tools.Capture.chooser ();
-        break;
+        return Kavis.Tools.Capture.snip ();
     case "tasks":
         window = new Kavis.Tools.TaskManagerWindow ();
         break;

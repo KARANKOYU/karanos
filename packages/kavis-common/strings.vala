@@ -153,9 +153,18 @@ namespace Kavis.Strings {
         { "usb.eject_failed",         "Aygıt çıkarılamadı — dosyalar hâlâ kullanımda olabilir",
                                       "Could not remove the device — files may still be in use" },
 
-        /* Ekran görüntüsü ve kaydı (madde 29, kavis-tools). */
+        /* Ekran görüntüsü ve kaydı (madde 29 + Grup D 5, kavis-tools). */
         { "capture.image",            "Görsel",                    "Image" },
         { "capture.video",            "Video",                     "Video" },
+        { "capture.mode_rect",        "Dikdörtgen",                "Rectangle" },
+        { "capture.mode_freeform",    "Serbest",                   "Freeform" },
+        { "capture.mode_window",      "Pencere",                   "Window" },
+        { "capture.mode_fullscreen",  "Tüm ekran",                 "Full screen" },
+        { "capture.record_audio",     "Sesi de kaydet",            "Record audio too" },
+        { "capture.stop_hint",        "Durdurmak için PrtSc'ye de basabilirsin",
+                                      "You can also press PrtSc to stop" },
+        { "sound.input",              "Mikrofon",                  "Microphone" },
+        { "common.close",             "Kapat",                     "Close" },
         { "capture.stop",             "Durdur",                    "Stop" },
         { "capture.recording",        "Kayıt sürüyor",             "Recording" },
         { "capture.saved_video",      "Ekran kaydı kaydedildi",    "Screen recording saved" },

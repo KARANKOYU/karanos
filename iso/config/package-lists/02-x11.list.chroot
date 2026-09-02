@@ -79,9 +79,7 @@ fonts-noto-color-emoji
 # zinciriyle kendiliğinden gelmez, açıkça yazılır.
 udisks2
 
-# --- ekran görüntüsü ve kaydı (madde 29) ---
-# flameshot: donmuş kare + karartma + seçiciler + düzenleme (29F temel)
-# slop: video için bölge seçimi; ffmpeg: x11grab kaydı
-flameshot
-slop
+# --- ekran görüntüsü ve kaydı (madde 29 + Grup D 5) ---
+# Donmuş kare + karartma + seçiciler artık kavis-tools'un kendi kodu
+# (flameshot ve slop çıkarıldı); ffmpeg x11grab video kaydı için kalır.
 ffmpeg

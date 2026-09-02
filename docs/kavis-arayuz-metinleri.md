@@ -570,6 +570,8 @@ bu dosyayı kaynak olarak kullanacak.
 | `capture.image` | Görsel | Image |
 | `capture.video` | Video | Video |
 | `capture.mode_area` | Alan seç | Select area |
+| `capture.mode_rect` | Dikdörtgen | Rectangle |
+| `capture.mode_freeform` | Serbest | Freeform |
 | `capture.mode_window` | Pencere | Window |
 | `capture.mode_fullscreen` | Tüm ekran | Full screen |
 | `capture.timer` | Zamanlayıcı | Timer |

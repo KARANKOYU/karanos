@@ -1,28 +1,35 @@
-/* Screen capture (madde 29) — `kavis-tools capture [--quick]`.
+/* Screen capture (madde 29, reworked in Grup D fix 5) —
+ * `kavis-tools capture [--quick]`.
  *
- * --quick (Ctrl+PrtScr): captures WITHOUT asking. What gets captured
- * comes from ~/.config/kavis/capture.conf ([capture] mode=window|
- * monitor|all — the Settings app edits it, Grup F). The grab itself is
- * native Gdk (root window pixbuf): no external tool, no flash, works
- * the instant the key is hit. Saved to the configured folder
- * (default: pictures/screenshots under $HOME) with a timestamp name,
- * copied to the clipboard (the process lingers briefly — X clipboards
- * die with their owner), announced via the notification service.
+ * --quick (Ctrl+PrtScr): captures WITHOUT asking, mode from
+ * ~/.config/kavis/capture.conf ([capture] mode=window|monitor|all).
  *
- * Without --quick (PrtScr): a small two-tab chooser.
- *   [Görsel] → flameshot gui — the freeze/darken/select/edit flow is
- *   exactly flameshot's core competence (madde 29F: flameshot temel).
- *   [Video]  → region via slop, recording via ffmpeg x11grab; a tiny
- *   always-on-top pill shows a counter and a stop button. Pause is
- *   deliberately v1-dışı (SIGSTOP freezes ffmpeg but corrupts
- *   timestamps); the strings exist for when it lands properly.
+ * PrtScr: Windows Snipping Tool flow, all in our own code (no
+ * flameshot, no slop, no scrot):
+ *   1. The instant the key is hit the whole root window is grabbed
+ *      into a FROZEN pixbuf — open menus, tooltips, popups stay in
+ *      the frame.
+ *   2. A fullscreen overlay shows that frame under a 60% darkening
+ *      layer, crosshair cursor, and a small top-center toolbar:
+ *      Image|Video toggle, selection mode (rectangle / freeform /
+ *      window / full screen), close. Esc cancels.
+ *   3. The selected area shows undarkened with a teal border and a
+ *      size readout. Window mode highlights the window under the
+ *      pointer (Wnck geometry), click selects it.
+ *   4. Image: CROP FROM THE FROZEN FRAME, copy to clipboard, save
+ *      under pictures/screenshots, notify (preview image + click
+ *      reveals the file — the panel's image-path / x-kavis-path
+ *      hints). Video: recording starts on the selected geometry
+ *      (ffmpeg x11grab, optional system audio and/or microphone via
+ *      pulse), a floating bar shows red dot + elapsed + stop;
+ *      pressing PrtScr again also stops (pidfile + SIGUSR1).
  */
 
 namespace Kavis.Tools {
 
     namespace Capture {
 
-        private string config_value (string key, string fallback) {
+        public string config_value (string key, string fallback) {
             var file = new KeyFile ();
             try {
                 file.load_from_file (Path.build_filename (
@@ -34,28 +41,28 @@ namespace Kavis.Tools {
             }
         }
 
-        private string save_dir (string kind) {
+        public string save_dir (string kind) {
             string configured = config_value ("save_dir", "");
             if (configured != "") {
                 return configured;
             }
-            /* Varsayılan: resimler/screenshots — madde 29C. */
             unowned string home = Environment.get_home_dir ();
-            string pictures = Path.build_filename (home, "pictures");
             if (kind == "video") {
+                /* Madde 5: videolar videos/recordings altına. */
                 string videos = Path.build_filename (home, "videos");
                 if (FileUtils.test (videos, FileTest.IS_DIR)) {
-                    return videos;
+                    return Path.build_filename (videos, "recordings");
                 }
                 return home;
             }
+            string pictures = Path.build_filename (home, "pictures");
             if (FileUtils.test (pictures, FileTest.IS_DIR)) {
                 return Path.build_filename (pictures, "screenshots");
             }
             return home;
         }
 
-        private string timestamp_path (string kind, string extension) {
+        public string timestamp_path (string kind, string extension) {
             string dir = save_dir (kind);
             DirUtils.create_with_parents (dir, 0755);
             var now = new DateTime.now_local ();
@@ -63,22 +70,42 @@ namespace Kavis.Tools {
                 now.format ("%Y-%m-%d_%H-%M-%S") + extension);
         }
 
-        private void notify_user (string summary, string body,
-                                  string icon) {
-            /* gdbus zaten ISO'da (madde 55 köprüsü); libnotify
-             * bağımlılığına gerek yok. */
+        /* gdbus zaten ISO'da; libnotify bağımlılığı yok. `attach`
+         * dolu gelirse panel bildirim merkezinde küçük önizleme
+         * gösterir ve tıklayınca dosyayı dosya yöneticisinde açar. */
+        public void notify_user (string summary, string body,
+                                 string icon, string attach = "") {
+            string hints = "{}";
+            if (attach != "") {
+                hints = "{'image-path': <'%s'>, 'x-kavis-path': <'%s'>}"
+                    .printf (attach, attach);
+            }
             try {
                 Process.spawn_async (null, {
                     "gdbus", "call", "--session",
                     "--dest", "org.freedesktop.Notifications",
                     "--object-path", "/org/freedesktop/Notifications",
                     "--method", "org.freedesktop.Notifications.Notify",
-                    "Kavis", "0", icon, summary, body, "[]", "{}", "6000"
+                    "Kavis", "0", icon, summary, body, "[]", hints, "6000"
                 }, null, SpawnFlags.SEARCH_PATH
                    | SpawnFlags.STDOUT_TO_DEV_NULL, null, null);
             } catch (Error e) {
                 warning ("kavis-tools: bildirim verilemedi: %s", e.message);
             }
+        }
+
+        /* Pano X sahibiyle ölür: görüntüyü koyup bir süre yaşa. */
+        public void hold_clipboard_then_quit () {
+            Timeout.add_seconds (60, () => {
+                Gtk.main_quit ();
+                return Source.REMOVE;
+            });
+        }
+
+        private string recording_pid_path () {
+            return Path.build_filename (
+                Environment.get_user_runtime_dir (),
+                "kavis-capture.pid");
         }
 
         /* --- hızlı yakalama (Ctrl+PrtScr) ------------------------------ */
@@ -118,140 +145,605 @@ namespace Kavis.Tools {
                 return 1;
             }
 
-            var clipboard = Gtk.Clipboard.get_default (display);
-            clipboard.set_image (pixbuf);
+            Gtk.Clipboard.get_default (display).set_image (pixbuf);
             notify_user (Strings.get ("screenshot.saved"), path,
-                         "camera-photo-symbolic");
-
-            /* X panosu sahibiyle ölür: görüntü yapıştırılabilir kalsın
-             * diye süreç kısa süre yaşar, sonra sessizce çıkar. */
-            Timeout.add_seconds (60, () => {
-                Gtk.main_quit ();
-                return Source.REMOVE;
-            });
+                         "camera-photo-symbolic", path);
+            hold_clipboard_then_quit ();
             Gtk.main ();
             return 0;
         }
 
-        /* --- araç menüsü (PrtScr) -------------------------------------- */
+        /* --- PrtScr: dondurulmuş kare seçicisi ------------------------- */
 
-        public Gtk.Window chooser () {
-            var window = new CaptureChooser ();
-            return window;
+        /* Kayıt sürerken PrtScr kaydı durdurur: çalışan sürece SIGUSR1
+         * gönderilir (RecorderBar yakalayıp düzgün kapatır). */
+        public int snip () {
+            string pid_file = recording_pid_path ();
+            string contents;
+            try {
+                FileUtils.get_contents (pid_file, out contents);
+                int pid = int.parse (contents.strip ());
+                if (pid > 0 && Posix.kill ((Posix.pid_t) pid, 0) == 0) {
+                    Posix.kill ((Posix.pid_t) pid, Posix.Signal.USR1);
+                    return 0;
+                }
+                FileUtils.unlink (pid_file);   /* bayat dosya */
+            } catch (Error e) {
+                /* kayıt yok — seçiciye devam */
+            }
+
+            /* Kareyi HER ŞEYDEN ÖNCE dondur (madde 5 kuralı: basılan
+             * andaki ekran, açık menüler dahil). */
+            var root = Gdk.get_default_root_window ();
+            var frozen = Gdk.pixbuf_get_from_window (
+                root, 0, 0, root.get_width (), root.get_height ());
+            if (frozen == null) {
+                warning ("kavis-tools: ekran okunamadi");
+                return 1;
+            }
+            var window = new SnipWindow (frozen);
+            window.show_all ();
+            Gtk.main ();
+            return 0;
         }
     }
 
-    public class CaptureChooser : Gtk.Window {
+    /* Fullscreen frozen-frame selector. */
+    public class SnipWindow : Gtk.Window {
 
-        public CaptureChooser () {
-            Object (type: Gtk.WindowType.TOPLEVEL);
-            set_title ("Kavis");
-            set_resizable (false);
-            set_keep_above (true);
-            set_position (Gtk.WindowPosition.CENTER);
+        private enum Mode { RECT, FREEFORM, WINDOW, FULL }
 
-            var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
-            row.set_border_width (14);
-            add (row);
+        /* Marka turkuazı (görsel kimlik tablosu). */
+        private const double TEAL_R = 0.176;
+        private const double TEAL_G = 0.831;
+        private const double TEAL_B = 0.749;
 
-            var image_button = new Gtk.Button.with_label (
-                "📷 " + Strings.get ("capture.image"));
-            image_button.clicked.connect (() => {
-                hide ();
-                /* flameshot kendi donmuş/karartılmış seçicisini ve
-                 * düzenleyicisini açar (madde 29B görüntü akışı). */
-                try {
-                    Process.spawn_async (null,
-                        { "flameshot", "gui",
-                          "--path", Capture.save_dir ("image") },
-                        null, SpawnFlags.SEARCH_PATH, null, null);
-                } catch (Error e) {
-                    warning ("kavis-tools: flameshot baslatilamadi: %s",
-                             e.message);
-                }
-                Timeout.add (300, () => {
-                    destroy ();
-                    return Source.REMOVE;
-                });
-            });
-            row.pack_start (image_button, true, true, 0);
+        private Gdk.Pixbuf frozen;
+        private Gtk.DrawingArea canvas;
+        private Mode mode = Mode.RECT;
+        private bool video_mode = false;
+        private Gtk.CheckButton audio_check;
+        private Gtk.CheckButton mic_check;
+        private Gtk.ToggleButton image_toggle;
+        private Gtk.ToggleButton video_toggle;
+        private Gtk.ToggleButton[] mode_buttons = {};
 
-            var video_button = new Gtk.Button.with_label (
-                "🔴 " + Strings.get ("capture.video"));
-            video_button.clicked.connect (() => {
-                hide ();
-                Timeout.add (250, () => {
-                    start_recording ();
-                    return Source.REMOVE;
-                });
-            });
-            row.pack_start (video_button, true, true, 0);
+        private bool selecting = false;
+        private bool has_area = false;
+        private int start_x = 0;
+        private int start_y = 0;
+        private int sel_x = 0;
+        private int sel_y = 0;
+        private int sel_w = 0;
+        private int sel_h = 0;
+        private double[] path_x = {};
+        private double[] path_y = {};
+        private bool switching_toggle = false;
+
+        public SnipWindow (Gdk.Pixbuf frozen) {
+            Object (type: Gtk.WindowType.POPUP);
+            this.frozen = frozen;
+            set_default_size (frozen.get_width (), frozen.get_height ());
+            move (0, 0);
+
+            var overlay = new Gtk.Overlay ();
+            add (overlay);
+
+            canvas = new Gtk.DrawingArea ();
+            canvas.add_events (Gdk.EventMask.BUTTON_PRESS_MASK
+                               | Gdk.EventMask.BUTTON_RELEASE_MASK
+                               | Gdk.EventMask.POINTER_MOTION_MASK);
+            canvas.draw.connect (on_draw);
+            canvas.button_press_event.connect (on_press);
+            canvas.motion_notify_event.connect (on_motion);
+            canvas.button_release_event.connect (on_release);
+            overlay.add (canvas);
+
+            overlay.add_overlay (build_toolbar ());
 
             key_press_event.connect ((event) => {
                 if (event.keyval == Gdk.Key.Escape) {
-                    destroy ();
+                    cancel ();
                     return true;
                 }
                 return false;
             });
+
+            realize.connect (() => {
+                get_window ().set_cursor (new Gdk.Cursor.for_display (
+                    Gdk.Display.get_default (),
+                    Gdk.CursorType.CROSSHAIR));
+            });
+            /* POPUP pencere klavye/fareyi ancak grab ile alır; map
+             * asenkron olduğundan kısa aralıkla yeniden dene. */
+            map_event.connect (() => {
+                try_grab ();
+                return false;
+            });
+        }
+
+        private void try_grab () {
+            var seat = Gdk.Display.get_default ().get_default_seat ();
+            /* owner_events=true: olaylar kendi alt pencerelerimize
+             * (canvas) normal aksın — false olsaydı hepsi üst
+             * pencereye yönlenir, çizim alanı hiç basış görmezdi
+             * (Xvfb'de yaşandı). */
+            if (seat.grab (get_window (), Gdk.SeatCapabilities.ALL,
+                           true, null, null, null)
+                == Gdk.GrabStatus.SUCCESS) {
+                return;
+            }
+            uint tries = 0;
+            Timeout.add (50, () => {
+                tries++;
+                if (!get_visible ()) {
+                    return Source.REMOVE;
+                }
+                return seat.grab (get_window (),
+                                  Gdk.SeatCapabilities.ALL,
+                                  true, null, null, null)
+                    != Gdk.GrabStatus.SUCCESS && tries < 10;
+            });
+        }
+
+        private void cancel () {
+            Gdk.Display.get_default ().get_default_seat ().ungrab ();
+            destroy ();
+            Gtk.main_quit ();
+        }
+
+        /* --- üst araç çubuğu ------------------------------------------ */
+
+        private Gtk.Widget build_toolbar () {
+            var bar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+            bar.get_style_context ().add_class ("kavis-snip-bar");
+            bar.set_halign (Gtk.Align.CENTER);
+            bar.set_valign (Gtk.Align.START);
+            bar.set_margin_top (12);
+            bar.set_border_width (6);
+
+            var css = new Gtk.CssProvider ();
+            try {
+                css.load_from_data ("""
+                    .kavis-snip-bar {
+                      background-color: #17222C;
+                      border: 1px solid #233A45;
+                      border-radius: 8px;
+                    }
+                    .kavis-snip-bar button {
+                      background-image: none;
+                      background-color: transparent;
+                      border: none;
+                      border-radius: 6px;
+                      color: #E6EDF3;
+                      padding: 4px 10px;
+                    }
+                    .kavis-snip-bar button:hover {
+                      background-color: #1D2C38;
+                    }
+                    .kavis-snip-bar button:checked {
+                      background-color: #2DD4BF;
+                      color: #0D141B;
+                    }
+                    .kavis-snip-bar button:checked label {
+                      color: #0D141B;
+                    }
+                    .kavis-snip-bar label {
+                      color: #E6EDF3;
+                    }
+                    """, -1);
+                Gtk.StyleContext.add_provider_for_screen (
+                    Gdk.Screen.get_default (), css,
+                    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            } catch (Error e) { }
+
+            image_toggle = new Gtk.ToggleButton.with_label (
+                "📷 " + Strings.get ("capture.image"));
+            video_toggle = new Gtk.ToggleButton.with_label (
+                "🔴 " + Strings.get ("capture.video"));
+            image_toggle.set_active (true);
+            image_toggle.toggled.connect (() => {
+                set_video_mode (false);
+            });
+            video_toggle.toggled.connect (() => {
+                set_video_mode (true);
+            });
+            bar.pack_start (image_toggle, false, false, 0);
+            bar.pack_start (video_toggle, false, false, 0);
+
+            bar.pack_start (new Gtk.Separator (
+                Gtk.Orientation.VERTICAL), false, false, 2);
+
+            string[] mode_keys = {
+                "capture.mode_rect", "capture.mode_freeform",
+                "capture.mode_window", "capture.mode_fullscreen"
+            };
+            Mode[] modes = { Mode.RECT, Mode.FREEFORM,
+                             Mode.WINDOW, Mode.FULL };
+            for (int i = 0; i < modes.length; i++) {
+                var button = new Gtk.ToggleButton.with_label (
+                    Strings.get (mode_keys[i]));
+                button.set_active (i == 0);
+                Mode chosen = modes[i];
+                button.toggled.connect (() => {
+                    on_mode_toggled (button, chosen);
+                });
+                mode_buttons += button;
+                bar.pack_start (button, false, false, 0);
+            }
+
+            /* Ses seçenekleri yalnız video kipinde görünür. */
+            audio_check = new Gtk.CheckButton.with_label (
+                Strings.get ("capture.record_audio"));
+            audio_check.set_no_show_all (true);
+            mic_check = new Gtk.CheckButton.with_label (
+                Strings.get ("sound.input"));
+            mic_check.set_no_show_all (true);
+            bar.pack_start (audio_check, false, false, 0);
+            bar.pack_start (mic_check, false, false, 0);
+
+            bar.pack_start (new Gtk.Separator (
+                Gtk.Orientation.VERTICAL), false, false, 2);
+            var close = new Gtk.Button.with_label ("✕");
+            close.set_relief (Gtk.ReliefStyle.NONE);
+            close.set_tooltip_text (Strings.get ("common.close"));
+            close.clicked.connect (cancel);
+            bar.pack_start (close, false, false, 0);
+
+            return bar;
+        }
+
+        private void set_video_mode (bool video) {
+            if (switching_toggle) {
+                return;
+            }
+            switching_toggle = true;
+            video_mode = video;
+            image_toggle.set_active (!video);
+            video_toggle.set_active (video);
+            audio_check.set_visible (video);
+            mic_check.set_visible (video);
+            switching_toggle = false;
+        }
+
+        private void on_mode_toggled (Gtk.ToggleButton source,
+                                      Mode chosen) {
+            if (switching_toggle || !source.get_active ()) {
+                /* Sönen düğme; ya da tümü sönmesin diye geri yak. */
+                if (!switching_toggle && !source.get_active ()
+                    && mode == chosen) {
+                    switching_toggle = true;
+                    source.set_active (true);
+                    switching_toggle = false;
+                }
+                return;
+            }
+            switching_toggle = true;
+            mode = chosen;
+            foreach (unowned Gtk.ToggleButton button in mode_buttons) {
+                if (button != source) {
+                    button.set_active (false);
+                }
+            }
+            switching_toggle = false;
+            has_area = false;
+            selecting = false;
+            canvas.queue_draw ();
+        }
+
+        /* --- çizim ---------------------------------------------------- */
+
+        private bool on_draw (Cairo.Context cr) {
+            Gdk.cairo_set_source_pixbuf (cr, frozen, 0, 0);
+            cr.paint ();
+            cr.set_source_rgba (0, 0, 0, 0.6);
+            cr.paint ();
+
+            if (!has_area) {
+                return false;
+            }
+
+            /* Seçim karartmasız: donmuş kare seçim yoluna kırpılıp
+             * yeniden çizilir. */
+            cr.save ();
+            selection_path (cr);
+            cr.clip ();
+            Gdk.cairo_set_source_pixbuf (cr, frozen, 0, 0);
+            cr.paint ();
+            cr.restore ();
+
+            selection_path (cr);
+            cr.set_source_rgb (TEAL_R, TEAL_G, TEAL_B);
+            cr.set_line_width (2);
+            cr.stroke ();
+
+            /* Köşede boyut. */
+            if (sel_w > 0 && sel_h > 0) {
+                string text = "%d×%d".printf (sel_w, sel_h);
+                cr.select_font_face ("sans", Cairo.FontSlant.NORMAL,
+                                     Cairo.FontWeight.BOLD);
+                cr.set_font_size (13);
+                Cairo.TextExtents extents;
+                cr.text_extents (text, out extents);
+                double tx = sel_x;
+                double ty = sel_y + sel_h + extents.height + 8;
+                if (ty > frozen.get_height () - 4) {
+                    ty = sel_y - 8;
+                }
+                cr.set_source_rgba (0.09, 0.13, 0.17, 0.9);
+                cr.rectangle (tx - 4, ty - extents.height - 4,
+                              extents.width + 12, extents.height + 8);
+                cr.fill ();
+                cr.set_source_rgb (TEAL_R, TEAL_G, TEAL_B);
+                cr.move_to (tx + 2, ty - 2);
+                cr.show_text (text);
+            }
+            return false;
+        }
+
+        private void selection_path (Cairo.Context cr) {
+            if (mode == Mode.FREEFORM && path_x.length > 2) {
+                cr.move_to (path_x[0], path_y[0]);
+                for (int i = 1; i < path_x.length; i++) {
+                    cr.line_to (path_x[i], path_y[i]);
+                }
+                cr.close_path ();
+            } else {
+                cr.rectangle (sel_x, sel_y, sel_w, sel_h);
+            }
+        }
+
+        /* --- fare ----------------------------------------------------- */
+
+        private bool on_press (Gdk.EventButton event) {
+            if (event.button != 1) {
+                return false;
+            }
+            switch (mode) {
+            case Mode.FULL:
+                sel_x = 0; sel_y = 0;
+                sel_w = frozen.get_width ();
+                sel_h = frozen.get_height ();
+                has_area = true;
+                finish_selection ();
+                break;
+            case Mode.WINDOW:
+                if (has_area) {
+                    finish_selection ();
+                }
+                break;
+            case Mode.FREEFORM:
+                selecting = true;
+                path_x = { event.x };
+                path_y = { event.y };
+                has_area = false;
+                break;
+            default:
+                selecting = true;
+                start_x = (int) event.x;
+                start_y = (int) event.y;
+                sel_w = 0; sel_h = 0;
+                has_area = false;
+                break;
+            }
+            return true;
+        }
+
+        private bool on_motion (Gdk.EventMotion event) {
+            if (mode == Mode.WINDOW) {
+                hover_window ((int) event.x_root, (int) event.y_root);
+                return true;
+            }
+            if (!selecting) {
+                return false;
+            }
+            if (mode == Mode.FREEFORM) {
+                path_x += event.x;
+                path_y += event.y;
+                update_path_bounds ();
+            } else {
+                sel_x = int.min (start_x, (int) event.x);
+                sel_y = int.min (start_y, (int) event.y);
+                sel_w = (start_x - (int) event.x).abs ();
+                sel_h = (start_y - (int) event.y).abs ();
+            }
+            has_area = true;
+            canvas.queue_draw ();
+            return true;
+        }
+
+        private bool on_release (Gdk.EventButton event) {
+            if (!selecting || event.button != 1) {
+                return false;
+            }
+            selecting = false;
+            if (has_area && sel_w > 4 && sel_h > 4) {
+                finish_selection ();
+            } else {
+                has_area = false;
+                canvas.queue_draw ();
+            }
+            return true;
+        }
+
+        private void update_path_bounds () {
+            double min_x = path_x[0], max_x = path_x[0];
+            double min_y = path_y[0], max_y = path_y[0];
+            for (int i = 1; i < path_x.length; i++) {
+                min_x = double.min (min_x, path_x[i]);
+                max_x = double.max (max_x, path_x[i]);
+                min_y = double.min (min_y, path_y[i]);
+                max_y = double.max (max_y, path_y[i]);
+            }
+            sel_x = (int) min_x;
+            sel_y = (int) min_y;
+            sel_w = (int) (max_x - min_x);
+            sel_h = (int) (max_y - min_y);
+        }
+
+        /* İşaretçinin altındaki pencere (en üstteki) vurgulanır. */
+        private void hover_window (int x, int y) {
+            var screen = Wnck.Screen.get_default ();
+            unowned List<Wnck.Window> stacked =
+                screen.get_windows_stacked ();
+            bool found = false;
+            /* Liste alttan üste; sondan başa yürü. */
+            for (unowned List<Wnck.Window> item = stacked.last ();
+                 item != null; item = item.prev) {
+                unowned Wnck.Window candidate = item.data;
+                if (candidate.is_minimized ()
+                    || candidate.get_window_type () == Wnck.WindowType.DESKTOP
+                    || candidate.get_window_type () == Wnck.WindowType.DOCK) {
+                    continue;
+                }
+                int wx, wy, ww, wh;
+                candidate.get_geometry (out wx, out wy, out ww, out wh);
+                if (x >= wx && x < wx + ww && y >= wy && y < wy + wh) {
+                    sel_x = wx; sel_y = wy; sel_w = ww; sel_h = wh;
+                    found = true;
+                    break;
+                }
+            }
+            has_area = found;
+            canvas.queue_draw ();
+        }
+
+        /* --- sonuç ---------------------------------------------------- */
+
+        private void finish_selection () {
+            sel_x = int.max (0, sel_x);
+            sel_y = int.max (0, sel_y);
+            sel_w = int.min (sel_w, frozen.get_width () - sel_x);
+            sel_h = int.min (sel_h, frozen.get_height () - sel_y);
+            if (sel_w <= 0 || sel_h <= 0) {
+                return;
+            }
+            Gdk.Display.get_default ().get_default_seat ().ungrab ();
+            if (video_mode) {
+                start_recording ();
+            } else {
+                save_image ();
+            }
+        }
+
+        private void save_image () {
+            Gdk.Pixbuf result;
+            if (mode == Mode.FREEFORM && path_x.length > 2) {
+                /* Yol dışı şeffaf: kırpılmış yüzeye yola kıstırılmış
+                 * çizim (W11 serbest kesim davranışı). */
+                var surface = new Cairo.ImageSurface (
+                    Cairo.Format.ARGB32, sel_w, sel_h);
+                var cr = new Cairo.Context (surface);
+                cr.translate (-sel_x, -sel_y);
+                selection_path (cr);
+                cr.clip ();
+                Gdk.cairo_set_source_pixbuf (cr, frozen, 0, 0);
+                cr.paint ();
+                result = Gdk.pixbuf_get_from_surface (
+                    surface, 0, 0, sel_w, sel_h);
+            } else {
+                result = new Gdk.Pixbuf.subpixbuf (
+                    frozen, sel_x, sel_y, sel_w, sel_h).copy ();
+            }
+
+            string path = Capture.timestamp_path ("image", ".png");
+            try {
+                result.save (path, "png");
+            } catch (Error e) {
+                warning ("kavis-tools: kaydedilemedi: %s", e.message);
+                cancel ();
+                return;
+            }
+            Gtk.Clipboard.get_default (
+                Gdk.Display.get_default ()).set_image (result);
+            Capture.notify_user (Strings.get ("screenshot.saved"), path,
+                                 "camera-photo-symbolic", path);
+            hide ();
+            Capture.hold_clipboard_then_quit ();
         }
 
         private void start_recording () {
-            /* slop: sürükleyerek bölge seç (tam ekran için tıkla). */
-            string region_output;
-            int status;
-            try {
-                Process.spawn_sync (null,
-                    { "slop", "-f", "%w %h %x %y", "-b", "2",
-                      "-c", "0.18,0.83,0.75,0.8" },
-                    null, SpawnFlags.SEARCH_PATH, null,
-                    out region_output, null, out status);
-            } catch (Error e) {
-                warning ("kavis-tools: slop calistirilamadi: %s", e.message);
-                destroy ();
-                return;
-            }
-            if (status != 0) {
-                destroy ();   /* seçim iptal */
-                return;
-            }
-            string[] parts = region_output.strip ().split (" ");
-            if (parts.length != 4) {
-                destroy ();
-                return;
-            }
-            /* x11grab çift boyut ister. */
-            int w = int.parse (parts[0]) / 2 * 2;
-            int h = int.parse (parts[1]) / 2 * 2;
+            int x = sel_x, y = sel_y;
+            int w = sel_w / 2 * 2;   /* x11grab çift boyut ister */
+            int h = sel_h / 2 * 2;
+            bool with_audio = audio_check.get_active ();
+            bool with_mic = mic_check.get_active ();
+            destroy ();
+
+            /* Overlay yok olsun, gerçek ekran görünsün. */
+            Timeout.add (250, () => {
+                launch_ffmpeg (x, y, w, h, with_audio, with_mic);
+                return Source.REMOVE;
+            });
+        }
+
+        private static void launch_ffmpeg (int x, int y, int w, int h,
+                                           bool with_audio,
+                                           bool with_mic) {
             string path = Capture.timestamp_path ("video", ".mp4");
+            string[] argv = {
+                "ffmpeg", "-loglevel", "quiet",
+                "-f", "x11grab", "-framerate",
+                Capture.config_value ("framerate", "30"),
+                "-video_size", "%dx%d".printf (w, h),
+                "-i", "%s+%d,%d".printf (
+                    Environment.get_variable ("DISPLAY") ?? ":0", x, y)
+            };
+
+            /* Sistem sesi = varsayılan çıkışın monitörü; mikrofon =
+             * varsayılan kaynak. İkisi birden seçilirse amix. */
+            int audio_inputs = 0;
+            if (with_audio) {
+                string sink = "";
+                try {
+                    string output;
+                    Process.spawn_sync (null,
+                        { "pactl", "get-default-sink" }, null,
+                        SpawnFlags.SEARCH_PATH
+                        | SpawnFlags.STDERR_TO_DEV_NULL,
+                        null, out output, null, null);
+                    sink = output.strip ();
+                } catch (Error e) { }
+                if (sink != "") {
+                    argv += "-f"; argv += "pulse";
+                    argv += "-i"; argv += sink + ".monitor";
+                    audio_inputs++;
+                }
+            }
+            if (with_mic) {
+                argv += "-f"; argv += "pulse";
+                argv += "-i"; argv += "default";
+                audio_inputs++;
+            }
+            if (audio_inputs == 2) {
+                argv += "-filter_complex";
+                argv += "[1:a][2:a]amix=inputs=2[a]";
+                argv += "-map"; argv += "0:v";
+                argv += "-map"; argv += "[a]";
+            }
+
+            argv += "-c:v"; argv += "libx264";
+            argv += "-preset"; argv += "ultrafast";
+            argv += "-pix_fmt"; argv += "yuv420p";
+            argv += path;
 
             Pid ffmpeg_pid;
             try {
-                Process.spawn_async (null, {
-                    "ffmpeg", "-loglevel", "quiet",
-                    "-f", "x11grab", "-framerate",
-                    Capture.config_value ("framerate", "30"),
-                    "-video_size", "%dx%d".printf (w, h),
-                    "-i", "%s+%s,%s".printf (
-                        Environment.get_variable ("DISPLAY") ?? ":0",
-                        parts[2], parts[3]),
-                    "-c:v", "libx264", "-preset", "ultrafast",
-                    "-pix_fmt", "yuv420p", path
-                }, null, SpawnFlags.SEARCH_PATH
-                   | SpawnFlags.DO_NOT_REAP_CHILD, null, out ffmpeg_pid);
+                Process.spawn_async (null, argv, null,
+                    SpawnFlags.SEARCH_PATH
+                    | SpawnFlags.DO_NOT_REAP_CHILD, null, out ffmpeg_pid);
             } catch (Error e) {
                 warning ("kavis-tools: ffmpeg baslatilamadi: %s", e.message);
-                destroy ();
+                Gtk.main_quit ();
                 return;
             }
-
             var recorder = new RecorderBar (ffmpeg_pid, path);
             recorder.show_all ();
-            destroy ();
         }
     }
 
-    /* Küçük, hep üstte kayıt çubuğu: sayaç + durdur. */
+    /* Küçük, hep üstte kayıt çubuğu: kırmızı nokta + sayaç + durdur.
+     * PrtScr da durdurur: pid dosyası + SIGUSR1 (Capture.snip). */
     private class RecorderBar : Gtk.Window {
 
         private Pid ffmpeg_pid;
@@ -259,6 +751,7 @@ namespace Kavis.Tools {
         private Gtk.Label counter;
         private int seconds = 0;
         private uint tick = 0;
+        private string pid_file;
 
         public RecorderBar (Pid ffmpeg_pid, string path) {
             Object (type: Gtk.WindowType.TOPLEVEL);
@@ -268,19 +761,21 @@ namespace Kavis.Tools {
             set_resizable (false);
             set_keep_above (true);
             stick ();
+            set_tooltip_text (Strings.get ("capture.stop_hint"));
 
             var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
             row.set_border_width (10);
             add (row);
-            counter = new Gtk.Label ("● 0:00");
+            counter = new Gtk.Label (null);
+            set_counter_text ();
             row.pack_start (counter, false, false, 0);
             var stop = new Gtk.Button.with_label (
                 Strings.get ("capture.stop"));
             stop.clicked.connect (finish);
             row.pack_start (stop, false, false, 0);
 
-            /* Sağ üst köşe: kayda girmesin diye kayıt alanının dışında
-             * olmak kullanıcıya kalıyor; W11 de böyle. */
+            /* Sağ üst köşe: kayıt alanının dışında kalmak kullanıcıya
+             * kalıyor; W11 de böyle. */
             var display = Gdk.Display.get_default ();
             var monitor = display.get_primary_monitor ();
             if (monitor != null) {
@@ -288,17 +783,34 @@ namespace Kavis.Tools {
                 move (area.x + area.width - 220, area.y + 16);
             }
 
+            pid_file = Path.build_filename (
+                Environment.get_user_runtime_dir (), "kavis-capture.pid");
+            try {
+                FileUtils.set_contents (pid_file,
+                    "%d\n".printf ((int) Posix.getpid ()));
+            } catch (Error e) { }
+            Unix.signal_add (Posix.Signal.USR1, () => {
+                finish ();
+                return Source.REMOVE;
+            });
+
             tick = Timeout.add_seconds (1, () => {
                 seconds++;
-                counter.set_text ("● %d:%02d".printf (
-                    seconds / 60, seconds % 60));
+                set_counter_text ();
                 return Source.CONTINUE;
             });
 
             ChildWatch.add (ffmpeg_pid, (pid, wait_status) => {
                 Process.close_pid (pid);
+                FileUtils.unlink (pid_file);
                 Gtk.main_quit ();
             });
+        }
+
+        private void set_counter_text () {
+            counter.set_markup (
+                "<span foreground='#EF4444'>●</span> %d:%02d".printf (
+                    seconds / 60, seconds % 60));
         }
 
         private void finish () {
@@ -310,7 +822,7 @@ namespace Kavis.Tools {
             Posix.kill ((Posix.pid_t) ffmpeg_pid, Posix.Signal.INT);
             hide ();
             Capture.notify_user (Strings.get ("capture.saved_video"),
-                                 path, "camera-video-symbolic");
+                                 path, "camera-video-symbolic", path);
             /* ChildWatch ffmpeg bitince ana döngüyü kapatır. */
         }
     }
