@@ -132,7 +132,10 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     tema. DÜRÜST UYUMLULUK EKRANI: "Şunlar çalışmıyor: Valorant,
     Fortnite, Rocket League, Adobe, MS Office masaüstü." Kurulumdan ÖNCE.
 16. **Calamares + canlı mod.** Disk düzeninde 27C'nin A/B yapısı ŞİMDİDEN
-    hesaba katılır; hibernate swap alanı da (51).
+    hesaba katılır; hibernate swap alanı da (51). EK (2026-09-02):
+    "Yeniden kur — dosyalarımı koru" kipi ve genişletilmiş alt birim
+    yapısı (@ / @users / @flatpak / @old-*) tasarlandı —
+    docs/yeniden-kurulum-tasarimi.md; Grup I'da bu belgeyle yapılacak.
 17. **/usr salt-okunur btrfs subvolume.** EN SONA — apt'ı bozabilir.
 18. **Giriş ekranı + kilit ekranı** (0'da ertelenen), kullanıcı ekleme.
 19. **Kendi APT depomuz:** reprepro, GitHub Pages, Actions ile otomatik.

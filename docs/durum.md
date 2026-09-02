@@ -9,6 +9,49 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Açılış deneyimi: konsol flaşlarının kök sebebi lightdm'deymiş
+
+VirtualBox el testi (v0.3-test1, EFI+VMSVGA) GRUB→masaüstü arasında iki
+kez siyah ekran + kırmızı vmwgfx satırları gösterdi. Üç iş (2026-09-02,
+kullanıcı talimatı), üç ayrı commit:
+
+**İş 1 — konsol sustu (0d54bfa):** `loglevel=3` KERN_ERR'i de saklıyor
+(vmwgfx "unsupported hypervisor" satırları — zararsız, sürücü simpledrm'e
+düşüyor; ayrıntı docs/referans/virtualbox.md). `vt.global_cursor_default=0`
+imleci, `rd.udev.log_level=3` initramfs udevd'sini kısıyor. Günlükler
+journald'de tam duruyor; CI tanısı seri konsoldan KAVIS-CHECK okuduğu
+için etkilenmiyor (boot-check systemd üzerinden yazıyor, printk değil).
+i915/amdgpu/nouveau initramfs modül listesine açıkça girdi.
+
+**İş 2 — quit=0.0s gizemi (37579aa):** Debian lightdm.service
+`Conflicts=plymouth-quit.service` taşıyor: plymouth-quit (ve bizim
+--retain-splash drop-in'imiz) normal açılışta HİÇ çalışmıyor; splash'i
+lightdm kapatıyor. Üstelik Plymouth VT1'de, lightdm varsayılanı
+minimum-vt=7 olduğundan lightdm "not replacing it" deyip düz quit
+çalıştırıyor ve X'i VT7'de açıyordu — ikinci siyah ekran + konsol buydu.
+Çözüm: minimum-vt=1 (X splash'in VT'sinde başlar, lightdm kendi
+`quit --retain-splash`'ini kullanır) + lightdm'e `After=kavis-boot-sound`
+(müzik bekleme artık lightdm üstünde; plymouth-quit drop-in'i yalnız
+güvenlik ağı) + `Conflicts=getty@tty1` (GDM'in aynı çözümü). boot-check
+quit'i artık plymouth-quit-wait'in bitişinden ölçüyor ve yeni
+SPLASH-HANDOFF satırı splash↔X arasını denetliyor (>5 sn = FAIL; eşik
+TCG yavaşlığı payı, gerçek beklenti 1-2 sn). Ders: bir drop-in yazınca
+onu ezen Conflicts var mı diye ana birime bakılmalı.
+
+**İş 3 — GRUB geri sayımı (f7f1280):** live-build'in gri progress_bar
+kutusu (İngilizce metinli) `id=__timeout__` etiketiyle değiştirildi —
+GRUB'da bu id'yi taşıyan bileşen varsayılan kutuyu kapatır, `text`
+içindeki %d kalan saniyeyle basılır. Metin önce tabloya eklendi
+(boot.autoboot_countdown), renk #8B9BA8, yazı tipi Unifont (Türkçe
+glifler menü girdilerinde zaten doğrulanmış).
+
+Ayrıca: ileride sorun çıkaracak dört konu docs/bilinen-sorunlar.md'ye,
+"yeniden kur — dosyalarımı koru" tasarımı (Grup I / Calamares)
+docs/yeniden-kurulum-tasarimi.md'ye yazıldı; görev listesi madde 16'ya
+işaret kondu.
+
+---
+
 ## Grup C tamam: görev çubuğu aşamaları + "88 MB" gizemi çözüldü
 
 Dört aşama (2026-09-01, kullanıcı talimatı): picom hayalet pencere
