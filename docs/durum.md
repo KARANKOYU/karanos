@@ -380,15 +380,16 @@ almak (indirme yöneticisi madde 23 gelince).
 
 ## 2. SIRADA BEKLEYEN İŞLER (sırayla)
 
-1. **v0.3-test5 sonucu** (Grup D ISO'su, koşu **33616072408**, tag
-   `v0.3-test5` → commit `59a8a13`): oturum kapanırken çalışıyordu;
-   arka plan izleyicisi bu oturumla öldü. Yeni oturum:
-   `gh run view 33616072408 --json conclusion,jobs`. Yeşilse dosya
-   `kavis-0.3-test5-amd64.iso` — kullanıcıya bildir. Kırmızıysa önce
-   tanı yapıtları (`gh run view --log-failed`, KAVIS-CHECK satırları).
-   Muhtemel riskler: ISO boyut uyarısı (ffmpeg/nemo), PANEL-RSS
-   artışı, nemo-desktop'un duman testinde beklenmedik pencere/uyarı
-   üretmesi, yeni paketlerin Depends çakışması.
+1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
+   `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
+   RESULT=OK tüm profillerde; SPLASH-RETAIN-OK; SPLASH-HANDOFF
+   3.5-4.8s (retain örtüyor, yalnız uyarı); **PANEL-RSS=4-9 MB**
+   (panel 1.2 — daha da düştü); MEM-USED 334-442 MB (nemo-desktop
+   vb. ile ~+40 MB, 1 GB hedefin çok altında); ISO yapıtı
+   `kavis-iso` 776.869.820 bayt ≈ **741 MB**
+   (**kavis-0.3-test5-amd64.iso**; 645→741, ffmpeg/nemo/emoji fontu —
+   1.5 GB sınırına hâlâ bol pay). Kullanıcıya bildirildi; sıradaki
+   bekleyiş VirtualBox el testi + "devam".
 2. **v0.3-test3 hakkında**: bitti (4/5; tek kırmızı uefi-genis GRUB
    takılması, tek seferlik). BEKLENEN BİR ŞEY YOK; kayıt yukarıda.
    v0.3-test4 de bitti (5/5 yeşil).
