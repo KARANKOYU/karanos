@@ -417,7 +417,9 @@ almak (indirme yöneticisi madde 23 gelince).
 >   kuralları docs/referans/dil-secici.md, README "Çeviri durumu"
 >   tablosu tools/gen-ceviri-tablosu.py + lint.yml adımı (yalnız
 >   main push, [skip ci] commit). tr.po'daki 3 kullanılmayan girdi
->   temizlendi. Etiket v0.3-test9 → 4adeaf0 duruyor; push KULLANICIDA.
+>   temizlendi (commit 9fb045a). Etiket v0.3-test9 bu commit'e
+>   taşındı (önce 4adeaf0'daydı; push edilmemişti — edildiyse
+>   kullanıcının etiketi zorla itmesi gerekir). Push KULLANICIDA.
 
 1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
    `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
