@@ -206,6 +206,8 @@ namespace Kavis.Ui {
                                Gdk.DragAction.MOVE);
             card.drag_data_received.connect (
                 (ctx, x, y, data, info, time) => {
+                    /* Yük NUL ile bitirilerek gönderiliyor (aşağıda);
+                     * string'e çevirmek bu yüzden güvenli. */
                     ulong xid = (ulong) uint64.parse (
                         (string) data.get_data ());
                     foreach (unowned Wnck.Window window in
@@ -216,7 +218,14 @@ namespace Kavis.Ui {
                         }
                     }
                     Gtk.drag_finish (ctx, true, false, time);
-                    rebuild ();
+                    /* Kaynak satır hâlâ sürükleme içinde; listeyi
+                     * olay bitince yeniden kur. */
+                    Idle.add (() => {
+                        if (get_visible ()) {
+                            rebuild ();
+                        }
+                        return Source.REMOVE;
+                    });
                 });
 
             return card;
@@ -255,7 +264,7 @@ namespace Kavis.Ui {
                                  DND_TARGETS, Gdk.DragAction.MOVE);
             button.drag_data_get.connect ((ctx, data, info, time) => {
                 string payload = "%lu".printf (target.get_xid ());
-                data.set (data.get_target (), 8, payload.data);
+                data.set (data.get_target (), 8, (payload + "\0").data);
             });
 
             return button;

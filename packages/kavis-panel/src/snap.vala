@@ -167,6 +167,11 @@ namespace Kavis {
                         Wnck.WindowMoveResizeMask.WIDTH
                         | Wnck.WindowMoveResizeMask.HEIGHT,
                         0, 0, old.width, old.height);
+                    /* Yapışıkken tekrar yapıştırılırsa 'eski boyut'
+                     * yarım-ekran değil GERÇEK eski boyut kalsın:
+                     * basıştaki geometri artık geri verilen boyut. */
+                    press_geometry.width = old.width;
+                    press_geometry.height = old.height;
                 }
             }
 

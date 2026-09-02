@@ -1,3 +1,20 @@
+kavis-panel (1.2) unstable; urgency=medium
+
+  * Grup C görev çubuğu aşamaları: ezilmeyen sağ bölge, yalnız-ikon
+    pencere düğmeleri (W11), gösterge popup'ları (takvim, pil+güç
+    planı, dil, ses), GDK_GL=disable ile llvmpipe tuzağı kapatıldı.
+  * Madde 60: popup dış-tıklama kuralı tek kökten düzeltildi (kök
+    koordinat testi + GTK grab + seat grab yeniden denemesi).
+  * Grup D: ortalanmış küme + akrilik (madde 4); sağ tık menüsü —
+    konum/boyut/ekran/otomatik gizle (madde 5); bildirim altyapısı
+    org.freedesktop.Notifications + bildirim merkezi + hızlı ayarlar
+    (madde 37); kavis-snap kenara yapıştırma ikilisi (madde 6);
+    Win+Tab genel bakış + odaklanma + org.kavis.Panel köprüsü (madde
+    55); pano geçmişi (Win+V) + ses OSD'si (madde 7). Metin tablosu
+    kavis-common'a taşındı (kavis-tools ile ortak).
+
+ -- Karan <farukyildiz3207@gmail.com>  Wed, 02 Sep 2026 13:00:00 +0300
+
 kavis-panel (1.1) unstable; urgency=medium
 
   * Panel Python'dan Vala'ya taşındı (madde 3): 117 MB RAM kabul
