@@ -1,0 +1,31 @@
+#!/bin/sh
+# Terminal kolaylıkları (madde 44).
+#
+# 1) command_not_found_handle: Debian bash'i interaktif kabukta
+#    /etc/bash.bashrc okur (SYS_BASHRC); bizim tanım Debian'ın
+#    command-not-found bloğundan SONRA source edildiği için kazanır.
+# 2) command-not-found veritabanı DERLEMEDE hazırlanır — canlı
+#    oturumda ağ olmayabilir ve ilk çalıştırmada "veritabanı yok"
+#    hatası kabul edilemez (grup-e-taramasi kaydı).
+set -e
+
+if ! grep -q "kavis/terminal-tips.sh" /etc/bash.bashrc; then
+	cat >> /etc/bash.bashrc <<'EOF'
+
+# Kavis terminal kolaylıkları (madde 44)
+if [ -f /usr/share/kavis/terminal-tips.sh ]; then
+	. /usr/share/kavis/terminal-tips.sh
+fi
+EOF
+fi
+
+apt-file update
+update-command-not-found
+
+# apt-file'ın indirdiği Contents indeksleri büyük ve ISO'da işi yok;
+# veritabanı (/var/lib/command-not-found) derlendi, gerisi çöp.
+rm -f /var/lib/apt/lists/*Contents*
+
+# Doğrulama: veritabanı gerçekten oluştu mu?
+test -s /var/lib/command-not-found/commands.db
+echo "0240: command-not-found veritabani hazir"

@@ -65,3 +65,11 @@ system-config-printer
 printer-driver-gutenprint
 sane-airscan
 simple-scan
+
+# --- Terminal kolaylıkları (madde 44) ---
+# command-not-found + apt-file: bilinmeyen komutta paket önerisi
+# (veritabanı 0240 hook'unda derlemede kurulur). gettext-base:
+# terminal-tips.sh'ın çevirileri (gettext komutu).
+command-not-found
+apt-file
+gettext-base

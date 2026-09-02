@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the kavis package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: kavis\n"
-"Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 16:10+0000\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-02 16:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -745,4 +745,29 @@ msgstr ""
 
 #: packages/kavis-tools/src/tasks.vala:125
 msgid "Ending this system process may cause problems. Continue?"
+msgstr ""
+
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:33
+msgid "This system uses apt, not %s. See: man apt"
+msgstr ""
+
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:39
+msgid "This system uses apt — the equivalent is: %s"
+msgstr ""
+
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:42
+msgid "Run it now? [y/N] "
+msgstr ""
+
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:62
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:69
+msgid "Windows command — the equivalent here is: %s"
+msgstr ""
+
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:96
+msgid "'%s' is not installed. It is in the '%s' package."
+msgstr ""
+
+#: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:99
+msgid "Install it now? [y/N] "
 msgstr ""

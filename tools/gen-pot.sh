@@ -12,4 +12,11 @@ git ls-files 'packages/*/src/**/*.vala' 'packages/*/src/*.vala' 'packages/kavis-
 		--msgid-bugs-address=https://github.com/KARANKOYU/karanos/issues \
 		--files-from=- \
 		-o po/kavis.pot
+# Kabuk betikleri (madde 44 terminal-tips): gettext '...' çağrıları.
+git ls-files 'iso/config/includes.chroot/usr/share/kavis/*.sh' \
+	| sort | xgettext \
+		--language=Shell --from-code=UTF-8 \
+		--join-existing \
+		--files-from=- \
+		-o po/kavis.pot
 echo "po/kavis.pot guncellendi ($(grep -c '^msgid ' po/kavis.pot) msgid)"

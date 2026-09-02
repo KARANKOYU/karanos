@@ -498,3 +498,21 @@ msgstr "Bu dosya önizlenemedi"
 
 msgid "Removable drive connected"
 msgstr "Çıkarılabilir sürücü takıldı"
+
+msgid "This system uses apt, not %s. See: man apt"
+msgstr "Bu sistem apt kullanır, %s değil. Bakınız: man apt"
+
+msgid "This system uses apt — the equivalent is: %s"
+msgstr "Bu sistem apt kullanır — karşılığı: %s"
+
+msgid "Run it now? [y/N] "
+msgstr "Şimdi çalıştırayım mı? [e/H] "
+
+msgid "Windows command — the equivalent here is: %s"
+msgstr "Windows komutu — buradaki karşılığı: %s"
+
+msgid "'%s' is not installed. It is in the '%s' package."
+msgstr "'%s' kurulu değil. '%s' paketinin içinde."
+
+msgid "Install it now? [y/N] "
+msgstr "Şimdi kurayım mı? [e/H] "

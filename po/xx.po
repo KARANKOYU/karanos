@@ -494,3 +494,21 @@ msgstr "⟪Disk··⟫"
 
 msgid "Ending this system process may cause problems. Continue?"
 msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"
+
+msgid "This system uses apt, not %s. See: man apt"
+msgstr "⟪This system uses apt, not %s. See: man apt················⟫"
+
+msgid "This system uses apt — the equivalent is: %s"
+msgstr "⟪This system uses apt — the equivalent is: %s·················⟫"
+
+msgid "Run it now? [y/N] "
+msgstr "⟪Run it now? [y/N] ·······⟫"
+
+msgid "Windows command — the equivalent here is: %s"
+msgstr "⟪Windows command — the equivalent here is: %s·················⟫"
+
+msgid "'%s' is not installed. It is in the '%s' package."
+msgstr "⟪'%s' is not installed. It is in the '%s' package.···················⟫"
+
+msgid "Install it now? [y/N] "
+msgstr "⟪Install it now? [y/N] ········⟫"
