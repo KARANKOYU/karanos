@@ -157,7 +157,7 @@ namespace Kavis.Tools {
 
         /* Kayıt sürerken PrtScr kaydı durdurur: çalışan sürece SIGUSR1
          * gönderilir (RecorderBar yakalayıp düzgün kapatır). */
-        public int snip () {
+        public int snip (bool color_mode = false) {
             string pid_file = recording_pid_path ();
             string contents;
             try {
@@ -181,7 +181,7 @@ namespace Kavis.Tools {
                 warning ("kavis-tools: ekran okunamadi");
                 return 1;
             }
-            var window = new SnipWindow (frozen);
+            var window = new SnipWindow (frozen, color_mode);
             window.show_all ();
             Gtk.main ();
             return 0;
@@ -191,7 +191,7 @@ namespace Kavis.Tools {
     /* Fullscreen frozen-frame selector. */
     public class SnipWindow : Gtk.Window {
 
-        private enum Mode { RECT, FREEFORM, WINDOW, FULL }
+        private enum Mode { RECT, FREEFORM, WINDOW, FULL, COLOR }
 
         /* Marka turkuazı (görsel kimlik tablosu). */
         private const double TEAL_R = 0.176;
@@ -219,10 +219,20 @@ namespace Kavis.Tools {
         private double[] path_x = {};
         private double[] path_y = {};
         private bool switching_toggle = false;
+        /* Renk modu (5c): işaretçi konumu + bildirim eylem aboneliği. */
+        private int pointer_x = 0;
+        private int pointer_y = 0;
+        private DBusConnection? bus = null;
+        private uint32 color_notif_id = 0;
+        private string rgb_text = "";
+        private string hsl_text = "";
 
-        public SnipWindow (Gdk.Pixbuf frozen) {
+        public SnipWindow (Gdk.Pixbuf frozen, bool color_mode = false) {
             Object (type: Gtk.WindowType.POPUP);
             this.frozen = frozen;
+            if (color_mode) {
+                mode = Mode.COLOR;
+            }
             set_default_size (frozen.get_width (), frozen.get_height ());
             move (0, 0);
 
@@ -356,14 +366,14 @@ namespace Kavis.Tools {
 
             string[] mode_keys = {
                 N_("Rectangle"), N_("Freeform"),
-                N_("Window"), N_("Full screen")
+                N_("Window"), N_("Full screen"), N_("Color")
             };
             Mode[] modes = { Mode.RECT, Mode.FREEFORM,
-                             Mode.WINDOW, Mode.FULL };
+                             Mode.WINDOW, Mode.FULL, Mode.COLOR };
             for (int i = 0; i < modes.length; i++) {
                 var button = new Gtk.ToggleButton.with_label (
                     _(mode_keys[i]));
-                button.set_active (i == 0);
+                button.set_active (modes[i] == mode);
                 Mode chosen = modes[i];
                 button.toggled.connect (() => {
                     on_mode_toggled (button, chosen);
@@ -436,6 +446,12 @@ namespace Kavis.Tools {
         private bool on_draw (Cairo.Context cr) {
             Gdk.cairo_set_source_pixbuf (cr, frozen, 0, 0);
             cr.paint ();
+            if (mode == Mode.COLOR) {
+                /* Renk modunda karartma YOK — renkler bozulmasın;
+                 * imlecin yanında 9×9 büyüteç + hex kutusu. */
+                draw_magnifier (cr);
+                return false;
+            }
             cr.set_source_rgba (0, 0, 0, 0.6);
             cr.paint ();
 
@@ -500,6 +516,9 @@ namespace Kavis.Tools {
                 return false;
             }
             switch (mode) {
+            case Mode.COLOR:
+                pick_color ((int) event.x, (int) event.y);
+                break;
             case Mode.FULL:
                 sel_x = 0; sel_y = 0;
                 sel_w = frozen.get_width ();
@@ -530,6 +549,12 @@ namespace Kavis.Tools {
         }
 
         private bool on_motion (Gdk.EventMotion event) {
+            if (mode == Mode.COLOR) {
+                pointer_x = (int) event.x;
+                pointer_y = (int) event.y;
+                canvas.queue_draw ();
+                return true;
+            }
             if (mode == Mode.WINDOW) {
                 hover_window ((int) event.x_root, (int) event.y_root);
                 return true;
@@ -606,6 +631,190 @@ namespace Kavis.Tools {
             }
             has_area = found;
             canvas.queue_draw ();
+        }
+
+        /* --- renk seçici (5c) ----------------------------------------- */
+
+        private void pixel_at (int x, int y, out uchar r, out uchar g,
+                               out uchar b) {
+            x = x.clamp (0, frozen.get_width () - 1);
+            y = y.clamp (0, frozen.get_height () - 1);
+            unowned uint8[] pixels = frozen.get_pixels ();
+            int offset = y * frozen.get_rowstride ()
+                + x * frozen.get_n_channels ();
+            r = pixels[offset];
+            g = pixels[offset + 1];
+            b = pixels[offset + 2];
+        }
+
+        /* 9×9 piksel büyüteç + altında renk kutusu ve hex. Dondurulmuş
+         * kareden okur — hareketli içerik sorun değil. */
+        private void draw_magnifier (Cairo.Context cr) {
+            const int CELL = 11;
+            const int HALF = 4;
+            int size = CELL * (2 * HALF + 1);
+            int ax = pointer_x + 20;
+            int ay = pointer_y + 20;
+            if (ax + size + 8 > frozen.get_width ()) {
+                ax = pointer_x - size - 20;
+            }
+            if (ay + size + 44 > frozen.get_height ()) {
+                ay = pointer_y - size - 64;
+            }
+
+            for (int dy = -HALF; dy <= HALF; dy++) {
+                for (int dx = -HALF; dx <= HALF; dx++) {
+                    uchar r, g, b;
+                    pixel_at (pointer_x + dx, pointer_y + dy,
+                              out r, out g, out b);
+                    cr.set_source_rgb (r / 255.0, g / 255.0, b / 255.0);
+                    cr.rectangle (ax + (dx + HALF) * CELL,
+                                  ay + (dy + HALF) * CELL, CELL, CELL);
+                    cr.fill ();
+                }
+            }
+            /* Çerçeve + ortadaki hücre. */
+            cr.set_source_rgb (0.09, 0.13, 0.17);
+            cr.set_line_width (2);
+            cr.rectangle (ax, ay, size, size);
+            cr.stroke ();
+            cr.set_source_rgb (0.176, 0.831, 0.749);
+            cr.rectangle (ax + HALF * CELL, ay + HALF * CELL, CELL, CELL);
+            cr.stroke ();
+
+            /* Renk kutusu + hex. */
+            uchar cr_, cg, cb;
+            pixel_at (pointer_x, pointer_y, out cr_, out cg, out cb);
+            string hex = "#%02X%02X%02X".printf (cr_, cg, cb);
+            cr.set_source_rgba (0.09, 0.13, 0.17, 0.92);
+            cr.rectangle (ax, ay + size + 6, size, 30);
+            cr.fill ();
+            cr.set_source_rgb (cr_ / 255.0, cg / 255.0, cb / 255.0);
+            cr.rectangle (ax + 6, ay + size + 12, 18, 18);
+            cr.fill ();
+            cr.select_font_face ("monospace", Cairo.FontSlant.NORMAL,
+                                 Cairo.FontWeight.BOLD);
+            cr.set_font_size (13);
+            cr.set_source_rgb (0.902, 0.929, 0.953);
+            cr.move_to (ax + 32, ay + size + 26);
+            cr.show_text (hex);
+        }
+
+        /* h 0-360, s/l 0-100. */
+        private static void rgb_to_hsl (uchar r8, uchar g8, uchar b8,
+                                        out int h, out int s, out int l) {
+            double r = r8 / 255.0, g = g8 / 255.0, b = b8 / 255.0;
+            double max = double.max (r, double.max (g, b));
+            double min = double.min (r, double.min (g, b));
+            double lum = (max + min) / 2;
+            double hue = 0, sat = 0;
+            if (max != min) {
+                double d = max - min;
+                sat = (lum > 0.5) ? d / (2 - max - min) : d / (max + min);
+                if (max == r) {
+                    hue = (g - b) / d + ((g < b) ? 6 : 0);
+                } else if (max == g) {
+                    hue = (b - r) / d + 2;
+                } else {
+                    hue = (r - g) / d + 4;
+                }
+                hue /= 6;
+            }
+            h = (int) Math.round (hue * 360);
+            s = (int) Math.round (sat * 100);
+            l = (int) Math.round (lum * 100);
+        }
+
+        private void pick_color (int x, int y) {
+            uchar r, g, b;
+            pixel_at (x, y, out r, out g, out b);
+            string hex = "#%02X%02X%02X".printf (r, g, b);
+            rgb_text = "rgb(%d, %d, %d)".printf (r, g, b);
+            int hh, ss, ll;
+            rgb_to_hsl (r, g, b, out hh, out ss, out ll);
+            hsl_text = "hsl(%d, %d%%, %d%%)".printf (hh, ss, ll);
+
+            Gdk.Display.get_default ().get_default_seat ().ungrab ();
+            hide ();
+
+            var clipboard = Gtk.Clipboard.get_default (
+                Gdk.Display.get_default ());
+            clipboard.set_text (hex, -1);
+
+            /* Renk kutusu görseli (bildirim önizlemesi). */
+            string swatch = Path.build_filename (
+                Environment.get_user_cache_dir (), "kavis",
+                "renk-kutusu.png");
+            DirUtils.create_with_parents (
+                Path.get_dirname (swatch), 0700);
+            var pixel = new Gdk.Pixbuf (Gdk.Colorspace.RGB, false, 8,
+                                        48, 48);
+            pixel.fill (((uint32) r << 24) | ((uint32) g << 16)
+                        | ((uint32) b << 8) | 0xFF);
+            try {
+                pixel.save (swatch, "png");
+            } catch (Error e) {
+                swatch = "";
+            }
+
+            /* Eylem düğmeli bildirim: rgb/hsl kopyala. Düğme tıkları
+             * ActionInvoked ile bu sürece döner (60 sn yaşıyoruz —
+             * pano zaten bunu istiyor). */
+            send_color_notification (hex, swatch);
+            Capture.hold_clipboard_then_quit ();
+        }
+
+        private void send_color_notification (string hex, string swatch) {
+            try {
+                bus = Bus.get_sync (BusType.SESSION);
+                var hints = new VariantBuilder (
+                    new VariantType ("a{sv}"));
+                if (swatch != "") {
+                    hints.add ("{sv}", "image-path",
+                               new Variant.string (swatch));
+                }
+                var actions = new VariantBuilder (
+                    new VariantType ("as"));
+                actions.add ("s", "copy-rgb");
+                actions.add ("s", _("Copy RGB"));
+                actions.add ("s", "copy-hsl");
+                actions.add ("s", _("Copy HSL"));
+                var reply = bus.call_sync (
+                    "org.freedesktop.Notifications",
+                    "/org/freedesktop/Notifications",
+                    "org.freedesktop.Notifications", "Notify",
+                    new Variant ("(susssasa{sv}i)", "Kavis",
+                                 (uint32) 0, "color-select-symbolic",
+                                 hex,
+                                 "%s · %s".printf (rgb_text, hsl_text),
+                                 actions, hints, 8000),
+                    new VariantType ("(u)"),
+                    DBusCallFlags.NONE, -1, null);
+                reply.get ("(u)", out color_notif_id);
+
+                bus.signal_subscribe (null,
+                    "org.freedesktop.Notifications", "ActionInvoked",
+                    "/org/freedesktop/Notifications", null,
+                    DBusSignalFlags.NONE,
+                    (connection, sender, path, iface, name, args) => {
+                        uint32 id;
+                        string key;
+                        args.get ("(us)", out id, out key);
+                        if (id != color_notif_id) {
+                            return;
+                        }
+                        var clip = Gtk.Clipboard.get_default (
+                            Gdk.Display.get_default ());
+                        if (key == "copy-rgb") {
+                            clip.set_text (rgb_text, -1);
+                        } else if (key == "copy-hsl") {
+                            clip.set_text (hsl_text, -1);
+                        }
+                    });
+            } catch (Error e) {
+                warning ("kavis-tools: renk bildirimi verilemedi: %s",
+                         e.message);
+            }
         }
 
         /* --- sonuç ---------------------------------------------------- */

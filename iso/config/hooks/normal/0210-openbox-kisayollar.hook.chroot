@@ -108,6 +108,12 @@ cat > "$SNIPPET" <<'EOF'
         <command>kavis-tools capture --quick</command>
       </action>
     </keybind>
+    <!-- Renk secici (sonraki-isler 5c): dogrudan renk modu -->
+    <keybind key="W-S-c">
+      <action name="Execute">
+        <command>kavis-tools capture --color</command>
+      </action>
+    </keybind>
 EOF
 
 # Win+sayı (sonraki-isler 2): soldan N. görev çubuğu yuvası —

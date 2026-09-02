@@ -30,6 +30,10 @@ namespace Kavis {
          * file manager). Empty when absent. */
         public string image_path = "";
         public string target_path = "";
+        /* Eylem düğmeleri (bölüm 5c): [anahtar, etiket, ...] çiftleri.
+         * Toast düğme çizer, tık ActionInvoked sinyaliyle sahibine
+         * döner (renk seçicinin 'rgb kopyala'sı gibi). */
+        public string[] actions = {};
     }
 
     [DBus (name = "org.freedesktop.Notifications")]
@@ -87,6 +91,7 @@ namespace Kavis {
                 && target.is_of_type (VariantType.STRING)) {
                 entry.target_path = target.get_string ();
             }
+            entry.actions = actions;
 
             /* Bir bildirim yenilendiyse (replaces_id) eski kaydı düşür. */
             for (int i = 0; i < history.length; i++) {

@@ -18,7 +18,10 @@ namespace Kavis.Ui {
 
         private GenericArray<Toast> toasts = new GenericArray<Toast> ();
 
+        private unowned NotificationServer server;
+
         public ToastManager (NotificationServer server) {
+            this.server = server;
             server.toast_requested.connect ((entry, timeout_ms) => {
                 show_toast (entry, timeout_ms);
             });
@@ -36,7 +39,7 @@ namespace Kavis.Ui {
                 toasts[toasts.length - 1].close_toast ();
             }
 
-            var toast = new Toast (entry, timeout_ms);
+            var toast = new Toast (entry, timeout_ms, server);
             toast.gone.connect (() => {
                 for (int i = 0; i < toasts.length; i++) {
                     if (toasts[i] == toast) {
@@ -79,7 +82,8 @@ namespace Kavis.Ui {
 
         private uint timer = 0;
 
-        public Toast (NotificationEntry entry, int timeout_ms) {
+        public Toast (NotificationEntry entry, int timeout_ms,
+                      NotificationServer server) {
             Object (type: Gtk.WindowType.POPUP);
             set_type_hint (Gdk.WindowTypeHint.NOTIFICATION);
             set_skip_taskbar_hint (true);
@@ -121,6 +125,39 @@ namespace Kavis.Ui {
                 body.set_ellipsize (Pango.EllipsizeMode.END);
                 body.set_max_width_chars (36);
                 text.pack_start (body, false, false, 0);
+            }
+            /* Küçük önizleme (bölüm 5): görselli bildirimde toast da
+             * gösterir — ekran görüntüsü, renk kutusu. */
+            if (entry.image_path != ""
+                && FileUtils.test (entry.image_path,
+                                   FileTest.IS_REGULAR)) {
+                try {
+                    var preview = new Gtk.Image.from_pixbuf (
+                        new Gdk.Pixbuf.from_file_at_scale (
+                            entry.image_path, 200, 56, true));
+                    preview.set_halign (Gtk.Align.START);
+                    text.pack_start (preview, false, false, 2);
+                } catch (Error e) { }
+            }
+            /* Eylem düğmeleri (bölüm 5c): tık ActionInvoked ile
+             * bildirim sahibine döner, toast kapanır. */
+            if (entry.actions.length >= 2) {
+                var actions_row = new Gtk.Box (
+                    Gtk.Orientation.HORIZONTAL, 6);
+                for (int i = 0; i + 1 < entry.actions.length; i += 2) {
+                    var action_button = new Gtk.Button.with_label (
+                        entry.actions[i + 1]);
+                    action_button.set_relief (Gtk.ReliefStyle.NONE);
+                    string key = entry.actions[i];
+                    uint32 id = entry.id;
+                    action_button.clicked.connect (() => {
+                        server.action_invoked (id, key);
+                        close_toast ();
+                    });
+                    actions_row.pack_start (action_button,
+                                            false, false, 0);
+                }
+                text.pack_start (actions_row, false, false, 2);
             }
             box.pack_start (text, true, true, 0);
 

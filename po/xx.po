@@ -384,11 +384,20 @@ msgstr "⟪Window··⟫"
 msgid "Full screen"
 msgstr "⟪Full screen····⟫"
 
+msgid "Color"
+msgstr "⟪Color··⟫"
+
 msgid "Record audio too"
 msgstr "⟪Record audio too······⟫"
 
 msgid "Microphone"
 msgstr "⟪Microphone····⟫"
+
+msgid "Copy RGB"
+msgstr "⟪Copy RGB···⟫"
+
+msgid "Copy HSL"
+msgstr "⟪Copy HSL···⟫"
 
 msgid "Recording"
 msgstr "⟪Recording···⟫"

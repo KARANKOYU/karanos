@@ -423,3 +423,12 @@ msgstr "Aksanlı harfler"
 
 msgid "Super/subscript"
 msgstr "Üst/alt simge"
+
+msgid "Color"
+msgstr "Renk"
+
+msgid "Copy RGB"
+msgstr "RGB kopyala"
+
+msgid "Copy HSL"
+msgstr "HSL kopyala"

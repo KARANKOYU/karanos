@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 12:42+0000\n"
+"POT-Creation-Date: 2026-09-02 12:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Settings app coming soon"
 msgstr ""
 
-#: packages/kavis-panel/src/logic/notifications.vala:168
+#: packages/kavis-panel/src/logic/notifications.vala:173
 #, c-format
 msgid "%d new notifications"
 msgstr ""
@@ -382,7 +382,7 @@ msgid "Search"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:187
-#: packages/kavis-tools/src/capture.vala:389
+#: packages/kavis-tools/src/capture.vala:399
 msgid "Close"
 msgstr ""
 
@@ -543,55 +543,67 @@ msgid "Invalid expression"
 msgstr ""
 
 #: packages/kavis-tools/src/capture.vala:149
-#: packages/kavis-tools/src/capture.vala:659
+#: packages/kavis-tools/src/capture.vala:868
 msgid "Screenshot saved"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:341
+#: packages/kavis-tools/src/capture.vala:351
 msgid "Image"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:343
+#: packages/kavis-tools/src/capture.vala:353
 msgid "Video"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:358
+#: packages/kavis-tools/src/capture.vala:368
 msgid "Rectangle"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:358
+#: packages/kavis-tools/src/capture.vala:368
 msgid "Freeform"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:359
+#: packages/kavis-tools/src/capture.vala:369
 msgid "Window"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:359
+#: packages/kavis-tools/src/capture.vala:369
 msgid "Full screen"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:377
+#: packages/kavis-tools/src/capture.vala:369
+msgid "Color"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:387
 msgid "Record audio too"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:380
+#: packages/kavis-tools/src/capture.vala:390
 msgid "Microphone"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:760
+#: packages/kavis-tools/src/capture.vala:779
+msgid "Copy RGB"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:781
+msgid "Copy HSL"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:969
 msgid "Recording"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:764
+#: packages/kavis-tools/src/capture.vala:973
 msgid "You can also press PrtSc to stop"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:773
+#: packages/kavis-tools/src/capture.vala:982
 msgid "Stop"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:824
+#: packages/kavis-tools/src/capture.vala:1033
 msgid "Screen recording saved"
 msgstr ""
 

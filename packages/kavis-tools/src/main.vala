@@ -37,7 +37,10 @@ int main (string[] args) {
         if (args.length > 2 && args[2] == "--quick") {
             return Kavis.Tools.Capture.quick ();
         }
-        return Kavis.Tools.Capture.snip ();
+        /* --color: Win+Shift+C — seçici doğrudan renk modunda
+         * (sonraki-isler 5c). */
+        return Kavis.Tools.Capture.snip (
+            args.length > 2 && args[2] == "--color");
     case "tasks":
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
