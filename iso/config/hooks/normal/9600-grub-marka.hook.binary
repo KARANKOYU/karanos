@@ -96,6 +96,38 @@ if [ -f "$TEMA" ]; then
 		-e "s|selected_item_color= \"[^\"]*\"|selected_item_color= \"#2DD4BF\"|" \
 		"$TEMA"
 	echo "I: gfxmenu temasi Kavis paletine cevrildi"
+
+	# --- geri sayım: gri kutu yerine sade satır (İş 3) ----------------
+	# live-build teması geri sayımı `progress_bar { id = "__timeout__" }`
+	# ile çiziyor: gri zeminli bir kutu + İngilizce "The highlighted
+	# entry will be executed automatically in %ds". Koyu temanın ortasında
+	# sırıtıyor. GRUB'da id'si __timeout__ olan HERHANGİ bir bileşen
+	# varsayılan geri sayım kutusunu devre dışı bırakır ve `text`
+	# özelliğindeki %d her saniye kalan süreyle basılır — kutu yerine
+	# ikincil metin renginde tek satır yazıyoruz. Metin tablodan:
+	# boot.autoboot_countdown (docs/kavis-arayuz-metinleri.md). Unifont
+	# Türkçe glifleri içeriyor (menü girdilerinde zaten kullanılıyor).
+	# progress_bar temadaki SON blok; oradan dosya sonuna kadar siliyoruz.
+	sed -i '/^#progress bar$/,$d' "$TEMA"
+	cat >> "$TEMA" <<'EOF'
+#geri sayim (Kavis)
++ label {
+	id = "__timeout__"
+	left = 0
+	width = 100%
+	top = 100%-80
+	height = 20
+	align = "center"
+	color = "#8B9BA8"
+	font = "Unifont Regular 16"
+	text = "%d saniye içinde otomatik başlıyor"
+}
+EOF
+	if grep -q '__timeout__' "$TEMA" && ! grep -q 'progress_bar' "$TEMA"; then
+		echo "I: geri sayim kutusu sade Turkce satira cevrildi"
+	else
+		echo "W: geri sayim degisikligi dogrulanamadi" >&2
+	fi
 else
 	echo "W: live-theme/theme.txt yok, tema paleti atlandi" >&2
 fi

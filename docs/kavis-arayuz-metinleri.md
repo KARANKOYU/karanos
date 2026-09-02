@@ -53,6 +53,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `boot.made_by` | made by Karan | made by Karan |
 | `boot.starting` | Kavis başlatılıyor… | Starting Kavis… |
 | `boot.advanced_hint` | F3 — Gelişmiş menü | F3 — Advanced menu |
+| `boot.autoboot_countdown` | %d saniye içinde otomatik başlıyor | Starting automatically in %d seconds |
 | `boot.skip_hint` | Atlamak için boşluk tuşu | Press space to skip |
 | `boot.advanced_title` | Gelişmiş menü | Advanced menu |
 | `boot.safe_mode` | Güvenli mod — düşük çözünürlük, sürücüsüz | Safe mode — low resolution, no drivers |
