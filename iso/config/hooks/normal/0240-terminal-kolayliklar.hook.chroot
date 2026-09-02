@@ -16,6 +16,12 @@ if ! grep -q "kavis/terminal-tips.sh" /etc/bash.bashrc; then
 if [ -f /usr/share/kavis/terminal-tips.sh ]; then
 	. /usr/share/kavis/terminal-tips.sh
 fi
+
+# Tilix'in bölünmüş terminalde dizin takibi (2E): VTE kancası yalnız
+# login kabuklarında kaynaklanıyordu, Tilix uyarı penceresi açıyordu.
+if [ -f /etc/profile.d/vte-2.91.sh ]; then
+	. /etc/profile.d/vte-2.91.sh
+fi
 EOF
 fi
 

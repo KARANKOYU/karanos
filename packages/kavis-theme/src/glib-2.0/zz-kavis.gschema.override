@@ -28,6 +28,12 @@ exec='tilix'
 # Tilix varsayılan profili (sabit UUID, tilix kaynağı
 # GSETTINGS_DEFAULT_UUID): Kavis renk kimliği. Ctrl+Shift+C/V zaten
 # tilix varsayılanı. Yazı tipi ayarı arayüzden.
+# 2E: "Configuration Issue Detected" penceresi hiç çıkmasın —
+# vte-2.91.sh kaynağı 0240 hook'uyla /etc/bash.bashrc'e giriyor,
+# uyarı da kapatılıyor (ikisi birden: kemer + pantolon askısı).
+[com.gexperts.Tilix.Settings]
+warn-vte-config-issue=false
+
 [com.gexperts.Tilix.Profile:/com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/]
 use-theme-colors=false
 background-color='#0D141B'
