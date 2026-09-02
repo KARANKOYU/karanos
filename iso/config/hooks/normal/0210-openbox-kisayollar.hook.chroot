@@ -82,6 +82,16 @@ if grep -q "<command>scrot" "$RC"; then
 fi
 echo "I: Debian varsayilan baglari temizlendi (A-F4, Print, tekerlek, kok menuleri; Drag=Unmaximize+Move)"
 
+# 2A: pencere kenara sürüklenince openbox masaüstü DEĞİŞTİRMESİN —
+# kavis-snap'in kenar yapıştırmasını gölgeliyordu (sol/sağ = yarım,
+# üst = büyüt). 0 = kapalı.
+sed -i 's|<screenEdgeWarpTime>[0-9]*</screenEdgeWarpTime>|<screenEdgeWarpTime>0</screenEdgeWarpTime>|' "$RC"
+if ! grep -q "<screenEdgeWarpTime>0</screenEdgeWarpTime>" "$RC"; then
+	echo "E: screenEdgeWarpTime kapatilamadi" >&2
+	exit 1
+fi
+echo "I: kenar suruklemede masaustu gecisi kapali (screenEdgeWarpTime=0)"
+
 SNIPPET=$(mktemp)
 cat > "$SNIPPET" <<'EOF'
     <!-- Kavis kisayollari (madde 6) — 0210 hook'u ekledi -->
