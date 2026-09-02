@@ -56,6 +56,91 @@ namespace Kavis.Quick {
         run_async ({ "nmcli", "radio", "wifi", enabled ? "on" : "off" });
     }
 
+    /* Bağlı Wi-Fi ağının adı; bağlı değilken boş. Kutucuk etiketi
+     * olarak gösterilir (W11 davranışı). */
+    public string wifi_ssid () {
+        string? output = run_capture (
+            { "nmcli", "-t", "-f", "active,ssid", "dev", "wifi" });
+        if (output == null) {
+            return "";
+        }
+        foreach (unowned string line in output.split ("\n")) {
+            if (line.has_prefix ("yes:")) {
+                return line.substring (4);
+            }
+        }
+        return "";
+    }
+
+    public struct WifiNetwork {
+        public string ssid;
+        public bool active;
+        public int signal;
+    }
+
+    /* Görünür ağlar (nmcli'nin önbelleğinden — tarama başlatmaz,
+     * hızlı döner). Alt panel listesi için. */
+    public WifiNetwork[] wifi_networks () {
+        WifiNetwork[] result = {};
+        string? output = run_capture (
+            { "nmcli", "-t", "-f", "in-use,ssid,signal", "dev", "wifi" });
+        if (output == null) {
+            return result;
+        }
+        foreach (unowned string line in output.split ("\n")) {
+            string[] parts = line.split (":");
+            if (parts.length < 3 || parts[1] == "") {
+                continue;
+            }
+            /* Aynı SSID birden çok bantta görünür; ilkini tut. */
+            bool seen = false;
+            foreach (unowned WifiNetwork known in result) {
+                if (known.ssid == parts[1]) {
+                    seen = true;
+                    break;
+                }
+            }
+            if (seen) {
+                continue;
+            }
+            WifiNetwork network = {
+                parts[1], parts[0] == "*", int.parse (parts[2])
+            };
+            result += network;
+        }
+        return result;
+    }
+
+    /* Kayıtlı ya da şifresiz ağa bağlanır. Şifre isteyen yeni ağın
+     * diyaloğu Ayarlar'ın işi (Grup F) — burada deneme başarısızsa
+     * nmcli sessizce düşer. */
+    public void wifi_connect (string ssid) {
+        run_async ({ "nmcli", "dev", "wifi", "connect", ssid });
+    }
+
+    public void wifi_disconnect () {
+        run_async ({ "nmcli", "con", "down", "id", wifi_ssid () });
+    }
+
+    /* --- Uçak modu (rfkill hepsi) ------------------------------------- */
+
+    public bool airplane_available () {
+        return has_program ("rfkill");
+    }
+
+    /* Uçak modu = hiçbir telsiz açık değil. */
+    public bool airplane_enabled () {
+        string? output = run_capture ({ "rfkill", "list" });
+        if (output == null || output.strip () == "") {
+            return false;
+        }
+        return !("Soft blocked: no" in output);
+    }
+
+    public void airplane_set (bool enabled) {
+        run_async ({ "rfkill", enabled ? "block" : "unblock", "all" });
+    }
+
     /* --- Bluetooth (rfkill) ------------------------------------------ */
 
     public bool bluetooth_available () {
@@ -76,6 +161,79 @@ namespace Kavis.Quick {
 
     public void bluetooth_set (bool enabled) {
         run_async ({ "rfkill", enabled ? "unblock" : "block", "bluetooth" });
+    }
+
+    /* Eşleştirilmiş cihaz listesi (bluetoothctl varsa; yoksa kutucuğun
+     * "›" bölümü hiç görünmez — araç yoklama kuralı). */
+    public bool bluetooth_list_available () {
+        return has_program ("bluetoothctl");
+    }
+
+    public struct BtDevice {
+        public string address;
+        public string name;
+    }
+
+    public BtDevice[] bluetooth_devices () {
+        BtDevice[] result = {};
+        string? output = run_capture ({ "bluetoothctl", "devices" });
+        if (output == null) {
+            return result;
+        }
+        foreach (unowned string line in output.split ("\n")) {
+            /* "Device AA:BB:CC:DD:EE:FF Ad" */
+            string[] parts = line.split (" ", 3);
+            if (parts.length == 3 && parts[0] == "Device") {
+                BtDevice device = { parts[1], parts[2] };
+                result += device;
+            }
+        }
+        return result;
+    }
+
+    public void bluetooth_connect (string address) {
+        run_async ({ "bluetoothctl", "connect", address });
+    }
+
+    /* --- Ses çıkış aygıtları (pactl — PipeWire/Pulse) ------------------ */
+
+    public bool sound_output_available () {
+        return has_program ("pactl");
+    }
+
+    public struct SoundOutput {
+        public string name;         /* pactl iç adı */
+        public string description;  /* insan okur ad */
+        public bool active;
+    }
+
+    /* Kısa liste (id\tad\t...) + varsayılan sink adı. İnsan-okur
+     * açıklama `pactl list sinks` çözümlemesi ister; alt panele iç ad
+     * yeter, zengin adlar Ayarlar Ses sayfasının işi (Grup F). */
+    public SoundOutput[] sound_outputs () {
+        SoundOutput[] result = {};
+        string? default_sink = run_capture (
+            { "pactl", "get-default-sink" });
+        string active_name = (default_sink ?? "").strip ();
+        string? output = run_capture ({ "pactl", "list", "short",
+                                        "sinks" });
+        if (output == null) {
+            return result;
+        }
+        foreach (unowned string line in output.split ("\n")) {
+            string[] parts = line.split ("\t");
+            if (parts.length >= 2) {
+                SoundOutput sink = {
+                    parts[1], parts[1], parts[1] == active_name
+                };
+                result += sink;
+            }
+        }
+        return result;
+    }
+
+    public void sound_set_output (string name) {
+        run_async ({ "pactl", "set-default-sink", name });
     }
 
     /* --- Gece modu (xsct — X renk sıcaklığı) --------------------------- */

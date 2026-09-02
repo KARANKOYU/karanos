@@ -71,6 +71,22 @@ namespace Kavis.Volume {
         spawn ({ "amixer", "-q", "set", "Master", "toggle" });
     }
 
+    /* Level → icon-name mapping shared by the indicator, the OSD and
+     * the quick-settings slider (lived in VolumePopup before that
+     * popup dissolved into quick settings — Grup D 2b). */
+    public unowned string icon_name (int percent, bool muted) {
+        if (muted || percent <= 0) {
+            return "audio-volume-muted-symbolic";
+        }
+        if (percent < 34) {
+            return "audio-volume-low-symbolic";
+        }
+        if (percent < 67) {
+            return "audio-volume-medium-symbolic";
+        }
+        return "audio-volume-high-symbolic";
+    }
+
     private void spawn (string[] argv) {
         try {
             Process.spawn_async (null, argv, null,

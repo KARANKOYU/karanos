@@ -356,6 +356,8 @@ bu dosyayı kaynak olarak kullanacak.
 |---|---|---|
 | `network.wifi` | Wi-Fi | Wi-Fi |
 | `network.wired` | Kablolu bağlantı | Wired connection |
+| `network.airplane` | Uçak modu | Airplane mode |
+| `network.settings` | Ağ ayarları | Network settings |
 | `network.available` | Kullanılabilir ağlar | Available networks |
 | `network.saved` | Kayıtlı ağlar | Saved networks |
 | `network.connect` | Bağlan | Connect |

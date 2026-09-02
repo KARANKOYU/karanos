@@ -70,17 +70,40 @@ namespace Kavis.Ui {
         .kavis-popup calendar:indeterminate {
           color: #4A5A66;
         }
-        /* Hızlı ayar kutucukları (madde 37): açıkken turkuaz vurgulu. */
-        .kavis-popup button.quick-tile {
-          padding: 8px 4px;
+        /* Hızlı ayar kutucukları (Grup D 2b): belirgin çerçeve, 8px
+           köşe; açıkken turkuaz DOLGU ve koyu ikon (turkuaz açık bir
+           renk — üstüne koyu, marka kuralı). */
+        .kavis-popup .setting-tile {
+          background-color: #17222C;
+          border: 1px solid #233A45;
           border-radius: 8px;
         }
-        .kavis-popup button.quick-tile.on {
-          background-color: rgba(45, 212, 191, 0.16);
-          color: #2DD4BF;
+        .kavis-popup .setting-tile button {
+          padding: 8px 0;
+          border-radius: 7px;
         }
-        .kavis-popup button.quick-tile.on:hover {
-          background-color: rgba(45, 212, 191, 0.24);
+        .kavis-popup .setting-tile button.tile-arrow {
+          padding: 8px 8px;
+          border-left: 1px solid #233A45;
+          border-radius: 0 7px 7px 0;
+        }
+        .kavis-popup .setting-tile.on {
+          background-color: #2DD4BF;
+          border-color: #2DD4BF;
+        }
+        .kavis-popup .setting-tile.on button {
+          color: #0D141B;
+        }
+        /* ".kavis-popup label" kuralı etikete doğrudan uygulanır ve
+           kalıtımı ezer — ok işareti koyu kalsın diye açık seçici. */
+        .kavis-popup .setting-tile.on button label {
+          color: #0D141B;
+        }
+        .kavis-popup .setting-tile.on button:hover {
+          background-color: rgba(13, 20, 27, 0.12);
+        }
+        .kavis-popup .setting-tile.on button.tile-arrow {
+          border-left-color: rgba(13, 20, 27, 0.25);
         }
         """;
 

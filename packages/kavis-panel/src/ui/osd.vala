@@ -48,7 +48,7 @@ namespace Kavis.Ui {
         }
 
         public void show_level (int percent, bool muted) {
-            icon.set_from_icon_name (VolumePopup.icon_for (percent, muted),
+            icon.set_from_icon_name (Volume.icon_name (percent, muted),
                                      Gtk.IconSize.DND);
             bar.set_value (muted ? 0 : percent.clamp (0, 100));
             unowned string fmt = Strings.is_turkish () ? "%%%d" : "%d%%";

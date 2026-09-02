@@ -87,7 +87,16 @@ namespace Kavis.Strings {
         { "settings.coming_soon",     "Ayarlar uygulaması yakında", "Settings app coming soon" },
         { "notif.dnd",                "Rahatsız etme",             "Do not disturb" },
         { "network.wifi",             "Wi-Fi",                     "Wi-Fi" },
+        { "network.airplane",         "Uçak modu",                 "Airplane mode" },
+        { "network.connected",        "Bağlı",                     "Connected" },
+        { "network.disconnect",       "Bağlantıyı kes",            "Disconnect" },
+        { "network.no_networks",      "Ağ bulunamadı",             "No networks found" },
+        { "network.settings",         "Ağ ayarları",               "Network settings" },
         { "settings.bluetooth",       "Bluetooth",                 "Bluetooth" },
+        { "settings.accessibility",   "Erişilebilirlik",           "Accessibility" },
+        { "bt.paired_devices",        "Eşleştirilmiş cihazlar",    "Paired devices" },
+        { "sound.output",             "Çıkış aygıtı",              "Output device" },
+        { "power.battery_saver",      "Pil tasarrufu",             "Battery saver" },
         { "display.night_mode",       "Gece modu",                 "Night light" },
         { "display.brightness",       "Parlaklık",                 "Brightness" },
         { "game.mode",                "Oyun Modu",                 "Game Mode" },
@@ -203,6 +212,7 @@ namespace Kavis.Strings {
                 || e.key.has_prefix ("game.")
                 || e.key.has_prefix ("focus.")
                 || e.key.has_prefix ("common.")
+                || e.key.has_prefix ("bt.")
                 || e.key.has_prefix ("clipboard.")
                 || e.key.has_prefix ("tm.")
                 || e.key.has_prefix ("calc.")

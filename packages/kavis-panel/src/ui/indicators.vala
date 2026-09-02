@@ -74,12 +74,12 @@ namespace Kavis.Ui {
         }
     }
 
-    /* Master volume; clicking opens the slider popup. Hidden when no
-     * mixer control is readable (no sound hardware). */
+    /* Master volume; clicking opens the shared quick-settings popup
+     * (Grup D 2b — W11 behavior). Hidden when no mixer control is
+     * readable (no sound hardware). */
     public class VolumeIndicator : Gtk.Button {
 
         private Gtk.Image icon;
-        private VolumePopup popup;
 
         public VolumeIndicator () {
             set_relief (Gtk.ReliefStyle.NONE);
@@ -95,9 +95,9 @@ namespace Kavis.Ui {
                 return;
             }
 
-            popup = new VolumePopup ();
-            popup.changed.connect (() => refresh ());
-            clicked.connect (() => popup.toggle_at (this));
+            clicked.connect (() => {
+                QuickSettingsPopup.get_default ().toggle_at (this);
+            });
 
             refresh ();
             Timeout.add_seconds (10, () => {
@@ -109,18 +109,19 @@ namespace Kavis.Ui {
         private void refresh () {
             var state = Volume.read ();
             icon.set_from_icon_name (
-                VolumePopup.icon_for (state.percent, state.muted),
+                Volume.icon_name (state.percent, state.muted),
                 Gtk.IconSize.BUTTON);
         }
     }
 
     /* Battery percentage; the whole button stays hidden on machines
      * without a battery (stage 4 rule: no battery indicator on
-     * desktops). Clicking opens charge details and power plans. */
+     * desktops). Clicking opens the shared quick-settings popup
+     * (Grup D 2b); the power-plan choice moved to the RIGHT-CLICK
+     * menu so it stays one click away until Settings arrives. */
     public class BatteryIndicator : Gtk.Button {
 
         private Gtk.Label text_label;
-        private BatteryPopup popup;
 
         public BatteryIndicator () {
             set_relief (Gtk.ReliefStyle.NONE);
@@ -135,14 +136,58 @@ namespace Kavis.Ui {
                 return;
             }
 
-            popup = new BatteryPopup ();
-            clicked.connect (() => popup.toggle_at (this));
+            clicked.connect (() => {
+                QuickSettingsPopup.get_default ().toggle_at (this);
+            });
+            button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_plan_menu (event);
+                    return true;
+                }
+                return false;
+            });
 
             refresh ();
             Timeout.add_seconds (30, () => {
                 refresh ();
                 return Source.CONTINUE;
             });
+        }
+
+        private void show_plan_menu (Gdk.EventButton event) {
+            var menu = new Gtk.Menu ();
+            bool[] sources = { true, false };
+            string[] source_keys = {
+                "power.when_plugged", "power.when_battery"
+            };
+            for (int s = 0; s < sources.length; s++) {
+                var source_item = new Gtk.MenuItem.with_label (
+                    Strings.get (source_keys[s]));
+                var submenu = new Gtk.Menu ();
+                unowned SList<Gtk.RadioMenuItem>? group = null;
+                bool plugged = sources[s];
+                PowerPlan.Plan[] plans = { PowerPlan.Plan.PERFORMANCE,
+                                           PowerPlan.Plan.NORMAL,
+                                           PowerPlan.Plan.SAVER };
+                var current = PowerPlan.get_plan (plugged);
+                foreach (var plan in plans) {
+                    var item = new Gtk.RadioMenuItem.with_label (
+                        group, Strings.get ("power.plan_" + plan.id ()));
+                    group = item.get_group ();
+                    item.set_active (current == plan);
+                    var chosen = plan;   /* closure copy */
+                    item.activate.connect (() => {
+                        if (item.get_active ()) {
+                            PowerPlan.set_plan (plugged, chosen);
+                        }
+                    });
+                    submenu.append (item);
+                }
+                source_item.set_submenu (submenu);
+                menu.append (source_item);
+            }
+            menu.show_all ();
+            menu.popup_at_pointer (event);
         }
 
         private void refresh () {

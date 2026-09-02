@@ -1,0 +1,611 @@
+/* Quick settings popup (UI layer) — Grup D fix 2b.
+ *
+ * Windows 11 quick settings: a 3-column grid of tiles (split tiles
+ * open an in-popup subpage), brightness and volume sliders, a battery
+ * line with a settings gear. One shared instance — the volume and
+ * battery indicators and the tray tools (item 3) all toggle the same
+ * popup. Backends live in logic (Quick, Volume, PowerPlan, Focus,
+ * Notifications); this file only draws.
+ */
+
+namespace Kavis.Ui {
+
+    /* One tile: a bordered box holding the toggle button (icon), for
+     * split tiles a narrow "›" button opening a subpage, and a small
+     * caption underneath. Teal fill with dark icon when on. */
+    public class SettingTile : Gtk.Box {
+
+        public signal void toggled_by_user (bool enabled);
+        public signal void details_requested ();
+
+        private Gtk.Box frame;
+        private Gtk.Label caption;
+        private bool state = false;
+
+        public SettingTile (string icon_name, string label_key,
+                            bool split) {
+            Object (orientation: Gtk.Orientation.VERTICAL, spacing: 4);
+
+            frame = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            frame.get_style_context ().add_class ("setting-tile");
+
+            var main_button = new Gtk.Button.from_icon_name (
+                icon_name, Gtk.IconSize.LARGE_TOOLBAR);
+            main_button.set_relief (Gtk.ReliefStyle.NONE);
+            main_button.clicked.connect (() => {
+                set_state (!state);
+                toggled_by_user (state);
+            });
+            frame.pack_start (main_button, true, true, 0);
+
+            if (split) {
+                var arrow = new Gtk.Button.with_label ("›");
+                arrow.set_relief (Gtk.ReliefStyle.NONE);
+                arrow.get_style_context ().add_class ("tile-arrow");
+                arrow.clicked.connect (() => details_requested ());
+                frame.pack_end (arrow, false, false, 0);
+            }
+            pack_start (frame, false, false, 0);
+
+            caption = new Gtk.Label (null);
+            caption.set_ellipsize (Pango.EllipsizeMode.END);
+            caption.set_max_width_chars (12);
+            set_caption (Strings.get (label_key));
+            pack_start (caption, false, false, 0);
+        }
+
+        public void set_caption (string text) {
+            caption.set_markup ("<small>%s</small>".printf (
+                Markup.escape_text (text)));
+        }
+
+        public void set_state (bool enabled) {
+            state = enabled;
+            unowned Gtk.StyleContext context = frame.get_style_context ();
+            if (enabled) {
+                context.add_class ("on");
+            } else {
+                context.remove_class ("on");
+            }
+        }
+    }
+
+    public class QuickSettingsPopup : PanelPopup {
+
+        /* Tek örnek: ses/pil göstergeleri ve tepsi araçları (madde 3)
+         * aynı popup'ı açar. */
+        private static QuickSettingsPopup? instance = null;
+
+        public static QuickSettingsPopup get_default () {
+            if (instance == null) {
+                instance = new QuickSettingsPopup ();
+            }
+            return instance;
+        }
+
+        private Gtk.Stack stack;
+        private SettingTile? wifi_tile = null;
+        private SettingTile? bt_tile = null;
+        private SettingTile? airplane_tile = null;
+        private SettingTile? night_tile = null;
+        private SettingTile game_tile;
+        private SettingTile focus_tile;
+        private SettingTile dnd_tile;
+        private SettingTile? saver_tile = null;
+        private Gtk.Scale? brightness_slider = null;
+        private Gtk.Scale? volume_slider = null;
+        private Gtk.Image? volume_icon = null;
+        private Gtk.Label battery_label;
+        private Gtk.Box? wifi_list = null;
+        private Gtk.Box? bt_list = null;
+        private Gtk.Box? sink_list = null;
+        private bool updating = false;
+        private uint brightness_source = 0;
+        private uint volume_source = 0;
+
+        private QuickSettingsPopup () {
+            edge_aligned = true;
+            content.set_size_request (360, -1);
+
+            stack = new Gtk.Stack ();
+            stack.set_transition_type (
+                Gtk.StackTransitionType.SLIDE_LEFT_RIGHT);
+            stack.set_transition_duration (180);
+            stack.add_named (build_main_page (), "main");
+            if (wifi_tile != null) {
+                stack.add_named (build_wifi_page (), "wifi");
+            }
+            if (bt_tile != null && Quick.bluetooth_list_available ()) {
+                stack.add_named (build_bt_page (), "bt");
+            }
+            if (Quick.sound_output_available ()) {
+                stack.add_named (build_sink_page (), "sinks");
+            }
+            stack.add_named (build_access_page (), "access");
+            content.pack_start (stack, true, true, 0);
+        }
+
+        /* Tepsi araçları doğrudan bir alt sayfaya açabilir (madde 3:
+         * Wi-Fi simgesi → ağ listesi). */
+        public void open_page (Gtk.Widget anchor, string page) {
+            if (get_visible ()) {
+                dismiss ();
+                return;
+            }
+            toggle_at (anchor);
+            if (stack.get_child_by_name (page) != null) {
+                show_page (page);
+            }
+        }
+
+        private void show_page (string name) {
+            stack.set_visible_child_name (name);
+            if (name == "wifi") {
+                rebuild_wifi_list ();
+            } else if (name == "bt") {
+                rebuild_bt_list ();
+            } else if (name == "sinks") {
+                rebuild_sink_list ();
+            }
+            refit ();
+        }
+
+        /* --- ana sayfa ------------------------------------------------ */
+
+        private Gtk.Widget build_main_page () {
+            var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 10);
+
+            var grid = new Gtk.Grid ();
+            grid.set_column_homogeneous (true);
+            grid.set_column_spacing (8);
+            grid.set_row_spacing (10);
+
+            int col = 0, row = 0;
+
+            if (Quick.wifi_available ()) {
+                wifi_tile = new SettingTile ("network-wireless-symbolic",
+                                             "network.wifi", true);
+                wifi_tile.toggled_by_user.connect ((on) => {
+                    Quick.wifi_set (on);
+                });
+                wifi_tile.details_requested.connect (() => {
+                    show_page ("wifi");
+                });
+                attach_tile (grid, wifi_tile, ref col, ref row);
+            }
+            if (Quick.bluetooth_available ()) {
+                bt_tile = new SettingTile ("bluetooth-active-symbolic",
+                    "settings.bluetooth",
+                    Quick.bluetooth_list_available ());
+                bt_tile.toggled_by_user.connect ((on) => {
+                    Quick.bluetooth_set (on);
+                });
+                bt_tile.details_requested.connect (() => {
+                    show_page ("bt");
+                });
+                attach_tile (grid, bt_tile, ref col, ref row);
+            }
+            if (Quick.airplane_available ()) {
+                airplane_tile = new SettingTile ("airplane-mode-symbolic",
+                                                 "network.airplane", false);
+                airplane_tile.toggled_by_user.connect ((on) => {
+                    Quick.airplane_set (on);
+                    /* Telsiz kutucukları da değişir. */
+                    Timeout.add (300, () => {
+                        refresh_content ();
+                        return Source.REMOVE;
+                    });
+                });
+                attach_tile (grid, airplane_tile, ref col, ref row);
+            }
+            if (Quick.night_available ()) {
+                night_tile = new SettingTile ("night-light-symbolic",
+                                              "display.night_mode", false);
+                night_tile.toggled_by_user.connect ((on) => {
+                    Quick.night_set (on);
+                });
+                attach_tile (grid, night_tile, ref col, ref row);
+            }
+            game_tile = new SettingTile ("input-gaming-symbolic",
+                                         "game.mode", false);
+            game_tile.toggled_by_user.connect ((on) => {
+                Quick.gamemode_set (on);
+            });
+            attach_tile (grid, game_tile, ref col, ref row);
+
+            focus_tile = new SettingTile ("alarm-symbolic",
+                                          "focus.mode", false);
+            focus_tile.toggled_by_user.connect ((on) => {
+                if (on) {
+                    Focus.start ();
+                } else {
+                    Focus.cancel ();
+                }
+            });
+            attach_tile (grid, focus_tile, ref col, ref row);
+
+            dnd_tile = new SettingTile ("notifications-disabled-symbolic",
+                                        "notif.dnd", false);
+            dnd_tile.toggled_by_user.connect ((on) => {
+                if (Notifications.server != null) {
+                    Notifications.server.set_dnd (on);
+                }
+            });
+            attach_tile (grid, dnd_tile, ref col, ref row);
+
+            if (Battery.present ()) {
+                saver_tile = new SettingTile ("battery-good-symbolic",
+                                              "power.battery_saver", false);
+                saver_tile.toggled_by_user.connect ((on) => {
+                    /* Tasarruf, o anki güç kaynağının planını değiştirir;
+                     * kapatınca Normal'e döner. Kaynak yaklaşık olarak
+                     * şarj durumundan okunur. */
+                    bool plugged = Battery.charging ();
+                    PowerPlan.set_plan (plugged, on
+                        ? PowerPlan.Plan.SAVER : PowerPlan.Plan.NORMAL);
+                });
+                attach_tile (grid, saver_tile, ref col, ref row);
+            }
+
+            var access_tile = new SettingTile (
+                "preferences-desktop-accessibility-symbolic",
+                "settings.accessibility", true);
+            access_tile.toggled_by_user.connect ((on) => {
+                /* Aç/kapa karşılığı yok; kutucuk yalnız alt panele
+                 * açılır. Durum vurgusunu geri al. */
+                access_tile.set_state (false);
+                show_page ("access");
+            });
+            access_tile.details_requested.connect (() => {
+                show_page ("access");
+            });
+            attach_tile (grid, access_tile, ref col, ref row);
+
+            page.pack_start (grid, false, false, 0);
+            page.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 0);
+
+            /* --- kaydırıcılar --- */
+            if (Quick.brightness_available ()) {
+                var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+                row_box.pack_start (new Gtk.Image.from_icon_name (
+                    "display-brightness-symbolic", Gtk.IconSize.BUTTON),
+                    false, false, 0);
+                brightness_slider = new Gtk.Scale.with_range (
+                    Gtk.Orientation.HORIZONTAL, 5, 100, 5);
+                brightness_slider.set_draw_value (false);
+                brightness_slider.set_tooltip_text (
+                    Strings.get ("display.brightness"));
+                brightness_slider.value_changed.connect (() => {
+                    if (updating) {
+                        return;
+                    }
+                    int value = (int) brightness_slider.get_value ();
+                    if (brightness_source != 0) {
+                        Source.remove (brightness_source);
+                    }
+                    brightness_source = Timeout.add (80, () => {
+                        brightness_source = 0;
+                        Quick.brightness_set (value);
+                        return Source.REMOVE;
+                    });
+                });
+                row_box.pack_start (brightness_slider, true, true, 0);
+                page.pack_start (row_box, false, false, 0);
+            }
+
+            if (Volume.available ()) {
+                var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+                volume_icon = new Gtk.Image.from_icon_name (
+                    "audio-volume-high-symbolic", Gtk.IconSize.BUTTON);
+                var mute = new Gtk.Button ();
+                mute.set_relief (Gtk.ReliefStyle.NONE);
+                mute.set_tooltip_text (Strings.get ("sound.mute"));
+                mute.add (volume_icon);
+                mute.clicked.connect (() => {
+                    Volume.toggle_mute ();
+                    Timeout.add (150, () => {
+                        refresh_sound_row ();
+                        return Source.REMOVE;
+                    });
+                });
+                row_box.pack_start (mute, false, false, 0);
+                volume_slider = new Gtk.Scale.with_range (
+                    Gtk.Orientation.HORIZONTAL, 0, 100, 5);
+                volume_slider.set_draw_value (false);
+                volume_slider.set_tooltip_text (
+                    Strings.get ("sound.volume"));
+                volume_slider.value_changed.connect (() => {
+                    if (updating) {
+                        return;
+                    }
+                    int value = (int) volume_slider.get_value ();
+                    if (volume_source != 0) {
+                        Source.remove (volume_source);
+                    }
+                    volume_source = Timeout.add (80, () => {
+                        volume_source = 0;
+                        Volume.set_percent (value);
+                        return Source.REMOVE;
+                    });
+                });
+                row_box.pack_start (volume_slider, true, true, 0);
+                if (Quick.sound_output_available ()) {
+                    var arrow = new Gtk.Button.with_label ("›");
+                    arrow.set_relief (Gtk.ReliefStyle.NONE);
+                    arrow.set_tooltip_text (Strings.get ("sound.output"));
+                    arrow.clicked.connect (() => {
+                        show_page ("sinks");
+                    });
+                    row_box.pack_end (arrow, false, false, 0);
+                }
+                page.pack_start (row_box, false, false, 0);
+            }
+
+            page.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 0);
+
+            /* --- alt satır: pil + dişli --- */
+            var bottom = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            battery_label = new Gtk.Label ("");
+            battery_label.set_xalign (0);
+            if (Battery.present ()) {
+                bottom.pack_start (new Gtk.Image.from_icon_name (
+                    "battery-good-symbolic", Gtk.IconSize.BUTTON),
+                    false, false, 0);
+                bottom.pack_start (battery_label, false, false, 0);
+            }
+            var gear = new Gtk.Button.from_icon_name (
+                "emblem-system-symbolic", Gtk.IconSize.BUTTON);
+            gear.set_relief (Gtk.ReliefStyle.NONE);
+            gear.set_tooltip_text (Strings.get ("common.settings"));
+            gear.clicked.connect (() => {
+                dismiss ();
+                Launch.settings ("home");
+            });
+            bottom.pack_end (gear, false, false, 0);
+            page.pack_start (bottom, false, false, 0);
+
+            return page;
+        }
+
+        private void attach_tile (Gtk.Grid grid, SettingTile tile,
+                                  ref int col, ref int row) {
+            grid.attach (tile, col, row, 1, 1);
+            col++;
+            if (col == 3) {
+                col = 0;
+                row++;
+            }
+        }
+
+        /* --- alt sayfalar --------------------------------------------- */
+
+        private Gtk.Widget subpage (string title_key, out Gtk.Box body) {
+            var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
+            var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
+            var back = new Gtk.Button.with_label (
+                "‹ " + Strings.get ("common.back"));
+            back.set_relief (Gtk.ReliefStyle.NONE);
+            back.clicked.connect (() => {
+                stack.set_visible_child_name ("main");
+                refit ();
+            });
+            header.pack_start (back, false, false, 0);
+            var title = new Gtk.Label (Strings.get (title_key));
+            title.get_style_context ().add_class ("dim");
+            header.pack_start (title, true, true, 0);
+            page.pack_start (header, false, false, 0);
+            page.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 0);
+
+            var scroll = new Gtk.ScrolledWindow (null, null);
+            scroll.set_policy (Gtk.PolicyType.NEVER,
+                               Gtk.PolicyType.AUTOMATIC);
+            scroll.set_size_request (-1, 240);
+            body = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
+            scroll.add (body);
+            page.pack_start (scroll, true, true, 0);
+            return page;
+        }
+
+        private Gtk.Widget build_wifi_page () {
+            Gtk.Box body;
+            var page = subpage ("network.wifi", out body);
+            wifi_list = body;
+            return page;
+        }
+
+        private Gtk.Widget build_bt_page () {
+            Gtk.Box body;
+            var page = subpage ("bt.paired_devices", out body);
+            bt_list = body;
+            return page;
+        }
+
+        private Gtk.Widget build_sink_page () {
+            Gtk.Box body;
+            var page = subpage ("sound.output", out body);
+            sink_list = body;
+            return page;
+        }
+
+        private Gtk.Widget build_access_page () {
+            Gtk.Box body;
+            var page = subpage ("settings.accessibility", out body);
+            /* Erişilebilirlik seçenekleri Ayarlar uygulamasıyla
+             * geliyor (Grup F); alt panel o güne kadar bunu söyler. */
+            var soon = new Gtk.Label (Strings.get ("settings.coming_soon"));
+            soon.get_style_context ().add_class ("dim");
+            soon.set_margin_top (20);
+            body.pack_start (soon, false, false, 0);
+            return page;
+        }
+
+        private void clear_box (Gtk.Box box) {
+            foreach (var child in box.get_children ()) {
+                box.remove (child);
+            }
+        }
+
+        private Gtk.Button list_row (string text, bool active) {
+            var button = new Gtk.Button ();
+            button.set_relief (Gtk.ReliefStyle.NONE);
+            var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            var label = new Gtk.Label (text);
+            label.set_xalign (0);
+            label.set_ellipsize (Pango.EllipsizeMode.END);
+            row.pack_start (label, true, true, 0);
+            if (active) {
+                var mark = new Gtk.Label (
+                    Strings.get ("network.connected"));
+                mark.get_style_context ().add_class ("dim");
+                row.pack_end (mark, false, false, 0);
+            }
+            button.add (row);
+            return button;
+        }
+
+        private void rebuild_wifi_list () {
+            if (wifi_list == null) {
+                return;
+            }
+            clear_box (wifi_list);
+            var networks = Quick.wifi_networks ();
+            if (networks.length == 0) {
+                var empty = new Gtk.Label (
+                    Strings.get ("network.no_networks"));
+                empty.get_style_context ().add_class ("dim");
+                empty.set_margin_top (20);
+                wifi_list.pack_start (empty, false, false, 0);
+            }
+            foreach (unowned Quick.WifiNetwork network in networks) {
+                var row = list_row (network.ssid, network.active);
+                string ssid = network.ssid;
+                bool active = network.active;
+                row.clicked.connect (() => {
+                    if (active) {
+                        Quick.wifi_disconnect ();
+                    } else {
+                        Quick.wifi_connect (ssid);
+                    }
+                    dismiss ();
+                });
+                wifi_list.pack_start (row, false, false, 0);
+            }
+            wifi_list.show_all ();
+        }
+
+        private void rebuild_bt_list () {
+            if (bt_list == null) {
+                return;
+            }
+            clear_box (bt_list);
+            var devices = Quick.bluetooth_devices ();
+            if (devices.length == 0) {
+                var empty = new Gtk.Label (Strings.get ("common.none"));
+                empty.get_style_context ().add_class ("dim");
+                empty.set_margin_top (20);
+                bt_list.pack_start (empty, false, false, 0);
+            }
+            foreach (unowned Quick.BtDevice device in devices) {
+                var row = list_row (device.name, false);
+                string address = device.address;
+                row.clicked.connect (() => {
+                    Quick.bluetooth_connect (address);
+                    dismiss ();
+                });
+                bt_list.pack_start (row, false, false, 0);
+            }
+            bt_list.show_all ();
+        }
+
+        private void rebuild_sink_list () {
+            if (sink_list == null) {
+                return;
+            }
+            clear_box (sink_list);
+            foreach (unowned Quick.SoundOutput sink in
+                     Quick.sound_outputs ()) {
+                var row = list_row (sink.description, sink.active);
+                string name = sink.name;
+                row.clicked.connect (() => {
+                    Quick.sound_set_output (name);
+                    Timeout.add (200, () => {
+                        rebuild_sink_list ();
+                        return Source.REMOVE;
+                    });
+                });
+                sink_list.pack_start (row, false, false, 0);
+            }
+            sink_list.show_all ();
+        }
+
+        /* --- durum tazeleme ------------------------------------------- */
+
+        private void refresh_sound_row () {
+            if (volume_slider == null) {
+                return;
+            }
+            var state = Volume.read ();
+            updating = true;
+            volume_slider.set_value (int.max (0, state.percent));
+            updating = false;
+            volume_icon.set_from_icon_name (
+                Volume.icon_name (state.percent, state.muted),
+                Gtk.IconSize.BUTTON);
+        }
+
+        protected override void refresh_content () {
+            /* Her açılış ana sayfadan başlar (W11 davranışı). */
+            var saved = stack.get_transition_type ();
+            stack.set_transition_type (Gtk.StackTransitionType.NONE);
+            stack.set_visible_child_name ("main");
+            stack.set_transition_type (saved);
+
+            if (wifi_tile != null) {
+                wifi_tile.set_state (Quick.wifi_enabled ());
+                string ssid = Quick.wifi_ssid ();
+                wifi_tile.set_caption (
+                    ssid != "" ? ssid : Strings.get ("network.wifi"));
+            }
+            if (bt_tile != null) {
+                bt_tile.set_state (Quick.bluetooth_enabled ());
+            }
+            if (airplane_tile != null) {
+                airplane_tile.set_state (Quick.airplane_enabled ());
+            }
+            if (night_tile != null) {
+                night_tile.set_state (Quick.night_enabled ());
+            }
+            game_tile.set_state (Quick.gamemode_enabled ());
+            focus_tile.set_state (Focus.active ());
+            dnd_tile.set_state (Notifications.server != null
+                                && Notifications.server.dnd);
+            if (saver_tile != null) {
+                saver_tile.set_state (
+                    PowerPlan.get_plan (Battery.charging ())
+                    == PowerPlan.Plan.SAVER);
+            }
+            if (brightness_slider != null) {
+                int percent = Quick.brightness_percent ();
+                if (percent >= 0) {
+                    updating = true;
+                    brightness_slider.set_value (percent);
+                    updating = false;
+                }
+            }
+            refresh_sound_row ();
+            if (Battery.present ()) {
+                int percent = Battery.percent ();
+                unowned string fmt =
+                    Strings.is_turkish () ? "%%%d" : "%d%%";
+                battery_label.set_text (
+                    (percent >= 0) ? fmt.printf (percent) : "—");
+            }
+        }
+    }
+}
