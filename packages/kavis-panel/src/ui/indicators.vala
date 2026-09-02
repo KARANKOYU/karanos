@@ -121,6 +121,7 @@ namespace Kavis.Ui {
                 row.pack_start (battery_label, false, false, 0);
             }
             add (row);
+            set_tooltip_text (_("Network, sound, battery"));
 
             clicked.connect (() => {
                 QuickSettingsPopup.get_default ().toggle_at (this);
@@ -145,18 +146,14 @@ namespace Kavis.Ui {
             });
         }
 
-        /* Ses ikonu ve Wi-Fi araç ipucu (10 sn). */
+        /* Ses ikonu (10 sn). Araç ipucu grubu anlatır (test8 B5) —
+         * SSID değil: küme tek düğme, adı da bütünü söylemeli. */
         private void refresh_fast () {
             if (volume_icon != null) {
                 var state = Volume.read ();
                 volume_icon.set_from_icon_name (
                     Volume.icon_name (state.percent, state.muted),
                     Gtk.IconSize.BUTTON);
-            }
-            if (has_wifi) {
-                string ssid = Quick.wifi_ssid ();
-                set_tooltip_text (
-                    ssid != "" ? ssid : _("Wi-Fi"));
             }
         }
 

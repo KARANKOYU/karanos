@@ -135,8 +135,8 @@ msgstr "⟪Turkish Q···⟫"
 msgid "English (US)"
 msgstr "⟪English (US)····⟫"
 
-msgid "Wi-Fi"
-msgstr "⟪Wi-Fi··⟫"
+msgid "Network, sound, battery"
+msgstr "⟪Network, sound, battery·········⟫"
 
 msgid "Mute"
 msgstr "⟪Mute··⟫"
@@ -300,6 +300,9 @@ msgstr "⟪Shut down···⟫"
 msgid "Restart"
 msgstr "⟪Restart··⟫"
 
+msgid "Wi-Fi"
+msgstr "⟪Wi-Fi··⟫"
+
 msgid "Bluetooth"
 msgstr "⟪Bluetooth···⟫"
 
@@ -324,20 +327,23 @@ msgstr "⟪Battery saver·····⟫"
 msgid "Accessibility"
 msgstr "⟪Accessibility·····⟫"
 
-msgid "Brightness"
-msgstr "⟪Brightness····⟫"
-
 msgid "Volume"
 msgstr "⟪Volume··⟫"
 
 msgid "Output device"
 msgstr "⟪Output device·····⟫"
 
+msgid "Brightness"
+msgstr "⟪Brightness····⟫"
+
 msgid "Back"
 msgstr "⟪Back··⟫"
 
 msgid "Paired devices"
 msgstr "⟪Paired devices·····⟫"
+
+msgid "Battery"
+msgstr "⟪Battery··⟫"
 
 msgid "Connected"
 msgstr "⟪Connected···⟫"

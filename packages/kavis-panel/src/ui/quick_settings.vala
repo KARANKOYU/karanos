@@ -29,8 +29,11 @@ namespace Kavis.Ui {
             frame = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
             frame.get_style_context ().add_class ("setting-tile");
 
-            var main_button = new Gtk.Button.from_icon_name (
-                icon_name, Gtk.IconSize.LARGE_TOOLBAR);
+            var tile_icon = new Gtk.Image.from_icon_name (
+                icon_name, Gtk.IconSize.INVALID);
+            tile_icon.set_pixel_size (20);   /* B4: 20px ikon */
+            var main_button = new Gtk.Button ();
+            main_button.add (tile_icon);
             main_button.set_relief (Gtk.ReliefStyle.NONE);
             main_button.clicked.connect (() => {
                 set_state (!state);
@@ -105,7 +108,8 @@ namespace Kavis.Ui {
 
         private QuickSettingsPopup () {
             edge_aligned = true;
-            content.set_size_request (360, -1);
+            content.set_size_request (380, -1);
+            content.set_border_width (16);
 
             stack = new Gtk.Stack ();
             stack.set_transition_type (
@@ -122,6 +126,9 @@ namespace Kavis.Ui {
                 stack.add_named (build_sink_page (), "sinks");
             }
             stack.add_named (build_access_page (), "access");
+            if (Battery.present ()) {
+                stack.add_named (build_battery_page (), "battery");
+            }
             content.pack_start (stack, true, true, 0);
         }
 
@@ -146,6 +153,14 @@ namespace Kavis.Ui {
                 rebuild_bt_list ();
             } else if (name == "sinks") {
                 rebuild_sink_list ();
+            } else if (name == "battery"
+                       && plugged_choices.length == 3) {
+                plans_building = true;
+                plugged_choices[(int) PowerPlan.get_plan (true)]
+                    .set_active (true);
+                battery_choices[(int) PowerPlan.get_plan (false)]
+                    .set_active (true);
+                plans_building = false;
             }
             refit ();
         }
@@ -267,34 +282,6 @@ namespace Kavis.Ui {
                 false, false, 0);
 
             /* --- kaydırıcılar --- */
-            if (Quick.brightness_available ()) {
-                var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-                row_box.pack_start (new Gtk.Image.from_icon_name (
-                    "display-brightness-symbolic", Gtk.IconSize.BUTTON),
-                    false, false, 0);
-                brightness_slider = new Gtk.Scale.with_range (
-                    Gtk.Orientation.HORIZONTAL, 5, 100, 5);
-                brightness_slider.set_draw_value (false);
-                brightness_slider.set_tooltip_text (
-                    _("Brightness"));
-                brightness_slider.value_changed.connect (() => {
-                    if (updating) {
-                        return;
-                    }
-                    int value = (int) brightness_slider.get_value ();
-                    if (brightness_source != 0) {
-                        Source.remove (brightness_source);
-                    }
-                    brightness_source = Timeout.add (80, () => {
-                        brightness_source = 0;
-                        Quick.brightness_set (value);
-                        return Source.REMOVE;
-                    });
-                });
-                row_box.pack_start (brightness_slider, true, true, 0);
-                page.pack_start (row_box, false, false, 0);
-            }
-
             if (Volume.available ()) {
                 var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
                 volume_icon = new Gtk.Image.from_icon_name (
@@ -343,6 +330,34 @@ namespace Kavis.Ui {
                 page.pack_start (row_box, false, false, 0);
             }
 
+            if (Quick.brightness_available ()) {
+                var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+                row_box.pack_start (new Gtk.Image.from_icon_name (
+                    "display-brightness-symbolic", Gtk.IconSize.BUTTON),
+                    false, false, 0);
+                brightness_slider = new Gtk.Scale.with_range (
+                    Gtk.Orientation.HORIZONTAL, 5, 100, 5);
+                brightness_slider.set_draw_value (false);
+                brightness_slider.set_tooltip_text (
+                    _("Brightness"));
+                brightness_slider.value_changed.connect (() => {
+                    if (updating) {
+                        return;
+                    }
+                    int value = (int) brightness_slider.get_value ();
+                    if (brightness_source != 0) {
+                        Source.remove (brightness_source);
+                    }
+                    brightness_source = Timeout.add (80, () => {
+                        brightness_source = 0;
+                        Quick.brightness_set (value);
+                        return Source.REMOVE;
+                    });
+                });
+                row_box.pack_start (brightness_slider, true, true, 0);
+                page.pack_start (row_box, false, false, 0);
+            }
+
             page.pack_start (
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 0);
@@ -388,6 +403,7 @@ namespace Kavis.Ui {
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
             var back = new Gtk.Button.with_label (
                 "‹ " + _("Back"));
+            back.get_style_context ().add_class ("back-button");
             back.set_relief (Gtk.ReliefStyle.NONE);
             back.clicked.connect (() => {
                 stack.set_visible_child_name ("main");
@@ -431,6 +447,61 @@ namespace Kavis.Ui {
             var page = subpage (N_("Output device"), out body);
             sink_list = body;
             return page;
+        }
+
+        /* test8 B1: güç planı seçimi — şarjdayken ve pildeyken ayrı
+         * sütun, üç plan radyosu (eski BatteryPopup mantığı geri,
+         * alt panel olarak). */
+        private Gtk.RadioButton[] plugged_choices = {};
+        private Gtk.RadioButton[] battery_choices = {};
+        private bool plans_building = false;
+
+        private Gtk.Widget build_battery_page () {
+            Gtk.Box body;
+            var page = subpage (N_("Battery"), out body);
+            var columns = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 18);
+            columns.set_border_width (8);
+            columns.pack_start (plan_column (
+                _("When plugged in"), true, out plugged_choices),
+                true, true, 0);
+            columns.pack_start (plan_column (
+                _("On battery"), false, out battery_choices),
+                true, true, 0);
+            body.pack_start (columns, false, false, 0);
+            return page;
+        }
+
+        private Gtk.Box plan_column (string title_text, bool plugged,
+                                     out Gtk.RadioButton[] choices) {
+            var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
+            var title = new Gtk.Label (title_text);
+            title.get_style_context ().add_class ("dim");
+            title.set_xalign (0);
+            column.pack_start (title, false, false, 0);
+            Gtk.RadioButton? group = null;
+            Gtk.RadioButton[] built = {};
+            PowerPlan.Plan[] plans = { PowerPlan.Plan.PERFORMANCE,
+                                       PowerPlan.Plan.NORMAL,
+                                       PowerPlan.Plan.SAVER };
+            foreach (var plan in plans) {
+                string label = (plan == PowerPlan.Plan.PERFORMANCE)
+                    ? _("High performance")
+                    : (plan == PowerPlan.Plan.SAVER)
+                    ? _("Power saver") : _("Balanced");
+                var choice = new Gtk.RadioButton.with_label_from_widget (
+                    group, label);
+                group = choice;
+                var chosen = plan;   /* closure copy */
+                choice.toggled.connect (() => {
+                    if (!plans_building && choice.get_active ()) {
+                        PowerPlan.set_plan (plugged, chosen);
+                    }
+                });
+                built += choice;
+                column.pack_start (choice, false, false, 0);
+            }
+            choices = built;
+            return column;
         }
 
         private Gtk.Widget build_access_page () {
@@ -585,11 +656,6 @@ namespace Kavis.Ui {
             focus_tile.set_state (Focus.active ());
             dnd_tile.set_state (Notifications.server != null
                                 && Notifications.server.dnd);
-            if (saver_tile != null) {
-                saver_tile.set_state (
-                    PowerPlan.get_plan (Battery.charging ())
-                    == PowerPlan.Plan.SAVER);
-            }
             if (brightness_slider != null) {
                 int percent = Quick.brightness_percent ();
                 if (percent >= 0) {

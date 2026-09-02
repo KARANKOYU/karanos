@@ -474,3 +474,9 @@ msgstr "Tamam"
 
 msgid "Sign out"
 msgstr "Oturumu kapat"
+
+msgid "Battery"
+msgstr "Pil"
+
+msgid "Network, sound, battery"
+msgstr "Ağ, ses, pil"

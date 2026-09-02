@@ -72,22 +72,48 @@ namespace Kavis.Ui {
         .kavis-popup calendar:indeterminate {
           color: #4A5A66;
         }
-        /* Hızlı ayar kutucukları (Grup D 2b): belirgin çerçeve, 8px
-           köşe; açıkken turkuaz DOLGU ve koyu ikon (turkuaz açık bir
-           renk — üstüne koyu, marka kuralı). */
+        /* Hızlı ayar kutucukları (test8 B4): 1px kenarlık, 10px köşe,
+           ~56px yükseklik, etiket kutucuğun ALTINDA; açıkken turkuaz
+           DOLGU ve koyu ikon (marka kuralı). Bölünmüş kutucukta ince
+           dikey çizgi, iki parça ayrı hover. */
         .kavis-popup .setting-tile {
           background-color: #17222C;
           border: 1px solid #233A45;
-          border-radius: 8px;
+          border-radius: 10px;
         }
         .kavis-popup .setting-tile button {
-          padding: 8px 0;
-          border-radius: 7px;
+          padding: 16px 0;
+          border-radius: 9px;
         }
         .kavis-popup .setting-tile button.tile-arrow {
-          padding: 8px 8px;
+          padding: 16px 9px;
           border-left: 1px solid #233A45;
-          border-radius: 0 7px 7px 0;
+          border-radius: 0 9px 9px 0;
+        }
+        /* Kaydırıcılar (B4): 6px turkuaz dolgu, 14px yuvarlak tutamaç. */
+        .kavis-popup scale trough {
+          min-height: 6px;
+          background-color: #233A45;
+          border: none;
+          border-radius: 3px;
+        }
+        .kavis-popup scale highlight {
+          background-color: #2DD4BF;
+          border-radius: 3px;
+        }
+        .kavis-popup scale slider {
+          min-width: 14px;
+          min-height: 14px;
+          margin: -6px;
+          background-color: #E6EDF3;
+          border-radius: 50%;
+          border: none;
+          box-shadow: none;
+        }
+        /* Alt panellerde belirgin geri düğmesi (B2). */
+        .kavis-popup button.back-button {
+          font-weight: bold;
+          padding: 8px 14px;
         }
         .kavis-popup .setting-tile.on {
           background-color: #2DD4BF;
