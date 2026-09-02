@@ -827,3 +827,9 @@ msgstr "Parlaklık (arka ışık)"
 
 msgid "Brightness (software — no backlight hardware)"
 msgstr "Parlaklık (yazılım — arka ışık donanımı yok)"
+
+msgid "New desktop"
+msgstr "Yeni masaüstü"
+
+msgid "Desktop has windows — move or close them first"
+msgstr "Masaüstünde pencere var — önce taşıyın ya da kapatın"

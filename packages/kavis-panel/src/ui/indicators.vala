@@ -303,8 +303,13 @@ namespace Kavis.Ui {
         }
     }
 
-    /* Virtual-desktop switcher: one small button per workspace, the
-     * active one carries a teal underline (CSS class "active-item"). */
+    /* Virtual-desktop switcher (3E: sayı SABİT DEĞİL): one button per
+     * workspace, the active one carries a teal underline; a trailing
+     * "+" adds a desktop (5, 6, 7…); hovering an EMPTY desktop shows a
+     * ✕ that closes it — windows on later desktops shift one left so
+     * numbering stays contiguous. The count persists in kavis.conf
+     * [desktop] count and is applied live over EWMH (wnck
+     * change_workspace_count → openbox). */
     public class WorkspaceIndicator : Gtk.Box {
         private unowned Wnck.Screen screen;
         private Gtk.Button[] buttons = {};
@@ -315,10 +320,83 @@ namespace Kavis.Ui {
                                    = Gtk.Orientation.HORIZONTAL) {
             Object (orientation: axis, spacing: 2);
             this.screen = screen;
+            apply_saved_count ();
             rebuild ();
             screen.workspace_created.connect (() => rebuild ());
             screen.workspace_destroyed.connect (() => rebuild ());
             screen.active_workspace_changed.connect (() => mark_active ());
+        }
+
+        /* Kayıtlı sayıyı aç: rc.xml 4 der, kullanıcı 6 yaptıysa 6. */
+        private void apply_saved_count () {
+            int wanted = 4;
+            try {
+                wanted = Config.load ()
+                    .get_integer ("desktop", "count").clamp (1, 20);
+            } catch (Error e) { }
+            if (screen.get_workspace_count () != wanted) {
+                screen.change_workspace_count (wanted);
+            }
+        }
+
+        private void save_count (int count) {
+            var file = Config.load ();
+            file.set_integer ("desktop", "count", count);
+            Config.save (file);
+        }
+
+        /* Bu masaüstünde normal pencere var mı (masaüstü/dock hariç;
+         * her yerde görünen yapışkanlar saymaz). */
+        private bool workspace_empty (int number) {
+            foreach (unowned Wnck.Window window in
+                     screen.get_windows ()) {
+                var type = window.get_window_type ();
+                if (type == Wnck.WindowType.DESKTOP
+                    || type == Wnck.WindowType.DOCK) {
+                    continue;
+                }
+                unowned Wnck.Workspace? workspace =
+                    window.get_workspace ();
+                if (workspace != null
+                    && workspace.get_number () == number) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /* ✕: boş masaüstünü kapat — sonrakilerdeki pencereler bir sola
+         * kayar ki numaralar bitişik kalsın, sonra sayı bir azalır. */
+        private void close_workspace (int number) {
+            int count = screen.get_workspace_count ();
+            if (count <= 1 || !workspace_empty (number)) {
+                return;
+            }
+            foreach (unowned Wnck.Window window in
+                     screen.get_windows ()) {
+                unowned Wnck.Workspace? workspace =
+                    window.get_workspace ();
+                if (workspace != null
+                    && workspace.get_number () > number) {
+                    unowned Wnck.Workspace? target =
+                        screen.get_workspace (
+                            workspace.get_number () - 1);
+                    if (target != null) {
+                        window.move_to_workspace (target);
+                    }
+                }
+            }
+            unowned Wnck.Workspace? active =
+                screen.get_active_workspace ();
+            if (active != null && active.get_number () >= count - 1) {
+                unowned Wnck.Workspace? last =
+                    screen.get_workspace (count - 2);
+                if (last != null) {
+                    last.activate (Gtk.get_current_event_time ());
+                }
+            }
+            screen.change_workspace_count (count - 1);
+            save_count (count - 1);
         }
 
         private void rebuild () {
@@ -329,18 +407,65 @@ namespace Kavis.Ui {
             numbers = {};
             foreach (unowned Wnck.Workspace workspace in
                      screen.get_workspaces ()) {
+                int number = workspace.get_number ();
+                var cell = new Gtk.EventBox ();
+                var pair = new Gtk.Box (orientation, 0);
                 var button = new Gtk.Button.with_label (
-                    "%d".printf (workspace.get_number () + 1));
+                    "%d".printf (number + 1));
                 button.set_relief (Gtk.ReliefStyle.NONE);
                 button.set_tooltip_text (workspace.get_name () ?? "");
                 unowned Wnck.Workspace target = workspace;
                 button.clicked.connect (() => {
                     target.activate (Gtk.get_current_event_time ());
                 });
+                pair.pack_start (button, false, false, 0);
+
+                /* Kapat düğmesi: yalnız hover'da ve yalnız boşken. */
+                var close_button = new Gtk.Button.with_label ("✕");
+                close_button.set_relief (Gtk.ReliefStyle.NONE);
+                close_button.set_no_show_all (true);
+                close_button.clicked.connect (() => {
+                    close_workspace (number);
+                });
+                pair.pack_start (close_button, false, false, 0);
+                cell.add (pair);
+                cell.enter_notify_event.connect (() => {
+                    if (screen.get_workspace_count () > 1) {
+                        if (workspace_empty (number)) {
+                            close_button.set_no_show_all (false);
+                            close_button.show ();
+                        } else {
+                            /* Doluysa kapatılmaz; sebep tooltip'te. */
+                            cell.set_tooltip_text (
+                                _("Desktop has windows — move or close them first"));
+                        }
+                    }
+                    return false;
+                });
+                cell.leave_notify_event.connect ((event) => {
+                    if (event.detail != Gdk.NotifyType.INFERIOR) {
+                        close_button.hide ();
+                    }
+                    return false;
+                });
                 buttons += button;
-                numbers += workspace.get_number ();
-                pack_start (button, false, false, 0);
+                numbers += number;
+                pack_start (cell, false, false, 0);
             }
+
+            /* "+" — yeni masaüstü (3E). */
+            var add_button = new Gtk.Button.with_label ("+");
+            add_button.set_relief (Gtk.ReliefStyle.NONE);
+            add_button.set_tooltip_text (_("New desktop"));
+            add_button.clicked.connect (() => {
+                int count = screen.get_workspace_count ();
+                if (count < 20) {
+                    screen.change_workspace_count (count + 1);
+                    save_count (count + 1);
+                }
+            });
+            pack_start (add_button, false, false, 0);
+
             show_all ();
             mark_active ();
         }

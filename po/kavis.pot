@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 19:18+0000\n"
+"POT-Creation-Date: 2026-09-02 19:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -243,6 +243,14 @@ msgstr ""
 #: packages/kavis-panel/src/ui/quick_settings.vala:512
 #: packages/kavis-settings/src/ui/page_power.vala:79
 msgid "Balanced"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:440
+msgid "Desktop has windows — move or close them first"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:459
+msgid "New desktop"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/overview.vala:179
