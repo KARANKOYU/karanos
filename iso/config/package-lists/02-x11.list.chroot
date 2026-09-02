@@ -73,6 +73,13 @@ libglib2.0-bin
 xdotool
 fonts-noto-color-emoji
 
+# --- touchpad hareketleri (sonraki-isler 6g) ---
+# libinput-tools: `libinput debug-events` — kendi hareket okuyucumuz
+# /usr/lib/kavis/kavis-gestures bunu okur (libinput-gestures ve
+# touchegg trixie arşivinde YOK). Kullanıcı `input` grubunda
+# (bootappend) — aygıt okuma izni oradan.
+libinput-tools
+
 # --- tepsi USB aracı (madde 3 düzeltmesi) ---
 # udisksctl: güvenle çıkar — polkit sayesinde canlı kullanıcı root
 # olmadan ayırıp gücü kesebiliyor. Recommends kapalıyken nemo/gvfs

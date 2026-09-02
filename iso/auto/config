@@ -55,7 +55,7 @@ esac
 BOOTAPPEND="boot=live components \
 username=karan \
 hostname=${ID} \
-user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin \
+user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin,input \
 locales=en_US.UTF-8 \
 timezone=Europe/Istanbul \
 keyboard-layouts=tr \

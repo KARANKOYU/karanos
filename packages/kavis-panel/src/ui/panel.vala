@@ -783,32 +783,69 @@ namespace Kavis.Ui {
                 return false;
             });
 
-            /* Sabitlileri sürükleyip yeniden sırala (pinned.conf'a
-             * yazılır). Hedef de kaynak da yalnız sabitli düğmeler. */
+            /* Sürükle-bırak iki iş görür: sabitli sıralama (yalnız
+             * sabitliler, application/x-kavis-pin) ve İKONA DOSYA
+             * BIRAKMA (6f, text/uri-list — uygulama dosyayı açar).
+             * Dosya kabulü yalnız dosya alabilen uygulamalarda;
+             * diğerinde imleç 'yasak' kalır (drag_motion 0 durumu). */
             if (slot.pinned) {
-                Gtk.TargetEntry[] targets = {
+                Gtk.TargetEntry[] pin_source = {
                     { "application/x-kavis-pin",
                       Gtk.TargetFlags.SAME_APP, 0 }
                 };
                 Gtk.drag_source_set (button,
-                    Gdk.ModifierType.BUTTON1_MASK, targets,
+                    Gdk.ModifierType.BUTTON1_MASK, pin_source,
                     Gdk.DragAction.MOVE);
                 button.drag_data_get.connect ((ctx, data, info, time) => {
                     data.set_text (target.desktop_id, -1);
                 });
-                Gtk.drag_dest_set (button, Gtk.DestDefaults.ALL,
-                    targets, Gdk.DragAction.MOVE);
-                button.drag_data_received.connect (
-                    (ctx, x, y, data, info, time) => {
-                        string? dragged = data.get_text ();
-                        if (dragged != null
-                            && dragged != target.desktop_id) {
-                            Pinned.move_before (dragged,
-                                                target.desktop_id);
-                            refresh_windows ();
-                        }
-                    });
             }
+            Gtk.TargetEntry[] dest_targets = {
+                { "application/x-kavis-pin",
+                  Gtk.TargetFlags.SAME_APP, 0 },
+                { "text/uri-list", 0, 1 }
+            };
+            Gtk.drag_dest_set (button,
+                Gtk.DestDefaults.HIGHLIGHT | Gtk.DestDefaults.DROP,
+                dest_targets,
+                Gdk.DragAction.MOVE | Gdk.DragAction.COPY);
+            button.drag_motion.connect ((ctx, x, y, time) => {
+                var uri_atom = Gdk.Atom.intern ("text/uri-list", false);
+                bool has_uri = false;
+                foreach (var atom in ctx.list_targets ()) {
+                    if (atom == uri_atom) {
+                        has_uri = true;
+                    }
+                }
+                if (has_uri) {
+                    if (!slot_accepts_files (target)) {
+                        Gdk.drag_status (ctx, 0, time);   /* yasak */
+                        return true;
+                    }
+                    Gdk.drag_status (ctx, Gdk.DragAction.COPY, time);
+                    return true;
+                }
+                /* Pin sıralaması: yalnız sabitli hedefler. */
+                Gdk.drag_status (ctx,
+                    target.pinned ? Gdk.DragAction.MOVE : 0, time);
+                return true;
+            });
+            button.drag_data_received.connect (
+                (ctx, x, y, data, info, time) => {
+                    if (info == 1) {
+                        drop_uris_on_slot (target, data.get_uris ());
+                        Gtk.drag_finish (ctx, true, false, time);
+                        return;
+                    }
+                    string? dragged = data.get_text ();
+                    if (target.pinned && dragged != null
+                        && dragged != target.desktop_id) {
+                        Pinned.move_before (dragged,
+                                            target.desktop_id);
+                        refresh_windows ();
+                    }
+                    Gtk.drag_finish (ctx, true, false, time);
+                });
 
             if (current_button_width > 0) {
                 if (config.vertical) {
@@ -838,6 +875,32 @@ namespace Kavis.Ui {
             slot.image.set_from_icon_name ("application-x-executable",
                                            Gtk.IconSize.INVALID);
             slot.image.set_pixel_size (size);
+        }
+
+        /* 6f: ikona bırakılan dosyayı bu uygulama açabilir mi? */
+        private bool slot_accepts_files (TaskSlot slot) {
+            if (slot.desktop_id == null) {
+                return false;
+            }
+            var info = AppMatch.info_for (slot.desktop_id);
+            return info != null
+                && (info.supports_uris () || info.supports_files ());
+        }
+
+        private void drop_uris_on_slot (TaskSlot slot, string[] uris) {
+            if (!slot_accepts_files (slot) || uris.length == 0) {
+                return;
+            }
+            var info = AppMatch.info_for (slot.desktop_id);
+            var list = new List<string> ();
+            foreach (unowned string uri in uris) {
+                list.append (uri);
+            }
+            try {
+                info.launch_uris (list, null);
+            } catch (Error e) {
+                warning ("kavis-panel: dosya acilamadi: %s", e.message);
+            }
         }
 
         private void launch_slot (TaskSlot slot) {

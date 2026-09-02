@@ -134,6 +134,13 @@ cat > "$SNIPPET" <<'EOF'
         <command>kavis-tools capture --quick</command>
       </action>
     </keybind>
+    <!-- Masaustunde Alt+F4 (6e): pencere varsa kapat, yoksa kapatma
+         diyalogu. Pencereliyken ayni WM_DELETE yolu. -->
+    <keybind key="A-F4">
+      <action name="Execute">
+        <command>kavis-tools alt-f4</command>
+      </action>
+    </keybind>
     <!-- Ctrl+Alt+Del ekrani (sonraki-isler 6d): panelden bagimsiz -->
     <keybind key="C-A-Delete">
       <action name="Execute">

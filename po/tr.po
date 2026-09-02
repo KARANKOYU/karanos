@@ -468,3 +468,9 @@ msgstr "Aç"
 
 msgid "Store app coming soon"
 msgstr "Mağaza uygulaması yakında"
+
+msgid "OK"
+msgstr "Tamam"
+
+msgid "Sign out"
+msgstr "Oturumu kapat"

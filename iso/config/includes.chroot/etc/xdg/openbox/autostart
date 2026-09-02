@@ -63,6 +63,15 @@ if command -v kavis-osd >/dev/null 2>&1; then
 	kavis-osd &
 fi
 
+# Touchpad hareketleri (sonraki-isler 6g): touchpad VARSA başlar,
+# yoksa hiç başlamaz. libinput-gestures/touchegg trixie'de olmadığı
+# için kendi ince okuyucumuz (/usr/lib/kavis/kavis-gestures).
+# Ayarlar > Touchpad aç/kapa Grup F notu.
+if [ -x /usr/lib/kavis/kavis-gestures ] \
+	&& grep -qi touchpad /proc/bus/input/devices 2>/dev/null; then
+	/usr/lib/kavis/kavis-gestures &
+fi
+
 # --- Masaüstü simgeleri (madde 6) ------------------------------------
 # nemo-desktop yalnız simge katmanını çizer (dosya yöneticisinin kendisi
 # Grup E'de yapılandırılacak). GDK_GL=disable: llvmpipe tuzağı (madde

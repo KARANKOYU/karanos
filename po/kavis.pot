@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 13:10+0000\n"
+"POT-Creation-Date: 2026-09-02 13:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -273,89 +273,90 @@ msgstr ""
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:967
+#: packages/kavis-panel/src/ui/panel.vala:1030
 #: packages/kavis-panel/src/ui/start_menu.vala:214
 msgid "Unpin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:968
+#: packages/kavis-panel/src/ui/panel.vala:1031
 #: packages/kavis-panel/src/ui/start_menu.vala:214
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:984
+#: packages/kavis-panel/src/ui/panel.vala:1047
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:984
+#: packages/kavis-panel/src/ui/panel.vala:1047
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1069
+#: packages/kavis-panel/src/ui/panel.vala:1132
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1077
+#: packages/kavis-panel/src/ui/panel.vala:1140
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1077
+#: packages/kavis-panel/src/ui/panel.vala:1140
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1078
+#: packages/kavis-panel/src/ui/panel.vala:1141
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1078
+#: packages/kavis-panel/src/ui/panel.vala:1141
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1099
+#: packages/kavis-panel/src/ui/panel.vala:1162
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1107
+#: packages/kavis-panel/src/ui/panel.vala:1170
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1107
+#: packages/kavis-panel/src/ui/panel.vala:1170
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1107
+#: packages/kavis-panel/src/ui/panel.vala:1170
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1130
+#: packages/kavis-panel/src/ui/panel.vala:1193
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1137
+#: packages/kavis-panel/src/ui/panel.vala:1200
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1137
+#: packages/kavis-panel/src/ui/panel.vala:1200
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1160
+#: packages/kavis-panel/src/ui/panel.vala:1223
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1165
+#: packages/kavis-panel/src/ui/panel.vala:1228
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1203
+#: packages/kavis-panel/src/ui/panel.vala:1266
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1220
+#: packages/kavis-panel/src/ui/panel.vala:1283
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1222
+#: packages/kavis-panel/src/ui/panel.vala:1285
+#: packages/kavis-tools/src/securemenu.vala:87
 #: packages/kavis-tools/src/tasks.vala:34
 msgid "Task Manager"
 msgstr ""
@@ -430,6 +431,7 @@ msgid "Delete"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:444
+#: packages/kavis-tools/src/altf4.vala:52
 msgid "Cancel"
 msgstr ""
 
@@ -438,18 +440,26 @@ msgid "Save"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:117
+#: packages/kavis-tools/src/securemenu.vala:77
 msgid "Lock"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:119
+#: packages/kavis-tools/src/altf4.vala:45
+#: packages/kavis-tools/src/securemenu.vala:108
 msgid "Sleep"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:121
+#: packages/kavis-tools/src/altf4.vala:33
+#: packages/kavis-tools/src/altf4.vala:43
+#: packages/kavis-tools/src/securemenu.vala:109
 msgid "Shut down"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:123
+#: packages/kavis-tools/src/altf4.vala:44
+#: packages/kavis-tools/src/securemenu.vala:111
 msgid "Restart"
 msgstr ""
 
@@ -549,6 +559,15 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/tray.vala:120
 msgid "Could not remove the device — files may still be in use"
+msgstr ""
+
+#: packages/kavis-tools/src/altf4.vala:46
+#: packages/kavis-tools/src/securemenu.vala:81
+msgid "Sign out"
+msgstr ""
+
+#: packages/kavis-tools/src/altf4.vala:55
+msgid "OK"
 msgstr ""
 
 #: packages/kavis-tools/src/calc.vala:14

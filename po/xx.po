@@ -369,6 +369,12 @@ msgstr "⟪You can now remove the device···········⟫"
 msgid "Could not remove the device — files may still be in use"
 msgstr "⟪Could not remove the device — files may still be in use······················⟫"
 
+msgid "Sign out"
+msgstr "⟪Sign out···⟫"
+
+msgid "OK"
+msgstr "⟪OK··⟫"
+
 msgid "Calculator"
 msgstr "⟪Calculator····⟫"
 
