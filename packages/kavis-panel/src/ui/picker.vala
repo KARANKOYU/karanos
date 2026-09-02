@@ -22,7 +22,7 @@ namespace Kavis.Ui {
         .kavis-picker {
           background-color: #17222C;
           border: 1px solid #233A45;
-          border-radius: 10px;
+          border-radius: 12px;   /* J1 */
         }
         .kavis-picker label {
           color: #E6EDF3;
@@ -34,7 +34,7 @@ namespace Kavis.Ui {
           background-image: none;
           background-color: transparent;
           border: none;
-          border-radius: 6px;
+          border-radius: 8px;
           color: #E6EDF3;
           padding: 4px 8px;
           transition: background-color 140ms ease;
@@ -47,7 +47,7 @@ namespace Kavis.Ui {
         }
         /* Sekmeler: aktifin altında turkuaz çizgi. */
         .kavis-picker button.picker-tab {
-          border-radius: 6px 6px 0 0;
+          border-radius: 8px 8px 0 0;
           padding: 6px 10px;
         }
         .kavis-picker button.picker-tab:checked {

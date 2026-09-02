@@ -40,6 +40,7 @@ kadar CI'a eklenmez.
 
 | Dosya | Ne için |
 |---|---|
+| `docs/tasarim-dili.md` | Köşe/animasyon/boşluk kuralları (test8 J) — her yeni widget buna uyar. |
 | `docs/gorev-listesi.md` | GÜNCEL görev listesi: 58 madde + grup sırası + değişmez kurallar. Asıl yönerge bu. |
 | `docs/roadmap.md` | Hangi grup bitince hangi sürüm çıkacak; her grup sonunda güncellenir. |
 | `po/` | Arayüz çevirileri (gettext, alan adı `kavis`): `kavis.pot` + `tr.po` + üretilen `xx.po` (sahte uzun test dili). Kaynak metinler koddaki İngilizce msgid'ler. |

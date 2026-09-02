@@ -54,7 +54,7 @@ namespace Kavis.Ui {
            ekranın en alt pikseline tıklama çalışmalı — Fitts. */
         .kavis-panel button {
           border: none;
-          border-radius: 6px;
+          border-radius: 8px;   /* J1: düğme köşesi tek değer */
           background-image: none;
           background-color: transparent;
           color: #E6EDF3;

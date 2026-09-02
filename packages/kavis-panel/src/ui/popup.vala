@@ -24,10 +24,12 @@ namespace Kavis.Ui {
         private const int GAP = 8;
 
         private const string CSS = """
+        /* Tasarım dili (test8 J): popup 12px köşe, iç kenar 16px,
+           öğe arası 8px; düğme köşesi 8px (docs/tasarim-dili.md). */
         .kavis-popup {
           background-color: #17222C;
           border: 1px solid #233A45;
-          border-radius: 10px;
+          border-radius: 12px;
           box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
         }
         .kavis-popup.plain {
@@ -46,7 +48,7 @@ namespace Kavis.Ui {
           background-image: none;
           background-color: transparent;
           border: none;
-          border-radius: 6px;
+          border-radius: 8px;
           color: #E6EDF3;
           padding: 8px 10px;
           transition: background-color 140ms ease;
@@ -181,12 +183,13 @@ namespace Kavis.Ui {
             outer.set_border_width (shadow_margin);
             add (outer);
 
-            content = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
+            content = new Gtk.Box (Gtk.Orientation.VERTICAL, 8);
             content.get_style_context ().add_class ("kavis-popup");
             if (!composited) {
                 content.get_style_context ().add_class ("plain");
             }
-            content.set_border_width (12);
+            /* J3: iç kenar 16px, öğe arası 8px. */
+            content.set_border_width (16);
             outer.pack_start (content, true, true, 0);
 
             button_press_event.connect (on_outside_click);

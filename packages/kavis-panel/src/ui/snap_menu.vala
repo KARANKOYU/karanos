@@ -27,7 +27,7 @@ namespace Kavis.Ui {
         .kavis-snap-menu {
           background-color: #17222C;
           border: 1px solid #233A45;
-          border-radius: 10px;
+          border-radius: 12px;   /* J1 */
         }
         .kavis-snap-menu button.snap-cell {
           background-image: none;

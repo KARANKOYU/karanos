@@ -423,13 +423,13 @@ namespace Kavis.Tools {
                     .kavis-snip-bar {
                       background-color: #17222C;
                       border: 1px solid #233A45;
-                      border-radius: 8px;
+                      border-radius: 12px;   /* J1 */
                     }
                     .kavis-snip-bar button {
                       background-image: none;
                       background-color: transparent;
                       border: none;
-                      border-radius: 6px;
+                      border-radius: 8px;
                       color: #E6EDF3;
                       padding: 4px 10px;
                     }
