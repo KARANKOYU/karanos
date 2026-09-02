@@ -134,6 +134,12 @@ cat > "$SNIPPET" <<'EOF'
         <command>kavis-tools capture --quick</command>
       </action>
     </keybind>
+    <!-- Ctrl+Alt+Del ekrani (sonraki-isler 6d): panelden bagimsiz -->
+    <keybind key="C-A-Delete">
+      <action name="Execute">
+        <command>kavis-tools secure-menu</command>
+      </action>
+    </keybind>
     <!-- Renk secici (sonraki-isler 5c): dogrudan renk modu -->
     <keybind key="W-S-c">
       <action name="Execute">

@@ -41,6 +41,10 @@ int main (string[] args) {
          * (sonraki-isler 5c). */
         return Kavis.Tools.Capture.snip (
             args.length > 2 && args[2] == "--color");
+    case "secure-menu":
+        /* Ctrl+Alt+Del (sonraki-isler 6d) — panelden bağımsız. */
+        window = new Kavis.Tools.SecureMenuWindow ();
+        break;
     case "open-with":
         /* "Bununla aç" penceresi (sonraki-isler 6c). */
         if (args.length < 3) {
@@ -53,7 +57,7 @@ int main (string[] args) {
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
     default:
-        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji|capture|open-with]\n");
+        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu]\n");
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);
