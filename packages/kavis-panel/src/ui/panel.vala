@@ -116,6 +116,9 @@ namespace Kavis.Ui {
         }
         /* Gösterge düğmeleri (Aşama 4): etiketlerin kendi iç boşluğu
            var, düğme fazladan genişletmesin. */
+        .kavis-panel button.usb-writing image {
+            color: #F59E0B;
+        }
         .kavis-panel button.indicator-button {
           padding: 0 2px;
         }

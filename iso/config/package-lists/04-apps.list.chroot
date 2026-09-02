@@ -73,3 +73,8 @@ simple-scan
 command-not-found
 apt-file
 gettext-base
+
+# --- USB güvenli kullanım (madde 63) ---
+# psmisc: fuser — çıkarılamayan USB'yi hangi uygulamanın tuttuğunu
+# söylemek için.
+psmisc

@@ -98,6 +98,9 @@ namespace Kavis {
          * taşınmadı, imlecin yakınında açılır. [picker] grubu. */
         public int picker_x = -1;
         public int picker_y = -1;
+        /* Madde 63 "güvenli mod": USB'yi -o sync bağla. Varsayılan
+         * KAPALI — hız bedeli var, açıklaması USB popup'ında. */
+        public bool usb_sync = false;
 
         /* One shared instance: the popups save settings too, and a
          * second instance would write back stale panel values. */
@@ -156,6 +159,9 @@ namespace Kavis {
                 config.picker_x = file.get_integer ("picker", "x");
                 config.picker_y = file.get_integer ("picker", "y");
             } catch (Error e) { }
+            try {
+                config.usb_sync = file.get_boolean ("usb", "sync");
+            } catch (Error e) { }
             return config;
         }
 
@@ -175,6 +181,7 @@ namespace Kavis {
                               calendar_collapsed);
             file.set_integer ("picker", "x", picker_x);
             file.set_integer ("picker", "y", picker_y);
+            file.set_boolean ("usb", "sync", usb_sync);
             string path = config_path ();
             DirUtils.create_with_parents (Path.get_dirname (path), 0755);
             try {

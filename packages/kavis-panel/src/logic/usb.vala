@@ -131,12 +131,23 @@ namespace Kavis.Usb {
 
     /* Mount one partition through udisks (polkit lets the desktop
      * user do this; the mountpoint lands under /media). BLOCKING —
-     * worker thread only. Returns the mountpoint, or null. */
-    public string? mount_sync (string part) {
+     * worker thread only. Returns the mountpoint, or null.
+     *
+     * want_sync (madde 63 "güvenli mod"): -o sync ile bağlamayı
+     * dener; udisks seçenek listesinde sync'e izin vermezse normal
+     * bağlamaya düşer — bağlanamamaktan iyidir. */
+    public string? mount_sync (string part, bool want_sync = false) {
         /* Çıktı: "Mounted /dev/sdb1 at /media/karan/ETIKET" (eski
          * udisks sona nokta koyardı). */
-        string? output = run_capture ({ "udisksctl", "mount", "-b",
-                                        part });
+        string? output = null;
+        if (want_sync) {
+            output = run_capture ({ "udisksctl", "mount", "-b", part,
+                                    "-o", "sync" });
+        }
+        if (output == null) {
+            output = run_capture ({ "udisksctl", "mount", "-b",
+                                    part });
+        }
         if (output == null) {
             return null;
         }
@@ -155,6 +166,88 @@ namespace Kavis.Usb {
      * BLOCKING (buffer flush) — call from a worker thread. Returns
      * false when anything failed (the caller warns the user instead
      * of claiming the stick is safe to pull). */
+    /* True while the kernel still has writes going to this disk:
+     * in-flight I/O, or the write counter moved since the last call
+     * (madde 63 gerçek yazma göstergesi — /sys/block/<ad>/stat).
+     * Field 8 = I/Os in progress, field 5 = writes completed. */
+    private HashTable<string, uint64?>? last_writes = null;
+
+    public bool writing (string node) {
+        if (last_writes == null) {
+            last_writes = new HashTable<string, uint64?> (
+                str_hash, str_equal);
+        }
+        string stat_path = "/sys/block/%s/stat".printf (
+            Path.get_basename (node));
+        string contents;
+        try {
+            FileUtils.get_contents (stat_path, out contents);
+        } catch (Error e) {
+            return false;
+        }
+        string[] fields = contents.strip ().split_set (" \t");
+        string[] clean = {};
+        foreach (unowned string f in fields) {
+            if (f != "") {
+                clean += f;
+            }
+        }
+        if (clean.length < 9) {
+            return false;
+        }
+        uint64 writes = uint64.parse (clean[4]);
+        uint64 inflight = uint64.parse (clean[8]);
+        uint64? known = last_writes.lookup (node);
+        last_writes.replace (node, writes);
+        if (inflight > 0) {
+            return true;
+        }
+        return known != null && writes > known;
+    }
+
+    /* Names of processes keeping the disk's mountpoints busy (madde
+     * 63: "hangi uygulamanın kullandığı söylenir"). fuser -m verir,
+     * adlar /proc/<pid>/comm'dan. */
+    public string[] busy_processes (string node) {
+        string disk_name = Path.get_basename (node);
+        string[] result = {};
+        string? output = run_capture ({ "lsblk", "-Pno",
+            "NAME,MOUNTPOINT,PKNAME" });
+        if (output == null) {
+            return result;
+        }
+        foreach (unowned string line in output.split ("\n")) {
+            if (field (line, "PKNAME") != disk_name) {
+                continue;
+            }
+            string mountpoint = field (line, "MOUNTPOINT") ?? "";
+            if (mountpoint == "") {
+                continue;
+            }
+            string? pids = run_capture ({ "fuser", "-m", mountpoint });
+            if (pids == null) {
+                continue;
+            }
+            foreach (unowned string pid in pids.strip ().split_set (" \t")) {
+                if (pid == "") {
+                    continue;
+                }
+                string comm;
+                try {
+                    FileUtils.get_contents (
+                        "/proc/%s/comm".printf (pid), out comm);
+                } catch (Error e) {
+                    continue;
+                }
+                comm = comm.strip ();
+                if (comm != "" && !(comm in result)) {
+                    result += comm;
+                }
+            }
+        }
+        return result;
+    }
+
     public bool eject_sync (string node) {
         bool have_udisks =
             Environment.find_program_in_path ("udisksctl") != null;

@@ -516,3 +516,18 @@ msgstr "'%s' kurulu değil. '%s' paketinin içinde."
 
 msgid "Install it now? [y/N] "
 msgstr "Şimdi kurayım mı? [e/H] "
+
+msgid "Still writing to the drive — do not remove"
+msgstr "USB'ye hâlâ yazılıyor — çıkarmayın"
+
+msgid "Safe mode: write immediately"
+msgstr "Güvenli mod: anında yaz"
+
+msgid "Slower copying; applies when a drive is next plugged in"
+msgstr "Kopyalama yavaşlar; bir sonraki takışta geçerli olur"
+
+msgid "In use by: %s"
+msgstr "Kullanan: %s"
+
+msgid "Still writing — do not remove"
+msgstr "Hâlâ yazılıyor — çıkarmayın"

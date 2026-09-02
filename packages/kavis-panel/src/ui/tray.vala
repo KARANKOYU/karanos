@@ -58,6 +58,7 @@ namespace Kavis.Ui {
             }
             known_count = count;
             automount_new ();
+            update_writing_state ();
             if (count > 0) {
                 /* show_all, no_show_all işaretli widget'ın KENDİSİNDE
                  * de işlemez — bayrağı önce kaldır. */
@@ -69,6 +70,28 @@ namespace Kavis.Ui {
                 }
                 set_no_show_all (true);
                 hide ();
+            }
+        }
+
+        /* Gerçek yazma göstergesi (madde 63): çekirdek hâlâ diske
+         * yazıyorken simge turuncuya döner ve araç ipucu uyarır —
+         * kopyalama diyaloğu kapansa bile buffer boşalana dek. */
+        private void update_writing_state () {
+            bool writing = false;
+            foreach (unowned Usb.Device device in Usb.devices ()) {
+                if (Usb.writing (device.node)) {
+                    writing = true;
+                    break;
+                }
+            }
+            var style = get_style_context ();
+            if (writing) {
+                style.add_class ("usb-writing");
+                set_tooltip_text (
+                    _("Still writing to the drive — do not remove"));
+            } else if (style.has_class ("usb-writing")) {
+                style.remove_class ("usb-writing");
+                set_tooltip_text (_("Safely remove"));
             }
         }
 
@@ -92,9 +115,12 @@ namespace Kavis.Ui {
                 return;
             }
             new Thread<void*> ("kavis-automount", () => {
+                bool want_sync =
+                    PanelConfig.get_default ().usb_sync;
                 string? first = null;
                 foreach (string node in todo) {
-                    string? mountpoint = Usb.mount_sync (node);
+                    string? mountpoint = Usb.mount_sync (node,
+                                                         want_sync);
                     if (mountpoint != null && first == null) {
                         first = mountpoint;
                     }
@@ -168,23 +194,55 @@ namespace Kavis.Ui {
                 false, false, 4);
             list = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
             content.pack_start (list, false, false, 0);
+
+            /* Madde 63 "güvenli mod": sync bağlama. Varsayılan KAPALI;
+             * ne yaptığı düğmenin altında tek cümleyle yazıyor. */
+            content.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 4);
+            var sync_toggle = new Gtk.CheckButton.with_label (
+                _("Safe mode: write immediately"));
+            sync_toggle.active =
+                PanelConfig.get_default ().usb_sync;
+            sync_toggle.toggled.connect (() => {
+                var config = PanelConfig.get_default ();
+                config.usb_sync = sync_toggle.active;
+                config.save ();
+            });
+            content.pack_start (sync_toggle, false, false, 0);
+            var sync_note = new Gtk.Label (
+                _("Slower copying; applies when a drive is next plugged in"));
+            sync_note.get_style_context ().add_class ("dim");
+            sync_note.set_xalign (0);
+            sync_note.set_margin_start (26);
+            sync_note.set_line_wrap (true);
+            content.pack_start (sync_note, false, false, 0);
         }
 
         /* Eject flushes buffers (can block seconds) — worker thread,
          * result comes back as a notification. */
         public static void eject_in_background (string node) {
             new Thread<void*> ("kavis-eject", () => {
+                /* Meşgul süreçleri AYIRMADAN önce topla — başarısız
+                 * ayırmadan sonra fuser aynı sonucu verir, başarılı
+                 * ayırmada zaten gerek kalmaz (madde 63). */
+                string[] users = Usb.busy_processes (node);
                 bool ok = Usb.eject_sync (node);
                 Idle.add (() => {
                     if (Notifications.server != null) {
                         var hints = new HashTable<string, Variant> (
                             str_hash, str_equal);
+                        string body = "";
+                        if (!ok && users.length > 0) {
+                            body = _("In use by: %s").printf (
+                                string.joinv (", ", users));
+                        }
                         try {
                             Notifications.server.notify ("Kavis", 0,
                                 "drive-removable-media-symbolic",
                                 _(ok ? N_("You can now remove the device")
                                                 : N_("Could not remove the device — files may still be in use")),
-                                "", {}, hints, 5000);
+                                body, {}, hints, 5000);
                         } catch (Error e) { }
                     }
                     return Source.REMOVE;
@@ -203,6 +261,12 @@ namespace Kavis.Ui {
                 label.set_xalign (0);
                 label.set_ellipsize (Pango.EllipsizeMode.END);
                 row.pack_start (label, true, true, 0);
+                if (Usb.writing (device.node)) {
+                    var busy = new Gtk.Label (
+                        _("Still writing — do not remove"));
+                    busy.get_style_context ().add_class ("dim");
+                    row.pack_start (busy, false, false, 0);
+                }
                 var eject = new Gtk.Button.from_icon_name (
                     "media-eject-symbolic", Gtk.IconSize.BUTTON);
                 eject.set_relief (Gtk.ReliefStyle.NONE);

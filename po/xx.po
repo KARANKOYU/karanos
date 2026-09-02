@@ -369,17 +369,32 @@ msgstr "⟪Add desktop shortcut········⟫"
 msgid "Safely remove"
 msgstr "⟪Safely remove·····⟫"
 
+msgid "Still writing to the drive — do not remove"
+msgstr "⟪Still writing to the drive — do not remove················⟫"
+
 msgid "Removable drive connected"
 msgstr "⟪Removable drive connected··········⟫"
 
 msgid "Safely remove %s"
 msgstr "⟪Safely remove %s······⟫"
 
+msgid "Safe mode: write immediately"
+msgstr "⟪Safe mode: write immediately···········⟫"
+
+msgid "Slower copying; applies when a drive is next plugged in"
+msgstr "⟪Slower copying; applies when a drive is next plugged in······················⟫"
+
+msgid "In use by: %s"
+msgstr "⟪In use by: %s·····⟫"
+
 msgid "You can now remove the device"
 msgstr "⟪You can now remove the device···········⟫"
 
 msgid "Could not remove the device — files may still be in use"
 msgstr "⟪Could not remove the device — files may still be in use······················⟫"
+
+msgid "Still writing — do not remove"
+msgstr "⟪Still writing — do not remove···········⟫"
 
 msgid "Sign out"
 msgstr "⟪Sign out···⟫"
