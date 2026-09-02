@@ -73,6 +73,12 @@ libglib2.0-bin
 xdotool
 fonts-noto-color-emoji
 
+# --- tepsi USB aracı (madde 3 düzeltmesi) ---
+# udisksctl: güvenle çıkar — polkit sayesinde canlı kullanıcı root
+# olmadan ayırıp gücü kesebiliyor. Recommends kapalıyken nemo/gvfs
+# zinciriyle kendiliğinden gelmez, açıkça yazılır.
+udisks2
+
 # --- ekran görüntüsü ve kaydı (madde 29) ---
 # flameshot: donmuş kare + karartma + seçiciler + düzenleme (29F temel)
 # slop: video için bölge seçimi; ffmpeg: x11grab kaydı

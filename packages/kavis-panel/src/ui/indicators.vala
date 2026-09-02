@@ -98,12 +98,56 @@ namespace Kavis.Ui {
             clicked.connect (() => {
                 QuickSettingsPopup.get_default ().toggle_at (this);
             });
+            /* Madde 3 sözleşmesi: sağ tık araca özel hızlı işlemler —
+             * sessize alma + çıkış aygıtı seçimi. */
+            button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_menu (event);
+                    return true;
+                }
+                return false;
+            });
 
             refresh ();
             Timeout.add_seconds (10, () => {
                 refresh ();
                 return Source.CONTINUE;
             });
+        }
+
+        private void show_menu (Gdk.EventButton event) {
+            var menu = new Gtk.Menu ();
+            var mute = new Gtk.MenuItem.with_label (
+                Strings.get ("sound.mute"));
+            mute.activate.connect (() => {
+                Volume.toggle_mute ();
+                Timeout.add (150, () => {
+                    refresh ();
+                    return Source.REMOVE;
+                });
+            });
+            menu.append (mute);
+            if (Quick.sound_output_available ()) {
+                menu.append (new Gtk.SeparatorMenuItem ());
+                unowned SList<Gtk.RadioMenuItem>? group = null;
+                foreach (unowned Quick.SoundOutput sink in
+                         Quick.sound_outputs ()) {
+                    var item = new Gtk.RadioMenuItem.with_label (
+                        group, sink.description);
+                    group = item.get_group ();
+                    item.set_active (sink.active);
+                    string name = sink.name;
+                    bool was_active = sink.active;
+                    item.activate.connect (() => {
+                        if (item.get_active () && !was_active) {
+                            Quick.sound_set_output (name);
+                        }
+                    });
+                    menu.append (item);
+                }
+            }
+            menu.show_all ();
+            menu.popup_at_pointer (event);
         }
 
         private void refresh () {

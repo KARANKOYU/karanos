@@ -141,6 +141,14 @@ namespace Kavis.Strings {
         { "emoji.cat_objects",        "Nesneler",                  "Objects" },
         { "emoji.cat_symbols",        "Semboller",                 "Symbols" },
 
+        /* Tepsi araçları (madde 3 düzeltmesi) — "Bildirimler ve küçük
+         * araçlar" tablosu. */
+        { "usb.eject",                "Güvenle çıkar",             "Safely remove" },
+        { "usb.eject_named",          "Güvenle çıkar: %s",         "Safely remove %s" },
+        { "usb.safe_to_remove",       "Cihazı çıkarabilirsin",     "You can now remove the device" },
+        { "usb.eject_failed",         "Aygıt çıkarılamadı — dosyalar hâlâ kullanımda olabilir",
+                                      "Could not remove the device — files may still be in use" },
+
         /* Ekran görüntüsü ve kaydı (madde 29, kavis-tools). */
         { "capture.image",            "Görsel",                    "Image" },
         { "capture.video",            "Video",                     "Video" },
@@ -214,6 +222,7 @@ namespace Kavis.Strings {
                 || e.key.has_prefix ("common.")
                 || e.key.has_prefix ("bt.")
                 || e.key.has_prefix ("clipboard.")
+                || e.key.has_prefix ("usb.")
                 || e.key.has_prefix ("tm.")
                 || e.key.has_prefix ("calc.")
                 || e.key.has_prefix ("emoji.")

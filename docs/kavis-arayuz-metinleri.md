@@ -601,6 +601,8 @@ bu dosyayı kaynak olarak kullanacak.
 | `emoji.cat_symbols` | Semboller | Symbols |
 | `usb.connected` | USB bellek bağlandı | USB drive connected |
 | `usb.eject` | Güvenle çıkar | Safely remove |
+| `usb.eject_named` | Güvenle çıkar: %s | Safely remove %s |
+| `usb.eject_failed` | Aygıt çıkarılamadı — dosyalar hâlâ kullanımda olabilir | Could not remove the device — files may still be in use |
 | `usb.safe_to_remove` | Cihazı çıkarabilirsin | You can now remove the device |
 | `thermal.warning` | Sistem ısınıyor — %s: %d °C | System is heating up — %s: %d °C |
 | `thermal.high_warning` | Sıcaklık yüksek. Serinlik moduna geçilsin mi? | Temperature is high. Switch to cooling mode? |

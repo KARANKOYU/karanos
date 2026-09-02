@@ -364,6 +364,10 @@ namespace Kavis.Ui {
             /* Packed with expand=false: it always gets exactly its
              * natural width, no matter how crowded the window list is. */
             right_box = new Gtk.Box (axis, 0);
+            /* Kavis araç çubuğu (madde 3): göstergelerin solunda,
+             * yalnız kendi araçlarımız — üçüncü parti tepsi ayrı iş. */
+            right_box.pack_start (new UsbIndicator (), false, false, 0);
+            right_box.pack_start (new WifiIndicator (), false, false, 0);
             right_box.pack_start (new WorkspaceIndicator (screen, axis),
                                   false, false, 0);
             right_box.pack_start (new KeyboardIndicator (), false, false, 0);

@@ -1,0 +1,206 @@
+/* Kavis tray tools (UI layer) — madde 3 düzeltmesi.
+ *
+ * A small icon strip left of the indicators, holding KAVIS' OWN tools
+ * only (third-party XEmbed/SNI trays are item 37's separate task).
+ * Contract for every tool icon:
+ *   left click  → the place the tool points at (Wi-Fi → the quick
+ *                 settings Wi-Fi subpage, USB → the device list)
+ *   right click → that tool's quick-action menu.
+ * The volume indicator (ui/indicators.vala) follows the same contract.
+ */
+
+namespace Kavis.Ui {
+
+    /* Removable-drive tool: visible only while a stick is attached.
+     * Left click lists devices, right click ejects directly. */
+    public class UsbIndicator : Gtk.Button {
+
+        private UsbPopup popup;
+
+        public UsbIndicator () {
+            set_relief (Gtk.ReliefStyle.NONE);
+            get_style_context ().add_class ("indicator-button");
+            add (new Gtk.Image.from_icon_name (
+                "drive-removable-media-symbolic", Gtk.IconSize.BUTTON));
+            set_tooltip_text (Strings.get ("usb.eject"));
+
+            popup = new UsbPopup ();
+            clicked.connect (() => popup.toggle_at (this));
+            button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_eject_menu (event);
+                    return true;
+                }
+                return false;
+            });
+
+            set_no_show_all (true);
+            refresh ();
+            /* Takıp çıkarma anlık yakalanmak zorunda değil; 5 sn'lik
+             * yoklama udev izleme bağımlılığından ucuz. */
+            Timeout.add_seconds (5, () => {
+                refresh ();
+                return Source.CONTINUE;
+            });
+        }
+
+        private void refresh () {
+            if (Usb.present ()) {
+                /* show_all, no_show_all işaretli widget'ın KENDİSİNDE
+                 * de işlemez — bayrağı önce kaldır. */
+                set_no_show_all (false);
+                show_all ();
+            } else {
+                if (popup.get_visible ()) {
+                    popup.dismiss ();
+                }
+                set_no_show_all (true);
+                hide ();
+            }
+        }
+
+        private void show_eject_menu (Gdk.EventButton event) {
+            var menu = new Gtk.Menu ();
+            foreach (unowned Usb.Device device in Usb.devices ()) {
+                var item = new Gtk.MenuItem.with_label (
+                    Strings.get ("usb.eject_named").printf (device.name));
+                string node = device.node;
+                item.activate.connect (() => {
+                    UsbPopup.eject_in_background (node);
+                });
+                menu.append (item);
+            }
+            menu.show_all ();
+            menu.popup_at_pointer (event);
+        }
+    }
+
+    /* Device list popup: one row per stick, an eject button at the
+     * right of each. */
+    public class UsbPopup : PanelPopup {
+
+        private Gtk.Box list;
+
+        public UsbPopup () {
+            var title = new Gtk.Label (Strings.get ("usb.eject"));
+            title.get_style_context ().add_class ("dim");
+            title.set_xalign (0);
+            title.set_margin_start (4);
+            content.pack_start (title, false, false, 0);
+            content.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 4);
+            list = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
+            content.pack_start (list, false, false, 0);
+        }
+
+        /* Eject flushes buffers (can block seconds) — worker thread,
+         * result comes back as a notification. */
+        public static void eject_in_background (string node) {
+            new Thread<void*> ("kavis-eject", () => {
+                bool ok = Usb.eject_sync (node);
+                Idle.add (() => {
+                    if (Notifications.server != null) {
+                        var hints = new HashTable<string, Variant> (
+                            str_hash, str_equal);
+                        try {
+                            Notifications.server.notify ("Kavis", 0,
+                                "drive-removable-media-symbolic",
+                                Strings.get (ok ? "usb.safe_to_remove"
+                                                : "usb.eject_failed"),
+                                "", {}, hints, 5000);
+                        } catch (Error e) { }
+                    }
+                    return Source.REMOVE;
+                });
+                return null;
+            });
+        }
+
+        protected override void refresh_content () {
+            foreach (var child in list.get_children ()) {
+                list.remove (child);
+            }
+            foreach (unowned Usb.Device device in Usb.devices ()) {
+                var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+                var label = new Gtk.Label (device.name);
+                label.set_xalign (0);
+                label.set_ellipsize (Pango.EllipsizeMode.END);
+                row.pack_start (label, true, true, 0);
+                var eject = new Gtk.Button.from_icon_name (
+                    "media-eject-symbolic", Gtk.IconSize.BUTTON);
+                eject.set_relief (Gtk.ReliefStyle.NONE);
+                eject.set_tooltip_text (Strings.get ("usb.eject"));
+                string node = device.node;
+                eject.clicked.connect (() => {
+                    dismiss ();
+                    eject_in_background (node);
+                });
+                row.pack_end (eject, false, false, 0);
+                list.pack_start (row, false, false, 0);
+            }
+            list.show_all ();
+        }
+    }
+
+    /* Wi-Fi tool: left click opens the quick-settings Wi-Fi subpage,
+     * right click disconnects / opens network settings. Hidden when
+     * NetworkManager is absent. */
+    public class WifiIndicator : Gtk.Button {
+
+        public WifiIndicator () {
+            set_relief (Gtk.ReliefStyle.NONE);
+            get_style_context ().add_class ("indicator-button");
+            add (new Gtk.Image.from_icon_name (
+                "network-wireless-symbolic", Gtk.IconSize.BUTTON));
+
+            if (!Quick.wifi_available ()) {
+                set_no_show_all (true);
+                hide ();
+                return;
+            }
+
+            clicked.connect (() => {
+                QuickSettingsPopup.get_default ().open_page (this, "wifi");
+            });
+            button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_menu (event);
+                    return true;
+                }
+                return false;
+            });
+
+            refresh ();
+            Timeout.add_seconds (10, () => {
+                refresh ();
+                return Source.CONTINUE;
+            });
+        }
+
+        private void refresh () {
+            string ssid = Quick.wifi_ssid ();
+            set_tooltip_text (
+                ssid != "" ? ssid : Strings.get ("network.wifi"));
+        }
+
+        private void show_menu (Gdk.EventButton event) {
+            var menu = new Gtk.Menu ();
+            var disconnect = new Gtk.MenuItem.with_label (
+                Strings.get ("network.disconnect"));
+            disconnect.set_sensitive (Quick.wifi_ssid () != "");
+            disconnect.activate.connect (() => {
+                Quick.wifi_disconnect ();
+            });
+            menu.append (disconnect);
+            var settings = new Gtk.MenuItem.with_label (
+                Strings.get ("network.settings"));
+            settings.activate.connect (() => {
+                Launch.settings ("network");
+            });
+            menu.append (settings);
+            menu.show_all ();
+            menu.popup_at_pointer (event);
+        }
+    }
+}
