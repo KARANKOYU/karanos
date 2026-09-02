@@ -236,46 +236,84 @@ ply_bitir=$(zaman plymouth-quit-wait.service ActiveEnterTimestampMonotonic)
 sn() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
 log "SPLASH-TIMING start=$(sn "$ply_basla")s ses_basla=$(sn "$ses_basla")s ses_bit=$(sn "$ses_bit")s quit=$(sn "$ply_bitir")s"
 
-# Splash → X devir teslimi ne kadar sürdü? İstenen akış: lightdm X'i
-# Plymouth'un VT'sinde başlatır, splash'i `--retain-splash` ile kapatır;
-# arada konsol görünmez. Bu doğru işliyorsa X'in başlama anı ile
-# splash'in kapanışı birbirine çok yakındır (VirtualBox'ta 1-2 saniye).
-# Aralık büyükse devir kopmuş, arada konsol/siyah ekran var demektir.
-# X'in başlama anı /proc/<pid>/stat 22. alandan (starttime, tik):
-# monotonik saatle aynı eksende, systemd zaman damgalarıyla kıyaslanır.
-x_pid=$(pgrep -x Xorg 2>/dev/null | head -1)
-[ -n "$x_pid" ] || x_pid=$(pgrep -x X 2>/dev/null | head -1)
-x_basla=0
-if [ -n "$x_pid" ] && [ -r "/proc/$x_pid/stat" ]; then
-	x_tik=$(awk '{sub(/.*\) /, ""); print $20}' "/proc/$x_pid/stat")
-	tik_hz=$(getconf CLK_TCK 2>/dev/null || echo 100)
-	case "$x_tik" in
-	'' | *[!0-9]*) x_basla=0 ;;
-	*) x_basla=$((x_tik * 1000000 / tik_hz)) ;;
+# Devir teslim denetimi (v0.3-test2/test3 dersleriyle üçüncü biçim):
+# Kullanıcının gördüğü boşluk "quit ile X PROSESİ arası" DEĞİL — retain
+# akışında X, Plymouth'tan ÖNCE başlar; o süre örtüşmedir, hata değil.
+# Görsel boşluk, splash'in bırakılması (quit) ile masaüstünün İLK KARESİ
+# arasıdır. İlk kare için ölçülebilir en yakın an: oturumun ilk çizen
+# sürecinin (openbox) başlangıcı. Proses başlangıçları /proc/<pid>/stat
+# 22. alandan (starttime, tik) okunur — monotonik eksende, systemd
+# damgalarıyla kıyaslanabilir.
+# İkinci kanıt katmanı: lightdm.log. lightdm devri yaptıysa "retaining
+# splash", yapmadıysa (minimum-vt sorunu geri gelirse) "not replacing
+# it" / "no displays replace" yazar — en güvenilir gösterge bu.
+
+# Print a process's start time in µs on the CLOCK_MONOTONIC axis
+# (0 if the process or the value cannot be read). Args: process names
+# to try in order with pgrep -x.
+proc_basla() {
+	pb_pid=""
+	for pb_ad in "$@"; do
+		pb_pid=$(pgrep -x "$pb_ad" 2>/dev/null | head -1)
+		[ -n "$pb_pid" ] && break
+	done
+	if [ -z "$pb_pid" ] || [ ! -r "/proc/$pb_pid/stat" ]; then
+		echo 0
+		return
+	fi
+	pb_tik=$(awk '{sub(/.*\) /, ""); print $20}' "/proc/$pb_pid/stat")
+	pb_hz=$(getconf CLK_TCK 2>/dev/null || echo 100)
+	case "$pb_tik" in
+	'' | *[!0-9]*) echo 0 ;;
+	*) echo $((pb_tik * 1000000 / pb_hz)) ;;
 	esac
+}
+
+x_basla=$(proc_basla Xorg X)
+masa_basla=$(proc_basla openbox)
+
+retain="belirsiz"
+if [ -r /var/log/lightdm/lightdm.log ]; then
+	if grep -qi "retaining splash" /var/log/lightdm/lightdm.log; then
+		retain="ok"
+	elif grep -qiE "no displays replace|not replacing it" \
+		/var/log/lightdm/lightdm.log; then
+		retain="yok"
+	fi
 fi
-if [ "$ply_bitir" -ne 0 ] && [ "$x_basla" -ne 0 ]; then
-	# YÖN ÖNEMLİ (v0.3-test2 dersi — ilk sürüm mutlak fark alıp 5 sn
-	# eşiğiyle düşüyordu ve TAM DA DOĞRU davranışı cezalandırıyordu):
-	#   quit X'ten SONRA  → splash, X hazırlanırken ekranda TUTULMUŞ
-	#     (retain-splash devri işliyor; konsol hiç görünmez). TCG'de X
-	#     açılışı 13+ sn sürebiliyor, bu sürenin uzunluğu sorun değil.
-	#   quit X'ten ÖNCE   → splash erken bırakılmış; X gelene kadar
-	#     ekranda konsol/siyahlık var. Kopukluk yalnız bu yön.
-	if [ "$ply_bitir" -ge "$x_basla" ]; then
-		devir=$((ply_bitir - x_basla))
-		log "SPLASH-HANDOFF=+$(sn "$devir")s (splash, X basladiktan sonra kapandi — devir teslim tuttu)"
+case "$retain" in
+ok)
+	log "SPLASH-RETAIN-OK lightdm splash'i devraldi (X=$(sn "$x_basla")s'de basladi, quit=$(sn "$ply_bitir")s)"
+	;;
+yok)
+	fatal "SPLASH-RETAIN-FAIL lightdm splash'i devralmadan kapatmis — minimum-vt ayari etkin mi?" "splash-devir"
+	;;
+*)
+	log "SPLASH-RETAIN=belirsiz (lightdm.log'da plymouth kaydi bulunamadi)"
+	;;
+esac
+
+if [ "$ply_bitir" -ne 0 ] && [ "$masa_basla" -ne 0 ]; then
+	if [ "$masa_basla" -le "$ply_bitir" ]; then
+		log "SPLASH-HANDOFF=0.0s (splash, masaustu cizilmeye baslayana kadar kaldi)"
 	else
-		devir=$((x_basla - ply_bitir))
-		log "SPLASH-HANDOFF=-$(sn "$devir")s (splash X'ten ONCE birakildi)"
-		# Eşik 5 sn: KVM'siz QEMU payı; gerçek donanım/VirtualBox
-		# beklentisi 1-2 sn.
-		if [ "$devir" -gt 5000000 ]; then
-			fatal "SPLASH-HANDOFF-FAIL splash X'ten $(sn "$devir")s once birakilmis — arada konsol gorunur" "splash-devir"
+		devir=$((masa_basla - ply_bitir))
+		log "SPLASH-HANDOFF=$(sn "$devir")s (quit -> masaustunun ilk sureci)"
+		# Eşik 3 sn (KVM'siz QEMU payı dahil; gerçek donanımda 1-2 sn
+		# beklenir). Retain kanıtlıysa bu pencerede ekranda splash'in
+		# son karesi durur (X -background none ile başlatılıyor) —
+		# siyah/konsol yok, uyarı yeter. Retain kanıtı yoksa boşluk
+		# gerçekten görünür demektir: test düşer.
+		if [ "$devir" -gt 3000000 ]; then
+			if [ "$retain" = "ok" ]; then
+				log "SPLASH-HANDOFF-WARN $(sn "$devir")s uzun ama retain karesi ekrani ortuyor"
+			else
+				fatal "SPLASH-HANDOFF-FAIL quit ile masaustu arasi $(sn "$devir")s — bosluk gorunur" "splash-devir"
+			fi
 		fi
 	fi
 else
-	log "SPLASH-HANDOFF-YOK (quit=$(sn "$ply_bitir")s x=$(sn "$x_basla")s olculemedi)"
+	log "SPLASH-HANDOFF-YOK (quit=$(sn "$ply_bitir")s masaustu=$(sn "$masa_basla")s olculemedi)"
 fi
 
 # Müzik splash'e göre ne kadar geç başlıyor? Bölüm 5 "aynı anda" diyor;

@@ -9,6 +9,31 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## BİLİNÇLİ KARAR: splash artık müzik bitince değil, masaüstü gelene kadar kalıyor
+
+v0.3-test2 ölçümü (2026-09-02, kullanıcı onayı): retain devriyle
+birlikte bölüm 5'in "müzik bittikten hemen sonra kapan" kuralı fiilen
+"X/masaüstü hazır olana kadar kal" oldu — müzik bitse de splash, lightdm
+X'i ayağa kaldırıp oturumu başlatana kadar ekranda duruyor (TCG'de 60+
+sn, gerçek donanımda birkaç sn). Bu KABUL edildi: siyah ekran/konsol
+görmektense splash'in beklemesi doğru davranış.
+
+İkinci parça: lightdm X'i `-background none` ile başlatıyor
+(lightdm.conf.d/50-kavis-splash-devir.conf). Bu olmadan X başladığı
+anda kök pencereyi siyaha boyuyor ve openbox ilk kareyi çizene kadar
+(v0.3-test2'de ~4 sn, gerçek donanımda 1-2 sn) siyahlık kalıyordu;
+`-background none` framebuffer'daki son splash karesini korur → GRUB →
+splash → masaüstü, arada hiçbir şey yok.
+
+Denetimin üç biçimi (ders): (1) mutlak |quit−X| farkı — yanlış, doğru
+davranışı cezalandırdı (v0.3-test2 beş profilde bundan düştü);
+(2) yönlü fark — X'in önce başlamasını affeder ama görsel boşluğu
+ölçmez; (3) şimdiki: quit → openbox başlangıcı (masaüstünün ilk çizen
+süreci) + lightdm.log'dan "retaining splash" kanıtı. Eşik 3 sn; retain
+kanıtlıysa aşım yalnız uyarı (ekranı retain karesi örtüyor).
+
+---
+
 ## Açılış deneyimi: konsol flaşlarının kök sebebi lightdm'deymiş
 
 VirtualBox el testi (v0.3-test1, EFI+VMSVGA) GRUB→masaüstü arasında iki
