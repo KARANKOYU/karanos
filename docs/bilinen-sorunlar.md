@@ -100,7 +100,13 @@ MB — pay bol ama artış hızlı; **her ISO koşusunda boyut buradan
 izlenecek**. Şişme sorun olursa ilk aday: ffmpeg'i ISO'dan çıkarıp
 indirme yöneticisiyle tembel kuruluma almak (madde 23).
 
-## 12. Emoji seçicide arama yok
+## 12. Emoji seçicide arama yok → ÇÖZÜLDÜ (Grup D düzeltmesi 4)
+
+(2 Eyl 2026: küratörlü setin İngilizce adları Python unicodedata ile
+bir kez üretilip depoya işlendi — tools/gen-emoji-adlari.py →
+emoji_names.vala, 764 glif; arama + Tümü + son kullanılanlar geldi.
+TR adlar istenirse üretilen tabloya sözcük eklenerek. Kayıt tarihçe
+için duruyor.)
 
 Aranabilirlik Unicode ad veritabanı (TR+EN adlar) ister; v1 bilerek
 kategori+tıkla ile sınırlı. Veri seti kararıyla birlikte eklenecek.
