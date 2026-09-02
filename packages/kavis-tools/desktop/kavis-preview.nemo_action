@@ -1,0 +1,8 @@
+[Nemo Action]
+Name=Preview
+Name[tr]=Önizle
+Comment=Quick preview without opening the application
+Comment[tr]=Uygulamayı açmadan hızlı önizleme
+Exec=kavis-tools preview %F
+Selection=s
+Extensions=any;

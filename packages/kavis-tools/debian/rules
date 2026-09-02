@@ -8,7 +8,9 @@ export DH_VERBOSE = 1
 
 DEST := debian/kavis-tools
 
-VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 --pkg posix
+# gstreamer-1.0: hızlı önizlemenin video/ses oynatıcısı (madde 36).
+VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
+                 --pkg posix --pkg gstreamer-1.0
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm \
                -X -DGETTEXT_PACKAGE='"kavis"'
 
@@ -32,8 +34,15 @@ override_dh_auto_install:
 		$(DEST)/usr/share/nemo/actions/kavis-copy-path.nemo_action
 	install -m644 desktop/kavis-send-desktop.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-send-desktop.nemo_action
+	install -m644 desktop/kavis-preview.nemo_action \
+		$(DEST)/usr/share/nemo/actions/kavis-preview.nemo_action
 	install -d $(DEST)/usr/lib/kavis
 	install -m755 scripts/nemo-action $(DEST)/usr/lib/kavis/nemo-action
+	# Boşluk tuşu önizlemesi (madde 36): nemo org.nemo.Preview'u
+	# çağırır, bu servis dosyası bizim önizleyiciyi otomatik başlatır.
+	install -d $(DEST)/usr/share/dbus-1/services
+	install -m644 desktop/org.nemo.Preview.service \
+		$(DEST)/usr/share/dbus-1/services/org.nemo.Preview.service
 	install -m644 desktop/kavis-tasks.desktop \
 		$(DEST)/usr/share/applications/kavis-tasks.desktop
 	install -m644 desktop/kavis-calc.desktop \

@@ -60,11 +60,16 @@ int main (string[] args) {
         }
         window = new Kavis.Tools.OpenWithWindow (args[2]);
         break;
+    case "preview":
+        /* Hızlı önizleme (madde 36): org.nemo.Preview servisi.
+         * Dosyasız çağrı D-Bus activation'dan gelir. */
+        return Kavis.Tools.Preview.run (
+            (args.length > 2) ? args[2] : null);
     case "tasks":
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
     default:
-        stderr.printf (_("usage: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"));
+        stderr.printf (_("usage: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|alt-f4]\n"));
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

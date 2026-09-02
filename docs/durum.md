@@ -550,6 +550,13 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
+- ATLANDI-kısmen (madde 36, ofis önizleme): doc/docx/odt/xls hızlı
+  önizlemesi bilgi kartına düşüyor — güvenilir görsel çevrim ancak
+  LibreOffice'le olur (ISO'da yok, "tam uygulama açılmaz" kuralına da
+  aykırı); catdoc/odt2txt metin dökümü tablolarda çorba çıkarıyor.
+  Ofis paketi kurulunca (mağaza) yeniden değerlendirilir. Kalan her
+  tür (resim/gif/video/ses/pdf/metin/kod/arşiv) gerçek önizleme.
+
 - Karar/sınırlar (madde 39, nemo): (a) kenar çubuğundaki "File
   System" satırı KOŞULSUZ kodda — gsettings'le gizlenemiyor, F notu
   "varsayılan kapalı" ancak nemo yamasıyla olur, yama yapılmadı

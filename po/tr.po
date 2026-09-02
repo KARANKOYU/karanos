@@ -487,5 +487,11 @@ msgstr "%s aç"
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "kullanım: kavis-tools open-with <dosya>\n"
 
-msgid "usage: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"
-msgstr "kullanım: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"
+msgid "usage: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|alt-f4]\n"
+msgstr "kullanım: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|alt-f4]\n"
+
+msgid "Showing the first part of a large file"
+msgstr "Büyük dosyanın yalnız baş kısmı gösteriliyor"
+
+msgid "Could not preview this file"
+msgstr "Bu dosya önizlenemedi"

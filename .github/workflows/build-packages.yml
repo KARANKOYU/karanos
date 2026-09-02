@@ -32,7 +32,8 @@ jobs:
             build-essential debhelper dpkg-dev fakeroot \
             librsvg2-bin x11-apps python3 ca-certificates git \
             ffmpeg fonts-dejavu-core gettext locales \
-            valac libgtk-3-dev libwnck-3-dev libx11-dev
+            valac libgtk-3-dev libwnck-3-dev libx11-dev \
+            libgstreamer1.0-dev
           # gettext: rules'taki msgfmt + check-i18n (Grup D işi c).
           # locales/en_US: xx ekran görüntüsü adımı gerçek bir locale
           # ister (C altında gettext devre dışı — Codespace'te yaşandı).

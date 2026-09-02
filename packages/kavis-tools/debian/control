@@ -7,6 +7,7 @@ Build-Depends:
  valac,
  libgtk-3-dev,
  libwnck-3-dev,
+ libgstreamer1.0-dev,
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://github.com/KARANKOYU/karanos
@@ -20,6 +21,12 @@ Depends:
  fonts-noto-color-emoji,
  xclip,
  xdg-user-dirs,
+ poppler-utils,
+ gstreamer1.0-plugins-base,
+ gstreamer1.0-plugins-good,
+ gstreamer1.0-gtk3,
+ gstreamer1.0-libav,
+ gstreamer1.0-alsa,
 Description: Kavis küçük araçları — görev yöneticisi, hesap makinesi, emoji
  Tek ikili, üç araç (madde 7): `kavis-tools tasks` işlem listesi
  (CPU/RAM/disk, sonlandırma), `kavis-tools calc` hesap makinesi,

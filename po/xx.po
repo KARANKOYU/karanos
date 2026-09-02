@@ -468,6 +468,12 @@ msgstr "⟪Other applications·······⟫"
 msgid "Store app coming soon"
 msgstr "⟪Store app coming soon········⟫"
 
+msgid "Showing the first part of a large file"
+msgstr "⟪Showing the first part of a large file···············⟫"
+
+msgid "Could not preview this file"
+msgstr "⟪Could not preview this file··········⟫"
+
 msgid "End task"
 msgstr "⟪End task···⟫"
 

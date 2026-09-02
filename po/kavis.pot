@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 15:30+0000\n"
+"POT-Creation-Date: 2026-09-02 16:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -674,10 +674,11 @@ msgstr ""
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:67
+#: packages/kavis-tools/src/main.vala:72
 #, c-format
 msgid ""
-"usage: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"
+"usage: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|"
+"alt-f4]\n"
 msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:35
@@ -708,6 +709,14 @@ msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:209
 msgid "Store app coming soon"
+msgstr ""
+
+#: packages/kavis-tools/src/preview.vala:437
+msgid "Showing the first part of a large file"
+msgstr ""
+
+#: packages/kavis-tools/src/preview.vala:533
+msgid "Could not preview this file"
 msgstr ""
 
 #: packages/kavis-tools/src/tasks.vala:46
