@@ -225,10 +225,51 @@ zaman() {
 ply_basla=$(zaman plymouth-start.service InactiveExitTimestampMonotonic)
 ses_basla=$(zaman kavis-boot-sound.service InactiveExitTimestampMonotonic)
 ses_bit=$(zaman kavis-boot-sound.service ActiveEnterTimestampMonotonic)
-ply_bitir=$(zaman plymouth-quit.service InactiveExitTimestampMonotonic)
+# Splash'in kapanış anı plymouth-quit.service'ten OKUNMAZ: lightdm
+# `Conflicts=plymouth-quit.service` taşıyor, o birimi iptal edip splash'i
+# kendisi kapatıyor — quit hep 0.0s görünüyordu (İş 2'de bulundu).
+# plymouth-quit-wait `plymouth --wait` çalıştırıyor; komut plymouthd
+# gerçekten çıktığı anda döner, yani birimin "active" olduğu an splash'in
+# ekranı bıraktığı andır. Kapanışı kim yaparsa yapsın doğru ölçülür.
+ply_bitir=$(zaman plymouth-quit-wait.service ActiveEnterTimestampMonotonic)
 
 sn() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
 log "SPLASH-TIMING start=$(sn "$ply_basla")s ses_basla=$(sn "$ses_basla")s ses_bit=$(sn "$ses_bit")s quit=$(sn "$ply_bitir")s"
+
+# Splash → X devir teslimi ne kadar sürdü? İstenen akış: lightdm X'i
+# Plymouth'un VT'sinde başlatır, splash'i `--retain-splash` ile kapatır;
+# arada konsol görünmez. Bu doğru işliyorsa X'in başlama anı ile
+# splash'in kapanışı birbirine çok yakındır (VirtualBox'ta 1-2 saniye).
+# Aralık büyükse devir kopmuş, arada konsol/siyah ekran var demektir.
+# X'in başlama anı /proc/<pid>/stat 22. alandan (starttime, tik):
+# monotonik saatle aynı eksende, systemd zaman damgalarıyla kıyaslanır.
+x_pid=$(pgrep -x Xorg 2>/dev/null | head -1)
+[ -n "$x_pid" ] || x_pid=$(pgrep -x X 2>/dev/null | head -1)
+x_basla=0
+if [ -n "$x_pid" ] && [ -r "/proc/$x_pid/stat" ]; then
+	x_tik=$(awk '{sub(/.*\) /, ""); print $20}' "/proc/$x_pid/stat")
+	tik_hz=$(getconf CLK_TCK 2>/dev/null || echo 100)
+	case "$x_tik" in
+	'' | *[!0-9]*) x_basla=0 ;;
+	*) x_basla=$((x_tik * 1000000 / tik_hz)) ;;
+	esac
+fi
+if [ "$ply_bitir" -ne 0 ] && [ "$x_basla" -ne 0 ]; then
+	if [ "$ply_bitir" -ge "$x_basla" ]; then
+		devir=$((ply_bitir - x_basla))
+	else
+		devir=$((x_basla - ply_bitir))
+	fi
+	log "SPLASH-HANDOFF=$(sn "$devir")s (splash kapanisi ile X baslangici arasi)"
+	# Eşik 5 sn: CI'daki QEMU KVM'siz (TCG) çalıştığı için her şey
+	# gerçek makineden kat kat yavaş; gerçek donanım/VirtualBox
+	# beklentisi 1-2 sn. 5'i aşmak TCG'de bile kopukluk işareti.
+	if [ "$devir" -gt 5000000 ]; then
+		fatal "SPLASH-HANDOFF-FAIL splash ile X arasi $(sn "$devir")s — devir teslim kopuk" "splash-devir"
+	fi
+else
+	log "SPLASH-HANDOFF-YOK (quit=$(sn "$ply_bitir")s x=$(sn "$x_basla")s olculemedi)"
+fi
 
 # Müzik splash'e göre ne kadar geç başlıyor? Bölüm 5 "aynı anda" diyor;
 # ses aygıtının hazır olmasını beklemek zorunda olduğumuz için sıfır
@@ -272,6 +313,11 @@ fi
 if [ "$ply_bitir" -ne 0 ] && [ "$ses_bit" -ne 0 ] && [ "$ply_bitir" -lt "$ses_bit" ]; then
 	sira_hatasi="${sira_hatasi} quit-muzik-bitmeden-calisti"
 fi
+# Kapanış anı hiç ölçülemediyse (plymouth-quit-wait çalışmamış) devir
+# teslim de doğrulanamamış demektir; quit=0.0s'yi sessizce geçme.
+if [ "$ply_bitir" -eq 0 ]; then
+	sira_hatasi="${sira_hatasi} splash-kapanisi-olculemedi"
+fi
 
 # Splash kaç kez gösterildi? Birden fazlaysa arada konsola düşülmüş
 # demektir (gerçek donanımda görülen belirti).
@@ -290,7 +336,8 @@ else
 	echo "--- KAVIS-TANI: acilis sirasi ---"
 	journalctl -b --no-pager -o short-monotonic \
 		-u plymouth-start.service -u kavis-boot-sound.service \
-		-u plymouth-quit.service -u plymouth-quit-wait.service 2>&1 |
+		-u plymouth-quit.service -u plymouth-quit-wait.service \
+		-u lightdm.service 2>&1 |
 		tail -n 40 | sed 's/^/#   /'
 	echo "--- KAVIS-TANI sonu ---"
 fi
