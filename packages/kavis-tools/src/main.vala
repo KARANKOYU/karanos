@@ -42,14 +42,25 @@ int main (string[] args) {
         return Kavis.Tools.Capture.snip (
             args.length > 2 && args[2] == "--color");
     case "alt-f4":
-        /* Masaüstünde Alt+F4 (6e): pencere varsa kapat, yoksa diyalog. */
+        /* Masaüstünde Alt+F4 (6e): ÖNCE odaktaki pencere kapatılır;
+         * güç diyaloğu YALNIZ odakta pencere yokken açılır. Tuş
+         * basılı tutulunca her tekrar yeni süreç — tek örnek kilidi
+         * (2B): açıksa mevcut pencere öne gelir, yenisi açılmaz. */
         if (Kavis.Tools.AltF4.close_focused_window ()) {
+            return 0;
+        }
+        if (!Kavis.Tools.SingleInstance.acquire ("kavis-power")) {
             return 0;
         }
         window = new Kavis.Tools.ShutdownDialog ();
         break;
     case "secure-menu":
-        /* Ctrl+Alt+Del (sonraki-isler 6d) — panelden bağımsız. */
+        /* Ctrl+Alt+Del (sonraki-isler 6d) — panelden bağımsız.
+         * Aynı tek örnek koruması: basılı tutunca üst üste karartma
+         * katmanı yığılmasın. */
+        if (!Kavis.Tools.SingleInstance.acquire ("kavis-secure")) {
+            return 0;
+        }
         window = new Kavis.Tools.SecureMenuWindow ();
         break;
     case "open-with":
