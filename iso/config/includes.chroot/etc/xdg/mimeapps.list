@@ -1,0 +1,15 @@
+# Kavis varsayılan uygulamaları (madde 40). Kullanıcı "şununla aç >
+# her zaman" dedikçe ~/.config/mimeapps.list bunları ezer.
+# Düz metin not defterine (mousepad), kod/JSON kate'e.
+[Default Applications]
+text/plain=org.xfce.mousepad.desktop
+application/json=org.kde.kate.desktop
+application/xml=org.kde.kate.desktop
+application/x-yaml=org.kde.kate.desktop
+application/x-shellscript=org.kde.kate.desktop
+application/javascript=org.kde.kate.desktop
+text/markdown=org.kde.kate.desktop
+text/x-python=org.kde.kate.desktop
+text/x-csrc=org.kde.kate.desktop
+text/x-c++src=org.kde.kate.desktop
+text/css=org.kde.kate.desktop

@@ -1,0 +1,9 @@
+# Kavis varsayılanları (madde 40). Kullanıcının ~/.config/katerc'i
+# bunları ezer. Anahtar adları KTextEditor kateconfig.cpp'den.
+[General]
+Startup Session=new
+Show Full Path in Title=true
+
+[KTextEditor Renderer]
+Auto Color Theme Selection=false
+Color Theme=Breeze Dark

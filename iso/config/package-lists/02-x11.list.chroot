@@ -20,7 +20,9 @@ lightdm
 lightdm-gtk-greeter
 
 # --- terminal (LXDE ailesi: GTK3, hafif, pcmanfm ile aynı takım) ---
-lxterminal
+# tilix: madde 40 "bölünmüş pencere" şartını karşılayan tek derlenmiş
+# aday (lxterminal sekme verir ama bölme yok; terminator Python).
+tilix
 
 # --- kompozitör (4. aşama) ---
 # Yuvarlatılmış köşe, gölge ve yumuşak geçişler ancak bileşikleme varken

@@ -1,0 +1,9 @@
+[Nemo Action]
+Name=Open in editor
+Name[tr]=Editörde aç
+Comment=Open the file in the code editor
+Comment[tr]=Dosyayı kod editöründe aç
+Exec=kate %F
+Selection=m
+Extensions=any;
+Dependencies=kate;

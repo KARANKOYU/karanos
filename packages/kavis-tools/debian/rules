@@ -36,6 +36,10 @@ override_dh_auto_install:
 		$(DEST)/usr/share/nemo/actions/kavis-send-desktop.nemo_action
 	install -m644 desktop/kavis-preview.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-preview.nemo_action
+	# "Editörde aç" (madde 39/40): kate kurulu değilse menüde çıkmaz
+	# (Dependencies satırı) — kavis-tools kate'e bağımlı DEĞİL.
+	install -m644 desktop/kavis-open-editor.nemo_action \
+		$(DEST)/usr/share/nemo/actions/kavis-open-editor.nemo_action
 	install -d $(DEST)/usr/lib/kavis
 	install -m755 scripts/nemo-action $(DEST)/usr/lib/kavis/nemo-action
 	# Boşluk tuşu önizlemesi (madde 36): nemo org.nemo.Preview'u

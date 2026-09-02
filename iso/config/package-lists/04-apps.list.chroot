@@ -26,3 +26,11 @@ gprename
 # --- Sağ tık "yolu kopyala" (madde 39) ---
 # Pano yazımı için xclip; kavis action'ı kullanır.
 xclip
+
+# --- Editörler (madde 40) ---
+# mousepad: hızlı, sade metin editörü (not defteri karşılığı).
+# kate: kod/JSON editörü — renklendirme, katlama, parantez eşleme
+# hazır; ayarları /etc/xdg/katerc. KF6/Qt6 yığını çeker; ISO boyutu
+# CI'da izlenir (grup-e-taramasi.md).
+mousepad
+kate

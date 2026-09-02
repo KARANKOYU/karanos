@@ -21,7 +21,21 @@ default-column-order=['name','date_modified','type','size']
 
 # Nemo "terminalde aç" komutunu bu şemadan okuyor (cinnamon-desktop-data
 # nemo'nun bağımlılığı, şema ISO'da var). Varsayılan gnome-terminal
-# kurulu değil; ISO'daki terminale çevriliyor (madde 40'ta terminal
-# değişirse burası da güncellenir).
+# kurulu değil; ISO'daki terminal tilix (madde 40).
 [org.cinnamon.desktop.default-applications.terminal]
-exec='lxterminal'
+exec='tilix'
+
+# Tilix varsayılan profili (sabit UUID, tilix kaynağı
+# GSETTINGS_DEFAULT_UUID): Kavis renk kimliği. Ctrl+Shift+C/V zaten
+# tilix varsayılanı. Yazı tipi ayarı arayüzden.
+[com.gexperts.Tilix.Profile:/com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/]
+use-theme-colors=false
+background-color='#0D141B'
+foreground-color='#E6EDF3'
+palette=['#121C26','#EF4444','#22C55E','#F59E0B','#4F92F7','#C678DD','#2DD4BF','#E6EDF3','#233A45','#F87171','#4ADE80','#FBBF24','#7EB1F9','#D19BE8','#5EEAD4','#FFFFFF']
+
+# Mousepad (madde 40 metin editörü): koyu renklendirme + satır no.
+# 'oblivion' GtkSourceView'un hazır koyu şeması.
+[org.xfce.mousepad.preferences.view]
+color-scheme='oblivion'
+show-line-numbers=true
