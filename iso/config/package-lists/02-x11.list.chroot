@@ -54,3 +54,8 @@ fonts-liberation2
 rfkill
 xsct
 brightnessctl
+
+# --- masaüstü simgeleri (madde 6) ---
+# nemo-desktop, nemo paketinin içinde; Grup E dosya yöneticisi olarak
+# yine nemo'yu kullanacak (madde 39) — erken gelmesi çift iş değil.
+nemo

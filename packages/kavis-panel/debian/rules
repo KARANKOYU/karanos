@@ -24,14 +24,17 @@ KAYNAKLAR := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala
 
 override_dh_auto_build:
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-panel $(KAYNAKLAR)
+	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-snap \
+		src/snap.vala src/logic/appinit.vala
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin
 	install -m755 kavis-panel $(DEST)/usr/bin/kavis-panel
+	install -m755 kavis-snap $(DEST)/usr/bin/kavis-snap
 	install -d $(DEST)/usr/share/applications
 	install -m644 src/kavis-panel.desktop \
 		$(DEST)/usr/share/applications/kavis-panel.desktop
 
 override_dh_auto_clean:
-	rm -f kavis-panel
+	rm -f kavis-panel kavis-snap
 	dh_auto_clean

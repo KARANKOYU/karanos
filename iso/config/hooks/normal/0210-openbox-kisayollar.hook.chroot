@@ -1,0 +1,86 @@
+#!/bin/sh
+# Kavis — genel kısayol altyapısı (madde 6)
+#
+# NEDEN HOOK: 0200 ile aynı sebep — Debian'ın rc.xml'i komple
+# değiştirilmez (fare bölümü ve varsayılan kısayollar kaybolur), yalnız
+# Kavis bloğu </keyboard> kapanışından önce enjekte edilir. Kısayollar
+# TEK yerde (bu blok) durur; Ayarlar (Grup F, madde 29E) aynı bloğu
+# düzenleyecek.
+#
+# Pencere yerleştirme (Windows karşılıkları):
+#   Win+Sol/Sağ  : yarım ekran sola/sağa (önce büyütme kaldırılır —
+#                  büyütülmüş pencerede MoveResizeTo işlemez)
+#   Win+Yukarı   : büyüt
+#   Win+Aşağı    : büyütülmüşse eski boyut, değilse simge durumuna
+#   Alt+Tab      : Debian varsayılanı zaten var, dokunulmuyor
+#   Ctrl+Alt+ok  : masaüstü geçişi — Debian varsayılanında var
+# Sürükleyerek kenara yapıştırma klavyenin işi değil: kavis-snap
+# daemon'u yapıyor (kavis-panel paketi).
+
+set -e
+
+RC=/etc/xdg/openbox/rc.xml
+
+if [ ! -f "$RC" ]; then
+	echo "E: $RC yok — openbox kurulu mu?" >&2
+	exit 1
+fi
+
+if grep -q "Kavis kisayollari" "$RC"; then
+	echo "I: kisayollar zaten ekli"
+	exit 0
+fi
+
+SNIPPET=$(mktemp)
+cat > "$SNIPPET" <<'EOF'
+    <!-- Kavis kisayollari (madde 6) — 0210 hook'u ekledi -->
+    <keybind key="W-Left">
+      <action name="Unmaximize"/>
+      <action name="MoveResizeTo">
+        <x>0</x><y>0</y><width>50%</width><height>100%</height>
+      </action>
+    </keybind>
+    <keybind key="W-Right">
+      <action name="Unmaximize"/>
+      <action name="MoveResizeTo">
+        <x>-0</x><y>0</y><width>50%</width><height>100%</height>
+      </action>
+    </keybind>
+    <keybind key="W-Up">
+      <action name="Maximize"/>
+    </keybind>
+    <keybind key="W-Down">
+      <action name="If">
+        <maximized>yes</maximized>
+        <then><action name="Unmaximize"/></then>
+        <else><action name="Iconify"/></else>
+      </action>
+    </keybind>
+EOF
+
+awk -v snippet="$SNIPPET" '
+	/<\/keyboard>/ && !done {
+		while ((getline line < snippet) > 0) print line
+		close(snippet)
+		done = 1
+	}
+	{ print }
+' "$RC" > "$RC.yeni"
+mv "$RC.yeni" "$RC"
+rm -f "$SNIPPET"
+
+if grep -q "Kavis kisayollari" "$RC"; then
+	echo "I: pencere yerlestirme kisayollari rc.xml'e eklendi"
+else
+	echo "E: kisayollar rc.xml'e yazilamadi" >&2
+	exit 1
+fi
+
+# rc.xml hala gecerli XML mi? Bozuk rc.xml openbox'i VARSAYILANLARLA
+# baslatir ve hata sessizce yutulur.
+if command -v python3 >/dev/null 2>&1; then
+	python3 -c "import xml.dom.minidom, sys; xml.dom.minidom.parse('$RC')" || {
+		echo "E: rc.xml artik gecerli XML degil" >&2
+		exit 1
+	}
+fi

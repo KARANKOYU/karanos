@@ -61,6 +61,7 @@ serial-*.log
 
 # Vala derleme ara ürünü (dh_auto_clean siler ama derleme sonrası kalır)
 packages/kavis-panel/kavis-panel
+packages/kavis-panel/kavis-snap
 *.ddeb
 
 # Ortak GTK başlangıcının derleme kopyaları (madde 61) — kanonik dosya

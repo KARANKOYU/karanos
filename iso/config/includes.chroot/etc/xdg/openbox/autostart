@@ -51,6 +51,22 @@ if command -v kavis-panel >/dev/null 2>&1; then
 	) &
 fi
 
+# --- Kenara yapıştırma (madde 6) -------------------------------------
+# Sürükle-kenara-yapıştır; klavye kısayolları openbox'ın kendi işi
+# (0210 hook'u). Panelle aynı paketten gelir.
+if command -v kavis-snap >/dev/null 2>&1; then
+	kavis-snap &
+fi
+
+# --- Masaüstü simgeleri (madde 6) ------------------------------------
+# nemo-desktop yalnız simge katmanını çizer (dosya yöneticisinin kendisi
+# Grup E'de yapılandırılacak). GDK_GL=disable: llvmpipe tuzağı (madde
+# 61) — nemo bizim ikili olmadığı için ortak başlangıcı kullanamıyor,
+# ortam değişkeni buradan veriliyor.
+if command -v nemo-desktop >/dev/null 2>&1; then
+	GDK_GL=disable nemo-desktop &
+fi
+
 # Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken
 # 10 dakika sonra ekranın kararması kafa karıştırıyor).
 xset s off -dpms &
