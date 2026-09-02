@@ -14,7 +14,7 @@ DEST := debian/kavis-panel
 # WNCK_I_KNOW_THIS_IS_UNSTABLE: libwnck başlıkları bu tanım olmadan
 # derlemeyi reddediyor (API kararlılığı feragatnamesi).
 VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
-                 --pkg x11 --pkg gio-unix-2.0
+                 --pkg x11 --pkg gio-unix-2.0 --pkg posix
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w
 
 KAYNAKLAR := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala)

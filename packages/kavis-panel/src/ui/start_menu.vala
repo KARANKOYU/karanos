@@ -93,7 +93,9 @@ namespace Kavis.Ui {
             });
         }
 
-        /* Open the menu above the taskbar. */
+        /* Open the menu with its TOP-LEFT corner at (x, y) — the panel
+         * computes the corner from its own position (madde 5: the menu
+         * opens away from whichever edge the panel is on). */
         public void open (int x, int y) {
             /* Same exclusivity as the indicator popups: at most one
              * floating surface above the panel. */
@@ -101,7 +103,7 @@ namespace Kavis.Ui {
             app_list = Apps.all_apps ();
             search_entry.set_text ("");
             render_list (app_list, true);
-            move (x, y - HEIGHT);
+            move (x, y);
             show_all ();
             search_entry.grab_focus ();
 

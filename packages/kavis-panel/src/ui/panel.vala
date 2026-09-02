@@ -12,6 +12,9 @@ namespace Kavis.Ui {
 
     public class Panel : Gtk.Window {
 
+        /* Historical default (madde 5 öncesi tek değer). Dış araçlar
+         * (CI saat denetimi) varsayılan alt/44 düzenine göre bakar;
+         * gerçek kalınlık artık config.thickness'ten gelir. */
         public const int HEIGHT = 44;
         /* Window buttons shrink between these bounds before the list
          * starts scrolling (stage 2 rule: the right region is never
@@ -116,11 +119,16 @@ namespace Kavis.Ui {
         """;
 
         private unowned Wnck.Screen screen;
+        private PanelConfig config;
+        private int thickness;
         private StartMenu start_menu;
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
         private Gtk.Box right_box;
         private Gtk.Button start_button;
+        /* Auto-hide state (madde 5). */
+        private bool panel_hidden = false;
+        private uint hide_timer = 0;
         private HashTable<ulong, Gtk.Button> window_buttons;
         private HashTable<ulong, Gtk.Image> window_images;
         private int current_button_width = 0;
@@ -154,6 +162,11 @@ namespace Kavis.Ui {
 
             load_css ();
 
+            config = PanelConfig.load ();
+            thickness = config.thickness.pixels ();
+            /* Popup'lar panelin karşı yanına açılır. */
+            PanelPopup.panel_position = config.position;
+
             screen = Wnck.Screen.get_default ();
             screen.force_update ();
             start_menu = new StartMenu ();
@@ -175,6 +188,35 @@ namespace Kavis.Ui {
             destroy.connect (Gtk.main_quit);
             /* Panel drifted after resolution changes without this. */
             Gdk.Screen.get_default ().size_changed.connect (() => place ());
+
+            /* Sağ tık menüsü (madde 5). Düğmeler yalnız sol tıkı
+             * tükettiği için sağ tık pencereye kadar kabarır. */
+            button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_context_menu (event);
+                    return true;
+                }
+                return false;
+            });
+
+            /* Otomatik gizle: kenardan girince görün, çıkınca sakla. */
+            add_events (Gdk.EventMask.ENTER_NOTIFY_MASK
+                        | Gdk.EventMask.LEAVE_NOTIFY_MASK);
+            enter_notify_event.connect ((event) => {
+                if (event.detail != Gdk.NotifyType.INFERIOR) {
+                    reveal_panel ();
+                }
+                return false;
+            });
+            leave_notify_event.connect ((event) => {
+                if (event.detail != Gdk.NotifyType.INFERIOR) {
+                    schedule_hide ();
+                }
+                return false;
+            });
+            if (config.autohide) {
+                schedule_hide ();
+            }
         }
 
         private void update_acrylic () {
@@ -199,7 +241,12 @@ namespace Kavis.Ui {
         }
 
         private void build () {
-            var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            /* Dikey konumda (sol/sağ, madde 5) tüm eksen döner: küme
+             * üstte toplanır, göstergeler alta iner, pencere listesi
+             * dikey kayar. */
+            var axis = config.vertical
+                ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL;
+            var box = new Gtk.Box (axis, 0);
             add (box);
 
             /* --- start button (madde 4: W11 gibi yalnız logo) --- */
@@ -224,11 +271,17 @@ namespace Kavis.Ui {
              * scrollbar + mouse wheel). propagate_natural_width: the
              * scroll area ASKS for its content's width (so the cluster
              * can sit centered) but still collapses under pressure. */
-            window_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, BUTTON_SPACING);
+            window_box = new Gtk.Box (axis, BUTTON_SPACING);
             window_scroll = new Gtk.ScrolledWindow (null, null);
-            window_scroll.set_policy (Gtk.PolicyType.AUTOMATIC,
-                                      Gtk.PolicyType.NEVER);
-            window_scroll.set_propagate_natural_width (true);
+            if (config.vertical) {
+                window_scroll.set_policy (Gtk.PolicyType.NEVER,
+                                          Gtk.PolicyType.AUTOMATIC);
+                window_scroll.set_propagate_natural_height (true);
+            } else {
+                window_scroll.set_policy (Gtk.PolicyType.AUTOMATIC,
+                                          Gtk.PolicyType.NEVER);
+                window_scroll.set_propagate_natural_width (true);
+            }
             window_scroll.add (window_box);
             window_scroll.size_allocate.connect (() => {
                 queue_button_width_update ();
@@ -240,12 +293,12 @@ namespace Kavis.Ui {
              * boşluk kümeyi ortalar; pencere listesi doğal genişliğini
              * aşınca boşluklar sıfırlanır ve kaydırma devreye girer —
              * sağ bölge yine asla ezilmez (Aşama 2 kuralı geçerli). */
-            var cluster = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
+            var cluster = new Gtk.Box (axis, 4);
             cluster.pack_start (start_button, false, false, 0);
             cluster.pack_start (window_scroll, false, false, 0);
 
-            var left_spacer = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
-            var right_spacer = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            var left_spacer = new Gtk.Box (axis, 0);
+            var right_spacer = new Gtk.Box (axis, 0);
             box.pack_start (left_spacer, true, true, 0);
             box.pack_start (cluster, false, false, 0);
             box.pack_start (right_spacer, true, true, 0);
@@ -253,8 +306,9 @@ namespace Kavis.Ui {
             /* --- right edge --- */
             /* Packed with expand=false: it always gets exactly its
              * natural width, no matter how crowded the window list is. */
-            right_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
-            right_box.pack_start (new WorkspaceIndicator (screen), false, false, 0);
+            right_box = new Gtk.Box (axis, 0);
+            right_box.pack_start (new WorkspaceIndicator (screen, axis),
+                                  false, false, 0);
             right_box.pack_start (new KeyboardIndicator (), false, false, 0);
             right_box.pack_start (new VolumeIndicator (), false, false, 0);
             right_box.pack_start (new BatteryIndicator (), false, false, 0);
@@ -264,7 +318,11 @@ namespace Kavis.Ui {
             show_desktop.get_style_context ().add_class ("edge");
             show_desktop.set_relief (Gtk.ReliefStyle.NONE);
             show_desktop.set_tooltip_text (Strings.get ("panel.show_desktop"));
-            show_desktop.set_size_request (8, -1);
+            if (config.vertical) {
+                show_desktop.set_size_request (-1, 8);
+            } else {
+                show_desktop.set_size_request (8, -1);
+            }
             show_desktop.clicked.connect (() => {
                 screen.toggle_showing_desktop (!screen.get_showing_desktop ());
             });
@@ -278,16 +336,50 @@ namespace Kavis.Ui {
             });
         }
 
-        private void place () {
+        /* The monitor the panel lives on (madde 5): the configured
+         * model if it is still connected, else primary — a vanished
+         * monitor must never leave the user panel-less. */
+        private Gdk.Monitor pick_monitor () {
             var display = Gdk.Display.get_default ();
-            var monitor = display.get_primary_monitor ();
-            if (monitor == null) {
-                monitor = display.get_monitor (0);
+            if (config.monitor != "primary") {
+                for (int i = 0; i < display.get_n_monitors (); i++) {
+                    var candidate = display.get_monitor (i);
+                    if (candidate != null
+                        && candidate.get_model () == config.monitor) {
+                        return candidate;
+                    }
+                }
             }
-            Gdk.Rectangle area = monitor.get_geometry ();
-            set_size_request (area.width, HEIGHT);
-            resize (area.width, HEIGHT);
-            move (area.x, area.y + area.height - HEIGHT);
+            var primary = display.get_primary_monitor ();
+            return (primary != null) ? primary : display.get_monitor (0);
+        }
+
+        private void place () {
+            Gdk.Rectangle area = pick_monitor ().get_geometry ();
+            int w, h, x, y;
+            switch (config.position) {
+            case PanelConfig.Position.TOP:
+                w = area.width;  h = thickness;
+                x = area.x;      y = area.y;
+                break;
+            case PanelConfig.Position.LEFT:
+                w = thickness;   h = area.height;
+                x = area.x;      y = area.y;
+                break;
+            case PanelConfig.Position.RIGHT:
+                w = thickness;   h = area.height;
+                x = area.x + area.width - thickness;
+                y = area.y;
+                break;
+            default:   /* BOTTOM */
+                w = area.width;  h = thickness;
+                x = area.x;      y = area.y + area.height - thickness;
+                break;
+            }
+            set_size_request (w, h);
+            resize (w, h);
+            move (x, y);
+            panel_hidden = false;
             Idle.add (() => {
                 set_strut (area);
                 return Source.REMOVE;
@@ -313,27 +405,53 @@ namespace Kavis.Ui {
             unowned X.Display xdisplay =
                 ((Gdk.X11.Display) get_display ()).get_xdisplay ();
 
-            /* Combined screen height = bottom edge of the lowest
-             * monitor (Gdk.Screen.get_height is deprecated). */
+            /* Combined screen extents (Gdk.Screen.get_width/height are
+             * deprecated): struts are measured from the edges of the
+             * WHOLE virtual screen, not of one monitor. */
+            int screen_width = 0;
             int screen_height = 0;
             var display = Gdk.Display.get_default ();
             for (int i = 0; i < display.get_n_monitors (); i++) {
                 Gdk.Rectangle mg = display.get_monitor (i).get_geometry ();
+                screen_width = int.max (screen_width, mg.x + mg.width);
                 screen_height = int.max (screen_height, mg.y + mg.height);
             }
-
-            /* Panel sits at the bottom of the primary monitor; the
-             * reserved strip runs to the very bottom of the combined
-             * screen (covers the gap below on multi-monitor setups). */
-            long bottom = screen_height - (area.y + area.height) + HEIGHT;
-            long left_x = area.x;
-            long right_x = area.x + area.width - 1;
 
             /* left, right, top, bottom, left_start, left_end,
              * right_start, right_end, top_start, top_end,
              * bottom_start, bottom_end */
-            long[] strut_values = { 0, 0, 0, bottom, 0, 0, 0, 0, 0, 0,
-                               left_x, right_x };
+            long[] strut_values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+            /* Otomatik gizlide şerit ayrılmaz: pencereler tüm ekranı
+             * kullanır, panel üstlerine kayarak gelir. */
+            if (!config.autohide) {
+                switch (config.position) {
+                case PanelConfig.Position.TOP:
+                    strut_values[2] = area.y + thickness;
+                    strut_values[8] = area.x;
+                    strut_values[9] = area.x + area.width - 1;
+                    break;
+                case PanelConfig.Position.LEFT:
+                    strut_values[0] = area.x + thickness;
+                    strut_values[4] = area.y;
+                    strut_values[5] = area.y + area.height - 1;
+                    break;
+                case PanelConfig.Position.RIGHT:
+                    strut_values[1] = screen_width
+                        - (area.x + area.width) + thickness;
+                    strut_values[6] = area.y;
+                    strut_values[7] = area.y + area.height - 1;
+                    break;
+                default:   /* BOTTOM — şerit birleşik ekranın en altına
+                            * kadar uzar (alttaki monitör boşluğunu da
+                            * kapatır). */
+                    strut_values[3] = screen_height
+                        - (area.y + area.height) + thickness;
+                    strut_values[10] = area.x;
+                    strut_values[11] = area.x + area.width - 1;
+                    break;
+                }
+            }
 
             X.Atom strut_partial = xdisplay.intern_atom (
                 "_NET_WM_STRUT_PARTIAL", false);
@@ -361,7 +479,37 @@ namespace Kavis.Ui {
             window.get_origin (out root_x, out root_y);
             Gtk.Allocation alloc;
             button.get_allocation (out alloc);
-            start_menu.open (root_x + alloc.x, root_y + alloc.y);
+            int bx = root_x + alloc.x;
+            int by = root_y + alloc.y;
+
+            /* Menünün SOL-ÜST köşesi panel konumuna göre (madde 5):
+             * open() mutlak köşe bekler. */
+            int x, y;
+            switch (config.position) {
+            case PanelConfig.Position.TOP:
+                x = bx;
+                y = by + alloc.height;
+                break;
+            case PanelConfig.Position.LEFT:
+                x = bx + alloc.width;
+                y = by;
+                break;
+            case PanelConfig.Position.RIGHT:
+                x = bx - StartMenu.WIDTH;
+                y = by;
+                break;
+            default:   /* BOTTOM */
+                x = bx;
+                y = by - StartMenu.HEIGHT;
+                break;
+            }
+            /* Monitör içine kıstır. */
+            Gdk.Rectangle area = pick_monitor ().get_geometry ();
+            x = int.max (area.x, int.min (x, area.x + area.width
+                                          - StartMenu.WIDTH));
+            y = int.max (area.y, int.min (y, area.y + area.height
+                                          - StartMenu.HEIGHT));
+            start_menu.open (x, y);
         }
 
         public void refresh_windows () {
@@ -423,10 +571,16 @@ namespace Kavis.Ui {
             if (count == 0) {
                 return;
             }
-            int panel_width = get_allocated_width ();
-            int list_space = panel_width
-                - right_box.get_allocated_width ()
-                - start_button.get_allocated_width ()
+            /* Dikey panelde aynı hesap yükseklik ekseninde döner. */
+            int panel_extent = config.vertical
+                ? get_allocated_height () : get_allocated_width ();
+            int right_extent = config.vertical
+                ? right_box.get_allocated_height ()
+                : right_box.get_allocated_width ();
+            int start_extent = config.vertical
+                ? start_button.get_allocated_height ()
+                : start_button.get_allocated_width ();
+            int list_space = panel_extent - right_extent - start_extent
                 - 16;   /* küme iç boşluğu + nefes payı */
             int available = list_space - (int) (count - 1) * BUTTON_SPACING;
             if (available <= 1) {
@@ -440,7 +594,11 @@ namespace Kavis.Ui {
             }
             current_button_width = width;
             window_buttons.foreach ((xid, button) => {
-                button.set_size_request (width, -1);
+                if (config.vertical) {
+                    button.set_size_request (-1, width);
+                } else {
+                    button.set_size_request (width, -1);
+                }
             });
 
             int icon_size = (width >= COMPACT_THRESHOLD)
@@ -485,7 +643,11 @@ namespace Kavis.Ui {
             unowned Wnck.Window target = window;
             button.clicked.connect (() => activate_window (target));
             if (current_button_width > 0) {
-                button.set_size_request (current_button_width, -1);
+                if (config.vertical) {
+                    button.set_size_request (-1, current_button_width);
+                } else {
+                    button.set_size_request (current_button_width, -1);
+                }
             }
             return button;
         }
@@ -557,6 +719,231 @@ namespace Kavis.Ui {
                 window.unminimize (timestamp);
                 window.activate (timestamp);
             }
+        }
+
+        /* --- sağ tık menüsü (madde 5) --------------------------------- */
+
+        private void show_context_menu (Gdk.EventButton event) {
+            var menu = new Gtk.Menu ();
+
+            /* Konum */
+            var position_item = new Gtk.MenuItem.with_label (
+                Strings.get ("panel.menu_position"));
+            var position_menu = new Gtk.Menu ();
+            unowned SList<Gtk.RadioMenuItem>? position_group = null;
+            PanelConfig.Position[] positions = {
+                PanelConfig.Position.BOTTOM, PanelConfig.Position.TOP,
+                PanelConfig.Position.LEFT, PanelConfig.Position.RIGHT
+            };
+            string[] position_keys = {
+                "panel.position_bottom", "panel.position_top",
+                "panel.position_left", "panel.position_right"
+            };
+            for (int i = 0; i < positions.length; i++) {
+                var item = new Gtk.RadioMenuItem.with_label (
+                    position_group, Strings.get (position_keys[i]));
+                position_group = item.get_group ();
+                item.set_active (config.position == positions[i]);
+                PanelConfig.Position value = positions[i];
+                item.activate.connect (() => {
+                    if (item.get_active () && config.position != value) {
+                        config.position = value;
+                        restart_self ();
+                    }
+                });
+                position_menu.append (item);
+            }
+            position_item.set_submenu (position_menu);
+            menu.append (position_item);
+
+            /* Boyut */
+            var size_item = new Gtk.MenuItem.with_label (
+                Strings.get ("panel.menu_size"));
+            var size_menu = new Gtk.Menu ();
+            unowned SList<Gtk.RadioMenuItem>? size_group = null;
+            PanelConfig.Thickness[] sizes = {
+                PanelConfig.Thickness.THIN, PanelConfig.Thickness.MEDIUM,
+                PanelConfig.Thickness.THICK
+            };
+            string[] size_keys = {
+                "panel.size_thin", "panel.size_medium", "panel.size_thick"
+            };
+            for (int i = 0; i < sizes.length; i++) {
+                var item = new Gtk.RadioMenuItem.with_label (
+                    size_group, Strings.get (size_keys[i]));
+                size_group = item.get_group ();
+                item.set_active (config.thickness == sizes[i]);
+                PanelConfig.Thickness value = sizes[i];
+                item.activate.connect (() => {
+                    if (item.get_active () && config.thickness != value) {
+                        config.thickness = value;
+                        restart_self ();
+                    }
+                });
+                size_menu.append (item);
+            }
+            size_item.set_submenu (size_menu);
+            menu.append (size_item);
+
+            /* Ekran — yalnız birden fazla monitör varsa. */
+            var display = Gdk.Display.get_default ();
+            if (display.get_n_monitors () > 1) {
+                var monitor_item = new Gtk.MenuItem.with_label (
+                    Strings.get ("panel.menu_monitor"));
+                var monitor_menu = new Gtk.Menu ();
+                unowned SList<Gtk.RadioMenuItem>? monitor_group = null;
+
+                var primary_item = new Gtk.RadioMenuItem.with_label (
+                    monitor_group, Strings.get ("panel.monitor_primary"));
+                monitor_group = primary_item.get_group ();
+                primary_item.set_active (config.monitor == "primary");
+                primary_item.activate.connect (() => {
+                    if (primary_item.get_active ()
+                        && config.monitor != "primary") {
+                        config.monitor = "primary";
+                        config.save ();
+                        place ();
+                    }
+                });
+                monitor_menu.append (primary_item);
+
+                for (int i = 0; i < display.get_n_monitors (); i++) {
+                    var candidate = display.get_monitor (i);
+                    if (candidate == null) {
+                        continue;
+                    }
+                    string model = candidate.get_model () ?? "%d".printf (i);
+                    var item = new Gtk.RadioMenuItem.with_label (
+                        monitor_group, model);
+                    monitor_group = item.get_group ();
+                    item.set_active (config.monitor == model);
+                    item.activate.connect (() => {
+                        if (item.get_active () && config.monitor != model) {
+                            config.monitor = model;
+                            config.save ();
+                            place ();
+                        }
+                    });
+                    monitor_menu.append (item);
+                }
+                monitor_item.set_submenu (monitor_menu);
+                menu.append (monitor_item);
+            }
+
+            /* Otomatik gizle */
+            var autohide_item = new Gtk.CheckMenuItem.with_label (
+                Strings.get ("panel.menu_autohide"));
+            autohide_item.set_active (config.autohide);
+            autohide_item.toggled.connect (() => {
+                config.autohide = autohide_item.get_active ();
+                config.save ();
+                place ();   /* şeridi geri ver / kaldır */
+                if (config.autohide) {
+                    schedule_hide ();
+                }
+            });
+            menu.append (autohide_item);
+
+            menu.append (new Gtk.SeparatorMenuItem ());
+
+            /* Kısayollar. Hedef uygulama henüz kurulu değilse öğe soluk
+             * kalır — kavis-settings Grup F'de, kavis-tools madde 7'de
+             * geliyor. */
+            menu.append (launcher_item ("panel.display_settings",
+                "kavis-settings", { "kavis-settings", "display" }));
+            menu.append (launcher_item ("panel.task_manager",
+                "kavis-tools", { "kavis-tools", "tasks" }));
+
+            menu.show_all ();
+            menu.popup_at_pointer (event);
+        }
+
+        private Gtk.MenuItem launcher_item (string key, string program,
+                                            string[] argv) {
+            var item = new Gtk.MenuItem.with_label (Strings.get (key));
+            if (Environment.find_program_in_path (program) == null) {
+                item.set_sensitive (false);
+                return item;
+            }
+            string[] command = argv;
+            item.activate.connect (() => {
+                try {
+                    Process.spawn_async (null, command, null,
+                        SpawnFlags.SEARCH_PATH, null, null);
+                } catch (Error e) {
+                    warning ("kavis-panel: %s baslatilamadi: %s",
+                             program, e.message);
+                }
+            });
+            return item;
+        }
+
+        /* Konum/boyut değişince panel kendini yeniden başlatır: her
+         * widget'ı canlı döndürmek yerine en hafif ve en sağlam yol —
+         * panel durumsuz, açılışı anlık. exec süreç görüntüsünü yerinde
+         * değiştirir; X bağlantısı CLOEXEC olduğundan eski pencereler
+         * sunucudan düşer. */
+        private void restart_self () {
+            config.save ();
+            string[] argv = { "kavis-panel" };
+            Posix.execv ("/proc/self/exe", argv);
+            /* exec döndüyse başarısızdır — panelsiz kalma. */
+            warning ("kavis-panel: yeniden baslatilamadi, ayar sonraki acilista gecerli");
+        }
+
+        /* --- otomatik gizle (madde 5) --------------------------------- */
+
+        private void reveal_panel () {
+            if (hide_timer != 0) {
+                Source.remove (hide_timer);
+                hide_timer = 0;
+            }
+            if (panel_hidden) {
+                place ();
+            }
+        }
+
+        private void schedule_hide () {
+            if (!config.autohide) {
+                return;
+            }
+            if (hide_timer != 0) {
+                Source.remove (hide_timer);
+            }
+            hide_timer = Timeout.add (600, () => {
+                hide_timer = 0;
+                /* Açık popup/menü varken saklanmak onları köksüz
+                 * bırakır. */
+                if (PanelPopup.any_open () || start_menu.get_visible ()) {
+                    schedule_hide ();
+                    return Source.REMOVE;
+                }
+                slide_away ();
+                return Source.REMOVE;
+            });
+        }
+
+        /* 2 px'lik algılama şeridi kalacak şekilde kenara kayar. */
+        private void slide_away () {
+            if (panel_hidden || !config.autohide) {
+                return;
+            }
+            Gdk.Rectangle area = pick_monitor ().get_geometry ();
+            switch (config.position) {
+            case PanelConfig.Position.TOP:
+                move (area.x, area.y - thickness + 2);
+                break;
+            case PanelConfig.Position.LEFT:
+                move (area.x - thickness + 2, area.y);
+                break;
+            case PanelConfig.Position.RIGHT:
+                move (area.x + area.width - 2, area.y);
+                break;
+            default:
+                move (area.x, area.y + area.height - 2);
+                break;
+            }
+            panel_hidden = true;
         }
 
         private void on_active_changed () {

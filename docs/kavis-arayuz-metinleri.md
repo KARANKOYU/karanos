@@ -185,6 +185,19 @@ bu dosyayı kaynak olarak kullanacak.
 | `panel.show_desktop` | Masaüstünü göster | Show desktop |
 | `panel.task_manager` | Görev Yöneticisi | Task Manager |
 | `panel.taskbar_settings` | Görev çubuğu ayarları | Taskbar settings |
+| `panel.menu_position` | Konum | Position |
+| `panel.position_bottom` | Alt | Bottom |
+| `panel.position_top` | Üst | Top |
+| `panel.position_left` | Sol | Left |
+| `panel.position_right` | Sağ | Right |
+| `panel.menu_size` | Boyut | Size |
+| `panel.size_thin` | İnce | Thin |
+| `panel.size_medium` | Orta | Medium |
+| `panel.size_thick` | Kalın | Thick |
+| `panel.menu_monitor` | Ekran | Monitor |
+| `panel.monitor_primary` | Birincil ekran | Primary monitor |
+| `panel.menu_autohide` | Otomatik gizle | Auto-hide |
+| `panel.display_settings` | Ekran ayarları | Display settings |
 | `panel.no_results` | Sonuç bulunamadı | No results found |
 | `desktop.my_computer` | Bilgisayarım | This PC |
 | `desktop.trash` | Çöp Kutusu | Trash |

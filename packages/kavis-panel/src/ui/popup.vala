@@ -71,6 +71,12 @@ namespace Kavis.Ui {
         }
         """;
 
+        /* Panelin konumu (madde 5): popup panelin karşı yanına açılır —
+         * alttaysa üstüne, üstteyse altına, soldaysa sağına... Panel
+         * kurulurken bir kez yazar. */
+        public static PanelConfig.Position panel_position =
+            PanelConfig.Position.BOTTOM;
+
         /* At most one popup open — opening any dismisses the other. */
         private static unowned PanelPopup? open_popup = null;
         /* The start menu takes part in the same exclusivity: opening a
@@ -233,18 +239,45 @@ namespace Kavis.Ui {
                 origin_y += alloc.y;
             }
 
-            /* Center on the anchor, clamp into the monitor. */
-            int box_width = natural.width - 2 * shadow_margin;
-            int x = origin_x + alloc.width / 2 - box_width / 2 - shadow_margin;
             var display = Gdk.Display.get_default ();
             var monitor = display.get_monitor_at_window (anchor_window);
             Gdk.Rectangle area = monitor.get_geometry ();
+            int box_width = natural.width - 2 * shadow_margin;
+            int box_height = natural.height - 2 * shadow_margin;
+            int x, y;
+
+            switch (panel_position) {
+            case PanelConfig.Position.TOP:
+                /* Altına, göstergeye yatay ortalı. */
+                x = origin_x + alloc.width / 2 - box_width / 2
+                    - shadow_margin;
+                y = origin_y + alloc.height + GAP - shadow_margin;
+                break;
+            case PanelConfig.Position.LEFT:
+                /* Sağına, göstergeye dikey ortalı. */
+                x = origin_x + alloc.width + GAP - shadow_margin;
+                y = origin_y + alloc.height / 2 - box_height / 2
+                    - shadow_margin;
+                break;
+            case PanelConfig.Position.RIGHT:
+                x = origin_x - GAP - natural.width + shadow_margin;
+                y = origin_y + alloc.height / 2 - box_height / 2
+                    - shadow_margin;
+                break;
+            default:   /* BOTTOM: üstüne, yatay ortalı (ilk davranış). */
+                x = origin_x + alloc.width / 2 - box_width / 2
+                    - shadow_margin;
+                y = origin_y - GAP - natural.height + shadow_margin;
+                break;
+            }
+
+            /* Monitör içine kıstır. */
             x = int.max (area.x + GAP - shadow_margin,
                          int.min (x, area.x + area.width - box_width
                                   - GAP - shadow_margin));
-            /* Bottom of the visible box sits GAP above the panel's
-             * top edge (origin_y = top of the panel window). */
-            int y = origin_y - GAP - natural.height + shadow_margin;
+            y = int.max (area.y + GAP - shadow_margin,
+                         int.min (y, area.y + area.height - box_height
+                                  - GAP - shadow_margin));
 
             move (x, y);
 
@@ -259,6 +292,12 @@ namespace Kavis.Ui {
             gtk_grabbed = true;
             seat_grab (this);
             open_popup = this;
+        }
+
+        /* Whether any indicator popup is currently open (auto-hide
+         * keeps the panel visible while one is). */
+        public static bool any_open () {
+            return open_popup != null;
         }
 
         /* Close whichever popup is open (the start menu calls this when

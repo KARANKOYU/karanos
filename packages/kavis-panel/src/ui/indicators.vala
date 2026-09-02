@@ -163,8 +163,10 @@ namespace Kavis.Ui {
         private Gtk.Button[] buttons = {};
         private int[] numbers = {};
 
-        public WorkspaceIndicator (Wnck.Screen screen) {
-            Object (orientation: Gtk.Orientation.HORIZONTAL, spacing: 2);
+        public WorkspaceIndicator (Wnck.Screen screen,
+                                   Gtk.Orientation axis
+                                   = Gtk.Orientation.HORIZONTAL) {
+            Object (orientation: axis, spacing: 2);
             this.screen = screen;
             rebuild ();
             screen.workspace_created.connect (() => rebuild ());
