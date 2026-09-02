@@ -420,6 +420,18 @@ almak (indirme yöneticisi madde 23 gelince).
 >   temizlendi (commit 9fb045a). Etiket v0.3-test9 bu commit'e
 >   taşındı (önce 4adeaf0'daydı; push edilmemişti — edildiyse
 >   kullanıcının etiketi zorla itmesi gerekir). Push KULLANICIDA.
+> - GRUP F 1. ADIM / 1A BİTTİ (3 Eyl): kavis-settings paketi 4
+>   commit'te — 6256fed iskelet (W11 yerleşim, tembel sayfalar),
+>   fae84fb kavis.conf tek dosya (panel.conf [panel]→[taskbar] içe
+>   alma; canlı yayılım FileMonitor/inotify — D-Bus'a tercih sebebi:
+>   herkes GLib bağlıyor, yazan için kimse ayakta olmak zorunda
+>   değil), 9a3f03c 8 bölüm gerçek ayarlarla (xsettingsd + Kavis-Light
+>   CANLI tema; xrandr 15 sn geri sayım; PowerPlan 4 mod
+>   kavis-common'a; dil seçici dil-secici.md kurallarıyla), 350b989
+>   arama + RSS + boot-check SETTINGS-OK. RSS yerel 35MB ama boş GTK
+>   penceresi aynı ortamda 23.9MB — gerçek ölçüm ISO'da (SETTINGS-OK
+>   satırı loglar). Kapak/uyku süreleri logind (root) istediğinden
+>   ERTELENDİ (aşağıda ONAY BEKLEYEN). Sıra: 1B başlık düğmeleri.
 > - GRUP E KOD TAMAM (2 Eyl gece, 8 ayrı commit + tarama):
 >   ec443fe tarama, 6889fa4 nemo (39), 98ff539 önizleme (36),
 >   3bb552d tilix/mousepad/kate (40), 9a79688 disk/USB+automount
@@ -557,6 +569,14 @@ yok (Unicode ad veritabanı gerek).
   "zaten var, yenisi gerekmez" diye okunur.
 
 ### ONAY BEKLEYEN KARARLAR
+
+- Karar (1A, madde 51): kapak kapatma / otomatik uyku süreleri
+  logind (HandleLidSwitch, IdleAction) yani root yapılandırması
+  ister; Ayarlar oturum düzeyinde kalsın diye ertelendi — Güç
+  sayfasında ekran kapatma (DPMS) gerçek, uyku/kapak Grup F içinde
+  ayrı işle (pkexec'li tek seferlik yazım) gelecek.
+- Karar (1A, madde 38): "Sistemle uyumlu" tema şimdilik koyuya düşer
+  — sistemde açık/koyu sinyali üreten bir kaynak (portal) yok.
 
 - ATLANDI-kısmen (madde 36, ofis önizleme): doc/docx/odt/xls hızlı
   önizlemesi bilgi kartına düşüyor — güvenilir görsel çevrim ancak
