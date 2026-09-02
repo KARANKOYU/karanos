@@ -45,6 +45,13 @@ prepare_sources() {
 		install -m644 assets/logo/acik-k-logo.svg \
 			packages/kavis-theme/src/logo/acik-k-logo.svg
 		;;
+	kavis-panel)
+		# Ortak GTK başlangıcı (madde 61): kanonik kopya
+		# packages/kavis-common/appinit.vala; her GTK paketi derleme
+		# sırasında kendi src ağacına alır (kopya .gitignore'da).
+		install -m644 packages/kavis-common/appinit.vala \
+			packages/kavis-panel/src/logic/appinit.vala
+		;;
 	kavis-boot)
 		install -d packages/kavis-boot/src/boot
 		# Madde 30: splash'te fotoğraf yok, HER ZAMAN koyu logo.
