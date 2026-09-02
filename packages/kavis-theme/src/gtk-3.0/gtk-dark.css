@@ -138,3 +138,15 @@ selection,
 	background-color: @kavis_teal;
 	color: @kavis_ground;
 }
+
+/* Nemo (madde 39, test8 F): Gezgin gibi ince araç çubuğu. Değerler
+ * tasarim-dili.md dışında bilinçli — araç çubuğu popup değil,
+ * yükseklik kazanmak için sıkıştırılıyor. */
+.nemo-window toolbar {
+	padding: 1px 6px;
+	min-height: 0;
+}
+.nemo-window toolbar button {
+	padding: 3px 6px;
+	min-height: 0;
+}

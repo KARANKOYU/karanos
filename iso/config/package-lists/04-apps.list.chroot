@@ -1,0 +1,28 @@
+# Grup E — temel uygulamalar (madde 39+).
+# DİKKAT: --apt-recommends false (CLAUDE.md tuzağı) — Recommends'ten
+# gelmesi beklenen her şey burada AÇIKÇA yazılır.
+
+# --- Dosya yöneticisi eki (madde 39; nemo 02-x11'de) ---
+# nemo-fileroller: sağ tık sıkıştır/çıkart (file-roller'ı çeker).
+# gvfs-backends/-fuse: SMB/SFTP/FTP/DAV paylaşımları + fuse köprüsü;
+# Recommends kapalıyken gelmiyor, ağ paylaşımı sessizce kaybolurdu.
+nemo-fileroller
+gvfs-backends
+gvfs-fuse
+
+# --- Arşiv formatları (madde 39: "arşiv TAM" + en hızlı yöntem) ---
+# p7zip-full: 7z/cab/iso; unrar (non-free, firmware zaten non-free
+# açtı): rar açma; zstd + pigz: çok çekirdekli hızlı sıkıştırma.
+p7zip-full
+unrar
+zstd
+pigz
+
+# --- Toplu yeniden adlandırma (madde 39) ---
+# Çoklu seçim + F2 → nemo bulk-rename-tool anahtarındaki aracı çağırır
+# (zz-kavis.gschema.override). Mint'in bulky'si trixie'de YOK.
+gprename
+
+# --- Sağ tık "yolu kopyala" (madde 39) ---
+# Pano yazımı için xclip; kavis action'ı kullanır.
+xclip

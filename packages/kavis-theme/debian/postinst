@@ -9,6 +9,12 @@ case "$1" in
 configure)
 	update-alternatives --install /usr/share/icons/default/index.theme \
 		x-cursor-theme /usr/share/icons/Kavis-Cursors/cursor.theme 100
+	# gsettings override'ı (nemo varsayılanları) derlenmeden etkisiz;
+	# glib trigger'ı normalde halleder, tetiklenmediği kurulum
+	# sıralarına karşı emniyet.
+	if command -v glib-compile-schemas >/dev/null 2>&1; then
+		glib-compile-schemas /usr/share/glib-2.0/schemas || true
+	fi
 	;;
 esac
 

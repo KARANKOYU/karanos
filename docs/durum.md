@@ -550,6 +550,16 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
+- Karar/sınırlar (madde 39, nemo): (a) kenar çubuğundaki "File
+  System" satırı KOŞULSUZ kodda — gsettings'le gizlenemiyor, F notu
+  "varsayılan kapalı" ancak nemo yamasıyla olur, yama yapılmadı
+  (hızlı erişim zaten üstte); (b) Ctrl+tekerlek görünüm modları
+  arasında (büyük→liste→ayrıntı) GEÇMİYOR — yalnız etkin görünümün 7
+  zoom seviyesini gezer, mod geçişi de yama ister; (c) Ctrl+Z tek
+  adım geri alır (nemo'nun undo yığını yok); (d) toplu yeniden
+  adlandırma trixie'de bulky olmadığından gprename'e delege. Hepsi
+  docs/referans/nemo.md'de gerekçeli.
+
 - Karar (dil altyapısı): i18n-stats.json "kavis-common paketinde"
   istendi ama kavis-common bir .deb değil, paketlerin paylaştığı
   kaynak dizini — JSON, .mo dosyalarının sahibi olan kavis-panel'e

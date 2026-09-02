@@ -63,6 +63,12 @@ override_dh_auto_install:
 	# --- Sistem geneli varsayılanlar ---------------------------------
 	install -d $(DEST)/etc/gtk-3.0 $(DEST)/etc/gtk-2.0
 	install -m644 src/settings.ini $(DEST)/etc/gtk-3.0/settings.ini
+	# Nemo varsayılanları (madde 39): gsettings override — kod yaması
+	# yok. glib'in dpkg trigger'ı şemaları kendisi derler; postinst'te
+	# emniyet kemeri de var.
+	install -d $(DEST)/usr/share/glib-2.0/schemas
+	install -m644 src/glib-2.0/zz-kavis.gschema.override \
+		$(DEST)/usr/share/glib-2.0/schemas/zz-kavis.gschema.override
 
 	# Sistem sesleri (sonraki-isler 6b): depoya blob girmez — betik
 	# derlemede sentezler (saf stdlib sinüs, lisanssız). freedesktop

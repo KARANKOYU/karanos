@@ -1,0 +1,9 @@
+[Nemo Action]
+Name=Copy path
+Name[tr]=Yolu kopyala
+Comment=Copy the full path to the clipboard
+Comment[tr]=Tam yolu panoya kopyala
+Exec=/usr/lib/kavis/nemo-action copy-path %F
+Selection=notnone
+Extensions=any;
+Dependencies=xclip;

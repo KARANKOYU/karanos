@@ -1,0 +1,8 @@
+[Nemo Action]
+Name=Send to desktop (shortcut)
+Name[tr]=Masaüstüne kısayol gönder
+Comment=Create a shortcut to this item on the desktop
+Comment[tr]=Bu öğe için masaüstünde kısayol oluştur
+Exec=/usr/lib/kavis/nemo-action send-desktop %F
+Selection=notnone
+Extensions=any;

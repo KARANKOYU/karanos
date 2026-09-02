@@ -18,6 +18,8 @@ Depends:
  ${misc:Depends},
  kavis-panel,
  fonts-noto-color-emoji,
+ xclip,
+ xdg-user-dirs,
 Description: Kavis küçük araçları — görev yöneticisi, hesap makinesi, emoji
  Tek ikili, üç araç (madde 7): `kavis-tools tasks` işlem listesi
  (CPU/RAM/disk, sonlandırma), `kavis-tools calc` hesap makinesi,

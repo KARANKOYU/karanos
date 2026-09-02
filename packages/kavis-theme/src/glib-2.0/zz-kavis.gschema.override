@@ -1,0 +1,27 @@
+# Kavis — nemo varsayılanları (madde 39 + test8 F notları).
+# Kod yaması yok: davranış tamamen gsettings override'ıyla veriliyor.
+# zz- öneki: alfabetik sırada en son okunup dağıtım varsayılanlarını
+# ezmesi için.
+
+[org.nemo.preferences]
+# Gezgin gibi ayrıntı görünümü varsayılan (F notu).
+default-folder-viewer='list-view'
+# Windows boyutları base-2 (1 KB = 1024 B) gösterir.
+size-prefixes='base-2'
+# İki ayrı yavaş tıkla yeniden adlandırma — Gezgin davranışı.
+quick-renames-with-pause-in-between=true
+# F2 çoklu seçimde toplu yeniden adlandırma aracı (madde 39; Mint'in
+# bulky'si trixie'de yok, gprename var — bkz. docs/referans/nemo.md).
+bulk-rename-tool=b'gprename'
+
+[org.nemo.list-view]
+# Sütunlar ve sırası: Name / Modified / Type / Size (test8 F).
+default-visible-columns=['name','date_modified','type','size']
+default-column-order=['name','date_modified','type','size']
+
+# Nemo "terminalde aç" komutunu bu şemadan okuyor (cinnamon-desktop-data
+# nemo'nun bağımlılığı, şema ISO'da var). Varsayılan gnome-terminal
+# kurulu değil; ISO'daki terminale çevriliyor (madde 40'ta terminal
+# değişirse burası da güncellenir).
+[org.cinnamon.desktop.default-applications.terminal]
+exec='lxterminal'

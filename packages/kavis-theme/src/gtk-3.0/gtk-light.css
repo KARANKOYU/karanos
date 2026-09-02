@@ -116,3 +116,13 @@ selection,
 	background-color: @kavis_teal;
 	color: #FFFFFF;
 }
+
+/* Nemo (madde 39, test8 F): Gezgin gibi ince araç çubuğu. */
+.nemo-window toolbar {
+	padding: 1px 6px;
+	min-height: 0;
+}
+.nemo-window toolbar button {
+	padding: 3px 6px;
+	min-height: 0;
+}

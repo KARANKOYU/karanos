@@ -1,0 +1,40 @@
+#!/bin/sh
+# Kavis nemo action helper (madde 39). Receives the selected paths as
+# arguments after the subcommand; nemo passes paths with spaces intact.
+set -eu
+
+cmd="${1:?usage: nemo-action <copy-path|send-desktop> <path...>}"
+shift
+
+case "$cmd" in
+copy-path)
+	# Multiple selections join with newlines (Explorer behaviour);
+	# command substitution strips the trailing newline.
+	paths=$(printf '%s\n' "$@")
+	printf '%s' "$paths" | xclip -selection clipboard
+	;;
+send-desktop)
+	desktop=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
+	# Guard against a broken xdg config pointing at $HOME itself —
+	# littering the home directory with links would be worse than
+	# failing.
+	[ "$desktop" != "$HOME" ] || desktop="$HOME/Desktop"
+	mkdir -p "$desktop"
+	for src in "$@"; do
+		name=$(basename "$src")
+		target="$desktop/$name"
+		# Do not overwrite an existing item; add a numbered suffix
+		# like Windows does.
+		n=2
+		while [ -e "$target" ] || [ -L "$target" ]; do
+			target="$desktop/$name ($n)"
+			n=$((n + 1))
+		done
+		ln -s "$src" "$target"
+	done
+	;;
+*)
+	echo "nemo-action: unknown subcommand: $cmd" >&2
+	exit 2
+	;;
+esac
