@@ -1,6 +1,9 @@
 # Kavis — çalışma kuralları
 
-Debian trixie tabanlı, Windows benzeri masaüstüne sahip kişisel dağıtım.
+Debian trixie tabanlı, Windows benzeri masaüstüne sahip, tek
+geliştiricili **açık kaynak olacak** dağıtım. Kavis adı global paylaşım
+için seçildi; r/linux'ta duyuruldu, çeviri/test/kod katkıcısı aranıyor;
+depo Vala taşıması bitince public olacak.
 Proje dili **Türkçe**: commit mesajları, belgeler ve arayüz metinleri
 Türkçe. Fonksiyon açıklamaları (Doxygen/docstring) ise **İngilizce**
 (görev listesi "kod kalitesi" kuralı; eski dosyalarda Türkçe yorum
@@ -49,9 +52,10 @@ tablolardan alınır. Tabloda karşılığı yoksa uydurmak yerine sor.
 
 ## Renk kimliği
 
-**Kavis tek temalı: KOYU.** Açık tema yok — ne varsayılan olarak, ne
-seçenek olarak. Ayarlar > Görünüm'de "Tema: Açık/Koyu" seçeneği
-bulunmuyor. Yeni aşamalarda açık tema için ek iş yapılmaz.
+**İki tema: KOYU (varsayılan) + AÇIK.** Geçiş Ayarlar > Görünüm'deki
+"Tema: Açık/Koyu" seçeneğiyle yapılacak (Ayarlar Grup F'de geliyor).
+Şu an kodda yalnız koyu tema var; açık temanın kaynağı (`gtk-light.css`)
+ve logosu (`acik-k-logo.svg`) hazır bekliyor.
 
 | Rol | Değer |
 |---|---|
@@ -70,7 +74,9 @@ Turkuaz açık bir renk: üstüne gelen yazı **koyu** olmalı (`#0D141B`),
 beyaz değil.
 
 `packages/kavis-theme/src/gtk-3.0/gtk-light.css` depoda duruyor ama
-**pakete girmiyor**; ileride istenirse diye kaynak olarak saklanıyor.
+**pakete henüz girmiyor**; açık tema devreye alınırken (Grup F)
+kullanılacak kaynak bu. (Açık temada turkuaz `#0D9488`, mavi `#2563EB` —
+beyaz zeminde kontrast için koyulaştırılmış değerler, dosyada hazır.)
 
 Renk değiştirmek gerekirse tek kaynak `packages/kavis-theme/` — CSS
 dosyalarındaki `@define-color` blokları ve `tools/gen-*.py` başındaki

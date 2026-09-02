@@ -422,6 +422,15 @@ almak (indirme yöneticisi madde 23 gelince).
 
 ## 3. AÇIK KARARLAR VE KURALLAR (yeni oturum uymalı)
 
+- **DÜZELTME (2 Eyl, devir sonrası — kullanıcı):** Tema planı İKİ
+  tema — koyu varsayılan, açık ikinci seçenek; geçiş Ayarlar > Görünüm
+  (Grup F). Aşağıdaki eski "Tek tema: yalnızca KOYU" kaydı GEÇERSİZ
+  (işaretlendi). Kodda şimdilik yalnız koyu var; `gtk-light.css` +
+  `acik-k-logo.svg` kaynak olarak hazır.
+- **DÜZELTME (aynı gün):** Proje tanımı "kişisel dağıtım" DEĞİL —
+  tek geliştiricili, açık kaynak olacak dağıtım. Ad Karan OS → Kavis
+  tam da global paylaşım için değişti; r/linux'ta duyuruldu, çeviri/
+  test/kod katkıcısı aranıyor; depo Vala taşıması bitince public.
 - Kodda Türkçe identifier YOK (bayraklar/CLI yüzeyi hariç —
   `--metin-denetimi` bilinçli TR).
 - logic/–ui/ ayrımı: sistem erişimi/iş mantığı src/logic/, widget
@@ -996,7 +1005,8 @@ bakıyor (`ID=debian` görürsek devralma başarısız).
   kağıdı değil; `gen-wallpapers.py --grub` koyu logoyu düz zeminde, üst
   üçte birlik bölgede çiziyor (menü metni ortada — çakışmasın diye).
 - Başlat düğmesi: `marka.logo_resmi()` etkin temaya göre seçiyor
-  (bugün tek tema koyu olduğundan pratikte hep koyu logo).
+  (kodda şimdilik yalnız koyu tema olduğundan pratikte hep koyu logo;
+  plan iki tema — 2 Eyl düzeltmesi, devir kaydı bölüm 3).
 
 ### Kod dili kararı
 
@@ -1234,7 +1244,12 @@ Panelin çıktısı hiçbir yere yazılmıyordu; duman testi yalnızca
 
 ---
 
-## Tek tema kararı: yalnızca KOYU
+## Tek tema kararı: yalnızca KOYU → GERİ ALINDI (2 Eyl 2026)
+
+(2 Eyl 2026: plan yeniden İKİ tema — koyu varsayılan, açık ikinci
+seçenek, geçiş Ayarlar > Görünüm / Grup F. Kayıt tarihçe için duruyor;
+uygulama ayrıntıları bugün hâlâ doğru: kodda yalnız koyu kurulu,
+gtk-light.css kaynak olarak bekliyor.)
 
 Açık tema kaldırıldı — ne varsayılan olarak ne seçenek olarak. Sebep:
 kimliğe uymuyor.
@@ -1259,6 +1274,7 @@ Nasıl uygulandı:
   veriyordu.
 
 **Bundan sonraki aşamalarda açık tema için ek iş yapılmaz.**
+*(2 Eyl 2026: bu kural geçersiz — üstteki geri alma notuna bak.)*
 
 ---
 

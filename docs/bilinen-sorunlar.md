@@ -89,13 +89,16 @@ panoda bulamaz (dosya her zaman kayıtlı). Kalıcı çözüm: panelin pano
 geçmişine görüntü desteği eklemek (şimdilik yalnız metin) — Grup E/F
 arasında değerlendirilecek.
 
-## 11. ISO boyut artışı (Grup D paketleri) → v0.3-test5'te ölç
+## 11. ISO boyut artışı (Grup D paketleri) → ÖLÇÜLDÜ, İZLEMEDE
 
 Grup D ISO'ya ffmpeg, nemo (bağımlılıklarıyla), flameshot, slop,
 xdotool, fonts-noto-color-emoji, libglib2.0-bin, rfkill, xsct,
-brightnessctl ekledi. v0.3-test4 645 MB idi; test5 belirgin büyüyecek
-(1.5 GB sınırını CI denetliyor). Şişme sorun olursa ilk aday: ffmpeg'i
-ISO'dan çıkarıp indirme yöneticisiyle tembel kuruluma almak (madde 23).
+brightnessctl ekledi. Ölçüm: **645 MB (v0.3-test1'den test4'e kadar
+sabitti) → 741 MB (v0.3-test5)**. Sebep: emoji fontu + kavis-tools +
+görev yöneticisi/ekran kaydı paketleri (ffmpeg en büyüğü). Sınır 1536
+MB — pay bol ama artış hızlı; **her ISO koşusunda boyut buradan
+izlenecek**. Şişme sorun olursa ilk aday: ffmpeg'i ISO'dan çıkarıp
+indirme yöneticisiyle tembel kuruluma almak (madde 23).
 
 ## 12. Emoji seçicide arama yok
 
