@@ -231,6 +231,14 @@ namespace Kavis.Ui {
                 }
                 append_plan_menus (menu);
             }
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+            menu.deactivate.connect (() => {
+                Idle.add (() => {
+                    menu.destroy ();
+                    return Source.REMOVE;
+                });
+            });
             menu.show_all ();
             menu.popup_at_pointer (event);
         }

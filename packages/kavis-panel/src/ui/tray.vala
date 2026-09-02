@@ -80,6 +80,14 @@ namespace Kavis.Ui {
                 });
                 menu.append (item);
             }
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+            menu.deactivate.connect (() => {
+                Idle.add (() => {
+                    menu.destroy ();
+                    return Source.REMOVE;
+                });
+            });
             menu.show_all ();
             menu.popup_at_pointer (event);
         }

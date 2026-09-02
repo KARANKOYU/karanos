@@ -1057,6 +1057,14 @@ namespace Kavis.Ui {
             if (menu.get_children ().length () == 0) {
                 return;
             }
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+            menu.deactivate.connect (() => {
+                Idle.add (() => {
+                    menu.destroy ();
+                    return Source.REMOVE;
+                });
+            });
             menu.show_all ();
             menu.popup_at_pointer (event);
         }
@@ -1285,7 +1293,24 @@ namespace Kavis.Ui {
             menu.append (launcher_item (N_("Task Manager"),
                 "kavis-tools", { "kavis-tools", "tasks" }));
 
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+
+            menu.deactivate.connect (() => {
+
+                Idle.add (() => {
+
+                    menu.destroy ();
+
+                    return Source.REMOVE;
+
+                });
+
+            });
+
             menu.show_all ();
+
             menu.popup_at_pointer (event);
         }
 

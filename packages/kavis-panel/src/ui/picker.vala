@@ -149,9 +149,15 @@ namespace Kavis.Ui {
             stack.add_named (scrolled (recent_box), "recent");
             starred_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
             stack.add_named (scrolled (starred_box), "starred");
-            stack.add_named (glyph_page (PickerData.EMOJI), "emoji");
-            stack.add_named (glyph_page (PickerData.KAOMOJI), "kaomoji");
-            stack.add_named (glyph_page (PickerData.SYMBOLS), "symbols");
+            /* Glif sayfaları TEMBEL kurulur (debug turu): ~1000
+             * düğmeyi panel açılışında yaratmak +MB'lardı; ilk
+             * gösterimde kurulup sonra yaşarlar. */
+            stack.add_named (new Gtk.Box (Gtk.Orientation.VERTICAL, 0),
+                             "emoji");
+            stack.add_named (new Gtk.Box (Gtk.Orientation.VERTICAL, 0),
+                             "kaomoji");
+            stack.add_named (new Gtk.Box (Gtk.Orientation.VERTICAL, 0),
+                             "symbols");
             snippets_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
             stack.add_named (scrolled (snippets_box), "snippets");
             clipboard_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
@@ -274,6 +280,14 @@ namespace Kavis.Ui {
                 rebuild_starred ();
             });
             menu.append (star);
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+            menu.deactivate.connect (() => {
+                Idle.add (() => {
+                    menu.destroy ();
+                    return Source.REMOVE;
+                });
+            });
             menu.show_all ();
             menu.popup_at_pointer (event);
         }
@@ -296,11 +310,24 @@ namespace Kavis.Ui {
             for (int i = 0; i < filter_flows.length; i++) {
                 filter_flows[i].invalidate_filter ();
             }
-            /* Liste sayfaları yeniden kurulurken süzer. */
-            rebuild_recent ();
-            rebuild_starred ();
-            rebuild_snippets ();
-            rebuild_clipboard ();
+            /* Optimizasyon (debug turu): her tuşta DÖRT sayfayı değil
+             * yalnız görünen liste sayfasını yeniden kur — pano
+             * sekmesi görsel küçük resimleri diskten okuyor, arama
+             * yazarken hepsini kurmak boşa IO'ydu. */
+            switch (stack.get_visible_child_name ()) {
+            case "recent":
+                rebuild_recent ();
+                break;
+            case "starred":
+                rebuild_starred ();
+                break;
+            case "snippets":
+                rebuild_snippets ();
+                break;
+            case "clipboard":
+                rebuild_clipboard ();
+                break;
+            }
         }
 
         /* --- metin yerleştirme ---------------------------------------- */
@@ -420,6 +447,14 @@ namespace Kavis.Ui {
                 rebuild_snippets ();
             });
             menu.append (remove);
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+            menu.deactivate.connect (() => {
+                Idle.add (() => {
+                    menu.destroy ();
+                    return Source.REMOVE;
+                });
+            });
             menu.show_all ();
             menu.popup_at_pointer (event);
         }
@@ -559,7 +594,38 @@ namespace Kavis.Ui {
 
         /* --- açma / kapama -------------------------------------------- */
 
+        private bool[] glyph_built = { false, false, false };
+
+        private void ensure_glyph_page (string page) {
+            int index;
+            unowned PickerData.Category[] dataset;
+            switch (page) {
+            case "emoji":
+                index = 0;
+                dataset = PickerData.EMOJI;
+                break;
+            case "kaomoji":
+                index = 1;
+                dataset = PickerData.KAOMOJI;
+                break;
+            case "symbols":
+                index = 2;
+                dataset = PickerData.SYMBOLS;
+                break;
+            default:
+                return;
+            }
+            if (glyph_built[index]) {
+                return;
+            }
+            glyph_built[index] = true;
+            var holder = stack.get_child_by_name (page) as Gtk.Box;
+            holder.pack_start (glyph_page (dataset), true, true, 0);
+            holder.show_all ();
+        }
+
         private void show_page (string page) {
+            ensure_glyph_page (page);
             last_page = page;
             stack.set_visible_child_name (page);
             switching = true;

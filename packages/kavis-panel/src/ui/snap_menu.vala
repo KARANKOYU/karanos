@@ -139,8 +139,22 @@ namespace Kavis.Ui {
 
         private void place (Cell cell) {
             unowned Wnck.Window? window = target;
+            target = null;
             dismiss ();
             if (window == null) {
+                return;
+            }
+            /* Menü açıkken pencere kapanmış olabilir — unowned işaretçi
+             * sarkmasın (debug turu bulgusu). */
+            bool alive = false;
+            foreach (unowned Wnck.Window candidate in
+                     Wnck.Screen.get_default ().get_windows ()) {
+                if (candidate == window) {
+                    alive = true;
+                    break;
+                }
+            }
+            if (!alive) {
                 return;
             }
             int wx, wy, ww, wh;

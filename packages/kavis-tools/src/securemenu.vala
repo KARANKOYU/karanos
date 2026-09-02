@@ -109,6 +109,14 @@ namespace Kavis.Tools {
                 append_power (menu, _("Shut down"),
                               () => Power.shutdown ());
                 append_power (menu, _("Restart"), () => Power.reboot ());
+                /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+                 * deactivate'ten SONRA koştuğu için Idle ile). */
+                menu.deactivate.connect (() => {
+                    Idle.add (() => {
+                        menu.destroy ();
+                        return Source.REMOVE;
+                    });
+                });
                 menu.show_all ();
                 menu.popup_at_widget (power_button,
                     Gdk.Gravity.NORTH_EAST, Gdk.Gravity.SOUTH_EAST,

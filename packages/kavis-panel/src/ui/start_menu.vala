@@ -230,7 +230,24 @@ namespace Kavis.Ui {
             });
             menu.append (shortcut_item);
 
+            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+
+             * deactivate'ten SONRA koştuğu için Idle ile). */
+
+            menu.deactivate.connect (() => {
+
+                Idle.add (() => {
+
+                    menu.destroy ();
+
+                    return Source.REMOVE;
+
+                });
+
+            });
+
             menu.show_all ();
+
             menu.popup_at_pointer (event);
         }
 
