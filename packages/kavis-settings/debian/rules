@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+# Kavis Ayarlar — Vala kaynağından tek ikili (madde 9).
+# appinit.vala kanonik kopyadan gelir (packages/kavis-common —
+# build-packages.sh koyar). Çeviriler gettext "kavis" alanından;
+# .mo dosyalarını kavis-panel taşır (Depends).
+
+export DH_VERBOSE = 1
+
+DEST := debian/kavis-settings
+
+VALA_PAKETLER := --pkg gtk+-3.0 --pkg posix
+VALA_CFLAGS := -X -O2 -X -w -X -DGETTEXT_PACKAGE='"kavis"'
+
+KAYNAKLAR := $(wildcard src/*.vala) $(wildcard src/ui/*.vala) \
+             $(wildcard src/logic/*.vala)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-settings $(KAYNAKLAR)
+
+override_dh_auto_install:
+	install -d $(DEST)/usr/bin
+	install -m755 kavis-settings $(DEST)/usr/bin/kavis-settings
+	install -d $(DEST)/usr/share/applications
+	install -m644 desktop/kavis-settings.desktop \
+		$(DEST)/usr/share/applications/kavis-settings.desktop
+
+override_dh_auto_clean:
+	rm -f kavis-settings
+	dh_auto_clean

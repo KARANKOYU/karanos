@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 16:19+0000\n"
+"POT-Creation-Date: 2026-09-02 18:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,12 +167,14 @@ msgid "Accessories"
 msgstr ""
 
 #: packages/kavis-panel/src/logic/apps.vala:45
+#: packages/kavis-settings/src/ui/window.vala:77
 msgid "System"
 msgstr ""
 
 #: packages/kavis-panel/src/logic/apps.vala:45
 #: packages/kavis-panel/src/ui/indicator_popups.vala:39
 #: packages/kavis-panel/src/ui/quick_settings.vala:378
+#: packages/kavis-settings/src/ui/window.vala:60
 msgid "Settings"
 msgstr ""
 
@@ -549,6 +551,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/start_menu.vala:72
 #: packages/kavis-panel/src/ui/start_menu.vala:77
+#: packages/kavis-settings/src/ui/window.vala:73
 msgid "Power"
 msgstr ""
 
@@ -616,6 +619,34 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/tray.vala:328
 msgid "Still writing — do not remove"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:68
+msgid "Appearance"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:69
+msgid "Display"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:70
+msgid "Sound"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:72
+msgid "Keyboard & Language"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:75
+msgid "Network"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:76
+msgid "Taskbar"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:100
+msgid "Find a setting"
 msgstr ""
 
 #: packages/kavis-tools/src/altf4.vala:46

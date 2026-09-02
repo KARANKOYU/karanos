@@ -405,6 +405,27 @@ msgstr "⟪Could not remove the device — files may still be in use······
 msgid "Still writing — do not remove"
 msgstr "⟪Still writing — do not remove···········⟫"
 
+msgid "Appearance"
+msgstr "⟪Appearance····⟫"
+
+msgid "Display"
+msgstr "⟪Display··⟫"
+
+msgid "Sound"
+msgstr "⟪Sound··⟫"
+
+msgid "Keyboard & Language"
+msgstr "⟪Keyboard & Language·······⟫"
+
+msgid "Network"
+msgstr "⟪Network··⟫"
+
+msgid "Taskbar"
+msgstr "⟪Taskbar··⟫"
+
+msgid "Find a setting"
+msgstr "⟪Find a setting·····⟫"
+
 msgid "Sign out"
 msgstr "⟪Sign out···⟫"
 

@@ -74,3 +74,4 @@ packages/kavis-panel/src/logic/emoji_names.vala
 packages/kavis-panel/src/logic/power.vala
 packages/kavis-tools/src/power.vala
 packages/kavis-tools/kavis-tools
+packages/kavis-settings/kavis-settings

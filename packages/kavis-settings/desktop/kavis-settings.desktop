@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Settings
+Name[tr]=Ayarlar
+Comment=Change system settings
+Comment[tr]=Sistem ayarlarını değiştir
+Exec=kavis-settings
+Icon=preferences-system
+Terminal=false
+Categories=Settings;System;
+StartupWMClass=kavis-settings

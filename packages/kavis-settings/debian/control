@@ -1,0 +1,28 @@
+Source: kavis-settings
+Section: x11
+Priority: optional
+Maintainer: Karan <farukyildiz3207@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ valac,
+ libgtk-3-dev,
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/KARANKOYU/karanos
+
+Package: kavis-settings
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ kavis-panel,
+ x11-xserver-utils,
+ network-manager,
+Description: Kavis Ayarlar — sistem ayarları uygulaması (madde 9)
+ Windows 11 Ayarlar düzeninde tek pencere: solda aranabilir bölüm
+ listesi, sağda içerik. Görünüm, ekran, ses, klavye/dil, güç, ağ,
+ görev çubuğu ve sistem bölümleri.
+ .
+ Tek yapılandırma dosyası ~/.config/kavis/kavis.conf; panel ve tema
+ aynı dosyayı okur. Çeviriler kavis-panel'in taşıdığı "kavis"
+ alanından gelir.

@@ -75,6 +75,14 @@ XDG_TEMPLATES_DIR="\$HOME/Templates"
 XDG_PUBLICSHARE_DIR="\$HOME"
 XDG
 
+	# Masaüstü kısayolu (madde 9): Ayarlar. nemo-desktop imzasız
+	# başlatıcıya güvenmez — çalıştırma izni şart.
+	if [ -f /usr/share/applications/kavis-settings.desktop ]; then
+		cp /usr/share/applications/kavis-settings.desktop \
+			"$YENI_EV/desktop/kavis-settings.desktop"
+		chmod +x "$YENI_EV/desktop/kavis-settings.desktop"
+	fi
+
 	chown -R "$KULLANICI:$KULLANICI" "$YENI_EV"
 
 	mkdir -p /var/lib/live/config

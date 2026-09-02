@@ -585,3 +585,24 @@ msgstr "%s hasarlı bir dosya sistemine sahip olabilir. Onarmayı deneyeyim mi?"
 
 msgid "Try to repair"
 msgstr "Onarmayı dene"
+
+msgid "Appearance"
+msgstr "Görünüm"
+
+msgid "Display"
+msgstr "Ekran"
+
+msgid "Sound"
+msgstr "Ses"
+
+msgid "Keyboard & Language"
+msgstr "Klavye ve Dil"
+
+msgid "Network"
+msgstr "Ağ"
+
+msgid "Taskbar"
+msgstr "Görev çubuğu"
+
+msgid "Find a setting"
+msgstr "Ayar ara"

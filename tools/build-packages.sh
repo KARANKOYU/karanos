@@ -64,6 +64,11 @@ prepare_sources() {
 		rm -rf packages/kavis-panel/po
 		cp -r po packages/kavis-panel/po
 		;;
+	kavis-settings)
+		install -d packages/kavis-settings/src
+		install -m644 packages/kavis-common/appinit.vala \
+			packages/kavis-settings/src/appinit.vala
+		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src
 		install -m644 packages/kavis-common/appinit.vala \
