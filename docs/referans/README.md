@@ -17,6 +17,7 @@ Bir gruba başlamadan önce ilgili özet(ler) okunur:
 | `mintdrivers.md` | 35 | Grup I |
 | `mintupdate.md` | 26 | Grup J |
 | `mintinstall.md` | 12, 41, 23 | Grup G |
+| `virtualbox.md` | açılış deneyimi, 38, 35 | VirtualBox el testinden önce; Grup F (günlük tarama) |
 
 ## Kesişen bulgular (birden çok grubu etkileyenler)
 

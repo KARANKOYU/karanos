@@ -61,8 +61,10 @@ if [ "$drm_sayisi" -gt 0 ]; then
 	# Sanal makine surucileri ayrica raporlanıyor: biri eksikse o
 	# hipervizorde Plymouth metin kipine duser ve splash gorunmez.
 	# VirtualBox'ta vmwgfx calismadigi icin vboxvideo, QEMU'da bochs
-	# kritik.
-	for gerekli in bochs qxl virtio_gpu vboxvideo vmwgfx; do
+	# kritik. Gercek donanim suruculeri (i915/amdgpu/nouveau) de listede:
+	# initramfs'te olmazlarsa splash, surucu kok bagladiktan sonra
+	# yuklenene kadar gecikir (acilis deneyimi isi, IS 1).
+	for gerekli in bochs qxl virtio_gpu vboxvideo vmwgfx i915 amdgpu nouveau; do
 		case " $drm_bulunan " in
 		*" $gerekli "*) echo "I:   ✓ $gerekli" ;;
 		*) echo "W:   ! $gerekli initramfs'te yok — o sanal makinede splash gorunmeyebilir" >&2 ;;

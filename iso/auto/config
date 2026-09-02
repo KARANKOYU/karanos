@@ -55,12 +55,28 @@ user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetoot
 locales=tr_TR.UTF-8 \
 timezone=Europe/Istanbul \
 keyboard-layouts=tr \
-quiet splash plymouth.ignore-serial-consoles \
+quiet loglevel=3 vt.global_cursor_default=0 rd.udev.log_level=3 \
+splash plymouth.ignore-serial-consoles \
 console=tty0 console=ttyS0,115200n8"
 
 # `quiet splash` 3. aşamada eklendi: `splash` Plymouth açılış ekranını
 # başlatıyor, `quiet` de çekirdek mesajlarının splash'in üstüne
 # taşmasını engelliyor.
+#
+# `loglevel=3` quiet'in sakladığından fazlasını saklar: KERN_ERR (3) dahil
+# hiçbir çekirdek mesajı konsola düşmez, yalnız crit/alert/emerg (0-2)
+# görünür. VirtualBox'ın varsayılan VMSVGA denetleyicisinde vmwgfx
+# "*ERROR* ... unsupported hypervisor" satırları GRUB-splash arasında ve
+# splash-masaüstü arasında kırmızı kırmızı akıyordu; zararsızlar (sürücü
+# simpledrm'e düşüyor, açılış sürüyor) ama kullanıcının gördüğü ilk şey
+# olmamalılar. Mesajlar journald'de durur (`journalctl -k` tam günlük),
+# yalnız KONSOL kısılıyor — gerçek bir sorun CI'daki tani yapıtından ve
+# journalctl'den hâlâ okunur.
+#
+# `vt.global_cursor_default=0` sanal konsolun yanıp sönen imlecini
+# kapatır (splash'ten önce/sonra köşede beliren beyaz çizgi).
+# `rd.udev.log_level=3` initramfs içindeki systemd-udevd'yi kısar
+# (rd. öneki "initrd'de geçerli" demek; udevd her iki biçimi de tanır).
 #
 # `plymouth.ignore-serial-consoles` ŞART: çekirdek satırında
 # `console=ttyS0` varken Plymouth seri konsolu birincil sayıyor ve

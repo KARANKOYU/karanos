@@ -28,6 +28,18 @@ vboxvideo
 # Üreticiye özel sürücü yokken çekirdeğin kurduğu genel DRM aygıtı
 simpledrm
 
+# --- Gerçek donanım ekran sürücüleri ---------------------------------
+# Plymouth'un FRAMEBUFFER=y kancası bunları "most" ile zaten alıyor ama
+# o davranış initramfs-tools'un iç listesine bağlı; burada açıkça
+# yazınca garanti oluyor ve 0300-plymouth hook'u varlıklarını
+# doğrulayabiliyor. Splash geç başlıyorsa ilk bakılacak yer burası:
+# sürücü initramfs'te değilse DRM aygıtı kök bağlanana kadar gelmiyor.
+# (arm64'te i915 yoktur; initramfs-tools bilinmeyen modülü uyarıyla
+# atlar, hata üretmez.)
+i915
+amdgpu
+nouveau
+
 # --- Ses kartları -----------------------------------------------------
 # NEDEN: açılış müziği ancak /dev/snd/pcm* belirince çalabiliyor. Ses
 # modülü kök dosya sistemi bağlandıktan sonra yüklenirse müzik açılış
