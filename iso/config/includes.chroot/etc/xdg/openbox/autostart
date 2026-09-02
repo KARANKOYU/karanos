@@ -58,6 +58,11 @@ if command -v kavis-snap >/dev/null 2>&1; then
 	kavis-snap &
 fi
 
+# Ses/parlaklık/kilit/medya OSD'si (sonraki-isler 6a) — panelden ayrı
+if command -v kavis-osd >/dev/null 2>&1; then
+	kavis-osd &
+fi
+
 # --- Masaüstü simgeleri (madde 6) ------------------------------------
 # nemo-desktop yalnız simge katmanını çizer (dosya yöneticisinin kendisi
 # Grup E'de yapılandırılacak). GDK_GL=disable: llvmpipe tuzağı (madde

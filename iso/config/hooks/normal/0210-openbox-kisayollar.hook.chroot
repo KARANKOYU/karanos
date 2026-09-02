@@ -80,20 +80,46 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowPicker last</command>
       </action>
     </keybind>
-    <!-- Ses tuslari -> panel OSD'si (madde 7) -->
+    <!-- Ses/parlaklik/medya tuslari -> kavis-osd (sonraki-isler 6a):
+         panelden ayri surec, panel cokse bile calisir -->
     <keybind key="XF86AudioRaiseVolume">
       <action name="Execute">
-        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeUp</command>
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeUp</command>
       </action>
     </keybind>
     <keybind key="XF86AudioLowerVolume">
       <action name="Execute">
-        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeDown</command>
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeDown</command>
       </action>
     </keybind>
     <keybind key="XF86AudioMute">
       <action name="Execute">
-        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeMute</command>
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeMute</command>
+      </action>
+    </keybind>
+    <keybind key="XF86MonBrightnessUp">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.BrightnessUp</command>
+      </action>
+    </keybind>
+    <keybind key="XF86MonBrightnessDown">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.BrightnessDown</command>
+      </action>
+    </keybind>
+    <keybind key="XF86AudioPlay">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media play</command>
+      </action>
+    </keybind>
+    <keybind key="XF86AudioNext">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media next</command>
+      </action>
+    </keybind>
+    <keybind key="XF86AudioPrev">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media prev</command>
       </action>
     </keybind>
     <!-- Ekran goruntusu (madde 29): PrtScr arac menusu, Ctrl+PrtScr

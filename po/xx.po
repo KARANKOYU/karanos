@@ -63,6 +63,21 @@ msgstr "⟪Accented letters······⟫"
 msgid "Super/subscript"
 msgstr "⟪Super/subscript······⟫"
 
+msgid "Caps Lock on"
+msgstr "⟪Caps Lock on····⟫"
+
+msgid "Caps Lock off"
+msgstr "⟪Caps Lock off·····⟫"
+
+msgid "Num Lock on"
+msgstr "⟪Num Lock on····⟫"
+
+msgid "Num Lock off"
+msgstr "⟪Num Lock off····⟫"
+
+msgid "%d%%"
+msgstr "⟪%d%%··⟫"
+
 msgid "Internet"
 msgstr "⟪Internet···⟫"
 
@@ -122,9 +137,6 @@ msgstr "⟪English (US)····⟫"
 
 msgid "Wi-Fi"
 msgstr "⟪Wi-Fi··⟫"
-
-msgid "%d%%"
-msgstr "⟪%d%%··⟫"
 
 msgid "Mute"
 msgstr "⟪Mute··⟫"

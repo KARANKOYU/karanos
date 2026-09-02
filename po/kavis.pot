@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 12:49+0000\n"
+"POT-Creation-Date: 2026-09-02 13:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -114,6 +114,30 @@ msgstr ""
 msgid "Super/subscript"
 msgstr ""
 
+#: packages/kavis-panel/src/kavis_osd.vala:244
+msgid "Caps Lock on"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_osd.vala:244
+msgid "Caps Lock off"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_osd.vala:249
+msgid "Num Lock on"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_osd.vala:249
+msgid "Num Lock off"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_osd.vala:262
+#: packages/kavis-panel/src/kavis_osd.vala:275
+#: packages/kavis-panel/src/ui/indicators.vala:176
+#: packages/kavis-panel/src/ui/quick_settings.vala:604
+#, c-format
+msgid "%d%%"
+msgstr ""
+
 #: packages/kavis-panel/src/logic/apps.vala:43
 msgid "Internet"
 msgstr ""
@@ -202,13 +226,6 @@ msgstr ""
 msgid "Wi-Fi"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:176
-#: packages/kavis-panel/src/ui/osd.vala:56
-#: packages/kavis-panel/src/ui/quick_settings.vala:604
-#, c-format
-msgid "%d%%"
-msgstr ""
-
 #: packages/kavis-panel/src/ui/indicators.vala:182
 #: packages/kavis-panel/src/ui/quick_settings.vala:304
 msgid "Mute"
@@ -247,98 +264,98 @@ msgstr ""
 msgid "Desktop %d"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:324
-#: packages/kavis-panel/src/ui/panel.vala:330
+#: packages/kavis-panel/src/ui/panel.vala:319
+#: packages/kavis-panel/src/ui/panel.vala:325
 msgid "Start"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:400
+#: packages/kavis-panel/src/ui/panel.vala:395
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:972
+#: packages/kavis-panel/src/ui/panel.vala:967
 #: packages/kavis-panel/src/ui/start_menu.vala:214
 msgid "Unpin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:973
+#: packages/kavis-panel/src/ui/panel.vala:968
 #: packages/kavis-panel/src/ui/start_menu.vala:214
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:989
+#: packages/kavis-panel/src/ui/panel.vala:984
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:989
+#: packages/kavis-panel/src/ui/panel.vala:984
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1074
+#: packages/kavis-panel/src/ui/panel.vala:1069
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1082
+#: packages/kavis-panel/src/ui/panel.vala:1077
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1082
+#: packages/kavis-panel/src/ui/panel.vala:1077
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1083
+#: packages/kavis-panel/src/ui/panel.vala:1078
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1083
+#: packages/kavis-panel/src/ui/panel.vala:1078
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1104
+#: packages/kavis-panel/src/ui/panel.vala:1099
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1112
+#: packages/kavis-panel/src/ui/panel.vala:1107
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1112
+#: packages/kavis-panel/src/ui/panel.vala:1107
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1112
+#: packages/kavis-panel/src/ui/panel.vala:1107
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1135
+#: packages/kavis-panel/src/ui/panel.vala:1130
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1142
+#: packages/kavis-panel/src/ui/panel.vala:1137
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1142
+#: packages/kavis-panel/src/ui/panel.vala:1137
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1165
+#: packages/kavis-panel/src/ui/panel.vala:1160
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1170
+#: packages/kavis-panel/src/ui/panel.vala:1165
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1208
+#: packages/kavis-panel/src/ui/panel.vala:1203
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1225
+#: packages/kavis-panel/src/ui/panel.vala:1220
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1227
+#: packages/kavis-panel/src/ui/panel.vala:1222
 #: packages/kavis-tools/src/tasks.vala:34
 msgid "Task Manager"
 msgstr ""

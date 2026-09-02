@@ -150,7 +150,6 @@ namespace Kavis.Ui {
         /* Birleşik "Emoji ve daha fazlası" paneli (sonraki-isler 5):
          * Win+V pano sekmesi, Win+. son kullanılan sekme. */
         private PickerPanel picker;
-        private VolumeOsd volume_osd;
         /* Snap yerleşim menüsü (sonraki-isler 4, Win+Z). */
         private SnapMenu snap_menu = new SnapMenu ();
         private GenericArray<TaskSlot> slots =
@@ -203,7 +202,6 @@ namespace Kavis.Ui {
             overview = new Overview (screen);
             clipboard_history = new ClipboardHistory ();
             picker = new PickerPanel (clipboard_history);
-            volume_osd = new VolumeOsd ();
             if (PanelBus.service != null) {
                 PanelBus.service.overview_requested.connect (() => {
                     overview.toggle ();
@@ -220,9 +218,6 @@ namespace Kavis.Ui {
                     });
                 PanelBus.service.snap_menu_requested.connect (() => {
                     snap_menu.open ();
-                });
-                PanelBus.service.volume_changed.connect ((percent, muted) => {
-                    volume_osd.show_level (percent, muted);
                 });
             }
             start_menu = new StartMenu ();

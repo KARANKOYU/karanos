@@ -432,3 +432,18 @@ msgstr "RGB kopyala"
 
 msgid "Copy HSL"
 msgstr "HSL kopyala"
+
+msgid "Caps Lock on"
+msgstr "Caps Lock açık"
+
+msgid "Caps Lock off"
+msgstr "Caps Lock kapalı"
+
+msgid "Num Lock on"
+msgstr "Num Lock açık"
+
+msgid "Num Lock off"
+msgstr "Num Lock kapalı"
+
+msgid "Pin to taskbar"
+msgstr "Görev çubuğuna sabitle"

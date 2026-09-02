@@ -30,11 +30,15 @@ override_dh_auto_build:
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-panel $(KAYNAKLAR)
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-snap \
 		src/snap.vala src/logic/appinit.vala
+	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-osd \
+		src/kavis_osd.vala src/logic/appinit.vala \
+		src/logic/volume.vala src/logic/quick.vala
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin
 	install -m755 kavis-panel $(DEST)/usr/bin/kavis-panel
 	install -m755 kavis-snap $(DEST)/usr/bin/kavis-snap
+	install -m755 kavis-osd $(DEST)/usr/bin/kavis-osd
 	install -d $(DEST)/usr/share/applications
 	install -m644 src/kavis-panel.desktop \
 		$(DEST)/usr/share/applications/kavis-panel.desktop
@@ -51,5 +55,5 @@ override_dh_auto_install:
 	done
 
 override_dh_auto_clean:
-	rm -f kavis-panel kavis-snap
+	rm -f kavis-panel kavis-snap kavis-osd
 	dh_auto_clean
