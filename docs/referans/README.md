@@ -18,6 +18,7 @@ Bir gruba başlamadan önce ilgili özet(ler) okunur:
 | `mintupdate.md` | 26 | Grup J |
 | `mintinstall.md` | 12, 41, 23 | Grup G |
 | `virtualbox.md` | açılış deneyimi, 38, 35 | VirtualBox el testinden önce; Grup F (günlük tarama) |
+| `grup-d-taramasi.md` | 6, 37, 7, 29 | Grup D (madde 59 taraması: openbox snap, bildirim, pano, flameshot) |
 
 ## Kesişen bulgular (birden çok grubu etkileyenler)
 
