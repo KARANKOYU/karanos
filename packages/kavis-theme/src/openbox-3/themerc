@@ -23,7 +23,8 @@ window.handle.width: 0
 window.client.padding.width: 0
 window.client.padding.height: 0
 
-window.active.border.color: #2DD4BF
+# C1 (test8): cyan çerçeve kalktı — aktif/pasif aynı nötr kenarlık.
+window.active.border.color: #233A45
 window.inactive.border.color: #233A45
 
 # --- etkin pencere ---------------------------------------------------
