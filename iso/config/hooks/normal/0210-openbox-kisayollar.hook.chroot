@@ -98,6 +98,24 @@ cat > "$SNIPPET" <<'EOF'
     </keybind>
 EOF
 
+# Win+sayı (sonraki-isler 2): soldan N. görev çubuğu yuvası —
+# çalışmıyorsa başlat, çalışıyorsa odakla; Shift'liyle yeni pencere.
+# W-0 onuncu yuva. 20 bağ elle yazmak yerine üretiliyor.
+for n in 1 2 3 4 5 6 7 8 9 0; do
+	cat >> "$SNIPPET" <<EOF2
+    <keybind key="W-$n">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ActivateSlot $n false</command>
+      </action>
+    </keybind>
+    <keybind key="W-S-$n">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ActivateSlot $n true</command>
+      </action>
+    </keybind>
+EOF2
+done
+
 awk -v snippet="$SNIPPET" '
 	/<\/keyboard>/ && !done {
 		while ((getline line < snippet) > 0) print line

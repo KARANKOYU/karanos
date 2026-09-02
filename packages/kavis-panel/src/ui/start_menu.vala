@@ -192,7 +192,77 @@ namespace Kavis.Ui {
             box.pack_start (label, true, true, 0);
             button.add (box);
             button.clicked.connect (() => on_app_chosen (app));
+            /* Sağ tık (sonraki-isler 2): sabitle / masaüstüne kısayol. */
+            button.button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_app_menu (app, event);
+                    return true;
+                }
+                return false;
+            });
             return button;
+        }
+
+        private void show_app_menu (Apps.App app, Gdk.EventButton event) {
+            string? id = app.app_info.get_id ();
+            if (id == null) {
+                return;
+            }
+            var menu = new Gtk.Menu ();
+            bool pinned = Pinned.contains (id);
+            var pin_item = new Gtk.MenuItem.with_label (
+                pinned ? _("Unpin") : _("Pin to taskbar"));
+            string id_copy = id;
+            pin_item.activate.connect (() => {
+                if (pinned) {
+                    Pinned.remove (id_copy);
+                } else {
+                    Pinned.add (id_copy);
+                }
+                taskbar_changed ();
+            });
+            menu.append (pin_item);
+
+            var shortcut_item = new Gtk.MenuItem.with_label (
+                _("Add desktop shortcut"));
+            shortcut_item.activate.connect (() => {
+                copy_to_desktop (id_copy);
+            });
+            menu.append (shortcut_item);
+
+            menu.show_all ();
+            menu.popup_at_pointer (event);
+        }
+
+        /* Sabitleme değişince görev çubuğu yeniden kurulmalı; menü
+         * paneli tanımaz, sinyalle duyurur. */
+        public signal void taskbar_changed ();
+
+        /* Masaüstüne kısayol: .desktop dosyasını kullanıcının masaüstü
+         * dizinine kopyala (çalıştırılabilir işaret nemo-desktop'ın
+         * güven denetimi için). */
+        private void copy_to_desktop (string id) {
+            var info = new DesktopAppInfo (id);
+            if (info == null || info.get_filename () == null) {
+                return;
+            }
+            unowned string? desktop_dir =
+                Environment.get_user_special_dir (
+                    UserDirectory.DESKTOP);
+            if (desktop_dir == null) {
+                return;
+            }
+            string target = Path.build_filename (
+                desktop_dir, Path.get_basename (info.get_filename ()));
+            try {
+                File.new_for_path (info.get_filename ()).copy (
+                    File.new_for_path (target),
+                    FileCopyFlags.OVERWRITE);
+                FileUtils.chmod (target, 0755);
+            } catch (Error e) {
+                warning ("kavis-panel: kisayol kopyalanamadi: %s",
+                         e.message);
+            }
         }
 
         private void on_search_changed () {

@@ -86,12 +86,16 @@ namespace Kavis.Ui {
           box-shadow: none;
         }
         .kavis-panel .underline {
-          background-color: transparent;
           border-radius: 2px;
-          transition: background-color 180ms ease;
+          transition: background-color 140ms ease;
         }
-        .kavis-panel button.active-item .underline {
+        /* Yuva çizgileri (sonraki-isler 2): etkin turkuaz, çalışan
+           ama etkin olmayan soluk; çalışmayan sabitlide çizgi yok. */
+        .kavis-panel .underline.on {
           background-color: #2DD4BF;
+        }
+        .kavis-panel .underline.idle {
+          background-color: rgba(139, 155, 168, 0.75);
         }
         .kavis-panel button.start {
           padding: 0 12px;
@@ -145,8 +149,8 @@ namespace Kavis.Ui {
         private ClipboardHistory clipboard_history;
         private ClipboardPopup clipboard_popup;
         private VolumeOsd volume_osd;
-        private HashTable<ulong, Gtk.Button> window_buttons;
-        private HashTable<ulong, Gtk.Image> window_images;
+        private GenericArray<TaskSlot> slots =
+            new GenericArray<TaskSlot> ();
         private int current_button_width = 0;
         private int current_icon_size = ICON_NORMAL;
         private bool width_update_pending = false;
@@ -177,7 +181,7 @@ namespace Kavis.Ui {
 
             load_css ();
 
-            config = PanelConfig.load ();
+            config = PanelConfig.get_default ();
             thickness = config.thickness.pixels ();
             /* Popup'lar panelin karşı yanına açılır. */
             PanelPopup.panel_position = config.position;
@@ -203,17 +207,18 @@ namespace Kavis.Ui {
                 PanelBus.service.clipboard_requested.connect (() => {
                     clipboard_popup.toggle ();
                 });
+                PanelBus.service.slot_requested.connect (
+                    (number, new_window) => {
+                        activate_slot_number (number, new_window);
+                    });
                 PanelBus.service.volume_changed.connect ((percent, muted) => {
                     volume_osd.show_level (percent, muted);
                 });
             }
             start_menu = new StartMenu ();
+            start_menu.taskbar_changed.connect (() => refresh_windows ());
             /* Start menu and indicator popups close one another. */
             PanelPopup.start_menu = start_menu;
-            window_buttons = new HashTable<ulong, Gtk.Button> (
-                direct_hash, direct_equal);
-            window_images = new HashTable<ulong, Gtk.Image> (
-                direct_hash, direct_equal);
 
             build ();
             place ();
@@ -577,17 +582,49 @@ namespace Kavis.Ui {
             start_menu.open (x, y);
         }
 
+        /* --- görev çubuğu yuvaları (sonraki-isler 2) ------------------ */
+        /* Bir yuva = bir uygulama: soldan sabitliler (pinned.conf
+         * sırası), sağa doğru sabitsiz çalışanlar. Sabitli çalışınca
+         * AYNI ikon pencereye dönüşür; aynı uygulamanın pencereleri
+         * tek ikonda toplanır (altında iki kısa çizgi, tık sırayla
+         * gezer). Eşleşmeyen pencere sınıf adıyla sabitsiz yuva olur. */
+        private class TaskSlot {
+            public string key;
+            public string? desktop_id;
+            public bool pinned;
+            public GenericArray<unowned Wnck.Window> windows =
+                new GenericArray<unowned Wnck.Window> ();
+            public Gtk.Button button;
+            public Gtk.Image image;
+            public Gtk.Box underline_row;
+            public int cycle = 0;
+        }
+
         public void refresh_windows () {
             foreach (var child in window_box.get_children ()) {
                 window_box.remove (child);
             }
-            window_buttons.remove_all ();
-            window_images.remove_all ();
+            slots = new GenericArray<TaskSlot> ();
+            var by_key = new HashTable<string, TaskSlot> (
+                str_hash, str_equal);
+
+            foreach (unowned string id in Pinned.load ()) {
+                if (by_key.lookup (id) != null
+                    || AppMatch.info_for (id) == null) {
+                    /* Kurulu olmayan sabitli çizilmez ama listede
+                     * kalır — uygulama gelince ikon belirir. */
+                    continue;
+                }
+                var slot = new TaskSlot ();
+                slot.key = id;
+                slot.desktop_id = id;
+                slot.pinned = true;
+                slots.add (slot);
+                by_key.insert (id, slot);
+            }
 
             unowned Wnck.Workspace? active_workspace =
                 screen.get_active_workspace ();
-            unowned Wnck.Window? active_window = screen.get_active_window ();
-
             foreach (unowned Wnck.Window window in screen.get_windows ()) {
                 if (window.is_skip_tasklist ()) {
                     continue;
@@ -597,13 +634,48 @@ namespace Kavis.Ui {
                     && !window.is_on_workspace (active_workspace)) {
                     continue;
                 }
-                var button = window_button (window, window == active_window);
-                window_buttons.insert (window.get_xid (), button);
-                window_box.pack_start (button, false, false, 0);
+                string? id = AppMatch.desktop_id_for_window (window);
+                string key = id ?? "class:%s".printf (
+                    window.get_class_group_name ()
+                    ?? "%lu".printf (window.get_xid ()));
+                var slot = by_key.lookup (key);
+                if (slot == null) {
+                    slot = new TaskSlot ();
+                    slot.key = key;
+                    slot.desktop_id = id;
+                    slot.pinned = false;
+                    slots.add (slot);
+                    by_key.insert (key, slot);
+                }
+                slot.windows.add (window);
+                hook_name_changed (window);
+            }
+
+            for (int i = 0; i < slots.length; i++) {
+                var slot = slots[i];
+                slot.button = slot_button (slot);
+                window_box.pack_start (slot.button, false, false, 0);
             }
             window_box.show_all ();
+            sync_slot_states ();
             current_button_width = 0;   /* count changed — recompute */
             queue_button_width_update ();
+        }
+
+        /* Win+sayı (sonraki-isler 2): soldan N. yuva — çalışmıyorsa
+         * başlat, çalışıyorsa odakla; new_window hep yeni örnek açar.
+         * number 0 = onuncu yuva. */
+        public void activate_slot_number (int number, bool new_window) {
+            int index = (number == 0) ? 9 : number - 1;
+            if (index < 0 || index >= slots.length) {
+                return;
+            }
+            var slot = slots[index];
+            if (new_window || slot.windows.length == 0) {
+                launch_slot (slot);
+            } else {
+                on_slot_clicked (slot);
+            }
         }
 
         /* Coalesce width updates into one idle pass: size_allocate fires
@@ -632,7 +704,7 @@ namespace Kavis.Ui {
          * Alan panel geometrisinden türetilir: panel − sağ bölge −
          * Başlat − küme boşlukları. */
         private void update_button_widths () {
-            uint count = window_buttons.size ();
+            uint count = slots.length;
             if (count == 0) {
                 return;
             }
@@ -658,13 +730,13 @@ namespace Kavis.Ui {
                 return;
             }
             current_button_width = width;
-            window_buttons.foreach ((xid, button) => {
+            for (int i = 0; i < slots.length; i++) {
                 if (config.vertical) {
-                    button.set_size_request (-1, width);
+                    slots[i].button.set_size_request (-1, width);
                 } else {
-                    button.set_size_request (width, -1);
+                    slots[i].button.set_size_request (width, -1);
                 }
-            });
+            }
 
             int icon_size = (width >= COMPACT_THRESHOLD)
                 ? ICON_NORMAL : ICON_COMPACT;
@@ -674,39 +746,65 @@ namespace Kavis.Ui {
             }
         }
 
-        private Gtk.Button window_button (Wnck.Window window, bool active) {
+        private Gtk.Button slot_button (TaskSlot slot) {
             var button = new Gtk.Button ();
             button.set_relief (Gtk.ReliefStyle.NONE);
             button.get_style_context ().add_class ("window-item");
-            if (active) {
-                button.get_style_context ().add_class ("active-item");
-            }
 
-            /* Icon centered, thin underline pinned to the bottom. The
-             * underline is always in the layout (transparent when
-             * inactive) so activation never shifts the icon. */
+            /* Icon centered, underline strip pinned to the bottom.
+             * The strip is always in the layout (empty when the app
+             * is not running) so state changes never shift the icon. */
             var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
-            var image = new Gtk.Image.from_pixbuf (
-                window_icon (window, current_icon_size));
-            image.set_valign (Gtk.Align.CENTER);
-            column.pack_start (image, true, true, 0);
+            slot.image = new Gtk.Image ();
+            slot.image.set_valign (Gtk.Align.CENTER);
+            set_slot_image (slot, current_icon_size > 0
+                            ? current_icon_size : ICON_NORMAL);
+            column.pack_start (slot.image, true, true, 0);
 
-            var underline = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
-            underline.get_style_context ().add_class ("underline");
-            underline.set_size_request (UNDERLINE_WIDTH, UNDERLINE_HEIGHT);
-            underline.set_halign (Gtk.Align.CENTER);
-            column.pack_end (underline, false, false, 0);
+            slot.underline_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 3);
+            slot.underline_row.set_halign (Gtk.Align.CENTER);
+            slot.underline_row.set_size_request (-1, UNDERLINE_HEIGHT);
+            column.pack_end (slot.underline_row, false, false, 0);
 
             button.add (column);
 
-            /* Icon-only buttons: the full window title lives in the
-             * tooltip and follows later title changes. */
-            button.set_tooltip_text (window.get_name () ?? "");
-            hook_name_changed (window);
-            window_images.insert (window.get_xid (), image);
+            unowned TaskSlot target = slot;
+            button.clicked.connect (() => on_slot_clicked (target));
+            button.button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    show_slot_menu (target, event);
+                    return true;
+                }
+                return false;
+            });
 
-            unowned Wnck.Window target = window;
-            button.clicked.connect (() => activate_window (target));
+            /* Sabitlileri sürükleyip yeniden sırala (pinned.conf'a
+             * yazılır). Hedef de kaynak da yalnız sabitli düğmeler. */
+            if (slot.pinned) {
+                Gtk.TargetEntry[] targets = {
+                    { "application/x-kavis-pin",
+                      Gtk.TargetFlags.SAME_APP, 0 }
+                };
+                Gtk.drag_source_set (button,
+                    Gdk.ModifierType.BUTTON1_MASK, targets,
+                    Gdk.DragAction.MOVE);
+                button.drag_data_get.connect ((ctx, data, info, time) => {
+                    data.set_text (target.desktop_id, -1);
+                });
+                Gtk.drag_dest_set (button, Gtk.DestDefaults.ALL,
+                    targets, Gdk.DragAction.MOVE);
+                button.drag_data_received.connect (
+                    (ctx, x, y, data, info, time) => {
+                        string? dragged = data.get_text ();
+                        if (dragged != null
+                            && dragged != target.desktop_id) {
+                            Pinned.move_before (dragged,
+                                                target.desktop_id);
+                            refresh_windows ();
+                        }
+                    });
+            }
+
             if (current_button_width > 0) {
                 if (config.vertical) {
                     button.set_size_request (-1, current_button_width);
@@ -715,6 +813,184 @@ namespace Kavis.Ui {
                 }
             }
             return button;
+        }
+
+        private void set_slot_image (TaskSlot slot, int size) {
+            if (slot.desktop_id != null) {
+                var info = AppMatch.info_for (slot.desktop_id);
+                if (info != null && info.get_icon () != null) {
+                    slot.image.set_from_gicon (info.get_icon (),
+                                               Gtk.IconSize.INVALID);
+                    slot.image.set_pixel_size (size);
+                    return;
+                }
+            }
+            if (slot.windows.length > 0) {
+                slot.image.set_from_pixbuf (
+                    window_icon (slot.windows[0], size));
+                return;
+            }
+            slot.image.set_from_icon_name ("application-x-executable",
+                                           Gtk.IconSize.INVALID);
+            slot.image.set_pixel_size (size);
+        }
+
+        private void launch_slot (TaskSlot slot) {
+            if (slot.desktop_id == null) {
+                return;
+            }
+            var info = AppMatch.info_for (slot.desktop_id);
+            if (info == null) {
+                return;
+            }
+            try {
+                /* GDesktopAppInfo %U/%f kodlarını kendisi çözer. */
+                info.launch (null, null);
+            } catch (Error e) {
+                warning ("kavis-panel: %s baslatilamadi: %s",
+                         slot.desktop_id, e.message);
+            }
+        }
+
+        private void on_slot_clicked (TaskSlot slot) {
+            if (slot.windows.length == 0) {
+                launch_slot (slot);
+                return;
+            }
+            if (slot.windows.length == 1) {
+                activate_window (slot.windows[0]);
+                return;
+            }
+            /* Çok pencere: tık sırayla gezdirir. */
+            slot.cycle = (slot.cycle + 1) % (int) slot.windows.length;
+            unowned Wnck.Window next = slot.windows[slot.cycle];
+            uint32 timestamp = Gtk.get_current_event_time ();
+            next.unminimize (timestamp);
+            next.activate (timestamp);
+        }
+
+        /* Alt çizgi ve araç ipuçlarını duruma göre tazele: çalışmayan
+         * sabitlide çizgi yok; tek pencere tek çizgi; çok pencere iki
+         * kısa çizgi. Etkinse turkuaz, değilse soluk. */
+        private void sync_slot_states () {
+            unowned Wnck.Window? active_window =
+                screen.get_active_window ();
+            for (int i = 0; i < slots.length; i++) {
+                var slot = slots[i];
+                if (slot.underline_row == null) {
+                    continue;
+                }
+                foreach (var child in slot.underline_row.get_children ()) {
+                    slot.underline_row.remove (child);
+                }
+                bool any_active = false;
+                var titles = new StringBuilder ();
+                for (int w = 0; w < slot.windows.length; w++) {
+                    if (slot.windows[w] == active_window) {
+                        any_active = true;
+                    }
+                    if (titles.len > 0) {
+                        titles.append_c ('\n');
+                    }
+                    titles.append (slot.windows[w].get_name () ?? "");
+                }
+                int bars = int.min (2, (int) slot.windows.length);
+                int bar_width = (bars == 2)
+                    ? UNDERLINE_WIDTH / 2 - 2 : UNDERLINE_WIDTH;
+                for (int b = 0; b < bars; b++) {
+                    var bar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+                    bar.get_style_context ().add_class ("underline");
+                    bar.get_style_context ().add_class (
+                        any_active ? "on" : "idle");
+                    bar.set_size_request (bar_width, UNDERLINE_HEIGHT);
+                    slot.underline_row.pack_start (bar, false, false, 0);
+                }
+                slot.underline_row.show_all ();
+
+                if (slot.windows.length == 0) {
+                    var info = (slot.desktop_id != null)
+                        ? AppMatch.info_for (slot.desktop_id) : null;
+                    slot.button.set_tooltip_text (
+                        (info != null) ? info.get_display_name () : "");
+                } else {
+                    slot.button.set_tooltip_text (titles.str);
+                }
+            }
+        }
+
+        /* --- yuva sağ tık menüsü (sonraki-isler 2) -------------------- */
+
+        private void show_slot_menu (TaskSlot slot, Gdk.EventButton event) {
+            var menu = new Gtk.Menu ();
+            unowned TaskSlot target = slot;
+
+            if (slot.desktop_id != null) {
+                var info = AppMatch.info_for (slot.desktop_id);
+                if (info != null) {
+                    /* Uygulama adı kalın; tıklayınca yeni pencere. */
+                    var title = new Gtk.MenuItem ();
+                    var title_label = new Gtk.Label (null);
+                    title_label.set_markup ("<b>%s</b>".printf (
+                        Markup.escape_text (info.get_display_name ())));
+                    title_label.set_xalign (0);
+                    title.add (title_label);
+                    title.activate.connect (() => launch_slot (target));
+                    menu.append (title);
+
+                    /* .desktop Actions (varsa). */
+                    string[] actions = info.list_actions ();
+                    if (actions.length > 0) {
+                        menu.append (new Gtk.SeparatorMenuItem ());
+                    }
+                    foreach (unowned string action in actions) {
+                        var item = new Gtk.MenuItem.with_label (
+                            info.get_action_name (action));
+                        string action_copy = action;
+                        item.activate.connect (() => {
+                            var fresh = AppMatch.info_for (
+                                target.desktop_id);
+                            if (fresh != null) {
+                                fresh.launch_action (action_copy,
+                                    new AppLaunchContext ());
+                            }
+                        });
+                        menu.append (item);
+                    }
+
+                    menu.append (new Gtk.SeparatorMenuItem ());
+                    var pin_item = new Gtk.MenuItem.with_label (
+                        slot.pinned ? _("Unpin")
+                                    : _("Pin to taskbar"));
+                    pin_item.activate.connect (() => {
+                        if (target.pinned) {
+                            Pinned.remove (target.desktop_id);
+                        } else {
+                            Pinned.add (target.desktop_id);
+                        }
+                        refresh_windows ();
+                    });
+                    menu.append (pin_item);
+                }
+            }
+
+            if (slot.windows.length > 0) {
+                var close_item = new Gtk.MenuItem.with_label (
+                    slot.windows.length == 1
+                    ? _("Close window") : _("Close all windows"));
+                close_item.activate.connect (() => {
+                    uint32 timestamp = Gtk.get_current_event_time ();
+                    for (int w = 0; w < target.windows.length; w++) {
+                        target.windows[w].close (timestamp);
+                    }
+                });
+                menu.append (close_item);
+            }
+
+            if (menu.get_children ().length () == 0) {
+                return;
+            }
+            menu.show_all ();
+            menu.popup_at_pointer (event);
         }
 
         /* The window's own icon scaled to `size`; a generic themed icon
@@ -752,24 +1028,16 @@ namespace Kavis.Ui {
                 return;
             }
             window.set_data<bool> ("kavis-name-hooked", true);
-            unowned Wnck.Window target = window;
             window.name_changed.connect (() => {
-                var button = window_buttons.lookup (target.get_xid ());
-                if (button != null) {
-                    button.set_tooltip_text (target.get_name () ?? "");
-                }
+                sync_slot_states ();
             });
         }
 
         /* Re-render every taskbar icon at the current size (called when
          * crossing the compact threshold). */
         private void refresh_icons () {
-            foreach (unowned Wnck.Window window in screen.get_windows ()) {
-                var image = window_images.lookup (window.get_xid ());
-                if (image != null) {
-                    image.set_from_pixbuf (
-                        window_icon (window, current_icon_size));
-                }
+            for (int i = 0; i < slots.length; i++) {
+                set_slot_image (slots[i], current_icon_size);
             }
         }
 
@@ -1042,16 +1310,7 @@ namespace Kavis.Ui {
         }
 
         private void on_active_changed () {
-            unowned Wnck.Window? active = screen.get_active_window ();
-            ulong active_xid = (active != null) ? active.get_xid () : 0;
-            window_buttons.foreach ((xid, button) => {
-                unowned Gtk.StyleContext context = button.get_style_context ();
-                if (xid == active_xid) {
-                    context.add_class ("active-item");
-                } else {
-                    context.remove_class ("active-item");
-                }
-            });
+            sync_slot_states ();
         }
     }
 }

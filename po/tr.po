@@ -348,3 +348,12 @@ msgstr "Disk"
 
 msgid "Ending this system process may cause problems. Continue?"
 msgstr "Bu sistem işlemini kapatmak sorun çıkarabilir. Devam edilsin mi?"
+
+msgid "Close window"
+msgstr "Pencereyi kapat"
+
+msgid "Close all windows"
+msgstr "Tüm pencereleri kapat"
+
+msgid "Add desktop shortcut"
+msgstr "Masaüstüne kısayol"

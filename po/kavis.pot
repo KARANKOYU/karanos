@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 12:00+0000\n"
+"POT-Creation-Date: 2026-09-02 12:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,6 +87,8 @@ msgid "Clipboard history is empty"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/clipboard_popup.vala:165
+#: packages/kavis-panel/src/ui/panel.vala:962
+#: packages/kavis-panel/src/ui/start_menu.vala:214
 msgid "Unpin"
 msgstr ""
 
@@ -118,41 +120,51 @@ msgstr ""
 msgid "English (US)"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:90
-#: packages/kavis-panel/src/ui/quick_settings.vala:318
-msgid "Volume"
+#: packages/kavis-panel/src/ui/indicators.vala:159
+#: packages/kavis-panel/src/ui/quick_settings.vala:167
+#: packages/kavis-panel/src/ui/quick_settings.vala:417
+#: packages/kavis-panel/src/ui/quick_settings.vala:573
+msgid "Wi-Fi"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:121
-#: packages/kavis-panel/src/ui/quick_settings.vala:304
-msgid "Mute"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:205
-msgid "When plugged in"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:205
-msgid "On battery"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:242
-msgid "High performance"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:244
-msgid "Power saver"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:246
-msgid "Balanced"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:259
+#: packages/kavis-panel/src/ui/indicators.vala:176
 #: packages/kavis-panel/src/ui/osd.vala:56
 #: packages/kavis-panel/src/ui/quick_settings.vala:604
 #, c-format
 msgid "%d%%"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:182
+#: packages/kavis-panel/src/ui/quick_settings.vala:304
+msgid "Mute"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:215
+msgid "Disconnect"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:222
+msgid "Network settings"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:241
+msgid "When plugged in"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:241
+msgid "On battery"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:276
+msgid "High performance"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:278
+msgid "Power saver"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:280
+msgid "Balanced"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/overview.vala:179
@@ -160,80 +172,93 @@ msgstr ""
 msgid "Desktop %d"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:306
-#: packages/kavis-panel/src/ui/panel.vala:312
+#: packages/kavis-panel/src/ui/panel.vala:314
+#: packages/kavis-panel/src/ui/panel.vala:320
 msgid "Start"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:381
+#: packages/kavis-panel/src/ui/panel.vala:390
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:792
+#: packages/kavis-panel/src/ui/panel.vala:963
+#: packages/kavis-panel/src/ui/start_menu.vala:214
+msgid "Pin to taskbar"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:979
+msgid "Close window"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:979
+msgid "Close all windows"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:1064
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:800
+#: packages/kavis-panel/src/ui/panel.vala:1072
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:800
+#: packages/kavis-panel/src/ui/panel.vala:1072
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:801
+#: packages/kavis-panel/src/ui/panel.vala:1073
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:801
+#: packages/kavis-panel/src/ui/panel.vala:1073
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:822
+#: packages/kavis-panel/src/ui/panel.vala:1094
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:830
+#: packages/kavis-panel/src/ui/panel.vala:1102
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:830
+#: packages/kavis-panel/src/ui/panel.vala:1102
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:830
+#: packages/kavis-panel/src/ui/panel.vala:1102
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:853
+#: packages/kavis-panel/src/ui/panel.vala:1125
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:860
+#: packages/kavis-panel/src/ui/panel.vala:1132
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:860
+#: packages/kavis-panel/src/ui/panel.vala:1132
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:883
+#: packages/kavis-panel/src/ui/panel.vala:1155
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:888
+#: packages/kavis-panel/src/ui/panel.vala:1160
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:926
+#: packages/kavis-panel/src/ui/panel.vala:1198
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:943
+#: packages/kavis-panel/src/ui/panel.vala:1215
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:945
+#: packages/kavis-panel/src/ui/panel.vala:1217
 #: packages/kavis-tools/src/tasks.vala:34
 msgid "Task Manager"
 msgstr ""
@@ -252,13 +277,6 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:123
 msgid "Restart"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/quick_settings.vala:167
-#: packages/kavis-panel/src/ui/quick_settings.vala:417
-#: packages/kavis-panel/src/ui/quick_settings.vala:573
-#: packages/kavis-panel/src/ui/tray.vala:184
-msgid "Wi-Fi"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:178
@@ -296,6 +314,10 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:279
 msgid "Brightness"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:318
+msgid "Volume"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:337
@@ -336,6 +358,10 @@ msgstr ""
 msgid "No results found"
 msgstr ""
 
+#: packages/kavis-panel/src/ui/start_menu.vala:227
+msgid "Add desktop shortcut"
+msgstr ""
+
 #: packages/kavis-panel/src/ui/tray.vala:25
 #: packages/kavis-panel/src/ui/tray.vala:85
 #: packages/kavis-panel/src/ui/tray.vala:133
@@ -353,14 +379,6 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/tray.vala:110
 msgid "Could not remove the device — files may still be in use"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/tray.vala:190
-msgid "Disconnect"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/tray.vala:197
-msgid "Network settings"
 msgstr ""
 
 #: packages/kavis-tools/src/calc.vala:14

@@ -78,11 +78,20 @@ msgstr "⟪Turkish Q···⟫"
 msgid "English (US)"
 msgstr "⟪English (US)····⟫"
 
-msgid "Volume"
-msgstr "⟪Volume··⟫"
+msgid "Wi-Fi"
+msgstr "⟪Wi-Fi··⟫"
+
+msgid "%d%%"
+msgstr "⟪%d%%··⟫"
 
 msgid "Mute"
 msgstr "⟪Mute··⟫"
+
+msgid "Disconnect"
+msgstr "⟪Disconnect····⟫"
+
+msgid "Network settings"
+msgstr "⟪Network settings······⟫"
 
 msgid "When plugged in"
 msgstr "⟪When plugged in······⟫"
@@ -99,9 +108,6 @@ msgstr "⟪Power saver····⟫"
 msgid "Balanced"
 msgstr "⟪Balanced···⟫"
 
-msgid "%d%%"
-msgstr "⟪%d%%··⟫"
-
 msgid "Desktop %d"
 msgstr "⟪Desktop %d····⟫"
 
@@ -110,6 +116,15 @@ msgstr "⟪Start··⟫"
 
 msgid "Show desktop"
 msgstr "⟪Show desktop····⟫"
+
+msgid "Pin to taskbar"
+msgstr "⟪Pin to taskbar·····⟫"
+
+msgid "Close window"
+msgstr "⟪Close window····⟫"
+
+msgid "Close all windows"
+msgstr "⟪Close all windows······⟫"
 
 msgid "Position"
 msgstr "⟪Position···⟫"
@@ -174,9 +189,6 @@ msgstr "⟪Shut down···⟫"
 msgid "Restart"
 msgstr "⟪Restart··⟫"
 
-msgid "Wi-Fi"
-msgstr "⟪Wi-Fi··⟫"
-
 msgid "Bluetooth"
 msgstr "⟪Bluetooth···⟫"
 
@@ -203,6 +215,9 @@ msgstr "⟪Accessibility·····⟫"
 
 msgid "Brightness"
 msgstr "⟪Brightness····⟫"
+
+msgid "Volume"
+msgstr "⟪Volume··⟫"
 
 msgid "Output device"
 msgstr "⟪Output device·····⟫"
@@ -231,6 +246,9 @@ msgstr "⟪Power··⟫"
 msgid "No results found"
 msgstr "⟪No results found······⟫"
 
+msgid "Add desktop shortcut"
+msgstr "⟪Add desktop shortcut········⟫"
+
 msgid "Safely remove"
 msgstr "⟪Safely remove·····⟫"
 
@@ -242,12 +260,6 @@ msgstr "⟪You can now remove the device···········⟫"
 
 msgid "Could not remove the device — files may still be in use"
 msgstr "⟪Could not remove the device — files may still be in use······················⟫"
-
-msgid "Disconnect"
-msgstr "⟪Disconnect····⟫"
-
-msgid "Network settings"
-msgstr "⟪Network settings······⟫"
 
 msgid "Calculator"
 msgstr "⟪Calculator····⟫"
