@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=File Roller
+Exec=file-roller
+NoDisplay=true
