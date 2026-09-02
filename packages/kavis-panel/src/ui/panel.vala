@@ -31,13 +31,26 @@ namespace Kavis.Ui {
         private const int UNDERLINE_HEIGHT = 3;
 
         private const string CSS = """
+        /* Akrilik (madde 4): kompozitör varken panel hafif saydam —
+           duvar kâğıdı alttan sezilir. Blur bilinçli olarak YOK:
+           xrender'da çalışmıyor (Grup B kararı), madde 38 gerçek
+           GPU'da picom blur'unu değerlendirecek; saydamlık o güne
+           kadarki 'akrilik' payı. Kompozitörsüz düz renge dönülür. */
+        .kavis-panel.acrylic {
+          background-color: rgba(18, 28, 38, 0.85);
+          border-top: 1px solid rgba(35, 58, 69, 0.9);
+        }
         .kavis-panel {
           background-color: #121C26;
           border-top: 1px solid #233A45;
         }
         .kavis-panel button {
           border: none;
-          border-radius: 0;
+          /* W11 tarzı yumuşak köşeli hover kutuları. Düğmeler panel
+             yüksekliğinin tamamını kaplamayı sürdürüyor (kenar boşluğu
+             verilmedi): ekranın en alt pikseline tıklama çalışmaya
+             devam etmeli — Fitts. */
+          border-radius: 6px;
           background-image: none;
           background-color: transparent;
           color: #E6EDF3;
@@ -72,10 +85,16 @@ namespace Kavis.Ui {
           background-color: #2DD4BF;
         }
         .kavis-panel button.start {
-          padding: 0 14px;
+          padding: 0 12px;
         }
         .kavis-panel button.start:hover {
           background-color: #17222C;
+        }
+        /* Masaüstünü göster şeridi: köşede 8 px'lik W11 kalıntısı —
+           yuvarlatma ve iç boşluk almaz. */
+        .kavis-panel button.edge {
+          border-radius: 0;
+          padding: 0;
         }
         .kavis-panel label.clock {
           color: #E6EDF3;
@@ -100,6 +119,8 @@ namespace Kavis.Ui {
         private StartMenu start_menu;
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
+        private Gtk.Box right_box;
+        private Gtk.Button start_button;
         private HashTable<ulong, Gtk.Button> window_buttons;
         private HashTable<ulong, Gtk.Image> window_images;
         private int current_button_width = 0;
@@ -117,6 +138,19 @@ namespace Kavis.Ui {
             set_keep_above (true);
             stick ();
             get_style_context ().add_class ("kavis-panel");
+
+            /* Akrilik (madde 4): kompozitör varken RGBA görsel + yarı
+             * saydam arka plan; picom yoksa (kurtarma, çökme) düz
+             * renge dönülür. picom panelden SONRA başlayabildiği için
+             * composited-changed dinleniyor. */
+            set_app_paintable (true);
+            var gdk_screen = get_screen ();
+            var rgba_visual = gdk_screen.get_rgba_visual ();
+            if (rgba_visual != null) {
+                set_visual (rgba_visual);
+            }
+            update_acrylic ();
+            gdk_screen.composited_changed.connect (update_acrylic);
 
             load_css ();
 
@@ -143,6 +177,15 @@ namespace Kavis.Ui {
             Gdk.Screen.get_default ().size_changed.connect (() => place ());
         }
 
+        private void update_acrylic () {
+            unowned Gtk.StyleContext context = get_style_context ();
+            if (get_screen ().is_composited ()) {
+                context.add_class ("acrylic");
+            } else {
+                context.remove_class ("acrylic");
+            }
+        }
+
         private void load_css () {
             var provider = new Gtk.CssProvider ();
             try {
@@ -159,20 +202,18 @@ namespace Kavis.Ui {
             var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
             add (box);
 
-            /* --- start button --- */
-            var start_button = new Gtk.Button ();
+            /* --- start button (madde 4: W11 gibi yalnız logo) --- */
+            start_button = new Gtk.Button ();
             start_button.get_style_context ().add_class ("start");
             start_button.set_relief (Gtk.ReliefStyle.NONE);
-            var inner = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             /* Logo follows the active theme (item 1): dark logo on the
              * dark theme, light on light. The choice lives in Brand —
-             * one place. */
-            inner.pack_start (Brand.logo_image (24), false, false, 0);
-            inner.pack_start (new Gtk.Label (Strings.get ("panel.start")),
-                              false, false, 0);
-            start_button.add (inner);
+             * one place. The label moved into the tooltip when the
+             * cluster was centered: an icon row reads better without
+             * a lone word in it. */
+            start_button.add (Brand.logo_image (24));
+            start_button.set_tooltip_text (Strings.get ("panel.start"));
             start_button.clicked.connect (on_start_clicked);
-            box.pack_start (start_button, false, false, 0);
 
             /* --- window list --- */
             /* Inside a ScrolledWindow so its minimum width collapses:
@@ -180,37 +221,61 @@ namespace Kavis.Ui {
              * demands more than the screen and the right region keeps
              * its natural size. Buttons first shrink toward
              * MIN_BUTTON_WIDTH; past that the list scrolls (overlay
-             * scrollbar + mouse wheel). */
+             * scrollbar + mouse wheel). propagate_natural_width: the
+             * scroll area ASKS for its content's width (so the cluster
+             * can sit centered) but still collapses under pressure. */
             window_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, BUTTON_SPACING);
             window_scroll = new Gtk.ScrolledWindow (null, null);
             window_scroll.set_policy (Gtk.PolicyType.AUTOMATIC,
                                       Gtk.PolicyType.NEVER);
+            window_scroll.set_propagate_natural_width (true);
             window_scroll.add (window_box);
             window_scroll.size_allocate.connect (() => {
                 queue_button_width_update ();
             });
-            box.pack_start (window_scroll, true, true, 6);
+
+            /* --- centered cluster (madde 4) --- */
+            /* W11 yerleşimi: Başlat + pencere ikonları ekranın
+             * ortasında bir küme; sağ bölge sağda sabit. İki genişleyen
+             * boşluk kümeyi ortalar; pencere listesi doğal genişliğini
+             * aşınca boşluklar sıfırlanır ve kaydırma devreye girer —
+             * sağ bölge yine asla ezilmez (Aşama 2 kuralı geçerli). */
+            var cluster = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
+            cluster.pack_start (start_button, false, false, 0);
+            cluster.pack_start (window_scroll, false, false, 0);
+
+            var left_spacer = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            var right_spacer = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            box.pack_start (left_spacer, true, true, 0);
+            box.pack_start (cluster, false, false, 0);
+            box.pack_start (right_spacer, true, true, 0);
 
             /* --- right edge --- */
             /* Packed with expand=false: it always gets exactly its
              * natural width, no matter how crowded the window list is. */
-            var right = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
-            right.pack_start (new WorkspaceIndicator (screen), false, false, 0);
-            right.pack_start (new KeyboardIndicator (), false, false, 0);
-            right.pack_start (new VolumeIndicator (), false, false, 0);
-            right.pack_start (new BatteryIndicator (), false, false, 0);
-            right.pack_start (new Clock (), false, false, 0);
+            right_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            right_box.pack_start (new WorkspaceIndicator (screen), false, false, 0);
+            right_box.pack_start (new KeyboardIndicator (), false, false, 0);
+            right_box.pack_start (new VolumeIndicator (), false, false, 0);
+            right_box.pack_start (new BatteryIndicator (), false, false, 0);
+            right_box.pack_start (new Clock (), false, false, 0);
 
             var show_desktop = new Gtk.Button ();
+            show_desktop.get_style_context ().add_class ("edge");
             show_desktop.set_relief (Gtk.ReliefStyle.NONE);
             show_desktop.set_tooltip_text (Strings.get ("panel.show_desktop"));
             show_desktop.set_size_request (8, -1);
             show_desktop.clicked.connect (() => {
                 screen.toggle_showing_desktop (!screen.get_showing_desktop ());
             });
-            right.pack_start (show_desktop, false, false, 0);
+            right_box.pack_start (show_desktop, false, false, 0);
 
-            box.pack_end (right, false, false, 0);
+            box.pack_end (right_box, false, false, 0);
+            /* Sağ bölge genişleyince (gösterge eklenince) pencere
+             * düğmelerinin payı da değişir. */
+            right_box.size_allocate.connect (() => {
+                queue_button_width_update ();
+            });
         }
 
         private void place () {
@@ -343,16 +408,27 @@ namespace Kavis.Ui {
             });
         }
 
-        /* Fit the window buttons to the space the list actually got:
+        /* Fit the window buttons to the space the list CAN take:
          * equal widths, clamped to [MIN_BUTTON_WIDTH, MAX_BUTTON_WIDTH].
-         * Below the minimum the ScrolledWindow takes over and scrolls. */
+         * Below the minimum the ScrolledWindow takes over and scrolls.
+         *
+         * Ortalanmış küme (madde 4) sonrası kullanılabilir alan
+         * kaydırıcının tahsisinden OKUNAMAZ: propagate_natural_width
+         * yüzünden tahsis içerik genişliğine eşittir ve hesap kendi
+         * kendini beslerdi (32'de başlayan düğme 32'de kalırdı).
+         * Alan panel geometrisinden türetilir: panel − sağ bölge −
+         * Başlat − küme boşlukları. */
         private void update_button_widths () {
             uint count = window_buttons.size ();
             if (count == 0) {
                 return;
             }
-            int available = window_scroll.get_allocated_width ()
-                - (int) (count - 1) * BUTTON_SPACING;
+            int panel_width = get_allocated_width ();
+            int list_space = panel_width
+                - right_box.get_allocated_width ()
+                - start_button.get_allocated_width ()
+                - 16;   /* küme iç boşluğu + nefes payı */
+            int available = list_space - (int) (count - 1) * BUTTON_SPACING;
             if (available <= 1) {
                 return;
             }
