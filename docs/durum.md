@@ -420,6 +420,14 @@ almak (indirme yöneticisi madde 23 gelince).
 >   temizlendi (commit 9fb045a). Etiket v0.3-test9 bu commit'e
 >   taşındı (önce 4adeaf0'daydı; push edilmemişti — edildiyse
 >   kullanıcının etiketi zorla itmesi gerekir). Push KULLANICIDA.
+> - GRUP E KOD TAMAM (2 Eyl gece, 8 ayrı commit + tarama):
+>   ec443fe tarama, 6889fa4 nemo (39), 98ff539 önizleme (36),
+>   3bb552d tilix/mousepad/kate (40), 9a79688 disk/USB+automount
+>   (42), 066a3f5 yazıcı/tarayıcı (43), a1a7918 terminal
+>   kolaylıkları (44), 57252dc USB güvenli kullanım (63),
+>   a83b4aa onarım+lxpolkit (64). Etiket v0.3-test10 → a83b4aa.
+>   GRUP SONU KURALI: DUR — CI + VirtualBox testi ve "devam"
+>   onayı gelmeden Grup F'ye GEÇİLMEZ.
 
 1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
    `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
