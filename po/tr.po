@@ -487,8 +487,8 @@ msgstr "%s aç"
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "kullanım: kavis-tools open-with <dosya>\n"
 
-msgid "usage: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|alt-f4]\n"
-msgstr "kullanım: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|alt-f4]\n"
+msgid "usage: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
+msgstr "kullanım: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
 
 msgid "Showing the first part of a large file"
 msgstr "Büyük dosyanın yalnız baş kısmı gösteriliyor"
@@ -531,3 +531,57 @@ msgstr "Kullanan: %s"
 
 msgid "Still writing — do not remove"
 msgstr "Hâlâ yazılıyor — çıkarmayın"
+
+msgid "usage: kavis-tools repair-drive <device>\n"
+msgstr "kullanım: kavis-tools repair-drive <aygıt>\n"
+
+msgid "Repair drive"
+msgstr "Sürücüyü onar"
+
+msgid "The drive %s could not be mounted. Its file system may be damaged."
+msgstr "%s sürücüsü bağlanamadı. Dosya sistemi hasar görmüş olabilir."
+
+msgid "Repair can cause data loss. If the files matter, first try mounting read-only and copy them somewhere safe."
+msgstr "Onarım veri kaybettirebilir. Dosyalar önemliyse önce salt-okunur bağlamayı deneyip güvenli bir yere kopyalayın."
+
+msgid "Details"
+msgstr "Ayrıntılar"
+
+msgid "Mount read-only"
+msgstr "Salt-okunur bağla"
+
+msgid "Repair"
+msgstr "Onar"
+
+msgid "This file system cannot be repaired from here."
+msgstr "Bu dosya sistemi buradan onarılamaz."
+
+msgid "Mounted read-only — copy your files now, then repair."
+msgstr "Salt-okunur bağlandı — önce dosyalarınızı kopyalayın, sonra onarın."
+
+msgid "Read-only mount failed too — the damage is deeper."
+msgstr "Salt-okunur bağlama da olmadı — hasar daha derin."
+
+msgid "Repairing — do not unplug the drive…"
+msgstr "Onarılıyor — sürücüyü çıkarmayın…"
+
+msgid "Repair finished. Unplug the drive and plug it back in."
+msgstr "Onarım bitti. Sürücüyü çıkarıp yeniden takın."
+
+msgid "Repair could not fix the drive."
+msgstr "Onarım sürücüyü düzeltemedi."
+
+msgid "Deeper NTFS repair needs Windows: run chkdsk /f there."
+msgstr "Daha derin NTFS onarımı Windows ister: orada chkdsk /f çalıştırın."
+
+msgid "If the drive keeps failing, the hardware itself may be dying — software cannot fix that."
+msgstr "Sürücü sorun çıkarmayı sürdürüyorsa donanımın kendisi ölüyor olabilir — yazılım bunu düzeltemez."
+
+msgid "The drive could not be mounted"
+msgstr "Sürücü bağlanamadı"
+
+msgid "%s may have a damaged file system. Try to repair it?"
+msgstr "%s hasarlı bir dosya sistemine sahip olabilir. Onarmayı deneyeyim mi?"
+
+msgid "Try to repair"
+msgstr "Onarmayı dene"

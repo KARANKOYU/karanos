@@ -372,6 +372,15 @@ msgstr "⟪Safely remove·····⟫"
 msgid "Still writing to the drive — do not remove"
 msgstr "⟪Still writing to the drive — do not remove················⟫"
 
+msgid "The drive could not be mounted"
+msgstr "⟪The drive could not be mounted············⟫"
+
+msgid "%s may have a damaged file system. Try to repair it?"
+msgstr "⟪%s may have a damaged file system. Try to repair it?····················⟫"
+
+msgid "Try to repair"
+msgstr "⟪Try to repair·····⟫"
+
 msgid "Removable drive connected"
 msgstr "⟪Removable drive connected··········⟫"
 
@@ -465,6 +474,9 @@ msgstr "⟪Screen recording saved········⟫"
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "⟪usage: kavis-tools open-with <file>··············⟫\n"
 
+msgid "usage: kavis-tools repair-drive <device>\n"
+msgstr "⟪usage: kavis-tools repair-drive <device>················⟫\n"
+
 msgid "How should %s be opened?"
 msgstr "⟪How should %s be opened?·········⟫"
 
@@ -491,6 +503,42 @@ msgstr "⟪Showing the first part of a large file···············�
 
 msgid "Could not preview this file"
 msgstr "⟪Could not preview this file··········⟫"
+
+msgid "Repair drive"
+msgstr "⟪Repair drive····⟫"
+
+msgid "The drive %s could not be mounted. Its file system may be damaged."
+msgstr "⟪The drive %s could not be mounted. Its file system may be damaged.··························⟫"
+
+msgid "Details"
+msgstr "⟪Details··⟫"
+
+msgid "Mount read-only"
+msgstr "⟪Mount read-only······⟫"
+
+msgid "Repair"
+msgstr "⟪Repair··⟫"
+
+msgid "This file system cannot be repaired from here."
+msgstr "⟪This file system cannot be repaired from here.··················⟫"
+
+msgid "Mounted read-only — copy your files now, then repair."
+msgstr "⟪Mounted read-only — copy your files now, then repair.·····················⟫"
+
+msgid "Read-only mount failed too — the damage is deeper."
+msgstr "⟪Read-only mount failed too — the damage is deeper.····················⟫"
+
+msgid "Repairing — do not unplug the drive…"
+msgstr "⟪Repairing — do not unplug the drive…··············⟫"
+
+msgid "Repair finished. Unplug the drive and plug it back in."
+msgstr "⟪Repair finished. Unplug the drive and plug it back in.·····················⟫"
+
+msgid "Repair could not fix the drive."
+msgstr "⟪Repair could not fix the drive.············⟫"
+
+msgid "Deeper NTFS repair needs Windows: run chkdsk /f there."
+msgstr "⟪Deeper NTFS repair needs Windows: run chkdsk /f there.·····················⟫"
 
 msgid "End task"
 msgstr "⟪End task···⟫"

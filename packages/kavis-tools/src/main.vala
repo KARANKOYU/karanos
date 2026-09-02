@@ -60,6 +60,14 @@ int main (string[] args) {
         }
         window = new Kavis.Tools.OpenWithWindow (args[2]);
         break;
+    case "repair-drive":
+        /* Bağlanamayan USB onarımı (madde 64) — panel bildirimi açar. */
+        if (args.length < 3) {
+            stderr.printf (_("usage: kavis-tools repair-drive <device>\n"));
+            return 2;
+        }
+        window = new Kavis.Tools.RepairDriveWindow (args[2]);
+        break;
     case "preview":
         /* Hızlı önizleme (madde 36): org.nemo.Preview servisi.
          * Dosyasız çağrı D-Bus activation'dan gelir. */
@@ -69,7 +77,7 @@ int main (string[] args) {
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
     default:
-        stderr.printf (_("usage: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|alt-f4]\n"));
+        stderr.printf (_("usage: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"));
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

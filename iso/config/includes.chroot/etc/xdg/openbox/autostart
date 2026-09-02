@@ -72,6 +72,13 @@ if [ -x /usr/lib/kavis/kavis-gestures ] \
 	/usr/lib/kavis/kavis-gestures &
 fi
 
+# Polkit oturum aracısı (madde 39 "yönetici olarak aç" + madde 64
+# onarım): pkexec parola diyaloğunu bu aracı çizer, yoksa yetki
+# isteyen HİÇBİR masaüstü işlemi çalışmaz.
+if command -v lxpolkit >/dev/null 2>&1; then
+	lxpolkit &
+fi
+
 # --- Masaüstü simgeleri (madde 6) ------------------------------------
 # nemo-desktop yalnız simge katmanını çizer (dosya yöneticisinin kendisi
 # Grup E'de yapılandırılacak). GDK_GL=disable: llvmpipe tuzağı (madde

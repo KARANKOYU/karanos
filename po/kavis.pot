@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 16:16+0000\n"
+"POT-Creation-Date: 2026-09-02 16:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -408,6 +408,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:234
 #: packages/kavis-tools/src/capture.vala:504
+#: packages/kavis-tools/src/repair.vala:89
 msgid "Close"
 msgstr ""
 
@@ -561,8 +562,8 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/tray.vala:25
 #: packages/kavis-panel/src/ui/tray.vala:94
-#: packages/kavis-panel/src/ui/tray.vala:187
-#: packages/kavis-panel/src/ui/tray.vala:273
+#: packages/kavis-panel/src/ui/tray.vala:249
+#: packages/kavis-panel/src/ui/tray.vala:335
 msgid "Safely remove"
 msgstr ""
 
@@ -570,37 +571,50 @@ msgstr ""
 msgid "Still writing to the drive — do not remove"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:151
+#: packages/kavis-panel/src/ui/tray.vala:163
+msgid "The drive could not be mounted"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:164
+#, c-format
+msgid "%s may have a damaged file system. Try to repair it?"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:166
+msgid "Try to repair"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:213
 msgid "Removable drive connected"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:160
+#: packages/kavis-panel/src/ui/tray.vala:222
 #, c-format
 msgid "Safely remove %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:204
+#: packages/kavis-panel/src/ui/tray.vala:266
 msgid "Safe mode: write immediately"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:214
+#: packages/kavis-panel/src/ui/tray.vala:276
 msgid "Slower copying; applies when a drive is next plugged in"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:237
+#: packages/kavis-panel/src/ui/tray.vala:299
 #, c-format
 msgid "In use by: %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:243
+#: packages/kavis-panel/src/ui/tray.vala:305
 msgid "You can now remove the device"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:244
+#: packages/kavis-panel/src/ui/tray.vala:306
 msgid "Could not remove the device — files may still be in use"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:266
+#: packages/kavis-panel/src/ui/tray.vala:328
 msgid "Still writing — do not remove"
 msgstr ""
 
@@ -700,11 +714,16 @@ msgstr ""
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:72
+#: packages/kavis-tools/src/main.vala:66
+#, c-format
+msgid "usage: kavis-tools repair-drive <device>\n"
+msgstr ""
+
+#: packages/kavis-tools/src/main.vala:80
 #, c-format
 msgid ""
-"usage: kavis-tools [tasks|calc|emoji|capture|preview|open-with|secure-menu|"
-"alt-f4]\n"
+"usage: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|"
+"secure-menu|alt-f4]\n"
 msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:35
@@ -743,6 +762,67 @@ msgstr ""
 
 #: packages/kavis-tools/src/preview.vala:533
 msgid "Could not preview this file"
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:28
+msgid "Repair drive"
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:42
+#, c-format
+msgid "The drive %s could not be mounted. Its file system may be damaged."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:52
+msgid ""
+"Repair can cause data loss. If the files matter, first try mounting read-"
+"only and copy them somewhere safe."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:73
+msgid "Details"
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:81
+msgid "Mount read-only"
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:84
+msgid "Repair"
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:96
+msgid "This file system cannot be repaired from here."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:147
+msgid "Mounted read-only — copy your files now, then repair."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:160
+msgid "Read-only mount failed too — the damage is deeper."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:178
+msgid "Repairing — do not unplug the drive…"
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:200
+msgid "Repair finished. Unplug the drive and plug it back in."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:201
+msgid "Repair could not fix the drive."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:203
+msgid "Deeper NTFS repair needs Windows: run chkdsk /f there."
+msgstr ""
+
+#: packages/kavis-tools/src/repair.vala:205
+msgid ""
+"If the drive keeps failing, the hardware itself may be dying — software "
+"cannot fix that."
 msgstr ""
 
 #: packages/kavis-tools/src/tasks.vala:46

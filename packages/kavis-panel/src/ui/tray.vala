@@ -118,11 +118,15 @@ namespace Kavis.Ui {
                 bool want_sync =
                     PanelConfig.get_default ().usb_sync;
                 string? first = null;
+                string? failed = null;
                 foreach (string node in todo) {
                     string? mountpoint = Usb.mount_sync (node,
                                                          want_sync);
                     if (mountpoint != null && first == null) {
                         first = mountpoint;
+                    }
+                    if (mountpoint == null && failed == null) {
+                        failed = node;
                     }
                 }
                 if (first != null) {
@@ -132,7 +136,65 @@ namespace Kavis.Ui {
                         return Source.REMOVE;
                     });
                 }
+                if (failed != null) {
+                    string broken = failed;
+                    Idle.add (() => {
+                        offer_repair (broken);
+                        return Source.REMOVE;
+                    });
+                }
                 return null;
+            });
+        }
+
+        /* Bağlanamayan bölüm (madde 64): bildirimde "Onarmayı dene"
+         * düğmesi — tık kavis-tools repair-drive'ı açar (zorunlu
+         * uyarı ve onay orada). */
+        private void offer_repair (string node) {
+            if (Notifications.server == null) {
+                return;
+            }
+            var hints = new HashTable<string, Variant> (
+                str_hash, str_equal);
+            uint32 id = 0;
+            try {
+                id = Notifications.server.notify ("Kavis", 0,
+                    "drive-removable-media-symbolic",
+                    _("The drive could not be mounted"),
+                    _("%s may have a damaged file system. Try to repair it?")
+                        .printf (node),
+                    { "repair", _("Try to repair") }, hints, 15000);
+            } catch (Error e) {
+                return;
+            }
+            ulong handler = 0;
+            handler = Notifications.server.action_invoked.connect (
+                (invoked_id, key) => {
+                    if (invoked_id != id || key != "repair") {
+                        return;
+                    }
+                    if (handler != 0) {
+                        SignalHandler.disconnect (
+                            Notifications.server, handler);
+                        handler = 0;
+                    }
+                    try {
+                        Process.spawn_async (null, {
+                            "kavis-tools", "repair-drive", node
+                        }, null, SpawnFlags.SEARCH_PATH, null, null);
+                    } catch (Error e) {
+                        warning ("kavis-panel: onarim acilamadi: %s",
+                                 e.message);
+                    }
+                });
+            /* Bildirim kaybolduktan sonra bağ askıda kalmasın. */
+            Timeout.add_seconds (120, () => {
+                if (handler != 0) {
+                    SignalHandler.disconnect (
+                        Notifications.server, handler);
+                    handler = 0;
+                }
+                return Source.REMOVE;
             });
         }
 

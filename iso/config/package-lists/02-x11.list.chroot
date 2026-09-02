@@ -24,6 +24,10 @@ lightdm-gtk-greeter
 # aday (lxterminal sekme verir ama bölme yok; terminator Python).
 tilix
 
+# lxpolkit: oturum polkit aracısı — pkexec diyalogları (nemo "yönetici
+# olarak aç", madde 64 onarım) aracı olmadan HİÇ açılmaz.
+lxpolkit
+
 # --- kompozitör (4. aşama) ---
 # Yuvarlatılmış köşe, gölge ve yumuşak geçişler ancak bileşikleme varken
 # çiziliyor. picom olmadan güç menüsü gibi şeffaf kenarlı pencerelerin
