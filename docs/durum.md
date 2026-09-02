@@ -524,6 +524,14 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
+- ATLANDI (6c, kısmen): nemo'nun KENDİ 'bilinmeyen tür' diyaloğu
+  değiştirilemedi (nemo yaması gerekir); Kavis penceresi nemo sağ tık
+  aksiyonu + `kavis-tools open-with` olarak var. Çift-tık varsayılanı
+  'her zaman bununla aç' işaretlendikçe bizim pencereden yazılıyor.
+- Karar (5, pin kipi): pinliyken arama kutusuna yazılamıyor — POPUP
+  pencere odak alamaz; klavye grab'ı hedef uygulamayı aç bırakırdı.
+  Tıklamalar çalışır. Gerekirse Grup F'de yeniden bakılır.
+
 - ATLANDI (sonraki-isler 2, "Win+/ listesine ekle"): Win+/ kısayol
   listesi diye bir özellik depoda henüz YOK (0210'da bağ yok, panelde
   pencere yok) — eklenecek liste bulunamadı. Kısayol listesi özelliği
