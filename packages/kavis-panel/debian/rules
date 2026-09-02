@@ -53,6 +53,13 @@ override_dh_auto_install:
 			$(DEST)/usr/share/locale/$$dil/LC_MESSAGES/kavis.mo \
 			$$po; \
 	done
+	# Çeviri yüzdeleri (dil seçici altyapısı): her derlemede taze.
+	# NOT: hedef "kavis-common paketi" istendi ama kavis-common bir
+	# paket değil, kaynak dizini — .mo'ların sahibi bu paket, JSON da
+	# burada (karar durum.md ONAY BEKLEYEN'de).
+	install -d $(DEST)/usr/share/kavis
+	../../tools/i18n-stats.sh po \
+		$(DEST)/usr/share/kavis/i18n-stats.json
 
 override_dh_auto_clean:
 	rm -f kavis-panel kavis-snap kavis-osd

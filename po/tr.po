@@ -52,12 +52,6 @@ msgstr "Pano geçmişi"
 msgid "Clear all"
 msgstr "Tümünü temizle"
 
-msgid "Clipboard history is empty"
-msgstr "Pano geçmişi boş"
-
-msgid "Unpin"
-msgstr "Sabitlemeyi kaldır"
-
 msgid "Pin"
 msgstr "Sabitle"
 
@@ -324,9 +318,6 @@ msgstr "Emoji Seçici"
 
 msgid "Search"
 msgstr "Ara"
-
-msgid "All"
-msgstr "Tümü"
 
 msgid "Recent"
 msgstr "Son kullanılanlar"

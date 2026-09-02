@@ -409,6 +409,15 @@ almak (indirme yöneticisi madde 23 gelince).
 >   docs/tasarim-dili.md (12/10/8 köşe, 180/120ms, 16/8/12 boşluk).
 >   Panel RSS 36.7 MB. KALAN: yeni etiket CI + VirtualBox el testi →
 >   DUR, Grup E'ye GEÇİLMEZ.
+> - Dil listesi + çeviri yüzdesi altyapısı BİTTİ (2 Eyl gece, tek
+>   commit): po/LINGUAS (78 dil, bölge grupları; kullanıcı listesine
+>   ca/gl/eu eklendi), tools/i18n-stats.sh →
+>   /usr/share/kavis/i18n-stats.json (kavis-panel rules; msgmerge ile
+>   pot kesişimi — yoksa tr %101 çıkıyordu), Grup F dil seçici
+>   kuralları docs/referans/dil-secici.md, README "Çeviri durumu"
+>   tablosu tools/gen-ceviri-tablosu.py + lint.yml adımı (yalnız
+>   main push, [skip ci] commit). tr.po'daki 3 kullanılmayan girdi
+>   temizlendi. Etiket v0.3-test9 → 4adeaf0 duruyor; push KULLANICIDA.
 
 1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
    `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
@@ -539,6 +548,11 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
+- Karar (dil altyapısı): i18n-stats.json "kavis-common paketinde"
+  istendi ama kavis-common bir .deb değil, paketlerin paylaştığı
+  kaynak dizini — JSON, .mo dosyalarının sahibi olan kavis-panel'e
+  kondu (/usr/share/kavis/i18n-stats.json). Ayrı paket açmaktan
+  hafif; ayrı "kavis-common" .deb'i istenirse taşınır.
 - Karar (test8 E3): /home → /users bağı chroot hook'uyla (0230);
   /home boş değilse bağ atlanır, içerik korunur. Kurulu sistemde de
   aynı hook mantığı Calamares'e taşınacak (Grup I notu).

@@ -1,0 +1,95 @@
+# Kavis — hedef dil listesi (Grup F dil seçici + kurulum sihirbazı
+# altyapısı). Weblate depo public olunca po/'yu bağlar; buradaki liste
+# "eklenebilir diller"i besler. .po dosyaları ÖNCEDEN AÇILMAZ — çeviri
+# başlayınca Weblate/katkıcı açar; dosyası olmayan dil %0 sayılır ve
+# gettext eksikte İngilizce msgid gösterir.
+# Bölge kodu yalnız gerektiğinde (en_GB: msgid'ler ABD İngilizcesi,
+# İngiliz yazımı ayrı dosya).
+
+# --- Avrupa ----------------------------------------------------------
+tr
+en_GB
+de
+fr
+es
+pt_PT
+it
+nl
+pl
+cs
+sk
+hu
+ro
+bg
+el
+ru
+uk
+be
+sr
+hr
+sl
+bs
+sq
+mk
+lt
+lv
+et
+fi
+sv
+nb
+da
+is
+ga
+cy
+ca
+gl
+eu
+
+# --- Amerika ---------------------------------------------------------
+es_MX
+pt_BR
+
+# --- Orta Doğu -------------------------------------------------------
+ar
+fa
+he
+ur
+ku
+ckb
+
+# --- Asya ------------------------------------------------------------
+hi
+bn
+ta
+te
+kn
+ml
+mr
+gu
+pa
+ne
+si
+th
+vi
+id
+ms
+tl
+ko
+ja
+zh_CN
+zh_TW
+az
+kk
+ky
+uz
+tk
+tg
+mn
+ka
+hy
+
+# --- Afrika ----------------------------------------------------------
+sw
+am
+af
+zu

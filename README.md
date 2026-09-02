@@ -88,3 +88,16 @@ Karar günlüğü: [`docs/durum.md`](docs/durum.md) ·
 Eski görev tanımı (Karan OS dönemi): [`docs/kavis-claude-code-prompt.md`](docs/kavis-claude-code-prompt.md) ·
 Arayüz çevirileri (gettext): [`po/`](po/) ·
 GitHub kurulumu: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)
+
+## Çeviri durumu
+
+Kaynak metinler İngilizce; hedef diller [`po/LINGUAS`](po/LINGUAS).
+Katkı için bir `<dil>.po` açmak yeter (depo public olunca Weblate da
+bağlanacak). Tablo CI tarafından her koşuda güncellenir.
+
+<!-- ceviri-durumu-basla -->
+| Dil | Durum |
+|---|---|
+| `tr` | ▰▰▰▰▰▰▰▰▰▰ %100 (161/161) |
+| _çeviri bekleyenler_ | `af` `am` `ar` `az` `be` `bg` `bn` `bs` `ca` `ckb` `cs` `cy` `da` `de` `el` `en_GB` `es` `es_MX` `et` `eu` `fa` `fi` `fr` `ga` `gl` `gu` `he` `hi` `hr` `hu` `hy` `id` `is` `it` `ja` `ka` `kk` `kn` `ko` `ku` `ky` `lt` `lv` `mk` `ml` `mn` `mr` `ms` `nb` `ne` `nl` `pa` `pl` `pt_BR` `pt_PT` `ro` `ru` `si` `sk` `sl` `sq` `sr` `sv` `sw` `ta` `te` `tg` `th` `tk` `tl` `uk` `ur` `uz` `vi` `zh_CN` `zh_TW` `zu` |
+<!-- ceviri-durumu-bitir -->

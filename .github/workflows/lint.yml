@@ -7,6 +7,10 @@ on:
   push:
   pull_request:
 
+# "Çeviri durumu" adımı README'ye commit atabilsin diye (yalnız main).
+permissions:
+  contents: write
+
 jobs:
   check:
     name: Sözdizimi ve paket adları
@@ -18,7 +22,7 @@ jobs:
       - name: Gerekli araçlar
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends shellcheck xz-utils python3-yaml
+          sudo apt-get install -y --no-install-recommends shellcheck xz-utils python3-yaml gettext
 
       - name: Yapılandırma kontrolü
         run: |
@@ -35,3 +39,22 @@ jobs:
             iso/auto/config iso/auto/build iso/auto/clean \
             iso/config/hooks/normal/*.hook.* \
             iso/config/includes.chroot/usr/lib/kavis/boot-check
+
+      # README'deki "Çeviri durumu" tablosu her koşuda tazelenir;
+      # değişiklik varsa [skip ci] commit'iyle main'e yazılır.
+      # PR'larda ve dallarda çalışmaz (main'e yazma yetkisi gerekir).
+      - name: Çeviri durumu tablosu (README)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          tools/i18n-stats.sh po /tmp/i18n-stats.json
+          python3 tools/gen-ceviri-tablosu.py /tmp/i18n-stats.json
+          if git diff --quiet README.md; then
+            echo "Tablo güncel, commit gerekmez."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: çeviri durumu tablosu güncellendi [skip ci]"
+          git push
