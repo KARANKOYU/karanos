@@ -592,6 +592,8 @@ bu dosyayı kaynak olarak kullanacak.
 | `calc.title` | Hesap Makinesi | Calculator |
 | `calc.error` | Geçersiz ifade | Invalid expression |
 | `emoji.title` | Emoji Seçici | Emoji Picker |
+| `emoji.cat_all` | Tümü | All |
+| `emoji.cat_recent` | Son kullanılanlar | Recent |
 | `emoji.cat_smileys` | Yüzler | Smileys |
 | `emoji.cat_people` | İnsanlar | People |
 | `emoji.cat_nature` | Doğa | Nature |

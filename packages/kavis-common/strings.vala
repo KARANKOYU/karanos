@@ -102,6 +102,8 @@ namespace Kavis.Strings {
         { "game.mode",                "Oyun Modu",                 "Game Mode" },
         { "focus.mode",               "Odaklanma",                 "Focus" },
         { "common.clear",             "Temizle",                   "Clear" },
+        { "common.search",            "Ara",                       "Search" },
+        { "common.none",              "Yok",                       "None" },
         { "common.settings",          "Ayarlar",                   "Settings" },
         { "common.back",              "Geri",                      "Back" },
 
@@ -133,6 +135,8 @@ namespace Kavis.Strings {
         { "calc.title",               "Hesap Makinesi",            "Calculator" },
         { "calc.error",               "Geçersiz ifade",            "Invalid expression" },
         { "emoji.title",              "Emoji Seçici",              "Emoji Picker" },
+        { "emoji.cat_all",            "Tümü",                      "All" },
+        { "emoji.cat_recent",         "Son kullanılanlar",         "Recent" },
         { "emoji.cat_smileys",        "Yüzler",                    "Smileys" },
         { "emoji.cat_people",         "İnsanlar",                  "People" },
         { "emoji.cat_nature",         "Doğa",                      "Nature" },
