@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Boşluk tuşuyla müzik atlanınca ipucu satırlarının yerine geçen tek
-  satır (Grup D düzeltmesi 6): boot.starting_short → "Başlatılıyor…"
+  satır (Grup D düzeltmesi 6): boot.starting_short → "Starting…"
   Metin docs/kavis-arayuz-metinleri.md tablosundan; splash varsayılan
-  dilde gösteriliyor — Plymouth'ta çalışma anında dil seçimi yok.
+  dilde (EN — 2 Eyl 2026 kararı) gösteriliyor; Plymouth'ta çalışma
+  anında dil seçimi yok.
 
   Boyut/oran acilis-ipuclari.svg ile aynı ölçekte (900 genişlik,
   font 40, #8B9BA8) — değişim yazı büyüklüğünü oynatmasın.
@@ -13,5 +14,5 @@
         text-anchor="middle"
         font-family="DejaVu Sans"
         font-size="40"
-        fill="#8B9BA8">Başlatılıyor…</text>
+        fill="#8B9BA8">Starting…</text>
 </svg>

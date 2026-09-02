@@ -1,6 +1,7 @@
 # Kavis — Arayüz Metinleri (TR / EN)
 
-Sistem iki dilli: **Türkçe** (varsayılan) ve **İngilizce**.
+Sistem iki dilli: **İngilizce** (varsayılan — 2 Eyl 2026 kararı,
+global paylaşım) ve **Türkçe**; klavye varsayılanı TR Q kalır.
 Aşağıdaki anahtarlar koda gömülmez; çeviri dosyalarında tutulur.
 
 Beğenmediğin çeviriyi doğrudan bu tablonun üzerinde değiştir — Claude Code
@@ -68,7 +69,8 @@ bu dosyayı kaynak olarak kullanacak.
 
 > Not: `boot.made_by` her iki dilde aynı — imza olduğu için çevrilmiyor.
 > `boot.advanced_*` ve sonrası GRUB menüsünde kullanılıyor (madde 30, F3);
-> GRUB tek dilli olduğundan menü Türkçe (varsayılan dil) yazılıyor.
+> GRUB tek dilli olduğundan menü İngilizce (varsayılan dil EN — 2 Eyl
+> 2026 kararı) yazılıyor.
 
 ---
 

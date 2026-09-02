@@ -56,9 +56,9 @@ echo "I: GRUB dizini: $kok"
 for cfg in "$kok/grub.cfg" "$kok/loopback.cfg"; do
 	[ -f "$cfg" ] || continue
 	sed -i \
-		-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (güvenli mod, \1)\"|" \
+		-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (safe mode, \1)\"|" \
 		-e "s|menuentry \"Live system (\([^)]*\))\"|menuentry \"$AD (\1)\"|" \
-		-e "s|menuentry \"Live system, kernel \([^\"]*\)\"|menuentry \"$AD (çekirdek \1)\"|" \
+		-e "s|menuentry \"Live system, kernel \([^\"]*\)\"|menuentry \"$AD (kernel \1)\"|" \
 		-e "s|menuentry \"Debian GNU/Linux[^\"]*\"|menuentry \"$AD\"|" \
 		"$cfg"
 	adet=$(grep -c "menuentry \"$AD" "$cfg" || true)
@@ -105,8 +105,8 @@ if [ -f "$TEMA" ]; then
 	# varsayılan geri sayım kutusunu devre dışı bırakır ve `text`
 	# özelliğindeki %d her saniye kalan süreyle basılır — kutu yerine
 	# ikincil metin renginde tek satır yazıyoruz. Metin tablodan:
-	# boot.autoboot_countdown (docs/kavis-arayuz-metinleri.md). Unifont
-	# Türkçe glifleri içeriyor (menü girdilerinde zaten kullanılıyor).
+	# boot.autoboot_countdown EN sütunu (varsayılan dil EN — 2 Eyl
+	# kararı; GRUB tek dilli).
 	# progress_bar temadaki SON blok; oradan dosya sonuna kadar siliyoruz.
 	sed -i '/^#progress bar$/,$d' "$TEMA"
 	cat >> "$TEMA" <<'EOF'
@@ -120,11 +120,11 @@ if [ -f "$TEMA" ]; then
 	align = "center"
 	color = "#8B9BA8"
 	font = "Unifont Regular 16"
-	text = "%d saniye içinde otomatik başlıyor"
+	text = "Starting automatically in %d seconds"
 }
 EOF
 	if grep -q '__timeout__' "$TEMA" && ! grep -q 'progress_bar' "$TEMA"; then
-		echo "I: geri sayim kutusu sade Turkce satira cevrildi"
+		echo "I: geri sayim kutusu sade satira cevrildi"
 	else
 		echo "W: geri sayim degisikligi dogrulanamadi" >&2
 	fi

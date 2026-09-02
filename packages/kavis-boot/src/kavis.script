@@ -7,8 +7,8 @@
 #   3. Logonun altında ürün adı (urun-adi.png — os-release NAME'den
 #      derlemede üretilir, ad koda gömülü değil)
 #   4. Onun altında küçük "made by Karan" imzası
-#   5. En altta iki ipucu satırı: "F3 — Gelişmiş menü" ve
-#      "Atlamak için boşluk tuşu"
+#   5. En altta iki ipucu satırı: "F3 — Advanced menu" ve
+#      "Press space to skip" (varsayılan dil EN — 2 Eyl 2026 kararı)
 #   6. Geçişler yumuşak: %15'ten %100'e parlama ile açılır, müzik
 #      bitince (ya da boşlukla atlanınca) yumuşakça söner
 #

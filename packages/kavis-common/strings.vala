@@ -10,8 +10,9 @@
  * docs/kavis-arayuz-metinleri.md, keyed by the same keys. If a needed
  * text has no table row, the table is extended first.
  *
- * Language selection: from the system locale. Turkish is the default;
- * anything not starting with "tr" gets English.
+ * Language selection: from the system locale. English is the default
+ * (2 Sep 2026 decision — global sharing); only a locale starting with
+ * "tr" selects Turkish.
  */
 
 namespace Kavis.Strings {
@@ -175,15 +176,15 @@ namespace Kavis.Strings {
     private bool language_ready = false;
 
     /* Decide the UI language once, from the message locale.
-     * Empty/unset locale counts as Turkish — the product default. */
+     * Empty/unset locale counts as ENGLISH — the product default
+     * (changed 2 Sep 2026: EN default, TR via Settings > Language). */
     private void select_language () {
         if (language_ready) {
             return;
         }
         unowned string? locale = Intl.setlocale (LocaleCategory.MESSAGES, null);
         string code = (locale ?? "").down ();
-        turkish_selected = (code == "" || code == "c" || code == "posix"
-                            || code.has_prefix ("tr"));
+        turkish_selected = code.has_prefix ("tr");
         language_ready = true;
     }
 

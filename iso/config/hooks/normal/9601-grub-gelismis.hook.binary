@@ -7,17 +7,17 @@
 #
 # Yapılanlar:
 #   1. live-build'in İngilizce "Utilities..." alt menüsü kaldırılır
-#      (içindekiler bizim menüye Türkçe olarak taşınır)
+#      (içindekiler bizim menüye tablodaki EN başlıklarla taşınır)
 #   2. "güvenli mod" girdisi üst düzeyden alt menüye taşınır
 #   3. "Detaylı açılış kayıtları" girdisi üretilir (quiet/splash'sız)
-#   4. Açılış ortamı doğrulama girdisi (live-build üretmişse) Türkçe
+#   4. Açılış ortamı doğrulama girdisi (live-build üretmişse) tablodaki
 #      başlıkla yeniden kurulur
 #   5. memtest86+ girdileri (yalnız x86 — MİMARİ kuralı; BIOS'ta
 #      linux16, UEFI'de chainloader, imzasız olduğu için Secure Boot
 #      kapalıyken) ve UEFI ayarları girdisi eklenir
 #
 # Menü metinleri docs/kavis-arayuz-metinleri.md `boot.*` anahtarlarından
-# (GRUB tek dilli; varsayılan dil TR). Girdi başlıkları "ad — tek satır
+# (GRUB tek dilli; varsayılan dil EN — 2 Eyl 2026 kararı). Girdi başlıkları "ad — tek satır
 # açıklama" biçiminde: GRUB girdi altına ayrı açıklama satırı çizemiyor.
 #
 # F3 kısayolu: trixie'nin GRUB 2.12'si submenu --hotkey=f3 destekliyor
@@ -64,11 +64,11 @@ done
 # "güvenli mod" girdisi atlanır; kalan ilk menuentry normal olandır.
 # Girinti korunur (blok içinde yeniden kullanılıyor).
 normal_linux=$(awk '
-	/^menuentry / { icinde = ($0 !~ /güvenli mod/) }
+	/^menuentry / { icinde = ($0 !~ /safe mode/) }
 	icinde && /^[ \t]*linux/  { print; exit }
 ' "$CFG")
 normal_initrd=$(awk '
-	/^menuentry / { icinde = ($0 !~ /güvenli mod/) }
+	/^menuentry / { icinde = ($0 !~ /safe mode/) }
 	icinde && /^[ \t]*initrd/ { print; exit }
 ' "$CFG")
 
@@ -79,13 +79,13 @@ fi
 
 # --- güvenli mod bloğunu üst düzeyden al ------------------------------
 guvenli_blok=$(awk '
-	/^menuentry .*güvenli mod/ { al = 1 }
+	/^menuentry .*safe mode/ { al = 1 }
 	al { print }
 	al && /^\}/ { exit }
 ' "$CFG")
 
 awk '
-	/^menuentry .*güvenli mod/ { atla = 1 }
+	/^menuentry .*safe mode/ { atla = 1 }
 	!atla { print }
 	atla && /^\}/ { atla = 0 }
 ' "$CFG" > "$CFG.yeni"
@@ -142,20 +142,20 @@ done
 {
 	echo ""
 	echo "### $AD — gelişmiş menü (F3) ###"
-	echo "submenu \"Gelişmiş menü (F3)\" --hotkey=f3 {"
+	echo "submenu \"Advanced menu (F3)\" --hotkey=f3 {"
 	echo "	source /boot/grub/theme.cfg"
 
 	if [ -n "$guvenli_blok" ]; then
 		printf '%s\n' "$guvenli_blok" | sed 's/^/	/'
 	fi
 
-	echo "	menuentry \"Detaylı açılış kayıtları — sessiz açılışı kapat\" {"
+	echo "	menuentry \"Verbose boot — disable quiet boot\" {"
 	printf '	%s\n' "$detayli_linux"
 	printf '	%s\n' "$normal_initrd"
 	echo "	}"
 
 	if [ -n "$dogrula_linux" ] && [ -n "$dogrula_initrd" ]; then
-		echo "	menuentry \"Açılış ortamının bütünlüğünü doğrula\" {"
+		echo "	menuentry \"Verify integrity of the boot medium\" {"
 		printf '	%s\n' "$dogrula_linux"
 		printf '	%s\n' "$dogrula_initrd"
 		echo "	}"
@@ -163,21 +163,21 @@ done
 
 	if [ "$memtest_bin" -eq 1 ]; then
 		echo "	if [ \"\$grub_platform\" = \"pc\" ]; then"
-		echo "		menuentry \"RAM testi (memtest86+)\" {"
+		echo "		menuentry \"RAM test (memtest86+)\" {"
 		echo "			linux16 /boot/memtest86+x64.bin"
 		echo "		}"
 		echo "	fi"
 	fi
 	if [ "$memtest_efi" -eq 1 ]; then
 		echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
-		echo "		menuentry \"RAM testi (memtest86+, Secure Boot kapalıyken)\" {"
+		echo "		menuentry \"RAM test (memtest86+, requires Secure Boot off)\" {"
 		echo "			chainloader /boot/memtest86+x64.efi"
 		echo "		}"
 		echo "	fi"
 	fi
 
 	echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
-	echo "		menuentry \"UEFI/BIOS ayarlarına git\" {"
+	echo "		menuentry \"Enter UEFI/BIOS setup\" {"
 	echo "			fwsetup"
 	echo "		}"
 	echo "	fi"

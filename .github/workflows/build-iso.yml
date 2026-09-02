@@ -217,10 +217,10 @@ jobs:
             echo "::error::grub.cfg'de '$NAME' adlı girdi YOK — 9600 hook'u incele"
             hata=1
           fi
-          if grep -q '^submenu "Gelişmiş menü (F3)"' grubcheck/grub.cfg; then
-            echo "✓ Gelişmiş menü (F3) var"
+          if grep -q '^submenu "Advanced menu (F3)"' grubcheck/grub.cfg; then
+            echo "✓ Advanced menu (F3) var"
           else
-            echo "::error::Gelişmiş menü (F3) grub.cfg'de YOK — 9601 hook'u incele"
+            echo "::error::Advanced menu (F3) grub.cfg'de YOK — 9601 hook'u incele"
             hata=1
           fi
           if grep -q "submenu 'Utilities" grubcheck/grub.cfg; then

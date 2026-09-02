@@ -44,6 +44,10 @@ arm64)
 esac
 
 # Açılış satırı.
+# Varsayılan dil EN (2 Eyl 2026 kararı — global paylaşım):
+# locales=en_US.UTF-8; KLAVYE TR Q KALIR (keyboard-layouts=tr).
+# GRUB/splash/F3 metinleri de İngilizce (9600/9601 hook'ları ve
+# kavis-boot SVG'leri). TR'ye dönüş Ayarlar > Dil ile (Grup F).
 # NOT: `quiet splash` şu an KAPALI — 1. aşamada boot mesajlarını görmek
 # istiyoruz. 3. aşamada (Plymouth teması) açılacak.
 # console=ttyS0 CI'daki QEMU testinin boot günlüğünü okuyabilmesi için;
@@ -52,7 +56,7 @@ BOOTAPPEND="boot=live components \
 username=karan \
 hostname=${ID} \
 user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin \
-locales=tr_TR.UTF-8 \
+locales=en_US.UTF-8 \
 timezone=Europe/Istanbul \
 keyboard-layouts=tr \
 quiet loglevel=3 vt.global_cursor_default=0 rd.udev.log_level=3 \

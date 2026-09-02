@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Açılış ekranının altındaki iki ipucu satırı (madde 30):
-    boot.advanced_hint  → "F3 — Gelişmiş menü"
-    boot.skip_hint      → "Atlamak için boşluk tuşu"
+    boot.advanced_hint  → "F3 — Advanced menu"
+    boot.skip_hint      → "Press space to skip"
   Metinler docs/kavis-arayuz-metinleri.md tablosundan; splash varsayılan
-  dilde (TR) gösteriliyor — Plymouth'ta çalışma anında dil seçimi yok.
+  dilde (EN — 2 Eyl 2026 kararı) gösteriliyor; Plymouth'ta çalışma
+  anında dil seçimi yok.
 
   Renk #8B9BA8 = ikincil metin; ipuçları dikkat çekmesin diye soluk.
 -->
@@ -13,10 +14,10 @@
         text-anchor="middle"
         font-family="DejaVu Sans"
         font-size="40"
-        fill="#8B9BA8">F3 — Gelişmiş menü</text>
+        fill="#8B9BA8">F3 — Advanced menu</text>
   <text x="450" y="116"
         text-anchor="middle"
         font-family="DejaVu Sans"
         font-size="40"
-        fill="#8B9BA8">Atlamak için boşluk tuşu</text>
+        fill="#8B9BA8">Press space to skip</text>
 </svg>
