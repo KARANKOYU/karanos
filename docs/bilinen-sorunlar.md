@@ -26,10 +26,12 @@ CI'da geçen splash zamanlaması (SPLASH-TIMING, SPLASH-HANDOFF)
 VirtualBox'ta farklı çıkabilir. İkisini de kapsayan otomatik test yok.
 Şimdilik VirtualBox el testi; ileride belki VirtualBox'lı bir CI koşucusu.
 
-## 3. GDK_GL=disable yalnız panelde → MADDELEŞTİ: 61
+## 3. GDK_GL=disable yalnız panelde → ÇÖZÜLDÜ (madde 61, Grup D)
 
-(2026-09-02: görev listesine madde 61 olarak girdi — Grup D'de ilk yeni
-GTK uygulamasıyla birlikte çözülecek. Kayıt tarihçe için duruyor.)
+(2026-09-02: packages/kavis-common/appinit.vala ortak başlangıcı —
+kavis-panel, kavis-snap ve kavis-tools kullanıyor; bizim olmayan GTK
+uygulamaları (nemo-desktop) autostart'ta ortam değişkeniyle alıyor.
+Kayıt tarihçe için duruyor.)
 
 llvmpipe/libLLVM tuzağının (~50 MB) çözümü `GDK_GL=disable` şimdilik
 yalnız kavis-panel'in main.vala'sında. Ayarlar, mağaza ve diğer GTK

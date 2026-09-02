@@ -9,6 +9,46 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+## Grup D kod tamam: masaüstü deneyimi (maddeler 4, 5, 6, 7, 29, 37, 55, 61, 62)
+
+2026-09-02, tek oturum; her madde ayrı commit, hepsi Xvfb'de ekran
+görüntüsü/senaryo testiyle doğrulandı. Kayda değer kararlar:
+
+- **61**: GDK_GL ortak başlangıcı 'paylaşılan kaynak dosya' olarak
+  (packages/kavis-common, assets/logo kopyalama düzeniyle) — wrapper
+  süreci ya da .so yerine; sonra metin tablosu da aynı düzene taşındı
+  (kavis-panel + kavis-tools tek tabloyu derliyor).
+- **4**: blur bilerek yok — Grup B'nin 'xrender'da blur çalışmaz'
+  kararı geçerli; akrilik = rgba saydamlık, blur madde 38'de GPU ile.
+  Başlat düğmesi W11 gibi yalnız logo (metin araç ipucunda).
+- **5**: konum/boyut değişimi paneli /proc/self/exe ile yeniden
+  başlatıyor — her widget'ı canlı döndürmek yerine (panel durumsuz).
+- **37**: bildirim daemon'u panelin İÇİNDE (dunst kurulmadı) — madde
+  59'daki dunst şikâyetleri tasarım kuralı oldu. Gece modu xsct
+  (sct trixie'de yok). Oyun Modu kutucuğu şimdilik durum dosyası
+  (~/.config/kavis/gamemode) — gerçek iş Grup H.
+- **6**: openbox yamalanmadı (imzalı paket); kenara yapıştırma ayrı
+  kavis-snap ikilisi — opensnap'in üç bilinen kusuru (unsnap yok,
+  monitör önbelleği, tek monitör) baştan kapalı. Masaüstü simgeleri
+  nemo-desktop (nemo zaten madde 39 kararı). XTEST sürüklemesi
+  Xvfb+openbox'ta işlemiyor — test windowmove taklidiyle yapıldı,
+  gerçek fare VM'de doğrulanacak.
+- **55**: genel bakışta canlı küçük görüntü bilerek yok (XComposite
+  mekanizması kozmetik kazanca değmez); ikon+başlık. Masaüstü geçiş
+  animasyonu picom show/hide tetikleyicilerinden bedava.
+- **7**: Bluetooth arayüzü bilerek yok — blueman Python yığınını geri
+  getirirdi; Ayarlar'ın Bluetooth bölümü (Grup F) yapacak. Pano
+  W-v tıkla-yapıştır xdotool ile (ISO'ya girdi).
+- **29**: hızlı yakalama harici araçsız (Gdk kök pixbuf); etkileşimli
+  düzenleyici flameshot (29F 'temel' kararı); video slop+ffmpeg,
+  duraklat v1-dışı (SIGSTOP zaman damgalarını bozuyor).
+- Kısayolların TEK yeri rc.xml'deki Kavis bloğu (0210 hook) +
+  org.kavis.Panel DBus köprüsü — çalışan panele gdbus'la sesleniliyor.
+- RAM (taze X, ilk istemci): panel 1.2 RSS 34 MB / PSS 15 MB — D'nin
+  tüm eklerine rağmen değişmedi; kavis-snap RSS 20 MB (paylaşımlı).
+
+---
+
 ## BİLİNÇLİ KARAR: splash artık müzik bitince değil, masaüstü gelene kadar kalıyor
 
 v0.3-test2 ölçümü (2026-09-02, kullanıcı onayı): retain devriyle
