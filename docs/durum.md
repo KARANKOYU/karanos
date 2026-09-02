@@ -395,9 +395,20 @@ almak (indirme yöneticisi madde 23 gelince).
 >   1 df7f548, 2 0f62132, 3 2d67189, 4 a96acc7, 5a-b b437008,
 >   5c 37e77b6, 6a-6g dört commit + debug turu (menü sızıntısı,
 >   tembel glif sayfaları; panel 37.2 MB RSS). sonraki-isler.md
->   silindi (kendi kuralı); kararlar bu dosyada. Etiket v0.3-test7 →
->   debug commit'i. KALAN: CI koşusu + VirtualBox el testi → DUR,
->   Grup E'ye GEÇİLMEZ.
+>   silindi (kendi kuralı); kararlar bu dosyada.
+> - test8 VM geri bildirimi (TAM LİSTE, 2 Eyl akşam) İŞLENDİ — sıra
+>   I→H→B→C→D→A→G→E→J, alan başına commit; F yalnız roadmap Grup E
+>   satırına not. Öne çıkanlar: Debian rc.xml bağ çakışmaları (çift
+>   A-F4/Print/scrot, tekerlek masaüstü değiştirme) 0210 temizleme
+>   geçidiyle; GRUB gfxmenu Kavis teması (ikonlu, seçili girdi turkuaz
+>   kutu); splash fade'i tamamen kalktı + gfxpayload=keep; hızlı
+>   ayarlar B4 görünümü + Battery plan alt paneli; 14px başlık
+>   düğmeleri + cyan çerçeve kalktı; yakalamada Elips/pencere LİSTESİ/
+>   ok imleci/tıklanabilir toast; dikey panel düzeni; picker sürükleme
+>   + konum hatırlama; sudo pwfeedback + /home→/users + TR locale;
+>   docs/tasarim-dili.md (12/10/8 köşe, 180/120ms, 16/8/12 boşluk).
+>   Panel RSS 36.7 MB. KALAN: yeni etiket CI + VirtualBox el testi →
+>   DUR, Grup E'ye GEÇİLMEZ.
 
 1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
    `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
