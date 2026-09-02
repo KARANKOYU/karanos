@@ -69,6 +69,20 @@ namespace Kavis.Strings {
         { "keyboard.layout",          "Klavye düzeni",             "Keyboard layout" },
         { "setup.keyboard_trq",       "Türkçe Q",                  "Turkish Q" },
         { "setup.keyboard_en",        "İngilizce (ABD)",           "English (US)" },
+
+        /* Bildirim merkezi + hızlı ayarlar (madde 37) — "Bildirimler ve
+         * küçük araçlar", "Ağ", "Ayarlar", "Ses / Ekran" tabloları. */
+        { "notif.center",             "Bildirimler",               "Notifications" },
+        { "notif.clear_all",          "Tümünü temizle",            "Clear all" },
+        { "notif.no_notifications",   "Bildirim yok",              "No notifications" },
+        { "notif.dnd",                "Rahatsız etme",             "Do not disturb" },
+        { "network.wifi",             "Wi-Fi",                     "Wi-Fi" },
+        { "settings.bluetooth",       "Bluetooth",                 "Bluetooth" },
+        { "display.night_mode",       "Gece modu",                 "Night light" },
+        { "display.brightness",       "Parlaklık",                 "Brightness" },
+        { "game.mode",                "Oyun Modu",                 "Game Mode" },
+        { "focus.mode",               "Odaklanma",                 "Focus" },
+        { "common.clear",             "Temizle",                   "Clear" },
     };
 
     private bool turkish_selected;
@@ -125,7 +139,14 @@ namespace Kavis.Strings {
                 || e.key.has_prefix ("power.")
                 || e.key.has_prefix ("sound.")
                 || e.key.has_prefix ("keyboard.")
-                || e.key.has_prefix ("setup.");
+                || e.key.has_prefix ("setup.")
+                || e.key.has_prefix ("notif.")
+                || e.key.has_prefix ("network.")
+                || e.key.has_prefix ("settings.")
+                || e.key.has_prefix ("display.")
+                || e.key.has_prefix ("game.")
+                || e.key.has_prefix ("focus.")
+                || e.key.has_prefix ("common.");
             if (!known_prefix) {
                 stderr.printf ("beklenmeyen anahtar oneki: %s\n", e.key);
                 errors++;

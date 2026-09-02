@@ -129,6 +129,8 @@ namespace Kavis.Ui {
         /* Auto-hide state (madde 5). */
         private bool panel_hidden = false;
         private uint hide_timer = 0;
+        /* Bildirim toast'ları (madde 37) — referans yaşasın diye alan. */
+        private ToastManager toast_manager;
         private HashTable<ulong, Gtk.Button> window_buttons;
         private HashTable<ulong, Gtk.Image> window_images;
         private int current_button_width = 0;
@@ -166,6 +168,11 @@ namespace Kavis.Ui {
             thickness = config.thickness.pixels ();
             /* Popup'lar panelin karşı yanına açılır. */
             PanelPopup.panel_position = config.position;
+
+            /* Bildirim altyapısı (madde 37) build()'den ÖNCE: saat
+             * popup'ı kurulurken sunucuya bağlanıyor. */
+            Notifications.start ();
+            toast_manager = new ToastManager (Notifications.server);
 
             screen = Wnck.Screen.get_default ();
             screen.force_update ();

@@ -45,3 +45,12 @@ fonts-liberation2
 # artık derlenmiş Vala ikilisi, ISO'da Python'a bağımlı bileşen yok.
 # İleride Python'a dönen bir kullanıcı uygulaması olursa bağımlılıklar
 # o paketin Depends alanından gelecek.
+
+# --- hızlı ayarlar arkayüçleri (madde 37) ---
+# Panel bu araçları çalışma anında yoklar; yoksa ilgili düğme gizlenir.
+# rfkill: Bluetooth aç/kapa (donanım anahtarı arayüzü, ~100 KB)
+# xsct: gece modu — X renk sıcaklığı, tek işlik ufak araç (sct trixie arşivinde yok)
+# brightnessctl: parlaklık; udev kurallarıyla yetki sorununu çözer
+rfkill
+xsct
+brightnessctl

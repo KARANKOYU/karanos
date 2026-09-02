@@ -69,6 +69,18 @@ namespace Kavis.Ui {
         .kavis-popup calendar:indeterminate {
           color: #4A5A66;
         }
+        /* Hızlı ayar kutucukları (madde 37): açıkken turkuaz vurgulu. */
+        .kavis-popup button.quick-tile {
+          padding: 8px 4px;
+          border-radius: 8px;
+        }
+        .kavis-popup button.quick-tile.on {
+          background-color: rgba(45, 212, 191, 0.16);
+          color: #2DD4BF;
+        }
+        .kavis-popup button.quick-tile.on:hover {
+          background-color: rgba(45, 212, 191, 0.24);
+        }
         """;
 
         /* Panelin konumu (madde 5): popup panelin karşı yanına açılır —

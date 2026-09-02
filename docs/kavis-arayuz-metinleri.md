@@ -23,6 +23,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `common.close` | Kapat | Close |
 | `common.save` | Kaydet | Save |
 | `common.apply` | Uygula | Apply |
+| `common.clear` | Temizle | Clear |
 | `common.delete` | Sil | Delete |
 | `common.remove` | Kaldır | Remove |
 | `common.rename` | Yeniden adlandır | Rename |
@@ -391,6 +392,7 @@ bu dosyayı kaynak olarak kullanacak.
 | `display.refresh_rate` | Yenileme hızı | Refresh rate |
 | `display.scaling` | Ölçekleme | Scaling |
 | `display.night_mode` | Gece modu | Night light |
+| `display.brightness` | Parlaklık | Brightness |
 | `keyboard.layout` | Klavye düzeni | Keyboard layout |
 | `keyboard.switch_shortcut` | Dil değiştirme kısayolu | Language switch shortcut |
 | `mouse.speed` | Fare hızı | Pointer speed |
@@ -552,6 +554,8 @@ bu dosyayı kaynak olarak kullanacak.
 | `notif.clear_all` | Tümünü temizle | Clear all |
 | `notif.no_notifications` | Bildirim yok | No notifications |
 | `notif.dnd` | Rahatsız etme | Do not disturb |
+| `game.mode` | Oyun Modu | Game Mode |
+| `focus.mode` | Odaklanma | Focus |
 | `capture.image` | Görsel | Image |
 | `capture.video` | Video | Video |
 | `capture.mode_area` | Alan seç | Select area |
