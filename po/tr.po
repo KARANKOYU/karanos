@@ -486,3 +486,9 @@ msgstr "Elips"
 
 msgid "Show in folder"
 msgstr "Klasörde göster"
+
+msgid "Unpin from taskbar"
+msgstr "Görev çubuğundan kaldır"
+
+msgid "Open %s"
+msgstr "%s aç"

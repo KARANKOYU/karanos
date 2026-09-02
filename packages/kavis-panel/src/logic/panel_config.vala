@@ -94,6 +94,10 @@ namespace Kavis {
         /* Notification-center calendar collapsed state (Grup D fix:
          * remembered across sessions, [clock] group). */
         public bool calendar_collapsed = false;
+        /* "Emoji and more" panelinin son konumu (test8 G5); -1 = hiç
+         * taşınmadı, imlecin yakınında açılır. [picker] grubu. */
+        public int picker_x = -1;
+        public int picker_y = -1;
 
         /* One shared instance: the popups save settings too, and a
          * second instance would write back stale panel values. */
@@ -148,6 +152,10 @@ namespace Kavis {
                 config.calendar_collapsed =
                     file.get_boolean ("clock", "calendar_collapsed");
             } catch (Error e) { }
+            try {
+                config.picker_x = file.get_integer ("picker", "x");
+                config.picker_y = file.get_integer ("picker", "y");
+            } catch (Error e) { }
             return config;
         }
 
@@ -165,6 +173,8 @@ namespace Kavis {
             file.set_boolean ("panel", "autohide", autohide);
             file.set_boolean ("clock", "calendar_collapsed",
                               calendar_collapsed);
+            file.set_integer ("picker", "x", picker_x);
+            file.set_integer ("picker", "y", picker_y);
             string path = config_path ();
             DirUtils.create_with_parents (Path.get_dirname (path), 0755);
             try {

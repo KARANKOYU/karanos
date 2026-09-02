@@ -13,8 +13,9 @@ namespace Kavis.Pinned {
     private const string[] DEFAULTS = {
         "nemo.desktop",            /* dosya yöneticisi (madde 39) */
         "firefox-esr.desktop",
-        "kavis-settings.desktop",  /* Grup F'de gelecek */
-        "kavis-store.desktop",     /* Grup G'de gelecek */
+        "lxterminal.desktop",      /* terminal (ISO'daki; test8 G3) */
+        "kavis-settings.desktop",  /* Grup F'de gelecek — o güne dek gizli */
+        "kavis-store.desktop",     /* Grup G'de gelecek — o güne dek gizli */
     };
 
     private string config_path () {

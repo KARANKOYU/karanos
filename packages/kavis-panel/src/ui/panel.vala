@@ -1012,8 +1012,12 @@ namespace Kavis.Ui {
                         menu.append (new Gtk.SeparatorMenuItem ());
                     }
                     foreach (unowned string action in actions) {
+                        /* G2: fiil başa — "Trash" değil "Open Trash";
+                         * eylem adı GLib'ten yerelli gelir, kalıp
+                         * çevrilir (.desktop'a dokunulmaz). */
                         var item = new Gtk.MenuItem.with_label (
-                            info.get_action_name (action));
+                            _("Open %s").printf (
+                                info.get_action_name (action)));
                         string action_copy = action;
                         item.activate.connect (() => {
                             var fresh = AppMatch.info_for (
@@ -1028,7 +1032,7 @@ namespace Kavis.Ui {
 
                     menu.append (new Gtk.SeparatorMenuItem ());
                     var pin_item = new Gtk.MenuItem.with_label (
-                        slot.pinned ? _("Unpin")
+                        slot.pinned ? _("Unpin from taskbar")
                                     : _("Pin to taskbar"));
                     pin_item.activate.connect (() => {
                         if (target.pinned) {
@@ -1067,7 +1071,10 @@ namespace Kavis.Ui {
                 });
             });
             menu.show_all ();
-            menu.popup_at_pointer (event);
+            /* G4: menü tıklanan ikonun ÜSTÜNDE ortalı açılır (panel
+             * alttayken; diğer konumlarda GTK kendisi çevirir). */
+            menu.popup_at_widget (slot.button,
+                Gdk.Gravity.NORTH, Gdk.Gravity.SOUTH, event);
         }
 
         /* The window's own icon scaled to `size`; a generic themed icon

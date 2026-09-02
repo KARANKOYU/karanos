@@ -171,8 +171,11 @@ msgstr "⟪Start··⟫"
 msgid "Show desktop"
 msgstr "⟪Show desktop····⟫"
 
-msgid "Unpin"
-msgstr "⟪Unpin··⟫"
+msgid "Open %s"
+msgstr "⟪Open %s··⟫"
+
+msgid "Unpin from taskbar"
+msgstr "⟪Unpin from taskbar·······⟫"
 
 msgid "Pin to taskbar"
 msgstr "⟪Pin to taskbar·····⟫"

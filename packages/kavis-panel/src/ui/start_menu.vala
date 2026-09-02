@@ -211,7 +211,7 @@ namespace Kavis.Ui {
             var menu = new Gtk.Menu ();
             bool pinned = Pinned.contains (id);
             var pin_item = new Gtk.MenuItem.with_label (
-                pinned ? _("Unpin") : _("Pin to taskbar"));
+                pinned ? _("Unpin from taskbar") : _("Pin to taskbar"));
             string id_copy = id;
             pin_item.activate.connect (() => {
                 if (pinned) {

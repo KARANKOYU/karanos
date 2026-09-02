@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 15:13+0000\n"
+"POT-Creation-Date: 2026-09-02 15:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgstr ""
 
 #: packages/kavis-common/picker_data.vala:29
 #: packages/kavis-common/picker_data.vala:36
-#: packages/kavis-panel/src/ui/picker.vala:130
+#: packages/kavis-panel/src/ui/picker.vala:171
 msgid "Symbols"
 msgstr ""
 
@@ -132,7 +132,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/kavis_osd.vala:262
 #: packages/kavis-panel/src/kavis_osd.vala:275
-#: packages/kavis-panel/src/ui/indicators.vala:173
+#: packages/kavis-panel/src/ui/indicators.vala:185
 #: packages/kavis-panel/src/ui/quick_settings.vala:670
 #, c-format
 msgid "%d%%"
@@ -195,7 +195,7 @@ msgid "Notifications"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:46
-#: packages/kavis-panel/src/ui/picker.vala:520
+#: packages/kavis-panel/src/ui/picker.vala:561
 msgid "Clear all"
 msgstr ""
 
@@ -219,44 +219,44 @@ msgstr ""
 msgid "English (US)"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:124
+#: packages/kavis-panel/src/ui/indicators.vala:136
 msgid "Network, sound, battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:179
+#: packages/kavis-panel/src/ui/indicators.vala:191
 #: packages/kavis-panel/src/ui/quick_settings.vala:291
 msgid "Mute"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:212
+#: packages/kavis-panel/src/ui/indicators.vala:224
 msgid "Disconnect"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:219
+#: packages/kavis-panel/src/ui/indicators.vala:231
 msgid "Network settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:246
+#: packages/kavis-panel/src/ui/indicators.vala:258
 #: packages/kavis-panel/src/ui/quick_settings.vala:465
 msgid "When plugged in"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:246
+#: packages/kavis-panel/src/ui/indicators.vala:258
 #: packages/kavis-panel/src/ui/quick_settings.vala:468
 msgid "On battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:281
+#: packages/kavis-panel/src/ui/indicators.vala:293
 #: packages/kavis-panel/src/ui/quick_settings.vala:488
 msgid "High performance"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:283
+#: packages/kavis-panel/src/ui/indicators.vala:295
 #: packages/kavis-panel/src/ui/quick_settings.vala:490
 msgid "Power saver"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:285
+#: packages/kavis-panel/src/ui/indicators.vala:297
 #: packages/kavis-panel/src/ui/quick_settings.vala:490
 msgid "Balanced"
 msgstr ""
@@ -271,173 +271,178 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:395
+#: packages/kavis-panel/src/ui/panel.vala:396
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1030
-#: packages/kavis-panel/src/ui/start_menu.vala:214
-msgid "Unpin"
+#: packages/kavis-panel/src/ui/panel.vala:1019
+#, c-format
+msgid "Open %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1031
+#: packages/kavis-panel/src/ui/panel.vala:1035
+#: packages/kavis-panel/src/ui/start_menu.vala:214
+msgid "Unpin from taskbar"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:1036
 #: packages/kavis-panel/src/ui/start_menu.vala:214
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1047
+#: packages/kavis-panel/src/ui/panel.vala:1052
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1047
+#: packages/kavis-panel/src/ui/panel.vala:1052
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1140
+#: packages/kavis-panel/src/ui/panel.vala:1148
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1148
+#: packages/kavis-panel/src/ui/panel.vala:1156
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1148
+#: packages/kavis-panel/src/ui/panel.vala:1156
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1149
+#: packages/kavis-panel/src/ui/panel.vala:1157
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1149
+#: packages/kavis-panel/src/ui/panel.vala:1157
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1170
+#: packages/kavis-panel/src/ui/panel.vala:1178
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1178
+#: packages/kavis-panel/src/ui/panel.vala:1186
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1178
+#: packages/kavis-panel/src/ui/panel.vala:1186
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1178
+#: packages/kavis-panel/src/ui/panel.vala:1186
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1201
+#: packages/kavis-panel/src/ui/panel.vala:1209
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1208
+#: packages/kavis-panel/src/ui/panel.vala:1216
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1208
+#: packages/kavis-panel/src/ui/panel.vala:1216
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1231
+#: packages/kavis-panel/src/ui/panel.vala:1239
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1236
+#: packages/kavis-panel/src/ui/panel.vala:1244
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1274
+#: packages/kavis-panel/src/ui/panel.vala:1282
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1291
+#: packages/kavis-panel/src/ui/panel.vala:1299
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1293
+#: packages/kavis-panel/src/ui/panel.vala:1301
 #: packages/kavis-tools/src/securemenu.vala:87
 #: packages/kavis-tools/src/tasks.vala:34
 msgid "Task Manager"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:110
+#: packages/kavis-panel/src/ui/picker.vala:118
 msgid "Emoji and more"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:118
-#: packages/kavis-panel/src/ui/picker.vala:568
+#: packages/kavis-panel/src/ui/picker.vala:126
+#: packages/kavis-panel/src/ui/picker.vala:609
 msgid "Pin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:126
+#: packages/kavis-panel/src/ui/picker.vala:167
 msgid "Recent"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:127
+#: packages/kavis-panel/src/ui/picker.vala:168
 msgid "Favorites"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:128
+#: packages/kavis-panel/src/ui/picker.vala:169
 msgid "Emoji Picker"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:129
+#: packages/kavis-panel/src/ui/picker.vala:170
 msgid "Kaomoji"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:131
-#: packages/kavis-panel/src/ui/picker.vala:476
+#: packages/kavis-panel/src/ui/picker.vala:172
+#: packages/kavis-panel/src/ui/picker.vala:517
 msgid "Snippets"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:132
+#: packages/kavis-panel/src/ui/picker.vala:173
 msgid "Clipboard history"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:137
+#: packages/kavis-panel/src/ui/picker.vala:178
 msgid "Search"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:193
+#: packages/kavis-panel/src/ui/picker.vala:234
 #: packages/kavis-tools/src/capture.vala:504
 msgid "Close"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:277
+#: packages/kavis-panel/src/ui/picker.vala:318
 msgid "Remove from favorites"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:277
+#: packages/kavis-panel/src/ui/picker.vala:318
 msgid "Add to favorites"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:361
+#: packages/kavis-panel/src/ui/picker.vala:402
 #: packages/kavis-panel/src/ui/quick_settings.vala:580
 msgid "None"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:399
+#: packages/kavis-panel/src/ui/picker.vala:440
 msgid "Add snippet"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:440
+#: packages/kavis-panel/src/ui/picker.vala:481
 msgid "Edit"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:444
-#: packages/kavis-panel/src/ui/picker.vala:580
+#: packages/kavis-panel/src/ui/picker.vala:485
+#: packages/kavis-panel/src/ui/picker.vala:621
 msgid "Delete"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:479
+#: packages/kavis-panel/src/ui/picker.vala:520
 #: packages/kavis-tools/src/altf4.vala:52
 msgid "Cancel"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/picker.vala:480
+#: packages/kavis-panel/src/ui/picker.vala:521
 msgid "Save"
 msgstr ""
 
@@ -596,7 +601,7 @@ msgstr ""
 
 #: packages/kavis-tools/src/capture.vala:213
 #: packages/kavis-tools/src/capture.vala:665
-#: packages/kavis-tools/src/capture.vala:1104
+#: packages/kavis-tools/src/capture.vala:1077
 msgid "Screenshot saved"
 msgstr ""
 
@@ -640,27 +645,27 @@ msgstr ""
 msgid "Microphone"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1014
+#: packages/kavis-tools/src/capture.vala:987
 msgid "Copy RGB"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1016
+#: packages/kavis-tools/src/capture.vala:989
 msgid "Copy HSL"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1205
+#: packages/kavis-tools/src/capture.vala:1178
 msgid "Recording"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1209
+#: packages/kavis-tools/src/capture.vala:1182
 msgid "You can also press PrtSc to stop"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1218
+#: packages/kavis-tools/src/capture.vala:1191
 msgid "Stop"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1271
+#: packages/kavis-tools/src/capture.vala:1244
 msgid "Screen recording saved"
 msgstr ""
 

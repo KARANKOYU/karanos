@@ -77,6 +77,13 @@ namespace Kavis.Ui {
         private string last_page = "emoji";
         private bool grabbed = false;
         private bool switching = false;
+        /* G5: üst çubuktan sürükleme (POPUP pencerede begin_move_drag
+         * işlemez — override-redirect; elle taşınır) + son konum
+         * panel.conf'ta. */
+        private bool dragging = false;
+        private int drag_dx = 0;
+        private int drag_dy = 0;
+        private PanelConfig config = PanelConfig.get_default ();
 
         public PickerPanel (ClipboardHistory history) {
             Object (type: Gtk.WindowType.POPUP);
@@ -106,6 +113,7 @@ namespace Kavis.Ui {
             add (outer);
 
             /* --- üst çubuk: başlık + pin + kapat --- */
+            var header_events = new Gtk.EventBox ();
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
             var title = new Gtk.Label (_("Emoji and more"));
             title.get_style_context ().add_class ("dim");
@@ -119,7 +127,40 @@ namespace Kavis.Ui {
             pin_toggle.toggled.connect (on_pin_toggled);
             header.pack_end (make_close_button (), false, false, 0);
             header.pack_end (pin_toggle, false, false, 0);
-            outer.pack_start (header, false, false, 0);
+            header_events.add (header);
+            header_events.add_events (Gdk.EventMask.BUTTON_PRESS_MASK
+                | Gdk.EventMask.BUTTON_RELEASE_MASK
+                | Gdk.EventMask.POINTER_MOTION_MASK);
+            header_events.button_press_event.connect ((event) => {
+                if (event.button == 1) {
+                    int wx, wy;
+                    get_position (out wx, out wy);
+                    dragging = true;
+                    drag_dx = (int) event.x_root - wx;
+                    drag_dy = (int) event.y_root - wy;
+                    return true;
+                }
+                return false;
+            });
+            header_events.motion_notify_event.connect ((event) => {
+                if (dragging) {
+                    move ((int) event.x_root - drag_dx,
+                          (int) event.y_root - drag_dy);
+                    return true;
+                }
+                return false;
+            });
+            header_events.button_release_event.connect ((event) => {
+                if (dragging) {
+                    dragging = false;
+                    get_position (out config.picker_x,
+                                  out config.picker_y);
+                    config.save ();
+                    return true;
+                }
+                return false;
+            });
+            outer.pack_start (header_events, false, false, 0);
 
             /* --- sekme ikonları --- */
             var tabs = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 2);
