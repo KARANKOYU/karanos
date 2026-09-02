@@ -81,7 +81,11 @@ kavis-snap testi `xdotool windowmove` taklidiyle yapıldı (daemon
 doğrulandı). GERÇEK fareyle kenar/köşe yapıştırma + unsnap + önizleme
 VirtualBox el testinde doğrulanacak.
 
-## 10. Hızlı yakalamanın pano kopyası 60 saniyeyle sınırlı
+## 10. Hızlı yakalamanın pano kopyası 60 saniyeyle sınırlı → ÇÖZÜLDÜ (sonraki-isler 5)
+
+(2 Eyl 2026: pano geçmişi kalıcı depoya taşındı — panel her kopyayı,
+GÖRSELLER dahil, ~/.cache/kavis/clipboard'a yazıyor (7 gün/200 MB);
+geç yapıştıran kullanıcı Win+V geçmişinden bulur. Kayıt tarihçe için.)
 
 X panosu sahibi süreçle ölür; `kavis-tools capture --quick` görüntüyü
 panoya koyup 60 sn yaşıyor, sonra çıkıyor — geç yapıştıran kullanıcı

@@ -391,9 +391,13 @@ almak (indirme yöneticisi madde 23 gelince).
 >   43e84ca, gettext geçişi 0967d46 (Strings + metin tablosu kalktı,
 >   tek kaynak po/). Etiket v0.3-test6 → 0967d46 (push token
 >   sorunundan bekçiyle gidiyor; main push'landı).
-> - ŞİMDİKİ KUYRUK: docs/sonraki-isler.md (6 bölüm, sırayla —
->   1. bölüm df7f548 ile bitti), bitince TAM DEBUG/optimizasyon
->   turu + tek ISO (yeni etiket), sonra DUR — Grup E'ye GEÇİLMEZ.
+> - sonraki-isler.md 6 BÖLÜMÜN TAMAMI BİTTİ (2 Eyl öğleden sonra):
+>   1 df7f548, 2 0f62132, 3 2d67189, 4 a96acc7, 5a-b b437008,
+>   5c 37e77b6, 6a-6g dört commit + debug turu (menü sızıntısı,
+>   tembel glif sayfaları; panel 37.2 MB RSS). sonraki-isler.md
+>   silindi (kendi kuralı); kararlar bu dosyada. Etiket v0.3-test7 →
+>   debug commit'i. KALAN: CI koşusu + VirtualBox el testi → DUR,
+>   Grup E'ye GEÇİLMEZ.
 
 1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
    `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
