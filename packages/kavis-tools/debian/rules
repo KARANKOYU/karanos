@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+# Kavis küçük araçları — Vala kaynağından tek ikili (madde 7).
+# appinit.vala ve strings.vala kanonik kopyalardan gelir
+# (packages/kavis-common — build-packages.sh koyar).
+
+export DH_VERBOSE = 1
+
+DEST := debian/kavis-tools
+
+VALA_PAKETLER := --pkg gtk+-3.0 --pkg posix
+VALA_CFLAGS := -X -O2 -X -w -X -lm
+
+KAYNAKLAR := $(wildcard src/*.vala)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-tools $(KAYNAKLAR)
+
+override_dh_auto_install:
+	install -d $(DEST)/usr/bin
+	install -m755 kavis-tools $(DEST)/usr/bin/kavis-tools
+	install -d $(DEST)/usr/share/applications
+	install -m644 desktop/kavis-tasks.desktop \
+		$(DEST)/usr/share/applications/kavis-tasks.desktop
+	install -m644 desktop/kavis-calc.desktop \
+		$(DEST)/usr/share/applications/kavis-calc.desktop
+	install -m644 desktop/kavis-emoji.desktop \
+		$(DEST)/usr/share/applications/kavis-emoji.desktop
+
+override_dh_auto_clean:
+	rm -f kavis-tools
+	dh_auto_clean

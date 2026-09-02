@@ -68,6 +68,22 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowClipboard</command>
       </action>
     </keybind>
+    <!-- Ses tuslari -> panel OSD'si (madde 7) -->
+    <keybind key="XF86AudioRaiseVolume">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeUp</command>
+      </action>
+    </keybind>
+    <keybind key="XF86AudioLowerVolume">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeDown</command>
+      </action>
+    </keybind>
+    <keybind key="XF86AudioMute">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeMute</command>
+      </action>
+    </keybind>
 EOF
 
 awk -v snippet="$SNIPPET" '

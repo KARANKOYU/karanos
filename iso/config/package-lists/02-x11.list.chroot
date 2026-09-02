@@ -65,3 +65,10 @@ nemo
 # bakış, W-v pano geçmişi). libglib2.0-bin gdbus'ı içerir; Recommends
 # kapalıyken kendiliğinden gelmiyor.
 libglib2.0-bin
+
+# --- pano geçmişi yapıştırma + emoji görünümü (madde 7) ---
+# xdotool: Win+V'de seçilen öğeyi odaklı pencereye Ctrl+V ile basar.
+# fonts-noto-color-emoji: emoji seçicinin kutucukları kutu değil emoji
+# çizsin.
+xdotool
+fonts-noto-color-emoji

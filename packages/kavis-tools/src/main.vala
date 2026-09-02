@@ -1,0 +1,39 @@
+/* kavis-tools entry point (madde 7).
+ *
+ * One binary, three small tools: `tasks` (task manager), `calc`
+ * (calculator), `emoji` (emoji picker). One binary keeps packaging,
+ * the shared string table and the GTK startup (madde 61) in one
+ * place; each tool is its own window class in its own file.
+ */
+
+int main (string[] args) {
+    Intl.setlocale (LocaleCategory.ALL, "");
+
+    if (args.length > 1 && args[1] == "--metin-denetimi") {
+        return Kavis.Strings.self_check () == 0 ? 0 : 1;
+    }
+
+    Kavis.AppInit.init ();
+    Gtk.init (ref args);
+
+    string tool = (args.length > 1) ? args[1] : "tasks";
+    Gtk.Window window;
+    switch (tool) {
+    case "calc":
+        window = new Kavis.Tools.CalculatorWindow ();
+        break;
+    case "emoji":
+        window = new Kavis.Tools.EmojiWindow ();
+        break;
+    case "tasks":
+        window = new Kavis.Tools.TaskManagerWindow ();
+        break;
+    default:
+        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji]\n");
+        return 2;
+    }
+    window.destroy.connect (Gtk.main_quit);
+    window.show_all ();
+    Gtk.main ();
+    return 0;
+}

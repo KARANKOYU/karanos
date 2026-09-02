@@ -46,11 +46,20 @@ prepare_sources() {
 			packages/kavis-theme/src/logo/acik-k-logo.svg
 		;;
 	kavis-panel)
-		# Ortak GTK başlangıcı (madde 61): kanonik kopya
-		# packages/kavis-common/appinit.vala; her GTK paketi derleme
-		# sırasında kendi src ağacına alır (kopya .gitignore'da).
+		# Ortak GTK başlangıcı (madde 61) + ortak metin tablosu:
+		# kanonik kopyalar packages/kavis-common/; her GTK paketi
+		# derlemede kendi src ağacına alır (kopyalar .gitignore'da).
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-panel/src/logic/appinit.vala
+		install -m644 packages/kavis-common/strings.vala \
+			packages/kavis-panel/src/logic/strings.vala
+		;;
+	kavis-tools)
+		install -d packages/kavis-tools/src
+		install -m644 packages/kavis-common/appinit.vala \
+			packages/kavis-tools/src/appinit.vala
+		install -m644 packages/kavis-common/strings.vala \
+			packages/kavis-tools/src/strings.vala
 		;;
 	kavis-boot)
 		install -d packages/kavis-boot/src/boot

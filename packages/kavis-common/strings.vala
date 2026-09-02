@@ -1,5 +1,11 @@
 /* UI strings (business logic — no widget code here).
  *
+ * KANONİK KOPYA BURASI (kavis-common) — appinit.vala ile aynı düzen:
+ * build-packages.sh her kavis GTK paketinin src ağacına kopyalar,
+ * kopyalar .gitignore'dadır. Tablo bütün uygulamaların BİRLEŞİMİdir;
+ * bir ikilinin kullanmadığı anahtar zararsızdır, tek kaynak kuralı
+ * bölünmüş tablolardan önemlidir.
+ *
  * NO TEXT IS INVENTED HERE. Every entry mirrors a row of the tables in
  * docs/kavis-arayuz-metinleri.md, keyed by the same keys. If a needed
  * text has no table row, the table is extended first.
@@ -88,6 +94,37 @@ namespace Kavis.Strings {
         { "panel.desktop_n",          "Masaüstü %d",               "Desktop %d" },
         { "focus.finished",           "Odaklanma süresi bitti",    "Focus session finished" },
         { "notif.missed",             "%d yeni bildirim",          "%d new notifications" },
+
+        /* Pano geçmişi (madde 7) — "Bildirimler ve küçük araçlar". */
+        { "clipboard.history",        "Pano geçmişi",              "Clipboard history" },
+        { "clipboard.empty",          "Pano geçmişi boş",          "Clipboard history is empty" },
+        { "clipboard.pin",            "Sabitle",                   "Pin" },
+        { "clipboard.unpin",          "Sabitlemeyi kaldır",        "Unpin" },
+
+        /* Görev yöneticisi (madde 7, kavis-tools) — "Görev Yöneticisi"
+         * tablosu. */
+        { "tm.title",                 "Görev Yöneticisi",          "Task Manager" },
+        { "tm.tab_processes",         "İşlemler",                  "Processes" },
+        { "tm.name",                  "Ad",                        "Name" },
+        { "tm.cpu",                   "İşlemci",                   "CPU" },
+        { "tm.memory",                "Bellek",                    "Memory" },
+        { "tm.disk",                  "Disk",                      "Disk" },
+        { "tm.end_task",              "Görevi sonlandır",          "End task" },
+        { "tm.force_end",             "Zorla sonlandır",           "Force end" },
+        { "tm.critical_warning",      "Bu sistem işlemini kapatmak sorun çıkarabilir. Devam edilsin mi?",
+                                      "Ending this system process may cause problems. Continue?" },
+
+        /* Hesap makinesi + emoji (madde 7, kavis-tools). */
+        { "calc.title",               "Hesap Makinesi",            "Calculator" },
+        { "calc.error",               "Geçersiz ifade",            "Invalid expression" },
+        { "emoji.title",              "Emoji Seçici",              "Emoji Picker" },
+        { "emoji.cat_smileys",        "Yüzler",                    "Smileys" },
+        { "emoji.cat_people",         "İnsanlar",                  "People" },
+        { "emoji.cat_nature",         "Doğa",                      "Nature" },
+        { "emoji.cat_food",           "Yiyecek",                   "Food" },
+        { "emoji.cat_travel",         "Gezi",                      "Travel" },
+        { "emoji.cat_objects",        "Nesneler",                  "Objects" },
+        { "emoji.cat_symbols",        "Semboller",                 "Symbols" },
     };
 
     private bool turkish_selected;
@@ -151,7 +188,11 @@ namespace Kavis.Strings {
                 || e.key.has_prefix ("display.")
                 || e.key.has_prefix ("game.")
                 || e.key.has_prefix ("focus.")
-                || e.key.has_prefix ("common.");
+                || e.key.has_prefix ("common.")
+                || e.key.has_prefix ("clipboard.")
+                || e.key.has_prefix ("tm.")
+                || e.key.has_prefix ("calc.")
+                || e.key.has_prefix ("emoji.");
             if (!known_prefix) {
                 stderr.printf ("beklenmeyen anahtar oneki: %s\n", e.key);
                 errors++;

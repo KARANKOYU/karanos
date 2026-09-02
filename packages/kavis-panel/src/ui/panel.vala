@@ -133,6 +133,10 @@ namespace Kavis.Ui {
         private ToastManager toast_manager;
         /* Genel bakış (madde 55). */
         private Overview overview;
+        /* Pano geçmişi + ses OSD'si (madde 7). */
+        private ClipboardHistory clipboard_history;
+        private ClipboardPopup clipboard_popup;
+        private VolumeOsd volume_osd;
         private HashTable<ulong, Gtk.Button> window_buttons;
         private HashTable<ulong, Gtk.Image> window_images;
         private int current_button_width = 0;
@@ -182,9 +186,18 @@ namespace Kavis.Ui {
             screen = Wnck.Screen.get_default ();
             screen.force_update ();
             overview = new Overview (screen);
+            clipboard_history = new ClipboardHistory ();
+            clipboard_popup = new ClipboardPopup (clipboard_history);
+            volume_osd = new VolumeOsd ();
             if (PanelBus.service != null) {
                 PanelBus.service.overview_requested.connect (() => {
                     overview.toggle ();
+                });
+                PanelBus.service.clipboard_requested.connect (() => {
+                    clipboard_popup.toggle ();
+                });
+                PanelBus.service.volume_changed.connect ((percent, muted) => {
+                    volume_osd.show_level (percent, muted);
                 });
             }
             start_menu = new StartMenu ();

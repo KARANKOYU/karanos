@@ -1,0 +1,26 @@
+Source: kavis-tools
+Section: utils
+Priority: optional
+Maintainer: Karan <farukyildiz3207@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ valac,
+ libgtk-3-dev,
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/KARANKOYU/karanos
+
+Package: kavis-tools
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ fonts-noto-color-emoji,
+Description: Kavis küçük araçları — görev yöneticisi, hesap makinesi, emoji
+ Tek ikili, üç araç (madde 7): `kavis-tools tasks` işlem listesi
+ (CPU/RAM/disk, sonlandırma), `kavis-tools calc` hesap makinesi,
+ `kavis-tools emoji` emoji seçici.
+ .
+ Vala ile yazılmıştır; metinler docs/kavis-arayuz-metinleri.md
+ tablolarından, ortak başlangıç ve metin tablosu kavis-common'dan
+ derleme sırasında alınır.

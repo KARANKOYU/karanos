@@ -579,6 +579,18 @@ bu dosyayı kaynak olarak kullanacak.
 | `screenshot.copied` | Panoya kopyalandı | Copied to clipboard |
 | `clipboard.history` | Pano geçmişi | Clipboard history |
 | `clipboard.empty` | Pano geçmişi boş | Clipboard history is empty |
+| `clipboard.pin` | Sabitle | Pin |
+| `clipboard.unpin` | Sabitlemeyi kaldır | Unpin |
+| `calc.title` | Hesap Makinesi | Calculator |
+| `calc.error` | Geçersiz ifade | Invalid expression |
+| `emoji.title` | Emoji Seçici | Emoji Picker |
+| `emoji.cat_smileys` | Yüzler | Smileys |
+| `emoji.cat_people` | İnsanlar | People |
+| `emoji.cat_nature` | Doğa | Nature |
+| `emoji.cat_food` | Yiyecek | Food |
+| `emoji.cat_travel` | Gezi | Travel |
+| `emoji.cat_objects` | Nesneler | Objects |
+| `emoji.cat_symbols` | Semboller | Symbols |
 | `usb.connected` | USB bellek bağlandı | USB drive connected |
 | `usb.eject` | Güvenle çıkar | Safely remove |
 | `usb.safe_to_remove` | Cihazı çıkarabilirsin | You can now remove the device |

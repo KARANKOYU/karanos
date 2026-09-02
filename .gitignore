@@ -64,7 +64,10 @@ packages/kavis-panel/kavis-panel
 packages/kavis-panel/kavis-snap
 *.ddeb
 
-# Ortak GTK başlangıcının derleme kopyaları (madde 61) — kanonik dosya
-# packages/kavis-common/appinit.vala, kopyayı build-packages.sh koyar
+# Ortak kaynakların derleme kopyaları (madde 61) — kanonik dosyalar
+# packages/kavis-common/, kopyaları build-packages.sh koyar
 packages/*/src/logic/appinit.vala
 packages/*/src/appinit.vala
+packages/*/src/logic/strings.vala
+packages/*/src/strings.vala
+packages/kavis-tools/kavis-tools
