@@ -288,10 +288,19 @@ namespace Kavis.Ui {
         private Gtk.Image en_mark;
 
         public KeyboardPopup () {
+            /* Grup D 2c: başlık ve satırlar kenara yapışıktı — 8-10px
+             * iç boşluk, başlıkla liste arasına ince ayrım çizgisi. */
             var title = new Gtk.Label (Strings.get ("keyboard.layout"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);
+            title.set_margin_start (8);
+            title.set_margin_end (8);
+            title.set_margin_top (4);
             content.pack_start (title, false, false, 0);
+
+            content.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 4);
 
             content.pack_start (
                 layout_row ("setup.keyboard_trq", "tr", out tr_mark),
@@ -306,8 +315,11 @@ namespace Kavis.Ui {
             var button = new Gtk.Button ();
             button.set_relief (Gtk.ReliefStyle.NONE);
             var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 12);
+            row.set_margin_start (2);
+            row.set_margin_end (2);
             var label = new Gtk.Label (Strings.get (label_key));
             label.set_xalign (0);
+            label.set_width_chars (16);
             row.pack_start (label, true, true, 0);
             var check = new Gtk.Image.from_icon_name (
                 "object-select-symbolic", Gtk.IconSize.BUTTON);
