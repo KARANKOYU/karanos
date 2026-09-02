@@ -9,6 +9,479 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 2 Eylül 2026 (devir teslim kaydı)
+
+Bu bölüm bağlam sıfırlanmadan önce yazıldı. Yeni oturum YALNIZ bu
+dosyayı ve CLAUDE.md'yi okuyarak hiçbir şey kaybetmeden devam
+edebilmeli. Aşağıdaki alt kayıtlar (eski girdiler) aynen duruyor;
+buradaki özet onların üstüne günün TAMAMINI toplar.
+
+## 1. BUGÜN YAPILAN HER ŞEY (commit sırasıyla)
+
+### 1a. Açılış deneyimi düzeltmeleri (İş 1-2-3, "Grup D öncesi" istegi)
+
+**İş 1 — konsol çıktısı gizlendi (`0d54bfa`).**
+- `iso/auto/config` BOOTAPPEND: `loglevel=3 vt.global_cursor_default=0
+  rd.udev.log_level=3` eklendi (quiet+splash zaten vardı). loglevel=3
+  KERN_ERR'i de saklar → VirtualBox VMSVGA'daki vmwgfx "unsupported
+  hypervisor" satırları konsola düşmez; journald tam günlüğü tutar.
+- `iso/config/includes.chroot/etc/initramfs-tools/modules`: i915,
+  amdgpu, nouveau açıkça eklendi (splash erken başlasın);
+  `0300-plymouth.hook.chroot` gerekli-listesine bu üçü de girdi
+  (uyarı düzeyinde raporlanır, arm64'te i915 yok → hata değil).
+- `docs/referans/virtualbox.md` (yeni): VMSVGA çalışıyor (vmwgfx →
+  simpledrm düşüşü zararsız), uyarısız istenirse VBoxSVGA önerisi
+  (henüz elle DOĞRULANMADI — belgeye öyle yazıldı).
+
+**İş 2 — splash'i lightdm devralıyor (`37579aa`).** İki katmanlı kök
+sebep bulundu:
+1. Debian lightdm.service `Conflicts=plymouth-quit.service` taşıyor →
+   bizim `--retain-splash` drop-in'imiz normal açılışta HİÇ çalışmıyor
+   (SPLASH-TIMING quit=0.0s'nin açıklaması buydu). Splash'i lightdm
+   kapatıyor.
+2. lightdm splash'i yalnız Plymouth'un VT'si `minimum-vt`den küçük
+   DEĞİLSE devralıyor; Plymouth VT1'de, varsayılan minimum-vt=7 →
+   "not replacing it" deyip retain'siz öldürüp X'i VT7'de açıyordu
+   (siyah ekran + VT değişimi buydu).
+Düzeltme dosyaları:
+- `iso/config/includes.chroot/etc/lightdm/lightdm.conf.d/50-kavis-splash-devir.conf`:
+  `[LightDM] minimum-vt=1` + `[Seat:*] xserver-command=X -background
+  none` (ikincisi `f9d0813`'te eklendi — X kökü siyaha boyamasın,
+  framebuffer'daki retain karesi masaüstü çizilene kadar kalsın).
+- `iso/config/includes.chroot/etc/systemd/system/lightdm.service.d/kavis.conf`:
+  `After=kavis-boot-sound.service` (müzik bekletme artık işleyen
+  yerde) + `Conflicts=getty@tty1.service` + `After=getty@tty1.service`
+  (GDM'in aynı çözümü; X tty1'de).
+- `packages/kavis-boot/src/plymouth-quit-dropin.conf`: başına "bu
+  drop-in normal açılışta ÇALIŞMAZ, yalnız güvenlik ağı" notu.
+- boot-check: quit artık `plymouth-quit-wait.service`
+  ActiveEnterTimestampMonotonic'ten okunuyor (`plymouth --wait`
+  plymouthd gerçekten çıktığı anda döner — kapanışı kim yaparsa yapsın
+  doğru an); quit=0 artık sira_hatasi'na giriyor.
+
+**İş 3 — GRUB geri sayımı (`f7f1280`).**
+- live-build temasının gri `progress_bar { id="__timeout__" }` kutusu
+  (İngilizce metinli) kaldırıldı; GRUB'da bu id'yi taşıyan HERHANGİ
+  bileşen varsayılan kutuyu kapatır → `9600-grub-marka.hook.binary`
+  artık temaya ortalanmış #8B9BA8 bir `label` basıyor, metin
+  `%d saniye içinde otomatik başlıyor` (önce tabloya eklendi:
+  `boot.autoboot_countdown`). Yazı tipi Unifont (TR glifleri menü
+  girdilerinde zaten kanıtlı). sed `/^#progress bar$/,$d` + heredoc;
+  gerçek live-build theme.txt üzerinde yerelde doğrulandı.
+
+### 1b. SPLASH-HANDOFF denetiminin üç hâli (ders!)
+
+1. **İlk hâl** (İş 2 içinde): |quit − X proses başlangıcı| mutlak
+   farkı, eşik 5 sn. **v0.3-test2'de 5/5 profil bundan düştü** —
+   çünkü retain akışında X, Plymouth'tan ÖNCE başlar; TCG'de X
+   açılışı 13+ sn ve bu örtüşme İYİ durumdur (splash X'i örtüyor).
+2. **Yönlü hâl** (`5a953f1`, v0.3-test3): quit X'ten sonraysa geç,
+   öncesi >5 sn ise düş. Doğruydu ama görsel boşluğu ölçmüyordu.
+3. **Şimdiki hâl** (`f9d0813`, v0.3-test4): SPLASH-HANDOFF = quit →
+   openbox proses başlangıcı (masaüstünün ilk çizen süreci; /proc
+   stat 22. alan, CLK_TCK ile µs). Eşik 3 sn. Artı ikinci kanıt
+   katmanı: `/var/log/lightdm/lightdm.log`'da "retaining splash" →
+   SPLASH-RETAIN-OK; "not replacing it"/"no displays replace" →
+   SPLASH-RETAIN-FAIL (ölümcül). Retain kanıtlıysa 3 sn aşımı yalnız
+   UYARI (ekranı retain karesi örtüyor — `-background none` sayesinde
+   siyah yok); retain kanıtı yoksa/belirsizse aşım testi düşürür.
+   openbox başlangıcı `proc_basla()` yardımcıyla okunur (boot-check).
+
+**Etiket/koşu geçmişi bugün:**
+- v0.3-test2 (`f7f1280`): 5/5 KIRMIZI (yalnız SPLASH-HANDOFF-FAIL;
+  diğer her şey yeşildi — quit=139.8s İLK KEZ gerçek değer).
+- v0.3-test3 (`5a953f1`): 4/5 yeşil; tek kırmızı uefi-genis'te GRUB
+  menüsünde takılma (900 sn) — TEK SEFERLİK çıktı, aynı GRUB test4 ve
+  test5'te sorunsuz. İptal edilemedi (gh run cancel → HTTP 403, token
+  yetkisi yok).
+- v0.3-test4 (`f9d0813`): **5/5 YEŞİL.** Kanıtlar: 5 profilde
+  SPLASH-RETAIN-OK, handoff 2.6-3.7s (retain örtüyor, uyarı), quit
+  131-169s gerçek değerler. Açılış sırası VM testi için hazır ISO:
+  `kavis-0.3-test4-amd64.iso`.
+- v0.3-test5 (`59a8a13`): Grup D ISO'su — **koşu 33616072408 bu oturum
+  kapanırken ÇALIŞIYORDU, sonucu alınamadı.** Yeni oturum ilk iş
+  `gh run view 33616072408` ile bakmalı (aşağıda 2. bölüm).
+
+### 1c. Plan güncellemesi: maddeler 60-69 (`bdcae97`)
+
+`docs/gorev-listesi.md` numaralama 59'dan devam etti:
+- **60** (A/B/C): popup dış-tıklama kuralı — Grup C hotfix.
+- **61** GTK ortak başlangıç → Grup D. **62** hypervisor uyarı
+  listesi → Grup D (tanım) / F (kullanım).
+- **63** USB güvenli kullanım, **64** USB onarımı → Grup E.
+- **65** CachyOS incelemesi → Grup G (H'nin girdisi).
+- **66** sıcaklık izleme, **67** kritik uyarı, **68** soğutma katmanı
+  → **YENİ GRUP H2** (H doluydu; A2 emsali; roadmap'te sürüm 0.8).
+- **69** yeniden kurulum "dosyalarımı koru" → Grup I (tasarım:
+  docs/yeniden-kurulum-tasarimi.md; madde 16 işareti 69'a çevrildi).
+Grup sırası satırları ve roadmap.md güncellendi. Ayrıca `7f45a03`:
+docs/bilinen-sorunlar.md + docs/yeniden-kurulum-tasarimi.md doğdu.
+
+### 1d. Grup C hotfix — madde 60 (`f303048`)
+
+Üç hata iki kök sebepten:
+1. `on_outside_click` event.x/y'yi popup'a göre sanıyordu; alt
+   widget'lardan (takvim hücresi) kabaran olayların koordinatı ALT
+   pencereye göredir → içerisi "dışarısı" okunuyordu. Çözüm:
+   `PanelPopup.press_outside()` — x_root/y_root vs pencere
+   origin+boyut. Üç pencere de (PanelPopup, StartMenu, PowerMenu)
+   bunu kullanıyor.
+2. Uygulama içi tıklamalar (panel, güç düğmesi) popup'a hiç
+   ulaşmıyordu (owner_events normal teslimat). Çözüm: GTK menü
+   tekniği `Gtk.grab_add(this)` — uygulama içi olaylar popup'a
+   yönlenir, basış tüketilir → güç düğmesi toggle'ı (60B)
+   kendiliğinden çözüldü, panel tıklaması menüyü kapatıyor (60C).
+3. Ek bulgu: show_all sonrası seat grab NOT_VIEWABLE ile sessizce
+   başarısız olabiliyor → `PanelPopup.seat_grab()` durum denetimi +
+   50 ms aralıkla 10 deneme. Güç menüsü kapanınca `closed` sinyaliyle
+   seat grab başlat menüsüne geri veriliyor (GTK grab'ları kendi
+   yığınıyla hallediyor).
+Doğrulama: Xvfb senaryo betiği (scratchpad) — takvim içi tıklama açık
+bırakır, dışarısı kapatır, güç toggle, masaüstü tıklaması menüyü
+kapatır; ekran görüntüleriyle teyit.
+
+### 1e. Grup D — dokuz madde (madde 59 taraması: `dade6e3`)
+
+Tarama `docs/referans/grup-d-taramasi.md`: openbox snap kusurları
+(unsnap yok, monitör önbelleği, tek monitör), dunst kronikleri (ad
+çakışması, bellek şişmesi, birlikte kapanma, ekran aç/kapa konumu),
+X11 pano yarışları (sahip ölünce pano boşalır; PRIMARY alınmaz; şifre
+ipucu), flameshot (delay önizlemeyi geciktirir; monitör-bazlı çekim).
+Hepsi tasarım kuralına dönüştü.
+
+**Madde 61 (`3071b4f`) — GDK_GL ortak başlangıç: ÇÖZÜLDÜ.**
+`packages/kavis-common/appinit.vala` kanonik; `tools/build-packages.sh
+prepare_sources` her GTK paketinin src ağacına kopyalar (kopyalar
+.gitignore'da: `packages/*/src/logic/appinit.vala`,
+`packages/*/src/appinit.vala`). `Kavis.AppInit.init()` Gtk.init'ten
+önce çağrılır; GDK_GL=disable (override=false — GDK_GL=always ile
+geri açılabilir). Panel, kavis-snap, kavis-tools kullanıyor; bizim
+olmayan nemo-desktop autostart'ta env ile alıyor.
+
+**Madde 62 (`2a245a4`).** `/usr/share/kavis/log-ignore.d/` (README +
+hypervisor.list): satır başına grep -E deseni, her desenin zararsızlık
+gerekçesi şart. İlk üyeler vmwgfx desenleri. Grup F'nin sağlık aracı
+bu dizini okuyacak.
+
+**Madde 4 (`94562b6`) — W11 yerleşimi.** panel.vala: Başlat+pencere
+listesi ORTALANMIŞ küme (iki genişleyen boşluk; window_scroll
+`propagate_natural_width` — doğal genişliği ister, sıkışınca çöker);
+sağ bölge pack_end sabit. Düğme genişliği hesabı artık panel
+geometrisinden (`panel − right_box − start_button − 16`) — scroll
+tahsisinden okumak kendini besliyordu (32'de başlayan 32'de kalırdı).
+Başlat yalnız logo (metin tooltip'te). Akrilik: rgba görsel +
+`.kavis-panel.acrylic { rgba(18,28,38,0.85) }`, composited-changed
+dinlenir (picom sonra başlayabilir). BLUR BİLEREK YOK (Grup B:
+xrender'da çalışmıyor; madde 38 GPU'yla). Hover kutuları 6px yuvarlak,
+düğmeler tam yükseklik (Fitts — alt piksel tıklaması ölmesin);
+masaüstünü-göster şeridi `.edge` sınıfıyla köşeli. 30 pencere
+sıkışması testi geçti (ikonlar 24→16, sağ bölge sağlam).
+
+**Madde 5 (`9f5dae1`) — sağ tık menüsü.** Yeni
+`src/logic/panel_config.vala`: ~/.config/kavis/panel.conf ([panel]
+position/size/monitor/autohide; KeyFile). Konum alt/üst/sol/sağ —
+dikeyde TÜM eksen döner (window_box/cluster/right_box dikey, scroll
+policy (NEVER,AUTOMATIC)+propagate_natural_height, WorkspaceIndicator
+axis parametresi aldı, strut 4 kenar için ayrı, show_desktop (-1,8)).
+Boyut 36/44/52 px. Konum/boyut değişimi `restart_self()`:
+`Posix.execv("/proc/self/exe", {"kavis-panel"})` — panel durumsuz, en
+hafif sağlam yol (X fd CLOEXEC). Monitör seçimi model adıyla; kaybolan
+monitör birincile düşer. Otomatik gizle: strut sıfırlanır, 600 ms
+sonra 2 px şeride kayar (`slide_away`), enter/leave INFERIOR filtreli;
+popup/menü açıkken saklanmaz (`PanelPopup.any_open()`).
+POPUP KONUMLANDIRMASI panel konumuna duyarlı oldu: PanelPopup'ta
+`static panel_position`; popup panelin KARŞI yanına açılır (üstteyken
+aşağı vb.), başlat menüsü `open(x,y)` artık MUTLAK sol-üst köşe alır
+(panel hesaplar, monitöre kıstırır). Menü öğeleri: Konum/Boyut/Ekran
+(yalnız >1 monitör)/Otomatik gizle/Ekran ayarları/Görev yöneticisi —
+son ikisi `launcher_item()` ile hedef ikili PATH'te yoksa soluk
+(kavis-settings Grup F'de gelecek; kavis-tools artık var).
+Yeni metinler: panel.menu_position, panel.position_bottom/top/left/
+right, panel.menu_size, panel.size_thin/medium/thick,
+panel.menu_monitor, panel.monitor_primary, panel.menu_autohide,
+panel.display_settings (önce tabloya).
+
+**Madde 37 (`b2e4e50`) — bildirim altyapısı + saat paneli + hızlı
+ayarlar.** Yeni dosyalar:
+- `src/logic/notifications.vala`: org.freedesktop.Notifications'ı
+  PANEL sahiplenir (dunst kurulmadı). NotificationServer DBus sınıfı
+  (notify/close_notification/get_capabilities/get_server_information +
+  notification_closed/action_invoked sinyalleri; iç sinyaller
+  toast_requested, history_changed [DBus (visible=false)]). Geçmiş 50
+  kayıtla SINIRLI; kritik (urgency=2) DND'de bile gösterilir ve
+  timeout=0 (elle kapatılır); ad alınamazsa YÜKSEK sesle warning.
+  replaces_id eski kaydı düşürür.
+- `src/ui/toast.vala`: ToastManager + Toast — her toast KENDİ
+  penceresi; birincil monitörün WORKAREA sağ-alt köşesinden yukarı
+  yığılır (workarea strut'ı düştüğü için panel konumu bedava hesaba
+  girer); en çok 4; tıkla kapat.
+- Saat popup'ı (CalendarPopup, indicator_popups.vala) büyüdü: takvim +
+  bildirim merkezi (uygulama bazlı grup — ilk görülme sırası; grup
+  başına "Temizle" [common.clear tabloya eklendi] + "Tümünü temizle")
+  + hızlı ayarlar FlowBox'ı + parlaklık kaydırıcısı (yalnız backlight
+  varsa).
+- `src/logic/quick.vala` arkayüzleri: Wi-Fi nmcli, Bluetooth rfkill,
+  gece modu **xsct** (DİKKAT: `sct` trixie arşivinde YOK —
+  check-packages yakaladı), Oyun Modu = ~/.config/kavis/gamemode
+  durum dosyası (gerçek iş Grup H), parlaklık sysfs/brightnessctl.
+  Her arkayüz aracını yoklar; olmayanın kutucuğu HİÇ görünmez.
+- ISO listesine: rfkill, xsct, brightnessctl (çalışma anı araçları —
+  derleme bağımlılığı değiller, workflow kurulum adımı gerekmez).
+- QuickTile widget'ı: `.quick-tile.on` turkuaz vurgusu (CSS popup.vala
+  içinde).
+
+**Madde 6 (`75edbdb`) — pencere yönetimi.**
+- `0210-openbox-kisayollar.hook.chroot` (yeni): Debian rc.xml'e
+  `</keyboard>` öncesi "Kavis kisayollari" bloğu enjekte (idempotent,
+  grep guard; python3 varsa XML doğrulaması — chroot'ta python yok,
+  atlanır; yerelde doğrulandı). W-Left/Right yarım (Unmaximize +
+  MoveResizeTo %50), W-Up Maximize, W-Down If-maximized→Unmaximize
+  else Iconify. Alt+Tab ve C-A-ok Debian varsayılanında zaten var.
+- `src/snap.vala` → **kavis-snap** ikilisi (kavis-panel paketi, rules
+  ikinci valac hedefi + appinit). 80 ms XQueryPointer anketi;
+  sürükleme = "tuş basılıyken ETKİN pencerenin geometrisi değişti"
+  (panel tıklaması/masaüstü seçimi asla tetikleyemez). Kenarlar yarım,
+  köşeler (180 px) çeyrek, üst büyüt; turkuaz yarı saydam önizleme
+  (kompozitörsüz atlanır). UNSNAP: yapıştırma öncesi geometri saklı;
+  pencere çekilince boyut anında geri (press_geometry o boyuta
+  güncellenir — 59a8a13 düzeltmesi: yapışıkken tekrar yapıştırmada
+  eski boyut kaybolmasın). Monitör düzeni HER olayda taze okunur.
+- nemo ISO listesine; autostart'a `GDK_GL=disable nemo-desktop` ve
+  `kavis-snap`. Masaüstü simgeleri nemo-desktop'tan (nemo zaten madde
+  39 kararı — E'ye çift iş değil).
+
+**Madde 55 (`dfaf1f7`) — genel bakış + odaklanma.**
+- `src/logic/panel_service.vala`: org.kavis.Panel DBus servisi —
+  openbox kısayolları çalışan panele `gdbus call` ile seslenir
+  (libglib2.0-bin ISO'ya girdi; Recommends kapalıyken gelmiyordu).
+  Metotlar: ShowOverview, ShowClipboard, VolumeUp/Down/Mute.
+- `src/ui/overview.vala`: Win+Tab — her masaüstü bir kart (etkin
+  turkuaz çerçeve), pencere satırı tıkla→git, satırı karta sürükle→
+  taşı (GTK DnD, hedef "application/x-kavis-window", yük XID +
+  NUL sonlandırmalı), kart başlığı→masaüstüne geç. Canlı küçük
+  görüntü BİLEREK yok (XComposite mekanizması kozmetik kazanca
+  değmez). Karartma sınıfı İÇ kutuda (app_paintable pencere CSS
+  arka planı ÇİZMEZ — PanelPopup deseni; Xvfb'de görülüp düzeltildi),
+  padding CSS'te (border_width kenarda parlak şerit bırakıyordu).
+- Masaüstü geçiş animasyonu picom show/hide tetikleyicilerinden
+  bedava (map/unmap 150 ms).
+- `src/logic/focus.vala`: Odaklanma = süreli DND (30 dk vars.);
+  bitince focus.finished bildirimi. Uygulama engelleme listesi
+  BİLEREK Grup F'ye (Ayarlar yüzeyi ister). Hızlı ayarlara kutucuk.
+- DND kapanınca bastırılanların özeti tek toast (notif.missed) —
+  set_dnd içinde suppressed sayacı.
+- 0210'a W-Tab ve W-v keybind'leri eklendi.
+
+**Madde 7 (`76fc16d`) — pano + OSD + kavis-tools.**
+- `src/logic/clipboard.vala`: owner-change → hedefler arasında
+  x-kde-passwordManagerHint varsa ALMA → request_text → geçmişe
+  (madde 59 kuralları). Yalnız CLIPBOARD; kendi set ettiğimiz
+  (last_set) geri yakalanmaz; aynı içerik üste taşınır; sınır
+  panel.conf [clipboard] limit (vars. 25, 5-100). Sabitlenenler
+  ~/.config/kavis/clipboard-pinned (KeyFile, 0600). Aktif olarak
+  panoyu YENİDEN SAHİPLENMİYORUZ (agresif varyant; yarış riski) —
+  geçmiş kendi kopyamızdan yaşıyor.
+- `src/ui/clipboard_popup.vala`: Win+V — birincil monitör ortası,
+  sabitliler üstte, satır tıkla → panoya koy + kapan + 200 ms sonra
+  `xdotool key ctrl+v` (POPUP odak almadığından odak hedefte kaldı);
+  xdotool yoksa yalnız panoya. xdotool ISO'ya girdi.
+- `src/ui/osd.vala`: ses OSD'si — alt-orta hap; ikon + LevelBar +
+  yüzde; 1.2 sn. XF86Audio{Raise,Lower}Volume/Mute → 0210 keybind →
+  gdbus → PanelService.adjust → 120 ms sonra gerçek durumu okuyup
+  volume_changed sinyali → OSD.
+- **kavis-common/strings.vala**: metin tablosu kavis-panel'den buraya
+  TAŞINDI (git mv; %75 benzerlik korunur) — kavis-panel VE kavis-tools
+  AYNI tabloyu derler (birleşim tablo; kullanılmayan anahtar
+  zararsız). prepare_sources iki pakete de appinit+strings kopyalar;
+  .gitignore'da kopya yolları. `--metin-denetimi` iki ikilide de
+  çalışır (şu an 88 anahtar, 0 hata).
+- **packages/kavis-tools** (YENİ paket; 25 KB deb; tek ikili):
+  - `tasks`: /proc'tan işlem listesi — CPU% (utime+stime deltası /
+    /proc/stat jiffy deltası × çekirdek sayısı), RAM (VmRSS), disk
+    (io read+write deltası; okunamayan '-'), arama filtresi,
+    TreeModelSort CPU azalan, Sonlandır (SIGTERM; uid==0 →
+    tm.critical_warning onayı).
+  - `calc`: kendi shunting-yard çözümleyicisi (+ − × ÷ %, parantez,
+    birli eksi, ×÷−, virgül→nokta). 12*(3+4)-5=79 doğrulandı.
+  - `emoji`: 7 kategori sekmesi, FlowBox; seçim panoya + xdotool
+    Ctrl+V; pencere açık kalır. Tam Unicode ad veritabanı (ARAMA)
+    bilerek v1-dışı.
+  - `.desktop` üçlüsü (tasks/calc/emoji; adlar tablodan TR+EN).
+  - Bluetooth ayar arayüzü BİLEREK YOK: blueman Python yığınını geri
+    getirirdi (madde 3 kararına aykırı); aç/kapa panelde, tam arayüz
+    Grup F Ayarlar Bluetooth bölümü (metinleri tabloda zaten orada).
+
+**Madde 29 (`14d6296`) — ekran görüntüsü/kaydı.**
+- `packages/kavis-tools/src/capture.vala`:
+  - `kavis-tools capture --quick` (Ctrl+PrtScr → 0210 "C-Print"):
+    SORMADAN; mod ~/.config/kavis/capture.conf [capture]
+    mode=window|monitor|all (vars. all; Ayarlar Grup F'de düzenler).
+    Yakalama HARİCİ ARAÇSIZ: Gdk kök pencere pixbuf'ı (pencere modu
+    wnck etkin pencere geometrisi; monitör modu işaretçinin
+    monitörü). Kayıt yeri save_dir ya da vars. pictures/screenshots;
+    ad %Y-%m-%d_%H-%M-%S.png. Panoya set_image + süreç 60 sn yaşar
+    (X panosu sahibiyle ölür). Bildirim gdbus Notify ile (libnotify
+    bağımlılığı yok).
+  - `kavis-tools capture` (PrtScr): iki düğmeli menü — [📷 Görsel] →
+    `flameshot gui --path <dizin>` (29F: donma/karartma/seçici/
+    düzenleme flameshot'un işi); [🔴 Video] → slop bölge seçimi
+    (turkuaz çerçeve) → ffmpeg x11grab (libx264 ultrafast, çift
+    boyuta yuvarlanır, framerate conf'tan vars. 30) → sağ üstte
+    hep-üstte RecorderBar (sayaç + Durdur); SIGINT ile düzgün kapanış
+    (moov atomu) → bildirim. DURAKLAT v1-DIŞI (SIGSTOP zaman
+    damgalarını bozuyor; metinler tabloda hazır).
+- ISO listesine: flameshot, slop, ffmpeg.
+- Doğrulama: mode=all ve mode=window yakalamaları (pencere modu
+  yalnız etkin pencereyi tam kadraj aldı), menü görünümü.
+
+**Kapanış (`59a8a13`)** — öz gözden geçirme 3 düzeltme (DnD NUL,
+Idle rebuild, snap eski-boyut) + kavis-panel changelog 1.1→1.2
+(ertelenmiş iş kapandı). Docs (`b3058e9`, skip ci).
+
+**RAM ölçümü (kural: taze Xvfb, panel İLK GTK istemcisi):**
+panel 1.2 RSS 34 MB / PSS 15 MB (D'nin tüm eklerine rağmen D öncesiyle
+aynı); kavis-snap ikinci istemci RSS 20 MB (çoğu paylaşımlı GTK).
+
+### 1f. Vala 0.56 sınırlamaları (bu oturumda ısıranlar — TEKRAR DÜŞME)
+
+- `+=` ref/out DİZİ parametrelerinde YASAK ("Array concatenation not
+  supported..."). Dolanma: yerel dizi kur sonra ata; ya da
+  `resize(n-1); dizi[n-1] = deger;` (calc.vala reduce örneği).
+- `Gtk.grab_add` Widget metodu DEĞİL, statik: `Gtk.grab_add (this)` /
+  `Gtk.grab_remove (this)`.
+- x11.vapi'de `Button1Mask` sabiti yok → `(mask & (1 << 8))` literal
+  (yorumla).
+- `Math.fmod` kullanınca `-X -lm` şart (linker: fmod undefined).
+- Alan adı gölgeleme uyarıları: `label` (Gtk.Button.label), `margin`
+  (Gtk.Widget.margin), `screen` (Gtk.Window.screen) — yeni ad ver
+  (text_label, shadow_margin). Panel.screen ve PowerMenu.margin
+  uyarıları bilerek bırakıldı (eski koddan).
+- public metodun default değeri private sabite bakamaz ("default value
+  is less accessible") → sabiti public yap.
+- String literal içinde gerçek satır sonu YASAK — uzun mesajı tek
+  satırda yaz.
+- Döngü değişkenini closure'a verirken kopya al (`var chosen = plan;`).
+- app_paintable(true) pencerede GTK pencerenin CSS arka planını
+  ÇİZMEZ — arka plan sınıfını İÇ kutuya ver (PanelPopup/Overview
+  deseni).
+- namespace-düzeyi `private` = dosya-içi görünürlük; aynı dosyadaki
+  başka sınıf erişebilir (capture.vala bunu kullanır).
+
+### 1g. ISO içerik değişimi (boyut etkisi test5'te ölçülecek)
+
+Bugün ISO listesine girenler: rfkill, xsct, brightnessctl,
+libglib2.0-bin, nemo (masaüstü simgeleri; bağımlılıklarıyla),
+xdotool, **fonts-noto-color-emoji** (~11 MB deb — emoji seçici
+kutucukları kutu değil emoji çizsin), flameshot, slop, **ffmpeg**
+(en büyüğü; bağımlılıklarla ~100 MB kurulu). v0.3-test4 ISO'su 645
+MB'tı; test5 belirgin büyüyecek — 1.5 GB sınırına bak (CI zaten
+denetliyor). Şişme sorun olursa ilk aday ffmpeg'i tembel kuruluma
+almak (indirme yöneticisi madde 23 gelince).
+
+## 2. SIRADA BEKLEYEN İŞLER (sırayla)
+
+1. **v0.3-test5 sonucu** (Grup D ISO'su, koşu **33616072408**, tag
+   `v0.3-test5` → commit `59a8a13`): oturum kapanırken çalışıyordu;
+   arka plan izleyicisi bu oturumla öldü. Yeni oturum:
+   `gh run view 33616072408 --json conclusion,jobs`. Yeşilse dosya
+   `kavis-0.3-test5-amd64.iso` — kullanıcıya bildir. Kırmızıysa önce
+   tanı yapıtları (`gh run view --log-failed`, KAVIS-CHECK satırları).
+   Muhtemel riskler: ISO boyut uyarısı (ffmpeg/nemo), PANEL-RSS
+   artışı, nemo-desktop'un duman testinde beklenmedik pencere/uyarı
+   üretmesi, yeni paketlerin Depends çakışması.
+2. **v0.3-test3 hakkında**: bitti (4/5; tek kırmızı uefi-genis GRUB
+   takılması, tek seferlik). BEKLENEN BİR ŞEY YOK; kayıt yukarıda.
+   v0.3-test4 de bitti (5/5 yeşil).
+3. **Grup D kalanları**: kod tamam (9 madde). Bekleyenler: (a) test5
+   yeşili, (b) kullanıcının VirtualBox el testi — özellikle
+   kavis-snap GERÇEK FARE ile (Xvfb+openbox XTEST sürüklemesini
+   işletmedi, test windowmove taklidiyle yapıldı), açılış sırası
+   (GRUB→splash→masaüstü), popup kuralları, Win+V/W-Tab/PrtScr.
+   Grup kapanış onayı ("devam") gelmeden Grup E'ye GEÇME.
+4. **/btw ile sıraya alınan üç iş** (kullanıcı istedi; Grup D onayı
+   sonrası, E'den önce ya da kullanıcının dediği sıraya göre):
+   a. **boot-sound.mp3 değişimi**: yeni ses dosyası; boot-check'e
+      `-s` (dosya boş değil) kontrolü; MP3→WAV dönüşüm doğrulaması
+      (derlemede üretilen WAV'ın süresi/örnek oranı denetlensin);
+      eski ses dosyasına işaret eden referansların temizliği.
+   b. **Varsayılan dil EN + klavye TR**: canlı oturumun locale'i
+      İngilizce'ye, klavye TR kalacak — iso/auto/config bootappend
+      (locales=, keyboard-layouts=) + Strings varsayılanının gözden
+      geçirilmesi (şu an boş locale=TR sayılıyor — davranış EN
+      varsayılana çevrilecekse Strings.select_language ve tablo
+      varsayılanı birlikte değişmeli; ARAYÜZ METİNLERİ kuralı bozulmaz).
+   c. **gettext .po geçişi** (tam kapsam): domain adı (kavis),
+      .pot çıkarımı, tr.po + xx.po (sahte dil — eksik çeviri
+      yakalamak için), debian/rules'a msgfmt adımı, Strings sınıfı
+      KALKIYOR (yerine gettext), CI denetimleri (msgfmt --check,
+      eksik anahtar taraması, --metin-denetimi'nin yeni karşılığı).
+      NOT: Meson'a geçilmedi; karar AÇIK (aşağıda 3. bölüm).
+5. **Grup E** (onaydan sonra): 39, 36, 40, 42, 43, 44, 63, 64 —
+   başında madde 59 taraması (nemo.md zaten var, üstüne).
+
+## 3. AÇIK KARARLAR VE KURALLAR (yeni oturum uymalı)
+
+- Kodda Türkçe identifier YOK (bayraklar/CLI yüzeyi hariç —
+  `--metin-denetimi` bilinçli TR).
+- logic/–ui/ ayrımı: sistem erişimi/iş mantığı src/logic/, widget
+  kodu src/ui/ (kavis-tools'ta düz src/ ama sınıflar ayrı dosyada).
+- Her madde AYRI commit; commit mesajı "neyi neden"; Co-Authored-By
+  YOK; doc-only commit'e [skip ci]; **etiket HEP kod commit'ine**
+  ([skip ci] commit'ine konan etiket koşu tetiklemez — yaşandı).
+- En hafif çözüm kuralı; hazır araç varsa kur-ayarla; kod kopyalama
+  yasak (yaklaşım öğren, sıfırdan yaz).
+- RAM ölçüm kuralı: TAZE X sunucusunda İLK GTK istemcisi olarak ölç
+  (ikinci istemci llvmpipe sayfalarına dokunmaz, düşük çıkar).
+- Splash kuralı (BİLİNÇLİ KARAR, kullanıcı onaylı): retain — müzik
+  bitince değil, X/masaüstü hazır olana kadar kalır; lightdm devralır
+  (minimum-vt=1 + -background none); boot-check SPLASH-RETAIN +
+  SPLASH-HANDOFF (quit→openbox, 3 sn; retain kanıtlıysa yalnız uyarı).
+- Blur: xrender'da yok; madde 38 GPU tespitiyle değerlendirecek.
+  Akrilik = rgba saydamlık.
+- **AÇIK KARAR — gettext derleme yolu**: Meson'a mı geçilir yoksa
+  mevcut debian/rules içine msgfmt adımı mı eklenir? SEÇİLMEDİ.
+  Eğilim: rules içinde msgfmt (en hafif; build sistemi değiştirmek
+  ayrı büyük iş) — ama kullanıcıya sorulmadan kesinleştirme.
+- **Yerelleştirme kuralı**: UI'da sabit piksel genişliği verme (EN/TR
+  metin uzunlukları farklı); yer darsa metin yerine ikon tercih et
+  (araç ipucuyla). Mevcut kodda genişlik istekleri var (ör. StartMenu
+  WIDTH/HEIGHT, OSD bar 180px, pano 380px) — bunlar pencere boyutu,
+  metin kutusu değil; yeni metin taşıyan widget'larda kurala uy.
+- Popup/pencere kapanma kuralı (madde 60): pencere alanı İÇİ her
+  tıklama içeride; yalnız DIŞARISI kapatır; kök koordinat testi +
+  Gtk.grab_add + yeniden denemeli seat grab deseni kullan.
+- Kısayolların TEK yeri: rc.xml'deki "Kavis kisayollari" bloğu (0210
+  hook'u); çalışan panele org.kavis.Panel üzerinden seslen.
+- Metin tablosunun TEK yeri: packages/kavis-common/strings.vala
+  (kopyalar derlemede; docs tablosuna satır eklemeden koda metin
+  GİRME). Ortak kaynak deseni: prepare_sources + .gitignore.
+
+## 4. BİLİNEN SORUNLAR / TEKNİK BORÇ
+
+docs/bilinen-sorunlar.md güncel (1: vmwgfx→madde 62 ÇÖZÜLDÜ-tanım;
+2: CI QEMU ↔ VirtualBox kapsam boşluğu; 3: GDK_GL→madde 61 ÇÖZÜLDÜ;
+4: Guest Additions↔Secure Boot kararı F/G; 5: picom use-damage CPU —
+gerçek donanımda; 6: Xorg ~110 MB VM RSS; 7: actions/cache@v5;
+8: Reddit RAM rakamı — Enes). Bu oturumda EKLENENLER (dosyaya da
+işlendi): 9: kavis-snap XTEST/Xvfb sınırı — gerçek fare VM doğrulaması
+bekliyor; 10: hızlı yakalamanın pano kopyası 60 sn süreç ömrüyle
+sınırlı; 11: ISO boyut artışı (ffmpeg/nemo/emoji fontu) test5'te
+ölçülecek, gerekirse ffmpeg tembel kuruluma; 12: emoji seçicide arama
+yok (Unicode ad veritabanı gerek).
+
+## 5. KALDIĞIM YER
+
+- YARIM KALAN DEĞİŞİKLİK YOK: çalışma ağacı temiz, her şey commit'li
+  ve push'lu (son commit'ler: `59a8a13` kod, `b3058e9` docs).
+- Tek açık uç: **v0.3-test5 koşusu 33616072408** sonucu (2. bölüm,
+  1. sıra). Arka plan izleyicisi bu oturumla öldü — yeni oturum
+  kendisi bakmalı.
+- Kullanıcıya söz verilenler: test5 sonucu + `kavis-0.3-test5-amd64.iso`
+  adı bildirilecek; Grup D özeti verildi; VirtualBox testi + "devam"
+  bekleniyor (grup kapısı).
+
+---
+
 ## Grup D kod tamam: masaüstü deneyimi (maddeler 4, 5, 6, 7, 29, 37, 55, 61, 62)
 
 2026-09-02, tek oturum; her madde ayrı commit, hepsi Xvfb'de ekran

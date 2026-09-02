@@ -72,3 +72,32 @@ değil; madde 22 (CI iyileştirmesi) kapsamında @v5'e geçilecek.
 Reddit'te paylaşılan 232-240 MB boşta RAM rakamı artık geçerli değil;
 güncel ölçüm ~300 MB (canlı oturum, overlay dahil). Düzeltmeyi Enes
 yapacak — bu satır yalnızca hatırlatma, kod/doküman işi çıkarmaz.
+
+## 9. kavis-snap sürüklemesi Xvfb'de doğrulanamadı → VirtualBox el testi
+
+Xvfb+openbox, XTEST kaynaklı başlık çubuğu sürüklemesini işletmedi;
+kavis-snap testi `xdotool windowmove` taklidiyle yapıldı (daemon
+"tuş basılıyken etkin pencere hareket etti mi"ye baktığı için mantık
+doğrulandı). GERÇEK fareyle kenar/köşe yapıştırma + unsnap + önizleme
+VirtualBox el testinde doğrulanacak.
+
+## 10. Hızlı yakalamanın pano kopyası 60 saniyeyle sınırlı
+
+X panosu sahibi süreçle ölür; `kavis-tools capture --quick` görüntüyü
+panoya koyup 60 sn yaşıyor, sonra çıkıyor — geç yapıştıran kullanıcı
+panoda bulamaz (dosya her zaman kayıtlı). Kalıcı çözüm: panelin pano
+geçmişine görüntü desteği eklemek (şimdilik yalnız metin) — Grup E/F
+arasında değerlendirilecek.
+
+## 11. ISO boyut artışı (Grup D paketleri) → v0.3-test5'te ölç
+
+Grup D ISO'ya ffmpeg, nemo (bağımlılıklarıyla), flameshot, slop,
+xdotool, fonts-noto-color-emoji, libglib2.0-bin, rfkill, xsct,
+brightnessctl ekledi. v0.3-test4 645 MB idi; test5 belirgin büyüyecek
+(1.5 GB sınırını CI denetliyor). Şişme sorun olursa ilk aday: ffmpeg'i
+ISO'dan çıkarıp indirme yöneticisiyle tembel kuruluma almak (madde 23).
+
+## 12. Emoji seçicide arama yok
+
+Aranabilirlik Unicode ad veritabanı (TR+EN adlar) ister; v1 bilerek
+kategori+tıkla ile sınırlı. Veri seti kararıyla birlikte eklenecek.
