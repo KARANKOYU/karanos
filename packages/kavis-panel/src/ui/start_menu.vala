@@ -15,6 +15,7 @@ namespace Kavis.Ui {
         private Gtk.Box list_box;
         private PowerMenu power_menu;
         private GenericArray<Apps.App> app_list;
+        private bool gtk_grabbed = false;
 
         public StartMenu () {
             Object (type: Gtk.WindowType.POPUP);
@@ -81,6 +82,15 @@ namespace Kavis.Ui {
             root.pack_start (power_box, false, false, 0);
 
             power_menu = new PowerMenu ();
+            /* The power menu takes the seat grab for itself; when it
+             * closes while the start menu is still up, the grab must
+             * come back here or outside clicks stop closing the menu
+             * (madde 60). GTK-level grabs stack on their own. */
+            power_menu.closed.connect (() => {
+                if (get_visible ()) {
+                    PanelPopup.seat_grab (this);
+                }
+            });
         }
 
         /* Open the menu above the taskbar. */
@@ -95,21 +105,23 @@ namespace Kavis.Ui {
             show_all ();
             search_entry.grab_focus ();
 
-            /* POPUP windows get no WM focus; without an explicit grab
-             * nothing typed reaches the menu. */
-            var window = get_window ();
-            if (window != null) {
-                var seat = Gdk.Display.get_default ().get_default_seat ();
-                seat.grab (window, Gdk.SeatCapabilities.ALL, true,
-                           null, null, null);
-            }
+            /* Same grab pair as PanelPopup (madde 60): the GTK grab
+             * redirects clicks on the rest of the app (panel) here so
+             * they close the menu; the seat grab (with retry — a grab
+             * right after show_all can fail as NOT_VIEWABLE) catches
+             * clicks outside the app and keyboard input, since POPUP
+             * windows get no WM focus. */
+            Gtk.grab_add (this);
+            gtk_grabbed = true;
+            PanelPopup.seat_grab (this);
         }
 
         public void dismiss () {
-            var display = Gdk.Display.get_default ();
-            if (display != null) {
-                display.get_default_seat ().ungrab ();
+            if (gtk_grabbed) {
+                Gtk.grab_remove (this);
+                gtk_grabbed = false;
             }
+            PanelPopup.seat_ungrab ();
             hide ();
         }
 
@@ -225,10 +237,10 @@ namespace Kavis.Ui {
         }
 
         private bool on_outside_click (Gdk.EventButton event) {
-            int width = get_allocated_width ();
-            int height = get_allocated_height ();
-            if (!(0 <= event.x && event.x <= width
-                  && 0 <= event.y && event.y <= height)) {
+            /* Root-coordinate test (madde 60): bubbled events carry
+             * child-window-relative x/y, which made inside clicks look
+             * outside — see PanelPopup.press_outside. */
+            if (PanelPopup.press_outside (this, event)) {
                 dismiss ();
                 return true;
             }

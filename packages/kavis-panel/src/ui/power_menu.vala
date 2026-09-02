@@ -48,9 +48,14 @@ namespace Kavis.Ui {
         }
         """;
 
+        /* Fired on every dismiss; the start menu re-takes the seat
+         * grab from this if it is still open (madde 60). */
+        public signal void closed ();
+
         private Gtk.Box box;
         private bool composited;
         private int margin;
+        private bool gtk_grabbed = false;
 
         public PowerMenu () {
             Object (type: Gtk.WindowType.POPUP);
@@ -146,28 +151,28 @@ namespace Kavis.Ui {
             get_preferred_size (null, out natural);
             move (x - margin, y - natural.height + margin);
 
-            var window = get_window ();
-            if (window != null) {
-                var seat = Gdk.Display.get_default ().get_default_seat ();
-                seat.grab (window, Gdk.SeatCapabilities.ALL, true,
-                           null, null, null);
-            }
+            /* GTK grab stacks ON TOP of the start menu's: a click on
+             * the start menu (the power button included) lands here,
+             * reads as outside and closes this popup — that is the
+             * madde 60B toggle: the press is consumed, so the button
+             * does not immediately re-open what it just closed. */
+            Gtk.grab_add (this);
+            gtk_grabbed = true;
+            PanelPopup.seat_grab (this);
         }
 
         public void dismiss () {
-            var display = Gdk.Display.get_default ();
-            if (display != null) {
-                display.get_default_seat ().ungrab ();
+            if (gtk_grabbed) {
+                Gtk.grab_remove (this);
+                gtk_grabbed = false;
             }
+            PanelPopup.seat_ungrab ();
             hide ();
+            closed ();
         }
 
         private bool on_outside_click (Gdk.EventButton event) {
-            Gtk.Allocation alloc;
-            box.get_allocation (out alloc);
-            bool inside = alloc.x <= event.x && event.x <= alloc.x + alloc.width
-                && alloc.y <= event.y && event.y <= alloc.y + alloc.height;
-            if (!inside) {
+            if (PanelPopup.press_outside (this, event)) {
                 dismiss ();
                 return true;
             }

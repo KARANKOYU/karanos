@@ -81,6 +81,7 @@ namespace Kavis.Ui {
         protected Gtk.Box content;
         private bool composited;
         private int shadow_margin;
+        private bool gtk_grabbed = false;
 
         protected PanelPopup () {
             Object (type: Gtk.WindowType.POPUP);
@@ -136,6 +137,64 @@ namespace Kavis.Ui {
         protected virtual void refresh_content () {
         }
 
+        /* True when the press landed outside win's frame (madde 60).
+         * Uses ROOT coordinates: with an owner-events grab, an event
+         * bubbling up from a child widget that has its own GdkWindow
+         * (calendar cells, scrolled viewports) carries coordinates
+         * relative to the CHILD's window, so event.x/y cannot be
+         * compared against the toplevel — a click on a calendar cell
+         * looked "outside" and wrongly closed the popup. */
+        public static bool press_outside (Gtk.Window win,
+                                          Gdk.EventButton event) {
+            var gdk_window = win.get_window ();
+            if (gdk_window == null) {
+                return false;
+            }
+            int origin_x, origin_y;
+            gdk_window.get_origin (out origin_x, out origin_y);
+            return !(origin_x <= event.x_root
+                     && event.x_root < origin_x + win.get_allocated_width ()
+                     && origin_y <= event.y_root
+                     && event.y_root < origin_y + win.get_allocated_height ());
+        }
+
+        /* Grab pointer + keyboard for win (madde 60C). POPUP windows
+         * are mapped asynchronously; a grab issued right after
+         * show_all() can fail with NOT_VIEWABLE and then clicks
+         * outside the application never reach the window at all — it
+         * silently refuses to close. Retry briefly until the X server
+         * has mapped the window. */
+        public static void seat_grab (Gtk.Window win) {
+            if (try_seat_grab (win)) {
+                return;
+            }
+            uint tries = 0;
+            GLib.Timeout.add (50, () => {
+                tries++;
+                if (!win.get_visible ()) {
+                    return false;
+                }
+                return !try_seat_grab (win) && tries < 10;
+            });
+        }
+
+        private static bool try_seat_grab (Gtk.Window win) {
+            var window = win.get_window ();
+            if (window == null) {
+                return false;
+            }
+            var seat = Gdk.Display.get_default ().get_default_seat ();
+            return seat.grab (window, Gdk.SeatCapabilities.ALL, true,
+                              null, null, null) == Gdk.GrabStatus.SUCCESS;
+        }
+
+        public static void seat_ungrab () {
+            var display = Gdk.Display.get_default ();
+            if (display != null) {
+                display.get_default_seat ().ungrab ();
+            }
+        }
+
         /* Toggle from the indicator that anchors this popup: open above
          * the panel centered on the indicator, or close if already
          * open. Clamped to the monitor's edges. */
@@ -189,12 +248,16 @@ namespace Kavis.Ui {
 
             move (x, y);
 
-            var window = get_window ();
-            if (window != null) {
-                var seat = display.get_default_seat ();
-                seat.grab (window, Gdk.SeatCapabilities.ALL, true,
-                           null, null, null);
-            }
+            /* GTK-level grab (madde 60): events on OTHER widgets of
+             * this application (the panel, the start menu) are
+             * redirected here instead of reaching them, so a click
+             * anywhere else in the app closes the popup — and the
+             * widget under it does NOT also act on the press, which
+             * would instantly re-open what we just closed. Events on
+             * our own children still flow normally. */
+            Gtk.grab_add (this);
+            gtk_grabbed = true;
+            seat_grab (this);
             open_popup = this;
         }
 
@@ -207,10 +270,11 @@ namespace Kavis.Ui {
         }
 
         public void dismiss () {
-            var display = Gdk.Display.get_default ();
-            if (display != null) {
-                display.get_default_seat ().ungrab ();
+            if (gtk_grabbed) {
+                Gtk.grab_remove (this);
+                gtk_grabbed = false;
             }
+            seat_ungrab ();
             hide ();
             if (open_popup == this) {
                 open_popup = null;
@@ -218,13 +282,10 @@ namespace Kavis.Ui {
         }
 
         private bool on_outside_click (Gdk.EventButton event) {
-            Gtk.Allocation alloc;
-            content.get_allocation (out alloc);
-            bool inside = alloc.x <= event.x
-                && event.x <= alloc.x + alloc.width
-                && alloc.y <= event.y
-                && event.y <= alloc.y + alloc.height;
-            if (!inside) {
+            /* Rule (madde 60): every press inside the window area
+             * counts as inside — buttons, labels, empty space, all of
+             * it. Only a press outside the frame closes. */
+            if (press_outside (this, event)) {
                 dismiss ();
                 return true;
             }
