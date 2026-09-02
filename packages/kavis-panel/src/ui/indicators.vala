@@ -19,8 +19,10 @@ namespace Kavis.Ui {
 
         private Gtk.Label text_label;
         private NotificationCenterPopup popup;
+        private bool vertical;
 
-        public Clock () {
+        public Clock (bool vertical = false) {
+            this.vertical = vertical;
             set_relief (Gtk.ReliefStyle.NONE);
             get_style_context ().add_class ("indicator-button");
             text_label = new Gtk.Label ("");
@@ -40,8 +42,10 @@ namespace Kavis.Ui {
 
         private void refresh () {
             var now = new DateTime.now_local ();
+            /* Dikey panelde (test8 A1) yıl sığmıyor: kısa tarih. */
             text_label.set_markup ("<small>%s\n%s</small>".printf (
-                now.format ("%H:%M"), now.format ("%d.%m.%Y")));
+                now.format ("%H:%M"),
+                now.format (vertical ? "%d.%m" : "%d.%m.%Y")));
         }
     }
 
@@ -90,7 +94,7 @@ namespace Kavis.Ui {
         private bool has_volume;
         private bool has_battery;
 
-        public StatusCluster () {
+        public StatusCluster (bool vertical = false) {
             set_relief (Gtk.ReliefStyle.NONE);
             get_style_context ().add_class ("indicator-button");
 
@@ -103,9 +107,17 @@ namespace Kavis.Ui {
                 return;
             }
 
-            var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-            row.set_margin_start (6);
-            row.set_margin_end (6);
+            /* Dikey panelde öğeler alt alta (test8 A1). */
+            var row = new Gtk.Box (vertical
+                ? Gtk.Orientation.VERTICAL
+                : Gtk.Orientation.HORIZONTAL, 8);
+            if (vertical) {
+                row.set_margin_top (6);
+                row.set_margin_bottom (6);
+            } else {
+                row.set_margin_start (6);
+                row.set_margin_end (6);
+            }
             if (has_wifi) {
                 wifi_icon = new Gtk.Image.from_icon_name (
                     "network-wireless-symbolic", Gtk.IconSize.BUTTON);

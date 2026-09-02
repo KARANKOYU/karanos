@@ -376,18 +376,19 @@ namespace Kavis.Ui {
             /* --- right edge --- */
             /* Packed with expand=false: it always gets exactly its
              * natural width, no matter how crowded the window list is. */
-            /* Sağ bölge grupları (sonraki-isler 1), aralarında 6px:
-             * [masaüstleri][dil][araçlar][Wi-Fi+ses+pil][saat].
-             * Wi-Fi/ses/pil StatusCluster'da TEK düğme; Kavis araç
-             * şeridi (madde 3) yalnız kendi araçlarımız — üçüncü
-             * parti tepsi ayrı iş. */
-            right_box = new Gtk.Box (axis, 6);
+            /* Sağ bölge grupları (sonraki-isler 1 + test8 A1):
+             * [masaüstleri][dil][araçlar][Wi-Fi+ses+pil][saat] —
+             * yatayda 6px, dikeyde 8px arayla; dikeyde küme alt alta
+             * dizilir, saat yılsız kısa tarih kullanır. */
+            right_box = new Gtk.Box (axis, config.vertical ? 8 : 6);
             right_box.pack_start (new WorkspaceIndicator (screen, axis),
                                   false, false, 0);
             right_box.pack_start (new KeyboardIndicator (), false, false, 0);
             right_box.pack_start (new UsbIndicator (), false, false, 0);
-            right_box.pack_start (new StatusCluster (), false, false, 0);
-            right_box.pack_start (new Clock (), false, false, 0);
+            right_box.pack_start (new StatusCluster (config.vertical),
+                                  false, false, 0);
+            right_box.pack_start (new Clock (config.vertical),
+                                  false, false, 0);
 
             var show_desktop = new Gtk.Button ();
             show_desktop.get_style_context ().add_class ("edge");
