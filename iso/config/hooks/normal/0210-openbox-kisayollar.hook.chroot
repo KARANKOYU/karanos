@@ -31,6 +31,57 @@ if grep -q "Kavis kisayollari" "$RC"; then
 	exit 0
 fi
 
+# --- Debian varsayılanlarından kaldırılanlar (test8 I1/I2/I3/I5) -----
+# Debian rc.xml'inin kendi bağları bizimkilerle BİRLİKTE koşuyordu
+# (openbox aynı tuşun bütün bağlarını çalıştırır):
+#   I1: A-F4 Close + bizim alt-f4 → pencere kapandıktan sonra araç
+#       "odaklı pencere yok" görüp kapatma diyaloğu açıyordu.
+#   I2: Print/A-Print → scrot (kurulu değil, hata kutusu) + bizim araç.
+#   I3: Desktop/Root/MoveResize'ta tekerlek masaüstü değiştiriyor,
+#       Root'ta orta tık istemci listesi ve sağ tık openbox kök menüsü
+#       açıyordu (masaüstü sağ tıkı nemo-desktop'un işi).
+#   I5: Titlebar Drag yalnız Move — büyütülmüş pencere sürüklenemiyor;
+#       Windows davranışı: önce Unmaximize (normal pencerede etkisiz).
+awk '
+	# atlama modu her kuraldan önce gelir: blok sonunu bekle
+	skip == 1 {
+		if ($0 ~ end_tag) skip = 0
+		next
+	}
+	/<context name="/ {
+		q = index($0, "name=\"") + 6
+		rest = substr($0, q)
+		ctx = substr(rest, 1, index(rest, "\"") - 1)
+	}
+	/<\/context>/ { ctx = "" }
+	/<keybind key="A-F4">/ || /<keybind key="Print">/ || /<keybind key="A-Print">/ {
+		skip = 1; end_tag = "</keybind>"; next
+	}
+	(ctx == "Desktop" || ctx == "Root" || ctx == "MoveResize") \
+		&& /<mousebind button="(Up|Down)" action="Click">/ {
+		skip = 1; end_tag = "</mousebind>"; next
+	}
+	ctx == "Root" && /<mousebind button="(Middle|Right)" action="Press">/ {
+		skip = 1; end_tag = "</mousebind>"; next
+	}
+	ctx == "Titlebar" && /<mousebind button="Left" action="Drag">/ {
+		print "    <mousebind button=\"Left\" action=\"Drag\">"
+		print "      <action name=\"Unmaximize\"/>"
+		print "      <action name=\"Move\"/>"
+		print "    </mousebind>"
+		skip = 1; end_tag = "</mousebind>"; next
+	}
+	{ print }
+' "$RC" > "$RC.temiz"
+mv "$RC.temiz" "$RC"
+
+# (yorum satırlarında scrot sözcüğü kalabilir — gerçek bağa bak)
+if grep -q "<command>scrot" "$RC"; then
+	echo "E: scrot baglari hala duruyor" >&2
+	exit 1
+fi
+echo "I: Debian varsayilan baglari temizlendi (A-F4, Print, tekerlek, kok menuleri; Drag=Unmaximize+Move)"
+
 SNIPPET=$(mktemp)
 cat > "$SNIPPET" <<'EOF'
     <!-- Kavis kisayollari (madde 6) — 0210 hook'u ekledi -->

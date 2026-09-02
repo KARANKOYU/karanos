@@ -149,22 +149,37 @@ jobs:
         run: |
           set -eu
           # Konteyner debian:trixie ve root — sudo yok/gerekmez.
+          # test8 I4 dersi: eski hâlde `dpkg -i || apt -f install`
+          # paketi SÖKEREK de "düzeltebiliyordu" ve panelsiz simsiyah
+          # kare sessizce geçiyordu. Şimdi bağımlılıklar önce kurulur,
+          # dpkg -i başarısızsa adım KIRMIZI; panel süreci doğrulanır
+          # ve kare boş-ekran denetiminden geçer.
           export DEBIAN_FRONTEND=noninteractive
           apt-get install -y -qq --no-install-recommends \
-            xvfb openbox dbus dbus-x11 libgtk-3-0t64 libwnck-3-0 \
-            > /dev/null
-          dpkg -i out/packages/kavis-panel_*.deb \
-            || apt-get -f install -y -qq --no-install-recommends
+            xvfb openbox dbus dbus-x11 x11-xserver-utils xdotool \
+            libgtk-3-0t64 libwnck-3-0 > /dev/null
+          dpkg -i out/packages/kavis-panel_*.deb
           export DISPLAY=:99
           Xvfb :99 -screen 0 1280x800x24 &
           sleep 1
           openbox & sleep 1
+          xsetroot -solid '#3a6b8a'
           dbus-run-session -- sh -c '
-            LANG=en_US.UTF-8 LANGUAGE=xx kavis-panel &
-            sleep 3
+            LANG=en_US.UTF-8 LANGUAGE=xx kavis-panel 2> panel-xx.log &
+            sleep 4
+            pgrep -x kavis-panel > /dev/null || {
+              echo "::error::kavis-panel ayakta degil"; cat panel-xx.log
+              exit 1
+            }
             ffmpeg -loglevel quiet -f x11grab -video_size 1280x800 \
-              -i :99 -frames:v 1 -y panel-xx.png
+              -i :99 -frames:v 1 -y panel-xx.ppm
           '
+          python3 tools/screen-not-blank.py panel-xx.ppm || {
+            echo "::error::panel-xx karesi bos/simsiyah"
+            cat panel-xx.log || true
+            exit 1
+          }
+          ffmpeg -loglevel quiet -i panel-xx.ppm -y panel-xx.png
           test -s panel-xx.png
       - name: xx ekran görüntüsünü yükle
         uses: actions/upload-artifact@v7
