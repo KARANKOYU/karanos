@@ -19,6 +19,15 @@ namespace Kavis.Launch {
         }
     }
 
+    /* Send Ctrl+V to the focused window (xdotool). The picker uses it
+     * to paste right after putting something on the clipboard; without
+     * xdotool the clipboard is still set, the user pastes by hand. */
+    public void paste_keystroke () {
+        if (Environment.find_program_in_path ("xdotool") != null) {
+            run ({ "xdotool", "key", "--clearmodifiers", "ctrl+v" });
+        }
+    }
+
     /* Show `path` in the file manager. Nemo selects the file when
      * handed a file path; without nemo fall back to opening the
      * containing folder. */

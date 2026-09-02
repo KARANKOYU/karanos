@@ -68,10 +68,16 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowSnapMenu</command>
       </action>
     </keybind>
-    <!-- Pano gecmisi (madde 7) -->
+    <!-- Pano gecmisi (madde 7) — artik birlesik panelin pano sekmesi -->
     <keybind key="W-v">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowClipboard</command>
+      </action>
+    </keybind>
+    <!-- Emoji ve daha fazlasi (sonraki-isler 5): son kullanilan sekme -->
+    <keybind key="W-period">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowPicker last</command>
       </action>
     </keybind>
     <!-- Ses tuslari -> panel OSD'si (madde 7) -->

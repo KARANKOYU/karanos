@@ -6,6 +6,63 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: xx\n"
 
+msgid "Smileys"
+msgstr "⟪Smileys··⟫"
+
+msgid "People"
+msgstr "⟪People··⟫"
+
+msgid "Nature"
+msgstr "⟪Nature··⟫"
+
+msgid "Food"
+msgstr "⟪Food··⟫"
+
+msgid "Travel"
+msgstr "⟪Travel··⟫"
+
+msgid "Objects"
+msgstr "⟪Objects··⟫"
+
+msgid "Symbols"
+msgstr "⟪Symbols··⟫"
+
+msgid "Happy"
+msgstr "⟪Happy··⟫"
+
+msgid "Sad"
+msgstr "⟪Sad··⟫"
+
+msgid "Angry"
+msgstr "⟪Angry··⟫"
+
+msgid "Surprised"
+msgstr "⟪Surprised···⟫"
+
+msgid "Love"
+msgstr "⟪Love··⟫"
+
+msgid "Other"
+msgstr "⟪Other··⟫"
+
+msgid "Currency"
+msgstr "⟪Currency···⟫"
+
+msgid "Arrows"
+msgstr "⟪Arrows··⟫"
+
+msgid "Punctuation"
+msgstr "⟪Punctuation····⟫"
+
+msgid "Math"
+msgstr "⟪Math··⟫"
+
+msgid "Accented letters"
+msgstr "⟪Accented letters······⟫"
+
+msgid "Super/subscript"
+msgstr "⟪Super/subscript······⟫"
+
 msgid "Internet"
 msgstr "⟪Internet···⟫"
 
@@ -33,9 +90,6 @@ msgstr "⟪System··⟫"
 msgid "Settings"
 msgstr "⟪Settings···⟫"
 
-msgid "Other"
-msgstr "⟪Other··⟫"
-
 msgid "Focus session finished"
 msgstr "⟪Focus session finished········⟫"
 
@@ -45,23 +99,11 @@ msgstr "⟪Settings app coming soon·········⟫"
 msgid "%d new notifications"
 msgstr "⟪%d new notifications········⟫"
 
-msgid "Clipboard history"
-msgstr "⟪Clipboard history······⟫"
+msgid "Notifications"
+msgstr "⟪Notifications·····⟫"
 
 msgid "Clear all"
 msgstr "⟪Clear all···⟫"
-
-msgid "Clipboard history is empty"
-msgstr "⟪Clipboard history is empty··········⟫"
-
-msgid "Unpin"
-msgstr "⟪Unpin··⟫"
-
-msgid "Pin"
-msgstr "⟪Pin··⟫"
-
-msgid "Notifications"
-msgstr "⟪Notifications·····⟫"
 
 msgid "No new notifications"
 msgstr "⟪No new notifications········⟫"
@@ -116,6 +158,9 @@ msgstr "⟪Start··⟫"
 
 msgid "Show desktop"
 msgstr "⟪Show desktop····⟫"
+
+msgid "Unpin"
+msgstr "⟪Unpin··⟫"
 
 msgid "Pin to taskbar"
 msgstr "⟪Pin to taskbar·····⟫"
@@ -177,6 +222,60 @@ msgstr "⟪Display settings······⟫"
 msgid "Task Manager"
 msgstr "⟪Task Manager····⟫"
 
+msgid "Emoji and more"
+msgstr "⟪Emoji and more·····⟫"
+
+msgid "Pin"
+msgstr "⟪Pin··⟫"
+
+msgid "Recent"
+msgstr "⟪Recent··⟫"
+
+msgid "Favorites"
+msgstr "⟪Favorites···⟫"
+
+msgid "Emoji Picker"
+msgstr "⟪Emoji Picker····⟫"
+
+msgid "Kaomoji"
+msgstr "⟪Kaomoji··⟫"
+
+msgid "Snippets"
+msgstr "⟪Snippets···⟫"
+
+msgid "Clipboard history"
+msgstr "⟪Clipboard history······⟫"
+
+msgid "Search"
+msgstr "⟪Search··⟫"
+
+msgid "Close"
+msgstr "⟪Close··⟫"
+
+msgid "Remove from favorites"
+msgstr "⟪Remove from favorites········⟫"
+
+msgid "Add to favorites"
+msgstr "⟪Add to favorites······⟫"
+
+msgid "None"
+msgstr "⟪None··⟫"
+
+msgid "Add snippet"
+msgstr "⟪Add snippet····⟫"
+
+msgid "Edit"
+msgstr "⟪Edit··⟫"
+
+msgid "Delete"
+msgstr "⟪Delete··⟫"
+
+msgid "Cancel"
+msgstr "⟪Cancel··⟫"
+
+msgid "Save"
+msgstr "⟪Save··⟫"
+
 msgid "Lock"
 msgstr "⟪Lock··⟫"
 
@@ -233,9 +332,6 @@ msgstr "⟪Connected···⟫"
 
 msgid "No networks found"
 msgstr "⟪No networks found······⟫"
-
-msgid "None"
-msgstr "⟪None··⟫"
 
 msgid "Search apps and files"
 msgstr "⟪Search apps and files········⟫"
@@ -294,9 +390,6 @@ msgstr "⟪Record audio too······⟫"
 msgid "Microphone"
 msgstr "⟪Microphone····⟫"
 
-msgid "Close"
-msgstr "⟪Close··⟫"
-
 msgid "Recording"
 msgstr "⟪Recording···⟫"
 
@@ -308,39 +401,6 @@ msgstr "⟪Stop··⟫"
 
 msgid "Screen recording saved"
 msgstr "⟪Screen recording saved········⟫"
-
-msgid "Smileys"
-msgstr "⟪Smileys··⟫"
-
-msgid "People"
-msgstr "⟪People··⟫"
-
-msgid "Nature"
-msgstr "⟪Nature··⟫"
-
-msgid "Food"
-msgstr "⟪Food··⟫"
-
-msgid "Travel"
-msgstr "⟪Travel··⟫"
-
-msgid "Objects"
-msgstr "⟪Objects··⟫"
-
-msgid "Symbols"
-msgstr "⟪Symbols··⟫"
-
-msgid "Emoji Picker"
-msgstr "⟪Emoji Picker····⟫"
-
-msgid "Search"
-msgstr "⟪Search··⟫"
-
-msgid "All"
-msgstr "⟪All··⟫"
-
-msgid "Recent"
-msgstr "⟪Recent··⟫"
 
 msgid "End task"
 msgstr "⟪End task···⟫"

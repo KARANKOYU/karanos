@@ -25,6 +25,9 @@ namespace Kavis {
         /* Win+Z (sonraki-isler 4): snap yerleşim menüsü. */
         [DBus (visible = false)]
         public signal void snap_menu_requested ();
+        /* Win+. (sonraki-isler 5): birleşik panel, istenen sekmede. */
+        [DBus (visible = false)]
+        public signal void picker_requested (string page);
 
         public void show_overview () throws Error {
             overview_requested ();
@@ -37,6 +40,10 @@ namespace Kavis {
 
         public void show_snap_menu () throws Error {
             snap_menu_requested ();
+        }
+
+        public void show_picker (string page) throws Error {
+            picker_requested (page);
         }
 
         public void show_clipboard () throws Error {

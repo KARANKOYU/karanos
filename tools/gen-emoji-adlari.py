@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Generate the emoji search-name table (madde 4 fix).
 
-Reads the curated emoji set out of packages/kavis-tools/src/emoji.vala
-(the CATEGORIES block) and writes emoji_names.vala next to it: one
+Reads the curated emoji set out of
+packages/kavis-common/picker_data.vala (the EMOJI block) and writes emoji_names.vala next to it: one
 lowercase English name per glyph, taken from Python's bundled Unicode
 database. Run ONCE when the emoji set changes; the generated file is
 committed so the package build needs no Python. Turkish names can be
@@ -16,8 +16,8 @@ import unicodedata
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SOURCE = REPO / "packages/kavis-tools/src/emoji.vala"
-TARGET = REPO / "packages/kavis-tools/src/emoji_names.vala"
+SOURCE = REPO / "packages/kavis-common/picker_data.vala"
+TARGET = REPO / "packages/kavis-common/emoji_names.vala"
 
 # Joiners and modifiers that carry no searchable meaning of their own.
 SKIP = {0xFE0F, 0x200D, 0x20E3}
@@ -53,7 +53,7 @@ def main() -> int:
         " * name (the picker matches substrings of the stored string).",
         " * Regenerate after changing the emoji set in emoji.vala. */",
         "",
-        "namespace Kavis.Tools.EmojiNames {",
+        "namespace Kavis.EmojiNames {",
         "",
         "    public struct Entry {",
         "        public unowned string glyph;",

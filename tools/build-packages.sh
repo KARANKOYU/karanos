@@ -51,6 +51,12 @@ prepare_sources() {
 		# derlemede kendi src ağacına alır (kopyalar .gitignore'da).
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-panel/src/logic/appinit.vala
+		# Emoji/kaomoji/sembol verisi + üretilen adlar (bölüm 5):
+		# kanonik kopya kavis-common'da, paneli birleşik panel kullanır.
+		install -m644 packages/kavis-common/picker_data.vala \
+			packages/kavis-panel/src/logic/picker_data.vala
+		install -m644 packages/kavis-common/emoji_names.vala \
+			packages/kavis-panel/src/logic/emoji_names.vala
 		# Çeviriler (Grup D işi c): po/ kanonik, panel derlemede
 		# msgfmt ile .mo üretir ve kavis.mo'yu paket olarak taşır.
 		rm -rf packages/kavis-panel/po

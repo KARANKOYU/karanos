@@ -17,8 +17,20 @@ int main (string[] args) {
         window = new Kavis.Tools.CalculatorWindow ();
         break;
     case "emoji":
-        window = new Kavis.Tools.EmojiWindow ();
-        break;
+        /* Emoji seçici birleşik panele taşındı (sonraki-isler 5):
+         * .desktop girdisi çalışan paneldeki paneli açar. */
+        try {
+            Process.spawn_sync (null, {
+                "gdbus", "call", "--session",
+                "--dest", "org.kavis.Panel",
+                "--object-path", "/org/kavis/Panel",
+                "--method", "org.kavis.Panel.ShowPicker", "emoji"
+            }, null, SpawnFlags.SEARCH_PATH
+               | SpawnFlags.STDOUT_TO_DEV_NULL, null, null);
+        } catch (Error e) {
+            warning ("kavis-tools: panele ulasilamadi: %s", e.message);
+        }
+        return 0;
     case "capture":
         /* PrtScr akışı kendi ana döngüsünü yönetir: seçici pencere,
          * ardından pano bekleyişi ya da kayıt çubuğu. */

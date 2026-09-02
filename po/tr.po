@@ -357,3 +357,69 @@ msgstr "Tüm pencereleri kapat"
 
 msgid "Add desktop shortcut"
 msgstr "Masaüstüne kısayol"
+
+msgid "Emoji and more"
+msgstr "Emoji ve daha fazlası"
+
+msgid "Favorites"
+msgstr "Sık kullanılanlar"
+
+msgid "Kaomoji"
+msgstr "Kaomoji"
+
+msgid "Snippets"
+msgstr "Kısa metinler"
+
+msgid "Add snippet"
+msgstr "Kısa metin ekle"
+
+msgid "Edit"
+msgstr "Düzenle"
+
+msgid "Delete"
+msgstr "Sil"
+
+msgid "Save"
+msgstr "Kaydet"
+
+msgid "Cancel"
+msgstr "İptal"
+
+msgid "Add to favorites"
+msgstr "Sık kullanılanlara ekle"
+
+msgid "Remove from favorites"
+msgstr "Sık kullanılanlardan çıkar"
+
+msgid "Happy"
+msgstr "Mutlu"
+
+msgid "Sad"
+msgstr "Üzgün"
+
+msgid "Angry"
+msgstr "Kızgın"
+
+msgid "Surprised"
+msgstr "Şaşkın"
+
+msgid "Love"
+msgstr "Sevgi"
+
+msgid "Currency"
+msgstr "Para birimi"
+
+msgid "Arrows"
+msgstr "Oklar"
+
+msgid "Punctuation"
+msgstr "Noktalama"
+
+msgid "Math"
+msgstr "Matematik"
+
+msgid "Accented letters"
+msgstr "Aksanlı harfler"
+
+msgid "Super/subscript"
+msgstr "Üst/alt simge"

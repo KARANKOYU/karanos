@@ -147,7 +147,9 @@ namespace Kavis.Ui {
         private Overview overview;
         /* Pano geçmişi + ses OSD'si (madde 7). */
         private ClipboardHistory clipboard_history;
-        private ClipboardPopup clipboard_popup;
+        /* Birleşik "Emoji ve daha fazlası" paneli (sonraki-isler 5):
+         * Win+V pano sekmesi, Win+. son kullanılan sekme. */
+        private PickerPanel picker;
         private VolumeOsd volume_osd;
         /* Snap yerleşim menüsü (sonraki-isler 4, Win+Z). */
         private SnapMenu snap_menu = new SnapMenu ();
@@ -200,14 +202,17 @@ namespace Kavis.Ui {
             screen.force_update ();
             overview = new Overview (screen);
             clipboard_history = new ClipboardHistory ();
-            clipboard_popup = new ClipboardPopup (clipboard_history);
+            picker = new PickerPanel (clipboard_history);
             volume_osd = new VolumeOsd ();
             if (PanelBus.service != null) {
                 PanelBus.service.overview_requested.connect (() => {
                     overview.toggle ();
                 });
                 PanelBus.service.clipboard_requested.connect (() => {
-                    clipboard_popup.toggle ();
+                    picker.open ("clipboard");
+                });
+                PanelBus.service.picker_requested.connect ((page) => {
+                    picker.open (page);
                 });
                 PanelBus.service.slot_requested.connect (
                     (number, new_window) => {

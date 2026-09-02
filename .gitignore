@@ -69,4 +69,6 @@ packages/kavis-panel/kavis-snap
 packages/*/src/logic/appinit.vala
 packages/*/src/appinit.vala
 packages/kavis-panel/po/
+packages/kavis-panel/src/logic/picker_data.vala
+packages/kavis-panel/src/logic/emoji_names.vala
 packages/kavis-tools/kavis-tools
