@@ -380,6 +380,21 @@ almak (indirme yöneticisi madde 23 gelince).
 
 ## 2. SIRADA BEKLEYEN İŞLER (sırayla)
 
+> **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
+> tarihli hâliyle duruyor; GERÇEK durum şu:
+> - v0.3-test5 sonrası VM geri bildirim turu (6 madde) BİTTİ:
+>   ab4c858 (hizalama+opaklık), 4583e5d (2a bildirim merkezi),
+>   6deba0d (2b hızlı ayarlar), 7539fb2 (2c klavye popup),
+>   e9ab382 (3 tepsi araçları), 1d701f4 (4 emoji arama),
+>   0d08ff3 (5 donmuş kare yakalama), aca3c91 (6 splash boşluk).
+> - Üç sıralı iş BİTTİ: boot-sound 0702dce, varsayılan dil EN
+>   43e84ca, gettext geçişi 0967d46 (Strings + metin tablosu kalktı,
+>   tek kaynak po/). Etiket v0.3-test6 → 0967d46 (push token
+>   sorunundan bekçiyle gidiyor; main push'landı).
+> - ŞİMDİKİ KUYRUK: docs/sonraki-isler.md (6 bölüm, sırayla —
+>   1. bölüm df7f548 ile bitti), bitince TAM DEBUG/optimizasyon
+>   turu + tek ISO (yeni etiket), sonra DUR — Grup E'ye GEÇİLMEZ.
+
 1. **v0.3-test5 SONUÇLANDI: 5/5 YEŞİL** (koşu 33616072408, tag
    `v0.3-test5` → `59a8a13`; oturum kapanmadan yetişti). Kanıtlar:
    RESULT=OK tüm profillerde; SPLASH-RETAIN-OK; SPLASH-HANDOFF
@@ -484,18 +499,32 @@ yok (Unicode ad veritabanı gerek).
 
 ## 5. KALDIĞIM YER
 
-- Kod tarafında yarım değişiklik yok; her şey commit'li ve push'lu
-  (son kod commit'i `59a8a13`).
-- **DİKKAT — çalışma ağacında commit'lenmemiş BİR dosya var:**
-  `assets/boot/boot-sound.mp3` DEĞİŞTİRİLMİŞ durumda (kullanıcı yeni
-  açılış müziğini koydu; /btw işi 4a'nın girdisi). BİLEREK
-  commit'lenmedi: boot-sound işiyle birlikte işlenecek (boot-check -s
-  denetimi + WAV dönüşüm doğrulaması + eski referans temizliği +
-  kavis-boot yeniden derlemesi aynı commit'te). Yeni oturum bu dosyayı
-  SİLME/geri alma — işin parçası.
-- Tek açık uç: **v0.3-test5 koşusu 33616072408** sonucu (2. bölüm,
-  1. sıra). Arka plan izleyicisi bu oturumla öldü — yeni oturum
-  kendisi bakmalı.
+- Kod tarafında yarım değişiklik yok; her şey commit'li (push token
+  yenilenince bekçi gönderiyor).
+- boot-sound.mp3 uyarısı KALKTI: yeni müzik 0702dce ile işlendi
+  (boot-check -s + WAV süre/örnek oranı denetimleri dahil).
+- v0.3-test5 5/5 yeşil çıktı ve kullanıcı VM turunu yaptı (geri
+  bildirim maddeleri yukarıda, hepsi işlendi).
+
+## 6. SAHİPSİZ ÇALIŞMA KURALLARI (kullanıcı yokken)
+
+- Karar gerekirse SORMA: en hafif seçeneği uygula ve aşağıdaki
+  "ONAY BEKLEYEN KARARLAR" listesine yaz.
+- Bir şey kırılırsa 3 deneme; olmuyorsa atla ve "ATLANDI: <sebep>"
+  diye kaydet, kuyruğa devam et.
+- Bağlam ~200k'ya gelince durum.md'yi güncelle — ama DURMA
+  (kullanıcı sözlü ekledi: "durma, ben sana dur derim"); "BAĞLAM
+  DOLDU" notunu düş, çalışmaya devam et.
+- İSTİSNA — GTK CSD kararı (sonraki-isler 3): Openbox themerc'in
+  neyi verip vermediğini YAZ, CSD'ye kendi başına GEÇME; karar
+  kullanıcının.
+- Not: masaüstünü-göster şeridi (.edge) ZATEN VAR ve KALIYOR;
+  sonraki-isler'deki "Masaüstünü göster köşe şeridi: YOK" satırı
+  "zaten var, yenisi gerekmez" diye okunur.
+
+### ONAY BEKLEYEN KARARLAR
+
+(şimdilik boş — sahipsiz çalışmada alınan kararlar buraya)
 - Kullanıcıya söz verilenler: test5 sonucu + `kavis-0.3-test5-amd64.iso`
   adı bildirilecek; Grup D özeti verildi; VirtualBox testi + "devam"
   bekleniyor (grup kapısı).
