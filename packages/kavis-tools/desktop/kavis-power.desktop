@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Power
+Name[tr]=Güç
+Comment=Shut down, restart or sleep
+Comment[tr]=Kapat, yeniden başlat ya da uyut
+Exec=kavis-tools alt-f4
+Icon=system-shutdown
+Terminal=false
+NoDisplay=true
+StartupWMClass=kavis-power
+Categories=System;

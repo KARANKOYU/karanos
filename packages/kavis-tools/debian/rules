@@ -53,6 +53,10 @@ override_dh_auto_install:
 		$(DEST)/usr/share/applications/kavis-calc.desktop
 	install -m644 desktop/kavis-emoji.desktop \
 		$(DEST)/usr/share/applications/kavis-emoji.desktop
+	# Güç diyaloğunun görev çubuğu kimliği (2C): NoDisplay —
+	# menüde durmaz, yalnız WM_CLASS→ikon eşleşmesi için.
+	install -m644 desktop/kavis-power.desktop \
+		$(DEST)/usr/share/applications/kavis-power.desktop
 
 override_dh_auto_clean:
 	rm -f kavis-tools

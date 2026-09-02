@@ -31,6 +31,12 @@ namespace Kavis.Tools {
 
         public ShutdownDialog () {
             set_title (_("Shut down"));
+            /* 2C: kendi WM_CLASS'ı — yoksa görev çubuğu ikonu, aynı
+             * ikiliyi paylaşan emoji seçicinin .desktop'ına düşüyordu
+             * (gülen yüz). kavis-power.desktop StartupWMClass'la
+             * eşleşir, güç simgesini verir. */
+            set_wmclass ("kavis-power", "kavis-power");
+            icon_name = "system-shutdown";
             set_resizable (false);
             set_position (Gtk.WindowPosition.CENTER);
             set_keep_above (true);
