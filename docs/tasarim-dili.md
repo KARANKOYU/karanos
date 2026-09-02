@@ -48,6 +48,33 @@ Sınırlar (bilinçli kabul):
 Sıkışıklık yok — kullanıcı ferah hissetmeli. Yeni bir widget bu
 değerlerin dışına çıkacaksa sebebi commit mesajında yazılır.
 
+## Pencere başlık düğmeleri (1B kararı, 3 Eyl 2026)
+
+KARAR: **Seçenek A — Openbox themerc** (kullanıcı seçimi; CSD demosu
+gösterildi, reddedildi). Gerekçe/koşul: SSD her pencerede tutarlı
+(nemo/kate/tilix dahil), CSD yalnız kavis-* uygulamalarını süsleyip
+karma görünüm yaratıyordu.
+
+| Öğe | Değer |
+|---|---|
+| Başlık yüksekliği | ~32px (font 10-11 + padding.height 8) |
+| Düğme sırası | – ☐ ✕ sağda; ikon + başlık solda (NLIMC) |
+| Düğme ikonu | 14px xbm (daha büyüğü openbox kutusunda kırpılır) |
+| Kapat hover / basılı | #C42B1C / #A02316, beyaz ✕ |
+| Diğer hover / basılı | beyaz %10 (#2E3842) / %14 (#374149) |
+
+Openbox sınırları (bilinçli kabul — themerc başındaki not asıl
+kaynak): düğme kutusu KARE ve başlık yüksekliğine bağlı (W11'in
+46×32'si olmaz), düğmeler arasında 1-2px boşluk kalır, hover kutusu
+tam yükseklik dolmaz, geçiş animasyonu yok.
+
+## Güç diyaloğu / Ctrl+Alt+Del (2D hedef tasarımı)
+
+Tek bileşen (iki ayrı kod YOK): kenarlıksız, ekran ortasında, 12px
+köşe, zemin #17222C; yan yana 4 büyük ikonlu düğme — Uyku / Yeniden
+başlat / Kapat / İptal; Escape kapatır; açılış picom appear 180 ms.
+Görev çubuğu ikonu güç simgesi (kendi WM_CLASS + .desktop — 2C).
+
 ## Uygulama durumu
 
 2 Eyl 2026 itibarıyla bu kurala çekilenler: PanelPopup tabanlı her

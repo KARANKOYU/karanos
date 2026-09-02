@@ -570,6 +570,11 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
+- KARAR VERİLDİ (1B, 3 Eyl): başlık düğmeleri Openbox themerc'te
+  KALIYOR (Seçenek A) — CSD demosu (46×32 W11 düğmeleri) gösterildi,
+  kullanıcı A'yı seçti. Sınırlar tasarim-dili.md'ye işlendi; GTK CSD
+  istisna kaydı kapandı.
+
 - Karar (1A, madde 51): kapak kapatma / otomatik uyku süreleri
   logind (HandleLidSwitch, IdleAction) yani root yapılandırması
   ister; Ayarlar oturum düzeyinde kalsın diye ertelendi — Güç
