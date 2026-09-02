@@ -46,3 +46,22 @@ gnome-disk-utility
 gparted
 baobab
 exfatprogs
+
+# --- Yazıcı ve tarayıcı (madde 43) ---
+# Birinci yol SÜRÜCÜSÜZ (grup-e-taramasi): modern yazıcılar IPP
+# Everywhere konuşur — cups-browsed + avahi ağdakini kendiliğinden
+# gösterir, ipp-usb USB yazıcıyı aynı protokole köprüler; çoğu
+# kullanıcı sürücü ekranı hiç görmez. Sihirbaz system-config-printer
+# (otomatik bulma + sürücü + test sayfası; kendi sihirbazımızı yazmak
+# kur-ayarla kuralına aykırı). Eski aygıtlar için gutenprint yedeği.
+# CUPS web arayüzü (631) varsayılan hâliyle yalnız localhost.
+# Tarayıcı: sane-airscan (sürücüsüz eSCL/WSD) + simple-scan arayüzü.
+cups
+cups-browsed
+cups-filters
+avahi-daemon
+ipp-usb
+system-config-printer
+printer-driver-gutenprint
+sane-airscan
+simple-scan
