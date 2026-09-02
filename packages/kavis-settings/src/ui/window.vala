@@ -59,6 +59,10 @@ namespace Kavis.Settings {
             public string id;
             public string icon;
             public string title;
+            /* Arama dizini: bu bölümdeki ayar başlıkları (çevrili) —
+             * sayfalar tembel kurulduğundan başlıklar burada da
+             * listelenir; yeni ayar eklerken bu satır da güncellenir. */
+            public string keywords;
         }
 
         private SectionInfo[] sections;
@@ -78,16 +82,36 @@ namespace Kavis.Settings {
 
             sections = {
                 { "appearance", "applications-graphics-symbolic",
-                  _("Appearance") },
-                { "display", "video-display-symbolic", _("Display") },
-                { "sound", "audio-volume-high-symbolic", _("Sound") },
+                  _("Appearance"),
+                  _("Theme") + "\n" + _("Corner roundness") + "\n"
+                  + _("Animation speed") + "\n"
+                  + _("Transparency effects") + "\n" + _("Wallpaper")
+                  + "\n" + _("Accent color") },
+                { "display", "video-display-symbolic", _("Display"),
+                  _("Resolution and refresh rate") + "\n" + _("Scale")
+                  + "\n" + _("Night light") },
+                { "sound", "audio-volume-high-symbolic", _("Sound"),
+                  _("Output device") + "\n" + _("Master volume")
+                  + "\n" + _("System sounds") },
                 { "keyboard", "input-keyboard-symbolic",
-                  _("Keyboard & Language") },
-                { "power", "battery-good-symbolic", _("Power") },
+                  _("Keyboard & Language"),
+                  _("Language") + "\n" + _("Layout") + "\n"
+                  + _("Shortcuts") },
+                { "power", "battery-good-symbolic", _("Power"),
+                  _("Power mode") + "\n" + _("Turn off screen after")
+                  + "\n" + _("Efficiency") + "\n" + _("Performance")
+                  + "\n" + _("Game") },
                 { "network", "network-wireless-symbolic",
-                  _("Network") },
-                { "taskbar", "view-grid-symbolic", _("Taskbar") },
-                { "system", "computer-symbolic", _("System") }
+                  _("Network"),
+                  "Wi-Fi\n" + _("Available networks") + "\n"
+                  + _("Saved networks") },
+                { "taskbar", "view-grid-symbolic", _("Taskbar"),
+                  _("Position") + "\n" + _("Size") + "\n"
+                  + _("Alignment") + "\n"
+                  + _("Automatically hide the taskbar") + "\n"
+                  + _("Pinned apps") },
+                { "system", "computer-symbolic", _("System"),
+                  _("About") + "\n" + _("Copy details") }
             };
 
             var provider = new Gtk.CssProvider ();
@@ -112,6 +136,20 @@ namespace Kavis.Settings {
             search = new Gtk.SearchEntry ();
             search.placeholder_text = _("Find a setting");
             search.margin = 8;
+            search.search_changed.connect (() => {
+                sidebar.invalidate_filter ();
+            });
+            /* Enter: ilk eşleşen bölüme git. */
+            search.activate.connect (() => {
+                for (int i = 0; i < sections.length; i++) {
+                    var row = sidebar.get_row_at_index (i);
+                    if (row != null && row.get_visible ()
+                        && row.get_child_visible ()) {
+                        sidebar.select_row (row);
+                        break;
+                    }
+                }
+            });
             side.pack_start (search, false, false, 0);
 
             sidebar = new Gtk.ListBox ();
@@ -120,6 +158,7 @@ namespace Kavis.Settings {
             foreach (unowned SectionInfo info in sections) {
                 sidebar.add (make_row (info));
             }
+            sidebar.set_filter_func (filter_row);
             sidebar.row_selected.connect (on_row_selected);
             var side_scroll = new Gtk.ScrolledWindow (null, null);
             side_scroll.hscrollbar_policy = Gtk.PolicyType.NEVER;
@@ -138,6 +177,39 @@ namespace Kavis.Settings {
 
             /* First section opens by default. */
             sidebar.select_row (sidebar.get_row_at_index (0));
+        }
+
+        /* Bulanık eşleşme: küçük harfe indirip alt dize YA DA sırayı
+         * koruyan alt dizi ("anmz" → "animasyon hızı") arar. */
+        private static bool fuzzy_match (string needle, string hay) {
+            string n = needle.down ();
+            string h = hay.down ();
+            if (h.contains (n)) {
+                return true;
+            }
+            int pos = 0;
+            unichar c;
+            for (int i = 0; n.get_next_char (ref i, out c);) {
+                int found = h.index_of_char (c, pos);
+                if (found < 0) {
+                    return false;
+                }
+                pos = found + 1;
+            }
+            return true;
+        }
+
+        private bool filter_row (Gtk.ListBoxRow row) {
+            string text = search.text.strip ();
+            if (text == "") {
+                return true;
+            }
+            int index = row.get_index ();
+            if (index < 0 || index >= sections.length) {
+                return true;
+            }
+            return fuzzy_match (text, sections[index].title)
+                || fuzzy_match (text, sections[index].keywords);
         }
 
         private Gtk.ListBoxRow make_row (SectionInfo info) {

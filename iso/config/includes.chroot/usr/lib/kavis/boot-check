@@ -462,6 +462,32 @@ else
 	fatal "USERS-FAIL ev '$ev' (beklenen /users/karan)" "users"
 fi
 
+# 8b) Ayarlar uygulaması (madde 9): pencere gerçekten açılıyor mu.
+# Panel oturumunda karan olarak başlatılır; 3 sn sonra sınıf adıyla
+# aranır (xdotool ISO'da — pano yapıştırma zaten kullanıyor).
+if command -v kavis-settings >/dev/null 2>&1; then
+	runuser -u karan -- env DISPLAY=:0 kavis-settings >/dev/null 2>&1 &
+	settings_shell_pid=$!
+	sleep 3
+	if runuser -u karan -- env DISPLAY=:0 \
+			xdotool search --class kavis-settings >/dev/null 2>&1; then
+		settings_pid=$(pgrep -x kavis-settings | head -1 || true)
+		if [ -n "$settings_pid" ]; then
+			settings_rss_kb=$(awk '/^VmRSS:/ { print $2 }' \
+				"/proc/$settings_pid/status")
+			log "SETTINGS-OK pencere acildi, RSS=$((settings_rss_kb / 1024))MB"
+		else
+			log "SETTINGS-OK pencere acildi"
+		fi
+	else
+		fatal "SETTINGS-FAIL kavis-settings penceresi acilmadi" "settings"
+	fi
+	pkill -x kavis-settings 2>/dev/null || true
+	wait "$settings_shell_pid" 2>/dev/null || true
+else
+	fatal "SETTINGS-FAIL kavis-settings kurulu degil" "settings"
+fi
+
 # 9) Güvenlik sertleştirme (madde 8): sysctl değerleri gerçekten uygulanmış mı
 sysctl_hata=""
 dogrula_sysctl() {
