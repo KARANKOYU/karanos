@@ -161,7 +161,15 @@ namespace Kavis.Ui {
             }
             box.pack_start (text, true, true, 0);
 
+            /* D4: hedefli bildirimde toast'a tık dosyayı
+             * GÖRÜNTÜLEYİCİDE açar (klasör için düğme var); hedefsiz
+             * toast eskisi gibi yalnız kapanır. */
             button_press_event.connect (() => {
+                if (entry.target_path != ""
+                    && FileUtils.test (entry.target_path,
+                                       FileTest.EXISTS)) {
+                    Launch.run ({ "xdg-open", entry.target_path });
+                }
                 close_toast ();
                 return true;
             });

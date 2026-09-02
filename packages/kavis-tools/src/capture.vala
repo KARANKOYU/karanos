@@ -94,6 +94,70 @@ namespace Kavis.Tools {
             }
         }
 
+        /* D4: dosya bildirimi — tıklanabilir toast için hedef yol +
+         * "Show in folder" düğmesi. Düğme tıkı ActionInvoked ile bu
+         * sürece döner (pano ömrü boyunca zaten yaşıyoruz). */
+        private DBusConnection? notify_bus;
+        private uint32 notify_id;
+        private string? notify_target;
+
+        public void reveal_in_folder (string path) {
+            try {
+                if (Environment.find_program_in_path ("nemo") != null) {
+                    Process.spawn_async (null, { "nemo", path }, null,
+                        SpawnFlags.SEARCH_PATH, null, null);
+                } else {
+                    Process.spawn_async (null, { "xdg-open",
+                        Path.get_dirname (path) }, null,
+                        SpawnFlags.SEARCH_PATH, null, null);
+                }
+            } catch (Error e) { }
+        }
+
+        public void notify_file (string summary, string path,
+                                 string icon) {
+            try {
+                notify_bus = Bus.get_sync (BusType.SESSION);
+                var hints = new VariantBuilder (
+                    new VariantType ("a{sv}"));
+                hints.add ("{sv}", "image-path",
+                           new Variant.string (path));
+                hints.add ("{sv}", "x-kavis-path",
+                           new Variant.string (path));
+                var actions = new VariantBuilder (
+                    new VariantType ("as"));
+                actions.add ("s", "show-folder");
+                actions.add ("s", _("Show in folder"));
+                var reply = notify_bus.call_sync (
+                    "org.freedesktop.Notifications",
+                    "/org/freedesktop/Notifications",
+                    "org.freedesktop.Notifications", "Notify",
+                    new Variant ("(susssasa{sv}i)", "Kavis",
+                                 (uint32) 0, icon, summary, path,
+                                 actions, hints, 6000),
+                    new VariantType ("(u)"),
+                    DBusCallFlags.NONE, -1, null);
+                reply.get ("(u)", out notify_id);
+                notify_target = path;
+                notify_bus.signal_subscribe (null,
+                    "org.freedesktop.Notifications", "ActionInvoked",
+                    "/org/freedesktop/Notifications", null,
+                    DBusSignalFlags.NONE,
+                    (connection, sender, opath, iface, name, args) => {
+                        uint32 id;
+                        string key;
+                        args.get ("(us)", out id, out key);
+                        if (id == notify_id && key == "show-folder"
+                            && notify_target != null) {
+                            reveal_in_folder (notify_target);
+                        }
+                    });
+            } catch (Error e) {
+                /* bildirim servisi yoksa sessiz; dosya zaten kayıtlı */
+                notify_user (summary, path, icon, path);
+            }
+        }
+
         /* Pano X sahibiyle ölür: görüntüyü koyup bir süre yaşa. */
         public void hold_clipboard_then_quit () {
             Timeout.add_seconds (60, () => {
@@ -146,8 +210,8 @@ namespace Kavis.Tools {
             }
 
             Gtk.Clipboard.get_default (display).set_image (pixbuf);
-            notify_user (_("Screenshot saved"), path,
-                         "camera-photo-symbolic", path);
+            notify_file (_("Screenshot saved"), path,
+                         "camera-photo-symbolic");
             hold_clipboard_then_quit ();
             Gtk.main ();
             return 0;
@@ -191,7 +255,7 @@ namespace Kavis.Tools {
     /* Fullscreen frozen-frame selector. */
     public class SnipWindow : Gtk.Window {
 
-        private enum Mode { RECT, FREEFORM, WINDOW, FULL, COLOR }
+        private enum Mode { RECT, ELLIPSE, FREEFORM, WINDOW, FULL, COLOR }
 
         /* Marka turkuazı (görsel kimlik tablosu). */
         private const double TEAL_R = 0.176;
@@ -223,6 +287,8 @@ namespace Kavis.Tools {
         private int pointer_x = 0;
         private int pointer_y = 0;
         private DBusConnection? bus = null;
+        private Gtk.Box? window_list_holder = null;
+        private Gtk.Box window_list_box;
         private uint32 color_notif_id = 0;
         private string rgb_text = "";
         private string hsl_text = "";
@@ -249,7 +315,48 @@ namespace Kavis.Tools {
             canvas.button_release_event.connect (on_release);
             overlay.add (canvas);
 
-            overlay.add_overlay (build_toolbar ());
+            /* D1: araç çubuğu üstünde imleç OK olsun (canvas artı
+             * kalır) — kendi GdkWindow'u olan EventBox sarmalı. */
+            var bar_holder = new Gtk.EventBox ();
+            bar_holder.add (build_toolbar ());
+            bar_holder.set_halign (Gtk.Align.CENTER);
+            bar_holder.set_valign (Gtk.Align.START);
+            bar_holder.realize.connect (() => {
+                bar_holder.get_window ().set_cursor (
+                    new Gdk.Cursor.for_display (
+                        Gdk.Display.get_default (),
+                        Gdk.CursorType.LEFT_PTR));
+            });
+            overlay.add_overlay (bar_holder);
+
+            /* D3: Pencere modu — imleçle vurgu yerine AÇIK PENCERE
+             * LİSTESİ (ikon + başlık); seçilen yakalanır. */
+            var list_holder = new Gtk.EventBox ();
+            window_list_holder = new Gtk.Box (
+                Gtk.Orientation.VERTICAL, 0);
+            window_list_holder.get_style_context ()
+                .add_class ("kavis-snip-bar");
+            window_list_holder.set_border_width (10);
+            window_list_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
+            var list_scroll = new Gtk.ScrolledWindow (null, null);
+            list_scroll.set_policy (Gtk.PolicyType.NEVER,
+                                    Gtk.PolicyType.AUTOMATIC);
+            list_scroll.set_size_request (380, 300);
+            list_scroll.add (window_list_box);
+            window_list_holder.pack_start (list_scroll, true, true, 0);
+            list_holder.add (window_list_holder);
+            list_holder.set_halign (Gtk.Align.CENTER);
+            list_holder.set_valign (Gtk.Align.CENTER);
+            list_holder.realize.connect (() => {
+                list_holder.get_window ().set_cursor (
+                    new Gdk.Cursor.for_display (
+                        Gdk.Display.get_default (),
+                        Gdk.CursorType.LEFT_PTR));
+            });
+            list_holder.set_no_show_all (true);
+            overlay.add_overlay (list_holder);
+            window_list_holder.set_data<Gtk.EventBox> (
+                "holder", list_holder);
 
             key_press_event.connect ((event) => {
                 if (event.keyval == Gdk.Key.Escape) {
@@ -307,8 +414,6 @@ namespace Kavis.Tools {
         private Gtk.Widget build_toolbar () {
             var bar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
             bar.get_style_context ().add_class ("kavis-snip-bar");
-            bar.set_halign (Gtk.Align.CENTER);
-            bar.set_valign (Gtk.Align.START);
             bar.set_margin_top (12);
             bar.set_border_width (6);
 
@@ -365,10 +470,10 @@ namespace Kavis.Tools {
                 Gtk.Orientation.VERTICAL), false, false, 2);
 
             string[] mode_keys = {
-                N_("Rectangle"), N_("Freeform"),
+                N_("Rectangle"), N_("Ellipse"), N_("Freeform"),
                 N_("Window"), N_("Full screen"), N_("Color")
             };
-            Mode[] modes = { Mode.RECT, Mode.FREEFORM,
+            Mode[] modes = { Mode.RECT, Mode.ELLIPSE, Mode.FREEFORM,
                              Mode.WINDOW, Mode.FULL, Mode.COLOR };
             for (int i = 0; i < modes.length; i++) {
                 var button = new Gtk.ToggleButton.with_label (
@@ -438,7 +543,128 @@ namespace Kavis.Tools {
             switching_toggle = false;
             has_area = false;
             selecting = false;
+            update_window_list ();
             canvas.queue_draw ();
+        }
+
+        /* D3: pencere listesi yalnız Pencere modunda görünür. */
+        private void update_window_list () {
+            var holder = window_list_holder.get_data<Gtk.EventBox> (
+                "holder");
+            if (mode != Mode.WINDOW) {
+                holder.set_visible (false);
+                holder.set_no_show_all (true);
+                return;
+            }
+            foreach (var child in window_list_box.get_children ()) {
+                window_list_box.remove (child);
+            }
+            var screen = Wnck.Screen.get_default ();
+            screen.force_update ();
+            foreach (unowned Wnck.Window candidate in
+                     screen.get_windows ()) {
+                if (candidate.is_skip_tasklist ()
+                    || candidate.get_window_type ()
+                       == Wnck.WindowType.DESKTOP
+                    || candidate.get_window_type ()
+                       == Wnck.WindowType.DOCK) {
+                    continue;
+                }
+                var row = new Gtk.Button ();
+                row.set_relief (Gtk.ReliefStyle.NONE);
+                var line = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
+                var icon = candidate.get_icon ();
+                if (icon != null) {
+                    line.pack_start (new Gtk.Image.from_pixbuf (
+                        icon.scale_simple (24, 24,
+                            Gdk.InterpType.BILINEAR)),
+                        false, false, 0);
+                }
+                var title = new Gtk.Label (candidate.get_name () ?? "");
+                title.set_xalign (0);
+                title.set_ellipsize (Pango.EllipsizeMode.END);
+                title.set_max_width_chars (36);
+                line.pack_start (title, true, true, 0);
+                row.add (line);
+                unowned Wnck.Window target = candidate;
+                row.clicked.connect (() => {
+                    capture_window (target);
+                });
+                window_list_box.pack_start (row, false, false, 0);
+            }
+            holder.set_no_show_all (false);
+            holder.show_all ();
+        }
+
+        /* Seçilen pencereyi yakala. Kompozitör varken pencerenin KENDİ
+         * çizim yüzeyi okunur (COMPOSITE yönlendirmesi örtülü kısmı da
+         * içerir — picom canlı sistemde hep açık); kompozitörsüz yedek:
+         * öne getirip kök pencereden kırp. Görev çubuğu kareye girmez —
+         * kaynak pencerenin kendisi. */
+        private void capture_window (Wnck.Window target) {
+            Gdk.Display.get_default ().get_default_seat ().ungrab ();
+            hide ();
+
+            if (video_mode) {
+                /* Video: pencere öne, kaydı geometrisinde başlat. */
+                bool with_audio = audio_check.get_active ();
+                bool with_mic = mic_check.get_active ();
+                target.activate (Gtk.get_current_event_time ());
+                int wx, wy, ww, wh;
+                target.get_geometry (out wx, out wy, out ww, out wh);
+                destroy ();
+                Timeout.add (400, () => {
+                    launch_ffmpeg (wx, wy, ww / 2 * 2, wh / 2 * 2,
+                                   with_audio, with_mic);
+                    return Source.REMOVE;
+                });
+                return;
+            }
+
+            Timeout.add (250, () => {
+                grab_window_image (target);
+                return Source.REMOVE;
+            });
+        }
+
+        private void grab_window_image (Wnck.Window target) {
+            var display = Gdk.Display.get_default ();
+            Gdk.Pixbuf? result = null;
+            if (get_screen ().is_composited ()) {
+                var foreign = new Gdk.X11.Window.foreign_for_display (
+                    display as Gdk.X11.Display, target.get_xid ());
+                if (foreign != null) {
+                    result = Gdk.pixbuf_get_from_window (foreign, 0, 0,
+                        foreign.get_width (), foreign.get_height ());
+                }
+            }
+            if (result == null) {
+                /* Yedek: öne getir, kökten kırp. */
+                target.activate (Gtk.get_current_event_time ());
+                int wx, wy, ww, wh;
+                target.get_geometry (out wx, out wy, out ww, out wh);
+                var root = Gdk.get_default_root_window ();
+                result = Gdk.pixbuf_get_from_window (root, wx, wy,
+                                                     ww, wh);
+            }
+            if (result == null) {
+                warning ("kavis-tools: pencere okunamadi");
+                cancel ();
+                return;
+            }
+            string path = Capture.timestamp_path ("image", ".png");
+            try {
+                result.save (path, "png");
+            } catch (Error e) {
+                warning ("kavis-tools: kaydedilemedi: %s", e.message);
+                cancel ();
+                return;
+            }
+            Gtk.Clipboard.get_default (
+                Gdk.Display.get_default ()).set_image (result);
+            Capture.notify_file (_("Screenshot saved"), path,
+                                 "camera-photo-symbolic");
+            Capture.hold_clipboard_then_quit ();
         }
 
         /* --- çizim ---------------------------------------------------- */
@@ -498,6 +724,18 @@ namespace Kavis.Tools {
         }
 
         private void selection_path (Cairo.Context cr) {
+            if (mode == Mode.ELLIPSE) {
+                /* D2: eliptik seçim — dışı şeffaf kalır. */
+                if (sel_w < 2 || sel_h < 2) {
+                    return;
+                }
+                cr.save ();
+                cr.translate (sel_x + sel_w / 2.0, sel_y + sel_h / 2.0);
+                cr.scale (sel_w / 2.0, sel_h / 2.0);
+                cr.arc (0, 0, 1, 0, 2 * Math.PI);
+                cr.restore ();
+                return;
+            }
             if (mode == Mode.FREEFORM && path_x.length > 2) {
                 cr.move_to (path_x[0], path_y[0]);
                 for (int i = 1; i < path_x.length; i++) {
@@ -527,9 +765,7 @@ namespace Kavis.Tools {
                 finish_selection ();
                 break;
             case Mode.WINDOW:
-                if (has_area) {
-                    finish_selection ();
-                }
+                /* D3: seçim listeden yapılır, tuvalde tık işlemez. */
                 break;
             case Mode.FREEFORM:
                 selecting = true;
@@ -537,7 +773,7 @@ namespace Kavis.Tools {
                 path_y = { event.y };
                 has_area = false;
                 break;
-            default:
+            default:   /* RECT ve ELLIPSE: köşeden sürükle */
                 selecting = true;
                 start_x = (int) event.x;
                 start_y = (int) event.y;
@@ -556,8 +792,7 @@ namespace Kavis.Tools {
                 return true;
             }
             if (mode == Mode.WINDOW) {
-                hover_window ((int) event.x_root, (int) event.y_root);
-                return true;
+                return true;   /* D3: vurgu yok, liste var */
             }
             if (!selecting) {
                 return false;
@@ -604,33 +839,6 @@ namespace Kavis.Tools {
             sel_y = (int) min_y;
             sel_w = (int) (max_x - min_x);
             sel_h = (int) (max_y - min_y);
-        }
-
-        /* İşaretçinin altındaki pencere (en üstteki) vurgulanır. */
-        private void hover_window (int x, int y) {
-            var screen = Wnck.Screen.get_default ();
-            unowned List<Wnck.Window> stacked =
-                screen.get_windows_stacked ();
-            bool found = false;
-            /* Liste alttan üste; sondan başa yürü. */
-            for (unowned List<Wnck.Window> item = stacked.last ();
-                 item != null; item = item.prev) {
-                unowned Wnck.Window candidate = item.data;
-                if (candidate.is_minimized ()
-                    || candidate.get_window_type () == Wnck.WindowType.DESKTOP
-                    || candidate.get_window_type () == Wnck.WindowType.DOCK) {
-                    continue;
-                }
-                int wx, wy, ww, wh;
-                candidate.get_geometry (out wx, out wy, out ww, out wh);
-                if (x >= wx && x < wx + ww && y >= wy && y < wy + wh) {
-                    sel_x = wx; sel_y = wy; sel_w = ww; sel_h = wh;
-                    found = true;
-                    break;
-                }
-            }
-            has_area = found;
-            canvas.queue_draw ();
         }
 
         /* --- renk seçici (5c) ----------------------------------------- */
@@ -837,7 +1045,8 @@ namespace Kavis.Tools {
 
         private void save_image () {
             Gdk.Pixbuf result;
-            if (mode == Mode.FREEFORM && path_x.length > 2) {
+            if (mode == Mode.ELLIPSE
+                || (mode == Mode.FREEFORM && path_x.length > 2)) {
                 /* Yol dışı şeffaf: kırpılmış yüzeye yola kıstırılmış
                  * çizim (W11 serbest kesim davranışı). */
                 var surface = new Cairo.ImageSurface (
@@ -865,8 +1074,8 @@ namespace Kavis.Tools {
             }
             Gtk.Clipboard.get_default (
                 Gdk.Display.get_default ()).set_image (result);
-            Capture.notify_user (_("Screenshot saved"), path,
-                                 "camera-photo-symbolic", path);
+            Capture.notify_file (_("Screenshot saved"), path,
+                                 "camera-photo-symbolic");
             hide ();
             Capture.hold_clipboard_then_quit ();
         }
@@ -1012,7 +1221,9 @@ namespace Kavis.Tools {
             ChildWatch.add (ffmpeg_pid, (pid, wait_status) => {
                 Process.close_pid (pid);
                 FileUtils.unlink (pid_file);
-                Gtk.main_quit ();
+                /* D4: bildirimdeki "Show in folder" düğmesi bu süreçte
+                 * işleniyor — hemen ölme, kısa bir pay bırak. */
+                Capture.hold_clipboard_then_quit ();
             });
         }
 
@@ -1030,9 +1241,9 @@ namespace Kavis.Tools {
             /* SIGINT: ffmpeg dosyayı düzgün kapatır (moov atomu). */
             Posix.kill ((Posix.pid_t) ffmpeg_pid, Posix.Signal.INT);
             hide ();
-            Capture.notify_user (_("Screen recording saved"),
-                                 path, "camera-video-symbolic", path);
-            /* ChildWatch ffmpeg bitince ana döngüyü kapatır. */
+            Capture.notify_file (_("Screen recording saved"),
+                                 path, "camera-video-symbolic");
+            /* ChildWatch ffmpeg bitince kısa bekleyişe geçirir. */
         }
     }
 }

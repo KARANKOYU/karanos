@@ -480,3 +480,9 @@ msgstr "Pil"
 
 msgid "Network, sound, battery"
 msgstr "Ağ, ses, pil"
+
+msgid "Ellipse"
+msgstr "Elips"
+
+msgid "Show in folder"
+msgstr "Klasörde göster"

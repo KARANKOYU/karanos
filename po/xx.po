@@ -387,6 +387,9 @@ msgstr "⟪Calculator····⟫"
 msgid "Invalid expression"
 msgstr "⟪Invalid expression·······⟫"
 
+msgid "Show in folder"
+msgstr "⟪Show in folder·····⟫"
+
 msgid "Screenshot saved"
 msgstr "⟪Screenshot saved······⟫"
 
@@ -398,6 +401,9 @@ msgstr "⟪Video··⟫"
 
 msgid "Rectangle"
 msgstr "⟪Rectangle···⟫"
+
+msgid "Ellipse"
+msgstr "⟪Ellipse··⟫"
 
 msgid "Freeform"
 msgstr "⟪Freeform···⟫"
