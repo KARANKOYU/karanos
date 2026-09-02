@@ -133,9 +133,10 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     Fortnite, Rocket League, Adobe, MS Office masaüstü." Kurulumdan ÖNCE.
 16. **Calamares + canlı mod.** Disk düzeninde 27C'nin A/B yapısı ŞİMDİDEN
     hesaba katılır; hibernate swap alanı da (51). EK (2026-09-02):
-    "Yeniden kur — dosyalarımı koru" kipi ve genişletilmiş alt birim
-    yapısı (@ / @users / @flatpak / @old-*) tasarlandı —
-    docs/yeniden-kurulum-tasarimi.md; Grup I'da bu belgeyle yapılacak.
+    "Yeniden kur — dosyalarımı koru" kipi artık madde 69 — alt birim
+    yapısı (@ / @users / @flatpak / @old-*) disk düzeni kararının
+    parçası olduğu için 16 yapılırken 69'un tasarımı
+    (docs/yeniden-kurulum-tasarimi.md) baştan hesaba katılır.
 17. **/usr salt-okunur btrfs subvolume.** EN SONA — apt'ı bozabilir.
 18. **Giriş ekranı + kilit ekranı** (0'da ertelenen), kullanıcı ekleme.
 19. **Kendi APT depomuz:** reprepro, GitHub Pages, Actions ile otomatik.
@@ -380,6 +381,120 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       maddenin gereksinimleri güncellenir.
     - SINIR: grup başına 15 dakika ve makul token; ilk 20-30 issue
       yeterli. Bu bir araştırma projesi değil, hata önleme adımı.
+60. **POPUP DIŞ-TIKLAMA TUTARLILIĞI (v0.3-test1 hotfix'leri, 2026-09-02
+    eki).** Grup C kapanışının VM testinde çıkan üç hata; hepsi aynı
+    kökten. KURAL: popup/menünün kendi pencere alanı İÇİNDEKİ her
+    tıklama "içeride" sayılır (düğme, boşluk, etiket, takvim hücresi
+    fark etmez); yalnızca alanın DIŞINA tıklama kapatır. PanelPopup
+    temelinde uygulanır, başlat menüsü de aynı mantığı kullanır.
+    - A) Takvim popup'ı: düğme olmayan yere (gün aralığı, başlık,
+      kenar) tıklayınca kapanıyor — kapanmamalı.
+    - B) Güç menüsü: başlat menüsündeki güç düğmesi alt menüyü açıyor
+      ama aynı düğmeye tekrar tıklamak KAPATMIYOR — toggle olmalı.
+    - C) Başlat menüsü: dışarı tıklayınca kapanmıyor — kapanmalı
+      (popup'larla aynı kural).
+61. **GTK ORTAK BAŞLANGIÇ NOKTASI (2026-09-02 eki).** `GDK_GL=disable`
+    (llvmpipe/libLLVM ~50 MB tuzağının çözümü) şimdilik yalnız panelin
+    main.vala'sında. Ayarlar, mağaza ve sonraki HER GTK uygulaması aynı
+    tuzağa düşer. Tüm kavis-* GTK uygulamaları için ortak başlangıç
+    noktası (wrapper ya da paylaşılan kütüphane) — Grup D'de ilk yeni
+    GTK uygulaması yazılırken çözülür; o güne kadar eklenen GTK
+    uygulamasına aynı satır elle konur.
+62. **BİLİNEN HYPERVISOR UYARILARI LİSTESİ (2026-09-02 eki).**
+    VirtualBox VMSVGA'da vmwgfx "unsupported hypervisor" hatası her
+    açılışta dmesg'e düşüyor; konsoldan gizlendi ama günlükte duruyor
+    (docs/referans/virtualbox.md). Günlük tarayan araçlar (sistem
+    sağlığı, madde 49) bunu hata SAYMAMALI. Liste Grup D'de şimdiden
+    tanımlanır (makine tarafından okunur bir dosya olarak); aracın
+    kendisi Grup F'de bu listeyi kullanır. İlk üye: vmwgfx.
+63. **USB GÜVENLİ KULLANIM (2026-09-02 eki).**
+    - Gerçek yazma durumu göstergesi: kopyalama bitmiş görünse bile
+      çekirdek buffer'ı boşalana kadar panelde uyarı ("USB'ye hâlâ
+      yazılıyor, çıkarmayın"). Kaynak: /sys/block/<aygıt>/stat ve
+      /proc/meminfo Dirty/Writeback. sync mount'a TERCİH edilir —
+      hız kaybı yok.
+    - Güvenle çıkar: panelde takılı USB listesi, her birinde düğme.
+      sync → udisksctl unmount → udisksctl power-off →
+      "Çıkarabilirsiniz". Meşgulse hangi uygulamanın kullandığı
+      söylenir.
+    - "Güvenli mod" ayarı (sync ile bağlama): varsayılan KAPALI,
+      açıklaması net.
+    - (Arayüz metinleri uygulanırken kavis-arayuz-metinleri.md
+      tablosuna eklenir.)
+64. **USB DOSYA SİSTEMİ ONARIMI (2026-09-02 eki).**
+    - Bağlanamayan aygıt görülünce sorulur: "Onarmayı deneyeyim mi?"
+    - fsck (ext4) / dosfsck (FAT32) / ntfsfix (NTFS).
+    - ONARIM ÖNCESİ ZORUNLU UYARI: veri kaybı olabilir; onay olmadan
+      ÇALIŞTIRILMAZ. Mümkünse önce salt-okunur bağlayıp "verilerinizi
+      kopyalayın" önerilir.
+    - Sonuç anlaşılır dille; ham fsck çıktısı "ayrıntılar" altında.
+    - Donanım arızası ihtimali de söylenir; yazılım her şeyi çözmez.
+65. **CACHYOS REFERANS İNCELEMESİ (2026-09-02 eki).** Oyun modu
+    (madde 13) yazılmadan ÖNCE, madde 47 usulüyle:
+    - github.com/CachyOS/CachyOS-Settings — sysctl, I/O scheduler,
+      gamemode entegrasyonu, CPU governor mantığı. Alınabilir.
+    - github.com/CachyOS/linux-cachyos — çekirdek yamaları; Debian'ın
+      imzalı çekirdeği kullanıldığı için UYGULANAMAZ, ama neyi neden
+      yaptıklarını görmek için okunur.
+    - Kural: dağıtımdan bağımsız ayarlar alınır; kendi derledikleri
+      çekirdeğe bağlı hiçbir şey alınmaz. Kod kopyalanmaz.
+    - Çıktı docs/referans/cachyos.md; Grup H'nin (13, 21) girdisi.
+66. **SICAKLIK İZLEME (2026-09-02 eki, Grup H2).**
+    - lm-sensors/hwmon ile CPU (varsa GPU) sıcaklığı. Üreticiye özel
+      sürücü GEREKMEZ (msi-ec, thinkfan vb. bağımlılık yok).
+      Okunamıyorsa özellik sessizce devre dışı — hata gösterilmez.
+    - Panelde isteğe bağlı gösterge (varsayılan KAPALI), renk kodlu.
+67. **KRİTİK SICAKLIK UYARISI (2026-09-02 eki, Grup H2).**
+    - İki eşik, ayarlardan değişir: uyarı (vars. 90°C), kritik (95°C).
+    - Uyarıda normal bildirim: "CPU sıcaklığı yüksek (92°C). Soğutmayı
+      kontrol edin." / "CPU temperature is high (92°C). Check your
+      cooling."
+    - Kritikte ekranın üstünde ısrarcı şerit, kapatılana kadar durur:
+      "CPU 97°C — sistem her an kapanabilir. Çalışmanızı kaydedin." /
+      "CPU at 97°C — the system may shut down. Save your work."
+    - Kritikte otomatik btrfs snapshot + sync.
+    - Spam önleme: aynı eşik için bir kez; eşiğin üstünde birkaç
+      saniye kalma şartı.
+    - Düzgün kapanmamış açılışta bir kez bilgi: son sıcaklık,
+      snapshot alındı mı.
+    - YAPMAYACAĞIMIZ: kendi kapatma mantığımız YOK — çekirdeğin
+      thermal_zone critical'ına bırakılır. Hibernate YOK (kritik anda
+      RAM'i diske yazmak CPU'yu daha da ısıtır).
+    - (Buradaki TR/EN metinler taslak; uygulanırken
+      kavis-arayuz-metinleri.md tablosuna eklenir.)
+68. **SOĞUTMA KATMANI — FAN KONTROLÜ (2026-09-02 eki, Grup H2).**
+    - Genel bir katman; MSI/Asus/Lenovo onun altında sürücü.
+    - Tespit: /sys/class/hwmon altında pwm var mı; msi-ec/asusctl/
+      thinkfan kurulu mu. Hiçbiri yoksa "bu donanımda desteklenmiyor".
+    - Ham EC yazma ASLA; hep mevcut, test edilmiş araçların üstüne.
+    - Güvenlik alt sınırı: sıcaklık eşiği aşılırsa profil ne olursa
+      olsun tam hız.
+    - Oyun moduyla bağ (madde 13): oyun moduna girince "performans"
+      profili, çıkınca geri.
+    - Not: DKMS sürücüleri (msi-ec) Secure Boot açıkken yüklenmez —
+      kısıt belgeye yazılır (docs/bilinen-sorunlar.md kararıyla aynı
+      kapsam).
+69. **YENİDEN KURULUM — "DOSYALARIMI KORU" KİPİ (2026-09-02 eki).**
+    Tam tasarım docs/yeniden-kurulum-tasarimi.md; özet:
+    - Calamares mevcut Kavis'i algılar (btrfs @ + @users, @'da Kavis
+      os-release) ve üçüncü seçenek sunar: "Kavis'i yeniden kur —
+      dosyalarımı ve uygulamalarımı koru".
+    - Akış: apt-mark showmanual + flatpak list kaydet → eski @ →
+      @old-<tarih> (7 gün sonra otomatik silinir) → yeni @ oluştur,
+      squashfs'i aç → @users'a DOKUNMA → ilk açılışta paket/flatpak
+      listesini geri kur, bulunamayanları LİSTELE → fstab/GRUB/EFI
+      yenile, eski girdi kalmaz.
+    - Alt birimler: @ (sistem, yenilenir), @users (dokunulmaz),
+      @flatpak (/var/lib/flatpak, korunur), @old-* (otomatik temizlik).
+    - /etc'den kaydedilip geri konanlar: hostname, timezone,
+      default/keyboard, NetworkManager/system-connections (Wi-Fi
+      şifreleri).
+    - @old-* varken GRUB F3'te "önceki sisteme dön".
+    - YAPMAYACAĞIMIZ: eski @ üstüne kopyalama (artık bırakır);
+      kullanıcıya "hangi dosyaları koruyayım" diye sorma.
+    - Büyük sürüm geçişleri (0.3→0.4) de aynı mekanizmayı
+      kullanabilir — madde 26 (güncelleme) ve 27 (USB'den güncelleme)
+      ile ilişkili.
 
 ## Yapılış sırası (gruplar)
 
@@ -390,11 +505,13 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
 - **GRUP A2** — referans inceleme: 47
 - **GRUP B** — mevcut aşamaları kapat: tema/boot CI doğrulaması, 2, 30,
   0, 8, 46A
-- **GRUP C** — panel altyapısı: 3
-- **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29
-- **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44
+- **GRUP C** — panel altyapısı: 3 + 60 (v0.3-test1 hotfix'leri —
+  D'ye geçmeden yapılır)
+- **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29, 61, 62
+- **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44, 63, 64
 - **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50
-- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11 + aşağıdaki
+- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11, 65 (CachyOS
+  incelemesi — Grup H'nin girdisi, H başlamadan hazır olur) + aşağıdaki
   "Grup G ek maddesi" (userns açılışı + telafi önlemleri)
 
   ### Grup G ek maddesi: unprivileged user namespace'i açma + telafi önlemleri
@@ -423,8 +540,11 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
   4. docs/ güvenlik notlarına takasın gerekçesi yazılacak.
 - **GRUP H** — oyun ve cihazlar: 13, 14, 25, 54, 53 (VM'de tam test
   edilemez)
+- **GRUP H2** — sıcaklık, soğutma, donanım koruması (2026-09-02 eki;
+  H'den sonra çünkü fan profili oyun moduna bağlanıyor): 66, 67, 68
+  (fan/sıcaklık VM'de tam test edilemez — gerçek donanım gerekir)
 - **GRUP I** — kurulum akışı (27C A/B + 51A swap baştan hesaba katılır):
-  35, 15, 24, 16, 57, 17
+  35, 15, 24, 16, 69, 57, 17
 - **GRUP J** — güncelleme/yedek/kurtarma: 26, 19, 27, 31, 56, 32,
   33 + 20, 46B
 - **GRUP K** — en son: 18, 21

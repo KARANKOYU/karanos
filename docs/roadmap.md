@@ -13,12 +13,13 @@ verilir ve onay beklenir.
 | Sürüm | Gruplar | İçerik (özet) | Durum |
 |---|---|---|---|
 | 0.2 | A, A2, B | CI iyileşti, Kavis markası, picom, yeni boot splash + F3, autologin + `/users/karan`, güvenlik sertleştirme, CI test altyapısı | ✅ A, A2, B (v0.2-test3 koşusunda doğrulandı; VirtualBox el testi bekliyor) |
-| 0.3 | C, D | C/Vala panel, görev çubuğu görünümü + sağ tık, pencere yönetimi/snap/Alt+Tab, sanal masaüstleri, takvim + bildirim, görev yöneticisi + küçük araçlar, ekran görüntüsü/kaydı | 🔨 C ✅ TAM (Vala panel + 4 görev çubuğu aşaması: yerleşim, W11 görünüm, gösterge popup'ları; RAM 34 MB — v0.3-test1 doğrulaması bekliyor), D bekliyor |
-| 0.4 | E | Dosya yöneticisi (nemo), hızlı önizleme, terminal + editörler, disk/USB araçları, yazıcı, terminal kolaylıkları | ⏳ |
-| 0.5 | F | Ayarlar iskeleti + ekran + kişiselleştirme + çok dillilik + güç + ağ + hakkında + sistem sağlığı + donanım testi | ⏳ |
-| 0.6 | G | İndirme yöneticisi, Mağaza, Flatpak, Windows karşılıkları, güvenlik taraması, arama çubuğu | ⏳ |
+| 0.3 | C, D | C/Vala panel, görev çubuğu görünümü + sağ tık, pencere yönetimi/snap/Alt+Tab, sanal masaüstleri, takvim + bildirim, görev yöneticisi + küçük araçlar, ekran görüntüsü/kaydı, GTK ortak başlangıç (61), hypervisor uyarı listesi (62) | 🔨 C kod tamam; v0.3-test1 VM testi üç popup hatası çıkardı → madde 60 hotfix D'den önce yapılacak. Açılış deneyimi düzeltmeleri (konsol sustur + splash→lightdm devri + GRUB geri sayımı) devam ediyor — v0.3-test2 CI'da. D bekliyor |
+| 0.4 | E | Dosya yöneticisi (nemo), hızlı önizleme, terminal + editörler, disk/USB araçları + USB güvenli kullanım (63) ve onarım (64), yazıcı, terminal kolaylıkları | ⏳ |
+| 0.5 | F | Ayarlar iskeleti + ekran + kişiselleştirme + çok dillilik + güç + ağ + hakkında + sistem sağlığı (62'nin listesini kullanır) + donanım testi | ⏳ |
+| 0.6 | G | İndirme yöneticisi, Mağaza, Flatpak, Windows karşılıkları, güvenlik taraması, arama çubuğu, CachyOS incelemesi (65) | ⏳ |
 | 0.7 | H | Oyun Modu, GPU offload, ağ önceliklendirme, cihaz desteği, sanallaştırma | ⏳ |
-| 0.9 (RC) | I | Sürücü yardımcısı, kurulum sihirbazı, ilk açılış uygulama seçimi, Calamares (A/B bölümlü disk düzeni + hibernate swap), ilk adımlar rehberi, salt-okunur /usr | ⏳ |
+| 0.8 | H2 | Sıcaklık izleme (66), kritik sıcaklık uyarısı (67), soğutma katmanı/fan kontrolü (68) — gerçek donanım ister | ⏳ |
+| 0.9 (RC) | I | Sürücü yardımcısı, kurulum sihirbazı, ilk açılış uygulama seçimi, Calamares (A/B bölümlü disk düzeni + hibernate swap), yeniden kurulum "dosyalarımı koru" (69), ilk adımlar rehberi, salt-okunur /usr | ⏳ |
 | 1.0 | J | Güncelleme sistemi, APT deposu, USB'den güncelleme (A/B), snapshot arayüzü, otomatik yedekleme, sorun giderici, kurtarma ortamı (F8), hata bildirme | ⏳ |
 | 1.x / 2.0 | K + ertelenenler | Giriş + kilit ekranı, çoklu kullanıcı, kavis-gameopt (X3D donanım gelince) | ⏳ |
 
