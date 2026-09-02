@@ -15,6 +15,11 @@ namespace Kavis.Usb {
         public string name;    /* human-readable: label or NAME (SIZE) */
     }
 
+    public struct Partition {
+        public string node;        /* /dev/sdb1 */
+        public string mountpoint;  /* "" = not mounted */
+    }
+
     private string? field (string line, string key) {
         /* lsblk -P satırı: NAME="sdb1" RM="1" ... */
         string marker = key + "=\"";
@@ -48,14 +53,14 @@ namespace Kavis.Usb {
     public Device[] devices () {
         Device[] result = {};
         string? output = run_capture ({ "lsblk", "-Pno",
-            "NAME,RM,TYPE,LABEL,SIZE,PKNAME" });
+            "NAME,RM,TYPE,LABEL,SIZE,PKNAME,TRAN" });
         if (output == null) {
             return result;
         }
         string[] lines = output.split ("\n");
         foreach (unowned string line in lines) {
             if (field (line, "TYPE") != "disk"
-                || field (line, "RM") != "1") {
+                || !is_removable (line)) {
                 continue;
             }
             string name = field (line, "NAME") ?? "";
@@ -81,8 +86,69 @@ namespace Kavis.Usb {
         return result;
     }
 
+    /* RM bayrağı tek başına yanıltıcı (udisks #358: eMMC "removable"
+     * görünebilir) — USB veriyoluna takılı HER disk çıkarılabilir
+     * sayılır, RM=1 de kalır (SD kart okuyucular TRAN vermez). */
+    private bool is_removable (string line) {
+        return field (line, "TRAN") == "usb"
+            || field (line, "RM") == "1";
+    }
+
     public bool present () {
         return devices ().length > 0;
+    }
+
+    /* Every partition of the removable disks, mounted or not — the
+     * automount pass (madde 42) walks this. */
+    public Partition[] partitions () {
+        Partition[] result = {};
+        string? output = run_capture ({ "lsblk", "-Pno",
+            "NAME,RM,TYPE,MOUNTPOINT,PKNAME,TRAN" });
+        if (output == null) {
+            return result;
+        }
+        string[] lines = output.split ("\n");
+        var disks = new GenericSet<string> (str_hash, str_equal);
+        foreach (unowned string line in lines) {
+            if (field (line, "TYPE") == "disk"
+                && is_removable (line)) {
+                disks.add (field (line, "NAME") ?? "");
+            }
+        }
+        foreach (unowned string line in lines) {
+            if (field (line, "TYPE") != "part"
+                || !disks.contains (field (line, "PKNAME") ?? "?")) {
+                continue;
+            }
+            Partition part = {
+                "/dev/" + (field (line, "NAME") ?? ""),
+                field (line, "MOUNTPOINT") ?? ""
+            };
+            result += part;
+        }
+        return result;
+    }
+
+    /* Mount one partition through udisks (polkit lets the desktop
+     * user do this; the mountpoint lands under /media). BLOCKING —
+     * worker thread only. Returns the mountpoint, or null. */
+    public string? mount_sync (string part) {
+        /* Çıktı: "Mounted /dev/sdb1 at /media/karan/ETIKET" (eski
+         * udisks sona nokta koyardı). */
+        string? output = run_capture ({ "udisksctl", "mount", "-b",
+                                        part });
+        if (output == null) {
+            return null;
+        }
+        int at = output.last_index_of (" at ");
+        if (at < 0) {
+            return null;
+        }
+        string mountpoint = output.substring (at + 4).strip ();
+        if (mountpoint.has_suffix (".")) {
+            mountpoint = mountpoint.substring (0, mountpoint.length - 1);
+        }
+        return mountpoint;
     }
 
     /* Unmount every mounted partition of the disk, then power it off.

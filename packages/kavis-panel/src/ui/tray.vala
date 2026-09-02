@@ -45,6 +45,8 @@ namespace Kavis.Ui {
         }
 
         private int known_count = -1;
+        private GenericSet<string> seen_parts =
+            new GenericSet<string> (str_hash, str_equal);
 
         private void refresh () {
             /* Tak/çıkar sesi (6b): udev olayını ayrıca dinlemek yerine
@@ -55,6 +57,7 @@ namespace Kavis.Ui {
                     ? "device-added" : "device-removed");
             }
             known_count = count;
+            automount_new ();
             if (count > 0) {
                 /* show_all, no_show_all işaretli widget'ın KENDİSİNDE
                  * de işlemez — bayrağı önce kaldır. */
@@ -67,6 +70,61 @@ namespace Kavis.Ui {
                 set_no_show_all (true);
                 hide ();
             }
+        }
+
+        /* Otomatik bağlama + bildirim (madde 42): yeni görülen ve
+         * bağlı olmayan bölümler udisks'le bağlanır, ilkinin yolu
+         * tıklanınca açılan bir bildirim düşer. Kullanıcının elle
+         * ayırdığı bölüm "görülmüş" kaldığı için yeniden BAĞLANMAZ;
+         * çıkarılan çubuk kümeden düşer ki tekrar takılınca bağlansın. */
+        private void automount_new () {
+            var current = new GenericSet<string> (str_hash, str_equal);
+            string[] todo = {};
+            foreach (unowned Usb.Partition part in Usb.partitions ()) {
+                current.add (part.node);
+                if (!seen_parts.contains (part.node)
+                    && part.mountpoint == "") {
+                    todo += part.node;
+                }
+            }
+            seen_parts = current;
+            if (todo.length == 0) {
+                return;
+            }
+            new Thread<void*> ("kavis-automount", () => {
+                string? first = null;
+                foreach (string node in todo) {
+                    string? mountpoint = Usb.mount_sync (node);
+                    if (mountpoint != null && first == null) {
+                        first = mountpoint;
+                    }
+                }
+                if (first != null) {
+                    string target = first;
+                    Idle.add (() => {
+                        announce_mount (target);
+                        return Source.REMOVE;
+                    });
+                }
+                return null;
+            });
+        }
+
+        private void announce_mount (string mountpoint) {
+            if (Notifications.server == null) {
+                return;
+            }
+            var hints = new HashTable<string, Variant> (
+                str_hash, str_equal);
+            /* Tık → dosya yöneticisinde aç (toast x-kavis-path yolu). */
+            hints.insert ("x-kavis-path",
+                          new Variant.string (mountpoint));
+            try {
+                Notifications.server.notify ("Kavis", 0,
+                    "drive-removable-media-symbolic",
+                    _("Removable drive connected"),
+                    mountpoint, {}, hints, 6000);
+            } catch (Error e) { }
         }
 
         private void show_eject_menu (Gdk.EventButton event) {

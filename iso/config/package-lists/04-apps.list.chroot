@@ -34,3 +34,15 @@ xclip
 # CI'da izlenir (grup-e-taramasi.md).
 mousepad
 kate
+
+# --- Disk ve USB araçları (madde 42) ---
+# gnome-disk-utility: biçimlendirme (NTFS/FAT/exFAT/ext4/btrfs, kısa
+# açıklamalı), SMART (udisks'in yerleşik atasmart'ı), "Restore Disk
+# Image" = ISO'yu USB'ye yazma (Rufus karşılığı).
+# gparted: bölümleme (madde metni "GParted kurulu").
+# baobab: disk alanı haritası (WinDirStat karşılığı).
+# exfatprogs: exFAT biçimlendirme/onarım desteği.
+gnome-disk-utility
+gparted
+baobab
+exfatprogs

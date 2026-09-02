@@ -369,6 +369,9 @@ msgstr "⟪Add desktop shortcut········⟫"
 msgid "Safely remove"
 msgstr "⟪Safely remove·····⟫"
 
+msgid "Removable drive connected"
+msgstr "⟪Removable drive connected··········⟫"
+
 msgid "Safely remove %s"
 msgstr "⟪Safely remove %s······⟫"
 

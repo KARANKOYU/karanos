@@ -495,3 +495,6 @@ msgstr "Büyük dosyanın yalnız baş kısmı gösteriliyor"
 
 msgid "Could not preview this file"
 msgstr "Bu dosya önizlenemedi"
+
+msgid "Removable drive connected"
+msgstr "Çıkarılabilir sürücü takıldı"

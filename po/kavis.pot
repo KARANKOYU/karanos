@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 16:02+0000\n"
+"POT-Creation-Date: 2026-09-02 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -560,21 +560,25 @@ msgid "Add desktop shortcut"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/tray.vala:25
-#: packages/kavis-panel/src/ui/tray.vala:103
-#: packages/kavis-panel/src/ui/tray.vala:151
+#: packages/kavis-panel/src/ui/tray.vala:161
+#: packages/kavis-panel/src/ui/tray.vala:209
 msgid "Safely remove"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:76
+#: packages/kavis-panel/src/ui/tray.vala:125
+msgid "Removable drive connected"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:134
 #, c-format
 msgid "Safely remove %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:127
+#: packages/kavis-panel/src/ui/tray.vala:185
 msgid "You can now remove the device"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:128
+#: packages/kavis-panel/src/ui/tray.vala:186
 msgid "Could not remove the device — files may still be in use"
 msgstr ""
 
