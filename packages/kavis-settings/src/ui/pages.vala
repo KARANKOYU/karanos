@@ -1,11 +1,14 @@
-/* Section pages (madde 9). Skeleton commit: every page opens with its
- * title; the real settings land per section in the follow-up commits
- * (Görünüm 38, Ekran 10, Klavye/Dil 34, Güç 51, Ağ 52, Hakkında 45).
+/* Section pages: shared frame + row widgets (madde 9).
+ *
+ * Every page is a vertical list of "setting rows": bold-ish label +
+ * optional subtitle on the left, the control on the right — the W11
+ * Settings card shape, spacing per tasarim-dili.md (16 iç kenar,
+ * 8 öğe arası, 12 grup arası).
  */
 
 namespace Kavis.Settings.Pages {
 
-    /* Common page frame: 24 px margins, title on top, rows below. */
+    /* Common page frame: margins, title on top, rows below. */
     public Gtk.Widget frame (string title, out Gtk.Box body) {
         var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
         page.margin = 24;
@@ -18,11 +21,97 @@ namespace Kavis.Settings.Pages {
         return page;
     }
 
+    /* One setting row: title (+subtitle) left, control right. */
+    public Gtk.Widget row (string title, string? subtitle,
+                           Gtk.Widget? control) {
+        var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 16);
+        box.margin_top = 4;
+        box.margin_bottom = 4;
+        var text = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
+        var label = new Gtk.Label (title);
+        label.set_xalign (0);
+        text.pack_start (label, false, false, 0);
+        if (subtitle != null) {
+            var sub = new Gtk.Label (subtitle);
+            sub.set_xalign (0);
+            sub.set_line_wrap (true);
+            sub.get_style_context ().add_class ("dim-label");
+            text.pack_start (sub, false, false, 0);
+        }
+        box.pack_start (text, true, true, 0);
+        if (control != null) {
+            control.valign = Gtk.Align.CENTER;
+            box.pack_end (control, false, false, 0);
+        }
+        return box;
+    }
+
+    /* Group heading inside a page. */
+    public Gtk.Widget group (string title) {
+        var label = new Gtk.Label (title);
+        label.set_xalign (0);
+        label.margin_top = 12;
+        label.get_style_context ().add_class ("dim-label");
+        return label;
+    }
+
+    /* Read a string from kavis.conf with a default. */
+    public string conf_get (string grp, string key, string fallback) {
+        try {
+            return Config.load ().get_string (grp, key);
+        } catch (Error e) {
+            return fallback;
+        }
+    }
+
+    public bool conf_get_bool (string grp, string key, bool fallback) {
+        try {
+            return Config.load ().get_boolean (grp, key);
+        } catch (Error e) {
+            return fallback;
+        }
+    }
+
+    public int conf_get_int (string grp, string key, int fallback) {
+        try {
+            return Config.load ().get_integer (grp, key);
+        } catch (Error e) {
+            return fallback;
+        }
+    }
+
+    /* Write one value back (loads first so other groups survive). */
+    public void conf_set (string grp, string key, string value) {
+        var file = Config.load ();
+        file.set_string (grp, key, value);
+        Config.save (file);
+    }
+
+    public void conf_set_bool (string grp, string key, bool value) {
+        var file = Config.load ();
+        file.set_boolean (grp, key, value);
+        Config.save (file);
+    }
+
+    public void conf_set_int (string grp, string key, int value) {
+        var file = Config.load ();
+        file.set_integer (grp, key, value);
+        Config.save (file);
+    }
+
     /* Build one section's page by id. */
     public Gtk.Widget build (string id, string title) {
+        switch (id) {
+        case "appearance": return appearance (title);
+        case "display":    return display (title);
+        case "sound":      return sound (title);
+        case "keyboard":   return keyboard (title);
+        case "power":      return power (title);
+        case "network":    return network (title);
+        case "taskbar":    return taskbar (title);
+        case "system":     return system_page (title);
+        }
         Gtk.Box body;
-        var page = frame (title, out body);
-        /* İçerik commit (3)'te bölüm bölüm doluyor. */
-        return page;
+        return frame (title, out body);
     }
 }

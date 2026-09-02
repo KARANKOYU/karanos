@@ -1,26 +1,29 @@
 /* Power plans (business logic — no widget code here).
  *
- * One plan per power source (plugged in / on battery), as in the
- * design. The choice persists in ~/.config/kavis/power.conf and, when
- * the machine is currently on the source whose plan changed, is
- * applied immediately through powerprofilesctl if that tool exists.
- * Without it the choice is stored only; full enforcement (governors,
- * thresholds) arrives with the power settings page (item 51, Grup F) —
- * the popup must not grow its own daemon.
- */
+ * KANONİK KOPYA BURASI — build-packages.sh panel ve Ayarlar'a kopyalar.
+ *
+ * One plan per power source (plugged in / on battery). Madde 51: four
+ * modes — Efficiency / Normal / Performance / Game (Game maps to the
+ * performance profile until Grup H wires game-specific bits). The
+ * choice persists in kavis.conf [power] (old power.conf imported once)
+ * and is applied through powerprofilesctl when present; without it the
+ * choice is stored only. Callers pass whether the machine is on AC —
+ * this file must not depend on the panel's Battery backend. */
 
 namespace Kavis.PowerPlan {
 
     public enum Plan {
-        PERFORMANCE,
+        SAVER,
         NORMAL,
-        SAVER;
+        PERFORMANCE,
+        GAME;
 
-        /* Config-file token; also the Strings key suffix. */
+        /* Config-file token. */
         public unowned string id () {
             switch (this) {
             case PERFORMANCE: return "performance";
             case SAVER:       return "saver";
+            case GAME:        return "game";
             default:          return "normal";
             }
         }
@@ -29,45 +32,46 @@ namespace Kavis.PowerPlan {
             switch (id) {
             case "performance": return PERFORMANCE;
             case "saver":       return SAVER;
+            case "game":        return GAME;
             default:            return NORMAL;
             }
         }
     }
 
-    private string config_path () {
+    private string old_config_path () {
         return Path.build_filename (Environment.get_user_config_dir (),
                                     "kavis", "power.conf");
     }
 
-    /* Stored plan for one power source; NORMAL when never chosen. */
+    /* Stored plan for one power source; NORMAL when never chosen.
+     * Reads kavis.conf [power]; falls back to the pre-1A power.conf. */
     public Plan get_plan (bool plugged) {
         unowned string key = plugged ? "plugged" : "battery";
+        var file = Config.load ();
+        try {
+            return Plan.from_id (file.get_string ("power", key));
+        } catch (Error e) { }
         try {
             string contents;
-            FileUtils.get_contents (config_path (), out contents);
+            FileUtils.get_contents (old_config_path (), out contents);
             foreach (unowned string line in contents.split ("\n")) {
                 if (line.has_prefix (key + "=")) {
-                    return Plan.from_id (line.substring (key.length + 1).strip ());
+                    return Plan.from_id (
+                        line.substring (key.length + 1).strip ());
                 }
             }
-        } catch (FileError e) {
-            /* Missing file = defaults; first write creates it. */
-        }
+        } catch (FileError e) { }
         return Plan.NORMAL;
     }
 
-    public void set_plan (bool plugged, Plan plan) {
-        var contents = "plugged=%s\nbattery=%s\n".printf (
-            (plugged ? plan : get_plan (true)).id (),
-            (plugged ? get_plan (false) : plan).id ());
-        var path = config_path ();
-        DirUtils.create_with_parents (Path.get_dirname (path), 0755);
-        try {
-            FileUtils.set_contents (path, contents);
-        } catch (FileError e) {
-            warning ("kavis-panel: guc plani kaydedilemedi: %s", e.message);
-        }
-        if (plugged == Battery.on_ac ()) {
+    /* now_plugged: is the machine on AC right now — the caller knows
+     * (panel: Battery.on_ac; Ayarlar: sysfs). */
+    public void set_plan (bool plugged, Plan plan, bool now_plugged) {
+        var file = Config.load ();
+        file.set_string ("power", plugged ? "plugged" : "battery",
+                         plan.id ());
+        Config.save (file);
+        if (plugged == now_plugged) {
             apply (plan);
         }
     }
@@ -77,7 +81,8 @@ namespace Kavis.PowerPlan {
     public void apply (Plan plan) {
         unowned string profile;
         switch (plan) {
-        case Plan.PERFORMANCE: profile = "performance"; break;
+        case Plan.PERFORMANCE:
+        case Plan.GAME:        profile = "performance"; break;
         case Plan.SAVER:       profile = "power-saver"; break;
         default:               profile = "balanced";    break;
         }

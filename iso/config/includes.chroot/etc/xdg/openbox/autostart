@@ -3,9 +3,24 @@
 # --- Duvar kağıdı ----------------------------------------------------
 # kavis-theme paketinden geliyor. Paket yoksa (çıplak ISO) düz renge
 # düşüyoruz ki ekran yine de "açıldı" desin.
+# xsettings: tema/ikon/ölçek tek kaynaktan, canlı (madde 38).
+# Ayarlar bu dosyayı yazıp SIGHUP verir; ilk açılışta varsayılan üret.
+XS_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/xsettingsd/xsettingsd.conf"
+if command -v xsettingsd >/dev/null 2>&1; then
+	if [ ! -f "$XS_CONF" ]; then
+		mkdir -p "$(dirname "$XS_CONF")"
+		printf 'Net/ThemeName "Kavis"\nNet/IconThemeName "Kavis"\nGtk/FontName "DejaVu Sans 10"\n' > "$XS_CONF"
+	fi
+	xsettingsd -c "$XS_CONF" &
+fi
+
 if command -v xwallpaper >/dev/null 2>&1 &&
 	[ -f /usr/share/backgrounds/kavis/kavis.png ]; then
-	xwallpaper --zoom /usr/share/backgrounds/kavis/kavis.png &
+	# Ayarlar > Görünüm'ün seçtiği duvar kâğıdı kavis.conf'ta;
+	# yoksa varsayılan (kabuk için hafif grep — keyfile ayrıştırma yok).
+	DUVAR=$(grep -m1 '^wallpaper=' "${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf" 2>/dev/null | cut -d= -f2-)
+	[ -f "$DUVAR" ] || DUVAR=/usr/share/backgrounds/kavis/kavis.png
+	xwallpaper --zoom "$DUVAR" &
 else
 	xsetroot -solid "#0D141B" &
 fi
@@ -20,7 +35,11 @@ xsetroot -cursor_name left_ptr &
 # açılışta bileşiklemenin var olup olmadığına bakıp güç menüsünü ona
 # göre çiziyor. xrender arka ucu, 3B gerektirmiyor.
 if command -v picom >/dev/null 2>&1; then
-	picom --backend xrender --config /etc/xdg/picom-kavis.conf &
+	# Ayarlar > Görünüm köşe/animasyon değiştirince kullanıcı kopyası
+	# yazar (picom canlı yeniden yükleme bilmiyor) — varsa onu kullan.
+	PICOM_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/kavis/picom.conf"
+	[ -f "$PICOM_CONF" ] || PICOM_CONF=/etc/xdg/picom-kavis.conf
+	picom --backend xrender --config "$PICOM_CONF" &
 	# Panel bileşiklemeyi görebilsin diye kısa bir pay.
 	sleep 1
 fi

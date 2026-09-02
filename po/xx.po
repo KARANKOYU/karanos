@@ -405,6 +405,231 @@ msgstr "⟪Could not remove the device — files may still be in use······
 msgid "Still writing — do not remove"
 msgstr "⟪Still writing — do not remove···········⟫"
 
+msgid "%s used of %s"
+msgstr "⟪%s used of %s·····⟫"
+
+msgid "Version"
+msgstr "⟪Version··⟫"
+
+msgid "Kernel"
+msgstr "⟪Kernel··⟫"
+
+msgid "Desktop"
+msgstr "⟪Desktop··⟫"
+
+msgid "Processor"
+msgstr "⟪Processor···⟫"
+
+msgid "Memory"
+msgstr "⟪Memory··⟫"
+
+msgid "Disk"
+msgstr "⟪Disk··⟫"
+
+msgid "Hostname"
+msgstr "⟪Hostname···⟫"
+
+msgid "Dark"
+msgstr "⟪Dark··⟫"
+
+msgid "Light"
+msgstr "⟪Light··⟫"
+
+msgid "Same as system"
+msgstr "⟪Same as system·····⟫"
+
+msgid "Theme"
+msgstr "⟪Theme··⟫"
+
+msgid "Dark is the default; System follows the distribution default for now"
+msgstr "⟪Dark is the default; System follows the distribution default for now···························⟫"
+
+msgid "Off"
+msgstr "⟪Off··⟫"
+
+msgid "Fast"
+msgstr "⟪Fast··⟫"
+
+msgid "Normal"
+msgstr "⟪Normal··⟫"
+
+msgid "Slow"
+msgstr "⟪Slow··⟫"
+
+msgid "Corner roundness"
+msgstr "⟪Corner roundness······⟫"
+
+msgid "Window corners; popups keep the design values"
+msgstr "⟪Window corners; popups keep the design values··················⟫"
+
+msgid "Animation speed"
+msgstr "⟪Animation speed······⟫"
+
+msgid "Transparency effects"
+msgstr "⟪Transparency effects········⟫"
+
+msgid "Wallpaper"
+msgstr "⟪Wallpaper···⟫"
+
+msgid "Accent color"
+msgstr "⟪Accent color····⟫"
+
+msgid "Teal — fixed in this release"
+msgstr "⟪Teal — fixed in this release···········⟫"
+
+msgid "Resolution and refresh rate"
+msgstr "⟪Resolution and refresh rate··········⟫"
+
+msgid "No display information available"
+msgstr "⟪No display information available············⟫"
+
+msgid "Scale"
+msgstr "⟪Scale··⟫"
+
+msgid "Text and interface size"
+msgstr "⟪Text and interface size·········⟫"
+
+msgid "Warmer colors in the evening (4500K)"
+msgstr "⟪Warmer colors in the evening (4500K)··············⟫"
+
+msgid "Keep these display settings?"
+msgstr "⟪Keep these display settings?···········⟫"
+
+msgid "Revert"
+msgstr "⟪Revert··⟫"
+
+msgid "Keep"
+msgstr "⟪Keep··⟫"
+
+msgid "Reverting in %d seconds"
+msgstr "⟪Reverting in %d seconds·········⟫"
+
+msgid "Language"
+msgstr "⟪Language···⟫"
+
+msgid "%d%% translated — untranslated parts appear in English"
+msgstr "⟪%d%% translated — untranslated parts appear in English·····················⟫"
+
+msgid "Takes effect at the next sign-in"
+msgstr "⟪Takes effect at the next sign-in············⟫"
+
+msgid "Layout"
+msgstr "⟪Layout··⟫"
+
+msgid "One global layout for every window"
+msgstr "⟪One global layout for every window·············⟫"
+
+msgid "Shortcuts"
+msgstr "⟪Shortcuts···⟫"
+
+msgid "Start menu"
+msgstr "⟪Start menu····⟫"
+
+msgid "Open pinned app"
+msgstr "⟪Open pinned app······⟫"
+
+msgid "Task view"
+msgstr "⟪Task view···⟫"
+
+msgid "Snap layouts"
+msgstr "⟪Snap layouts····⟫"
+
+msgid "Screenshot"
+msgstr "⟪Screenshot····⟫"
+
+msgid "Color picker"
+msgstr "⟪Color picker····⟫"
+
+msgid "Close window / power dialog"
+msgstr "⟪Close window / power dialog··········⟫"
+
+msgid "Security screen"
+msgstr "⟪Security screen······⟫"
+
+msgid "Available networks"
+msgstr "⟪Available networks·······⟫"
+
+msgid "No Wi-Fi hardware"
+msgstr "⟪No Wi-Fi hardware······⟫"
+
+msgid "Saved networks"
+msgstr "⟪Saved networks·····⟫"
+
+msgid "No saved networks"
+msgstr "⟪No saved networks······⟫"
+
+msgid "Power mode"
+msgstr "⟪Power mode····⟫"
+
+msgid "Never"
+msgstr "⟪Never··⟫"
+
+msgid "5 minutes"
+msgstr "⟪5 minutes···⟫"
+
+msgid "10 minutes"
+msgstr "⟪10 minutes····⟫"
+
+msgid "30 minutes"
+msgstr "⟪30 minutes····⟫"
+
+msgid "Turn off screen after"
+msgstr "⟪Turn off screen after········⟫"
+
+msgid "Efficiency"
+msgstr "⟪Efficiency····⟫"
+
+msgid "Performance"
+msgstr "⟪Performance····⟫"
+
+msgid "Game"
+msgstr "⟪Game··⟫"
+
+msgid "Applies to newly started applications"
+msgstr "⟪Applies to newly started applications··············⟫"
+
+msgid "Master volume"
+msgstr "⟪Master volume·····⟫"
+
+msgid "System sounds"
+msgstr "⟪System sounds·····⟫"
+
+msgid "Device plug, notification and error sounds"
+msgstr "⟪Device plug, notification and error sounds················⟫"
+
+msgid "About"
+msgstr "⟪About··⟫"
+
+msgid "Copy details"
+msgstr "⟪Copy details····⟫"
+
+msgid "Small"
+msgstr "⟪Small··⟫"
+
+msgid "Large"
+msgstr "⟪Large··⟫"
+
+msgid "Left (Windows 10)"
+msgstr "⟪Left (Windows 10)······⟫"
+
+msgid "Center (Windows 11)"
+msgstr "⟪Center (Windows 11)·······⟫"
+
+msgid "Start button and window list placement"
+msgstr "⟪Start button and window list placement···············⟫"
+
+msgid "Automatically hide the taskbar"
+msgstr "⟪Automatically hide the taskbar············⟫"
+
+msgid "Pinned apps"
+msgstr "⟪Pinned apps····⟫"
+
+msgid "Default set"
+msgstr "⟪Default set····⟫"
+
+msgid "Pin and reorder from the taskbar itself (right-click or drag)"
+msgstr "⟪Pin and reorder from the taskbar itself (right-click or drag)························⟫"
+
 msgid "Appearance"
 msgstr "⟪Appearance····⟫"
 
@@ -569,12 +794,6 @@ msgstr "⟪Name··⟫"
 
 msgid "CPU"
 msgstr "⟪CPU··⟫"
-
-msgid "Memory"
-msgstr "⟪Memory··⟫"
-
-msgid "Disk"
-msgstr "⟪Disk··⟫"
 
 msgid "Ending this system process may cause problems. Continue?"
 msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"

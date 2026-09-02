@@ -606,3 +606,228 @@ msgstr "Görev çubuğu"
 
 msgid "Find a setting"
 msgstr "Ayar ara"
+
+msgid "%s used of %s"
+msgstr "%s dolu, toplam %s"
+
+msgid "Version"
+msgstr "Sürüm"
+
+msgid "Kernel"
+msgstr "Çekirdek"
+
+msgid "Desktop"
+msgstr "Masaüstü"
+
+msgid "Processor"
+msgstr "İşlemci"
+
+msgid "Hostname"
+msgstr "Makine adı"
+
+msgid "Dark"
+msgstr "Koyu"
+
+msgid "Light"
+msgstr "Açık"
+
+msgid "Same as system"
+msgstr "Sistemle uyumlu"
+
+msgid "Theme"
+msgstr "Tema"
+
+msgid "Dark is the default; System follows the distribution default for now"
+msgstr "Varsayılan koyu; Sistem seçeneği şimdilik dağıtım varsayılanını izler"
+
+msgid "Off"
+msgstr "Kapalı"
+
+msgid "Fast"
+msgstr "Hızlı"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "Slow"
+msgstr "Yavaş"
+
+msgid "Corner roundness"
+msgstr "Köşe yuvarlaklığı"
+
+msgid "Window corners; popups keep the design values"
+msgstr "Pencere köşeleri; açılır menüler tasarım değerlerinde kalır"
+
+msgid "Animation speed"
+msgstr "Animasyon hızı"
+
+msgid "Transparency effects"
+msgstr "Saydamlık efektleri"
+
+msgid "Taskbar and popup translucency (blur needs a GPU backend — design limit)"
+msgstr "Görev çubuğu ve açılır menü yarı saydamlığı (bulanıklık GPU arka ucu ister — tasarım sınırı)"
+
+msgid "Wallpaper"
+msgstr "Duvar kâğıdı"
+
+msgid "Accent color"
+msgstr "Vurgu rengi"
+
+msgid "Teal — fixed in this release"
+msgstr "Turkuaz — bu sürümde sabit"
+
+msgid "Resolution and refresh rate"
+msgstr "Çözünürlük ve yenileme hızı"
+
+msgid "No display information available"
+msgstr "Ekran bilgisi alınamadı"
+
+msgid "Scale"
+msgstr "Ölçek"
+
+msgid "Text and interface size"
+msgstr "Yazı ve arayüz boyutu"
+
+msgid "Warmer colors in the evening (4500K)"
+msgstr "Akşamları daha sıcak renkler (4500K)"
+
+msgid "Keep these display settings?"
+msgstr "Bu ekran ayarları korunsun mu?"
+
+msgid "Revert"
+msgstr "Geri al"
+
+msgid "Keep"
+msgstr "Koru"
+
+msgid "Reverting in %d seconds"
+msgstr "%d saniye içinde geri alınacak"
+
+msgid "Language"
+msgstr "Dil"
+
+msgid "This language is not translated yet; the interface will appear in English. Contribute at %s"
+msgstr "Bu dil henüz çevrilmedi, arayüz İngilizce görünür. Çeviriye katkı: %s"
+
+msgid "%d%% translated — untranslated parts appear in English"
+msgstr "%%%d çevrildi — eksikler İngilizce görünür"
+
+msgid "Takes effect at the next sign-in"
+msgstr "Bir sonraki oturum açılışında geçerli olur"
+
+msgid "Layout"
+msgstr "Düzen"
+
+msgid "One global layout for every window"
+msgstr "Her pencere için tek genel düzen"
+
+msgid "Shortcuts"
+msgstr "Kısayollar"
+
+msgid "Start menu"
+msgstr "Başlat menüsü"
+
+msgid "Open pinned app"
+msgstr "Sabitli uygulamayı aç"
+
+msgid "Task view"
+msgstr "Görev görünümü"
+
+msgid "Snap layouts"
+msgstr "Yerleştirme düzenleri"
+
+msgid "Screenshot"
+msgstr "Ekran görüntüsü"
+
+msgid "Color picker"
+msgstr "Renk seçici"
+
+msgid "Close window / power dialog"
+msgstr "Pencereyi kapat / güç diyaloğu"
+
+msgid "Security screen"
+msgstr "Güvenlik ekranı"
+
+msgid "Available networks"
+msgstr "Kullanılabilir ağlar"
+
+msgid "No Wi-Fi hardware"
+msgstr "Wi-Fi donanımı yok"
+
+msgid "Saved networks"
+msgstr "Kayıtlı ağlar"
+
+msgid "No saved networks"
+msgstr "Kayıtlı ağ yok"
+
+msgid "Power mode"
+msgstr "Güç modu"
+
+msgid "Never"
+msgstr "Hiçbir zaman"
+
+msgid "5 minutes"
+msgstr "5 dakika"
+
+msgid "10 minutes"
+msgstr "10 dakika"
+
+msgid "30 minutes"
+msgstr "30 dakika"
+
+msgid "Turn off screen after"
+msgstr "Ekranı şu süre sonra kapat"
+
+msgid "Efficiency"
+msgstr "Verimlilik"
+
+msgid "Performance"
+msgstr "Performans"
+
+msgid "Game"
+msgstr "Oyun"
+
+msgid "Applies to newly started applications"
+msgstr "Yeni başlatılan uygulamalara uygulanır"
+
+msgid "Master volume"
+msgstr "Ana ses"
+
+msgid "System sounds"
+msgstr "Sistem sesleri"
+
+msgid "Device plug, notification and error sounds"
+msgstr "Aygıt takma, bildirim ve hata sesleri"
+
+msgid "About"
+msgstr "Hakkında"
+
+msgid "Copy details"
+msgstr "Bilgileri kopyala"
+
+msgid "Small"
+msgstr "Küçük"
+
+msgid "Large"
+msgstr "Büyük"
+
+msgid "Left (Windows 10)"
+msgstr "Sol (Windows 10)"
+
+msgid "Center (Windows 11)"
+msgstr "Orta (Windows 11)"
+
+msgid "Start button and window list placement"
+msgstr "Başlat düğmesi ve pencere listesi yerleşimi"
+
+msgid "Automatically hide the taskbar"
+msgstr "Görev çubuğunu otomatik gizle"
+
+msgid "Pinned apps"
+msgstr "Sabitli uygulamalar"
+
+msgid "Default set"
+msgstr "Varsayılan küme"
+
+msgid "Pin and reorder from the taskbar itself (right-click or drag)"
+msgstr "Sabitleme ve sıralama görev çubuğunun kendisinden (sağ tık ya da sürükle)"

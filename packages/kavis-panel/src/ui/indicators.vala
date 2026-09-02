@@ -275,7 +275,8 @@ namespace Kavis.Ui {
                     var chosen = plan;   /* closure copy */
                     item.activate.connect (() => {
                         if (item.get_active ()) {
-                            PowerPlan.set_plan (plugged, chosen);
+                            PowerPlan.set_plan (plugged, chosen,
+                                                Battery.on_ac ());
                         }
                     });
                     submenu.append (item);

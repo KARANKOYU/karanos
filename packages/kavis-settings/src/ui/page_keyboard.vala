@@ -1,0 +1,161 @@
+/* Keyboard & Language page (madde 34 + dil-secici.md kuralları).
+ *
+ * Language list: endonym + translation percent from the build-time
+ * JSON; 100% first, then descending, 0% dimmed but selectable with a
+ * one-line warning. Selection is written to kavis.conf and to
+ * ~/.xsessionrc (LANG for the next session — gettext reads the
+ * environment at process start; running apps keep their language).
+ * Keyboard layout: ONE global layout via setxkbmap (2F kararı).
+ */
+
+namespace Kavis.Settings.Pages {
+
+    private const string CONTRIB_URL =
+        "https://github.com/KARANKOYU/karanos";
+
+    public Gtk.Widget keyboard (string title) {
+        Gtk.Box body;
+        var page = frame (title, out body);
+
+        /* --- Dil --- */
+        body.pack_start (group (_("Language")), false, false, 0);
+        var note = new Gtk.Label ("");
+        note.set_xalign (0);
+        note.set_line_wrap (true);
+        note.get_style_context ().add_class ("dim-label");
+
+        var list = new Gtk.ListBox ();
+        list.selection_mode = Gtk.SelectionMode.SINGLE;
+        string current = conf_get ("keyboard", "language", "en");
+        Langs.Lang[] langs = Langs.list ();
+        Gtk.ListBoxRow? current_row = null;
+        foreach (unowned Langs.Lang lang in langs) {
+            var lrow = new Gtk.ListBoxRow ();
+            lrow.set_data<string> ("lang-code", lang.code);
+            lrow.set_data<int> ("lang-percent", lang.percent);
+            var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            box.margin = 4;
+            var name = new Gtk.Label (lang.endonym);
+            name.set_xalign (0);
+            box.pack_start (name, true, true, 0);
+            var pct = new Gtk.Label ("%%%d".printf (lang.percent));
+            pct.get_style_context ().add_class ("dim-label");
+            box.pack_end (pct, false, false, 0);
+            if (lang.percent == 0) {
+                /* Soluk ama SEÇİLEBİLİR (dil-secici.md). */
+                name.set_opacity (0.5);
+            }
+            lrow.add (box);
+            list.add (lrow);
+            if (lang.code == current) {
+                current_row = lrow;
+            }
+        }
+        if (current_row != null) {
+            list.select_row (current_row);
+        }
+        list.row_selected.connect ((lrow) => {
+            if (lrow == null) {
+                return;
+            }
+            string code = lrow.get_data<string> ("lang-code");
+            int percent = lrow.get_data<int> ("lang-percent");
+            if (code == conf_get ("keyboard", "language", "en")) {
+                return;
+            }
+            conf_set ("keyboard", "language", code);
+            set_session_language (code);
+            if (percent == 0) {
+                note.label = _("This language is not translated yet; the interface will appear in English. Contribute at %s")
+                    .printf (CONTRIB_URL);
+            } else if (percent < 100) {
+                note.label = _("%d%% translated — untranslated parts appear in English")
+                    .printf (percent);
+            } else {
+                note.label = _("Takes effect at the next sign-in");
+            }
+        });
+        var list_scroll = new Gtk.ScrolledWindow (null, null);
+        list_scroll.set_min_content_height (220);
+        list_scroll.add (list);
+        body.pack_start (list_scroll, false, false, 0);
+        body.pack_start (note, false, false, 0);
+
+        /* --- Klavye düzeni --- */
+        body.pack_start (group (_("Keyboard layout")), false, false, 0);
+        var layout = new Gtk.ComboBoxText ();
+        string[,] layouts = {
+            { "tr", "Türkçe Q" }, { "us", "English (US)" },
+            { "de", "Deutsch" }, { "fr", "Français" },
+            { "gb", "English (UK)" }, { "es", "Español" },
+            { "ru", "Русский" }, { "ar", "العربية" }
+        };
+        for (int i = 0; i < layouts.length[0]; i++) {
+            layout.append (layouts[i, 0], layouts[i, 1]);
+        }
+        layout.active_id = conf_get ("keyboard", "layout", "tr");
+        layout.changed.connect (() => {
+            string chosen = layout.active_id ?? "tr";
+            conf_set ("keyboard", "layout", chosen);
+            Apply.keyboard_layout (chosen);
+        });
+        body.pack_start (row (_("Layout"),
+            _("One global layout for every window"), layout),
+            false, false, 0);
+
+        /* --- Kısayollar (madde 34: liste; düzenleme yakalama
+         * widget'ı ayrı iş — ayarlar.md taraması) --- */
+        body.pack_start (group (_("Shortcuts")), false, false, 0);
+        add_shortcut (body, "Win", _("Start menu"));
+        add_shortcut (body, "Win+1…0", _("Open pinned app"));
+        add_shortcut (body, "Win+Tab", _("Task view"));
+        add_shortcut (body, "Win+Z", _("Snap layouts"));
+        add_shortcut (body, "Win+V", _("Clipboard history"));
+        add_shortcut (body, "Win+.", _("Emoji and more"));
+        add_shortcut (body, "Win+Shift+S", _("Screenshot"));
+        add_shortcut (body, "Win+Shift+C", _("Color picker"));
+        add_shortcut (body, "Alt+F4",
+                      _("Close window / power dialog"));
+        add_shortcut (body, "Ctrl+Alt+Del", _("Security screen"));
+
+        return page;
+    }
+
+    /* One shortcut row: description left, key combo right. */
+    private void add_shortcut (Gtk.Box body, string keys,
+                               string description) {
+        var value = new Gtk.Label (keys);
+        value.get_style_context ().add_class ("dim-label");
+        body.pack_start (row (description, null, value),
+                         false, false, 0);
+    }
+
+    /* LANG for the NEXT session: Debian Xsession sources ~/.xsessionrc.
+     * en → distro default (en_US), tr → tr_TR; both locales are
+     * generated on the ISO (test8 E2). Other codes fall back to
+     * ll_CC=ll upper guess and may need locale generation later. */
+    private void set_session_language (string code) {
+        string locale;
+        switch (code) {
+        case "en": locale = "en_US.UTF-8"; break;
+        case "tr": locale = "tr_TR.UTF-8"; break;
+        default:
+            if (code.contains ("_")) {
+                locale = code + ".UTF-8";
+            } else {
+                locale = "%s_%s.UTF-8".printf (code, code.up ());
+            }
+            break;
+        }
+        string path = Path.build_filename (
+            Environment.get_home_dir (), ".xsessionrc");
+        try {
+            FileUtils.set_contents (path,
+                "# Kavis Ayarlar > Dil yazdı.\nexport LANG=%s\nexport LANGUAGE=%s\n"
+                    .printf (locale, code));
+        } catch (Error e) {
+            warning ("kavis-settings: .xsessionrc yazilamadi: %s",
+                     e.message);
+        }
+    }
+}

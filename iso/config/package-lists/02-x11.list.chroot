@@ -24,6 +24,11 @@ lightdm-gtk-greeter
 # aday (lxterminal sekme verir ama bölme yok; terminator Python).
 tilix
 
+# xsettingsd: canlı tema/ölçek geçişi (madde 38/10) — Ayarlar
+# Net/ThemeName ve Xft/DPI'yi yazıp SIGHUP verir; GTK uygulamaları
+# yeniden başlatılmadan güncellenir.
+xsettingsd
+
 # lxpolkit: oturum polkit aracısı — pkexec diyalogları (nemo "yönetici
 # olarak aç", madde 64 onarım) aracı olmadan HİÇ açılmaz.
 lxpolkit

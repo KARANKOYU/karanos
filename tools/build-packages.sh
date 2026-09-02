@@ -61,6 +61,8 @@ prepare_sources() {
 			packages/kavis-panel/src/logic/power.vala
 		install -m644 packages/kavis-common/config.vala \
 			packages/kavis-panel/src/logic/config.vala
+		install -m644 packages/kavis-common/powerplan.vala \
+			packages/kavis-panel/src/logic/powerplan.vala
 		# Çeviriler (Grup D işi c): po/ kanonik, panel derlemede
 		# msgfmt ile .mo üretir ve kavis.mo'yu paket olarak taşır.
 		rm -rf packages/kavis-panel/po
@@ -72,6 +74,8 @@ prepare_sources() {
 			packages/kavis-settings/src/appinit.vala
 		install -m644 packages/kavis-common/config.vala \
 			packages/kavis-settings/src/logic/config.vala
+		install -m644 packages/kavis-common/powerplan.vala \
+			packages/kavis-settings/src/logic/powerplan.vala
 		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src

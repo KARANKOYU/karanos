@@ -289,6 +289,9 @@ namespace Kavis.Ui {
                     config.monitor = fresh.monitor;
                     config.autohide = fresh.autohide;
                     restart_self ();
+                } else {
+                    /* Ucuz anahtarlar yerinde uygulanır. */
+                    update_acrylic ();
                 }
             });
         }
@@ -297,8 +300,15 @@ namespace Kavis.Ui {
             if (root_box == null) {
                 return;
             }
+            /* Ayarlar > Görünüm "saydamlık" anahtarı (madde 38):
+             * kapalıysa bileşikleme olsa da düz zemin. */
+            bool wanted = true;
+            try {
+                wanted = Config.load ().get_boolean (
+                    "appearance", "transparency");
+            } catch (Error e) { }
             unowned Gtk.StyleContext context = root_box.get_style_context ();
-            if (get_screen ().is_composited ()) {
+            if (wanted && get_screen ().is_composited ()) {
                 context.add_class ("acrylic");
             } else {
                 context.remove_class ("acrylic");

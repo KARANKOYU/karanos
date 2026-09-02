@@ -53,6 +53,14 @@ override_dh_auto_install:
 	# KURULMUYOR (kaynak olarak depoda).
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk.css
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
+	# Açık tema (madde 38): Ayarlar > Görünüm xsettingsd üzerinden
+	# Net/ThemeName=Kavis-Light'a geçirir. gtk-dark.css bilerek YOK —
+	# açık temayı seçen kullanıcıya koyu varyant sızmasın.
+	install -d $(DEST)/usr/share/themes/Kavis-Light/gtk-3.0
+	install -m644 src/gtk-3.0/gtk-light.css \
+		$(DEST)/usr/share/themes/Kavis-Light/gtk-3.0/gtk.css
+	printf '[Desktop Entry]\nType=X-GNOME-Metatheme\nName=Kavis-Light\n' \
+		> $(DEST)/usr/share/themes/Kavis-Light/index.theme
 	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
 	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc
 	# İnce başlık düğmesi ikonları (sonraki-isler 3): — ☐ ✕ ve geri

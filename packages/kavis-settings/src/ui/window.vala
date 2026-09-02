@@ -45,6 +45,12 @@ namespace Kavis.Settings {
             font-size: 20px;
             font-weight: bold;
         }
+        .kavis-accent-swatch {
+            background-color: #2DD4BF;
+            border-radius: 6px;
+            min-width: 40px;
+            min-height: 20px;
+        }
         """;
 
         /* Section registry: id (stable, used by deep links and the

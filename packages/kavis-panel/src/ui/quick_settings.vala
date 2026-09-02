@@ -257,7 +257,8 @@ namespace Kavis.Ui {
                      * şarj durumundan okunur. */
                     bool plugged = Battery.charging ();
                     PowerPlan.set_plan (plugged, on
-                        ? PowerPlan.Plan.SAVER : PowerPlan.Plan.NORMAL);
+                        ? PowerPlan.Plan.SAVER : PowerPlan.Plan.NORMAL,
+                        Battery.on_ac ());
                 });
                 attach_tile (grid, saver_tile, ref col, ref row);
             }
@@ -494,7 +495,7 @@ namespace Kavis.Ui {
                 var chosen = plan;   /* closure copy */
                 choice.toggled.connect (() => {
                     if (!plans_building && choice.get_active ()) {
-                        PowerPlan.set_plan (plugged, chosen);
+                        PowerPlan.set_plan (plugged, chosen, Battery.on_ac ());
                     }
                 });
                 built += choice;
