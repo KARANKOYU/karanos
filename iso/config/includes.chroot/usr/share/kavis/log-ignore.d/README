@@ -1,0 +1,15 @@
+# Kavis — günlük tarama istisnaları (madde 62)
+#
+# Bu dizindeki *.list dosyaları, sistem günlüğünü tarayan araçların
+# (sistem sağlığı — madde 49, sorun giderici — madde 32) HATA SAYMAMASI
+# gereken satır desenlerini tutar. Amaç: hypervisor/donanım taklidi
+# kaynaklı, zararsız olduğu DOĞRULANMIŞ gürültünün kullanıcıya "sistem
+# hatası" diye gösterilmemesi.
+#
+# Biçim: satır başına bir POSIX genişletilmiş düzenli ifade (grep -E).
+# '#' ile başlayan satırlar ve boş satırlar yok sayılır. Desen, günlük
+# satırının HERHANGİ bir yerinde eşleşirse satır bilinen-uyarı sayılır.
+#
+# KURAL: Buraya desen eklemek için uyarının zararsızlığı gözlemle
+# doğrulanmış ve gerekçesi yazılmış olmalı — "gürültü çok" diye toptan
+# eklenmez. Her desenin yanına neden zararsız olduğu yazılır.

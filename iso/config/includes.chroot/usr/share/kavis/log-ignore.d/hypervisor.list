@@ -1,0 +1,11 @@
+# Hypervisor (sanal makine) kaynaklı bilinen zararsız uyarılar.
+# Biçim ve kurallar: bu dizindeki README.
+
+# VirtualBox VMSVGA: vmwgfx, VMware imzasını bulamayınca kendini
+# durdurur; ekran simpledrm ile sürülmeye devam eder. Her açılışta
+# düşer, açılışı ve masaüstünü etkilemez. Doğrulama: v0.3-test1
+# VirtualBox el testi + docs/referans/virtualbox.md.
+vmwgfx.*unsupported hypervisor
+
+# Aynı olayın devam satırı ("This configuration is likely broken").
+vmwgfx.*configuration is likely broken
