@@ -143,20 +143,20 @@ done
 {
 	echo ""
 	echo "### $AD — gelişmiş menü (F3) ###"
-	echo "submenu \"Advanced menu (F3)\" --hotkey=f3 {"
+	echo "submenu \"Advanced menu (F3)\" --class uefi --hotkey=f3 {"
 	echo "	source /boot/grub/theme.cfg"
 
 	if [ -n "$guvenli_blok" ]; then
 		printf '%s\n' "$guvenli_blok" | sed 's/^/	/'
 	fi
 
-	echo "	menuentry \"Verbose boot — disable quiet boot\" {"
+	echo "	menuentry \"Verbose boot — disable quiet boot\" --class verbose {"
 	printf '	%s\n' "$detayli_linux"
 	printf '	%s\n' "$normal_initrd"
 	echo "	}"
 
 	if [ -n "$dogrula_linux" ] && [ -n "$dogrula_initrd" ]; then
-		echo "	menuentry \"Verify integrity of the boot medium\" {"
+		echo "	menuentry \"Verify integrity of the boot medium\" --class verify {"
 		printf '	%s\n' "$dogrula_linux"
 		printf '	%s\n' "$dogrula_initrd"
 		echo "	}"
@@ -164,21 +164,21 @@ done
 
 	if [ "$memtest_bin" -eq 1 ]; then
 		echo "	if [ \"\$grub_platform\" = \"pc\" ]; then"
-		echo "		menuentry \"RAM test (memtest86+)\" {"
+		echo "		menuentry \"RAM test (memtest86+)\" --class memtest {"
 		echo "			linux16 /boot/memtest86+x64.bin"
 		echo "		}"
 		echo "	fi"
 	fi
 	if [ "$memtest_efi" -eq 1 ]; then
 		echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
-		echo "		menuentry \"RAM test (memtest86+, requires Secure Boot off)\" {"
+		echo "		menuentry \"RAM test (memtest86+, requires Secure Boot off)\" --class memtest {"
 		echo "			chainloader /boot/memtest86+x64.efi"
 		echo "		}"
 		echo "	fi"
 	fi
 
 	echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
-	echo "		menuentry \"Enter UEFI/BIOS setup\" {"
+	echo "		menuentry \"Enter UEFI/BIOS setup\" --class uefi {"
 	echo "			fwsetup"
 	echo "		}"
 	echo "	fi"

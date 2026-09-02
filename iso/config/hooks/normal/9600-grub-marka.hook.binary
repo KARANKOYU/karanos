@@ -56,10 +56,10 @@ echo "I: GRUB dizini: $kok"
 for cfg in "$kok/grub.cfg" "$kok/loopback.cfg"; do
 	[ -f "$cfg" ] || continue
 	sed -i \
-		-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (safe mode, \1)\"|" \
-		-e "s|menuentry \"Live system (\([^)]*\))\"|menuentry \"$AD (\1)\"|" \
-		-e "s|menuentry \"Live system, kernel \([^\"]*\)\"|menuentry \"$AD (kernel \1)\"|" \
-		-e "s|menuentry \"Debian GNU/Linux[^\"]*\"|menuentry \"$AD\"|" \
+		-e "s|menuentry \"Live system (\([^)]*\) fail-safe mode)\"|menuentry \"$AD (safe mode, \1)\" --class safemode|" \
+		-e "s|menuentry \"Live system (\([^)]*\))\"|menuentry \"$AD (\1)\" --class kavis|" \
+		-e "s|menuentry \"Live system, kernel \([^\"]*\)\"|menuentry \"$AD (kernel \1)\" --class kavis|" \
+		-e "s|menuentry \"Debian GNU/Linux[^\"]*\"|menuentry \"$AD\" --class kavis|" \
 		"$cfg"
 	adet=$(grep -c "menuentry \"$AD" "$cfg" || true)
 	echo "I: $(basename "$cfg"): $adet girdi markalandi"
@@ -86,30 +86,67 @@ else
 	echo "W: grub-arkaplan.png bulunamadi, live-build splash'i kaldi" >&2
 fi
 
-# --- gfxmenu temasını Kavis paletine çek ------------------------------
-TEMA="$kok/live-theme/theme.txt"
-if [ -f "$TEMA" ]; then
-	sed -i \
-		-e "s|^title-text: .*|title-text: \"$AD\"|" \
-		-e "s|^title-color: .*|title-color: \"#E6EDF3\"|" \
-		-e "s|item_color = \"[^\"]*\"|item_color = \"#8B9BA8\"|" \
-		-e "s|selected_item_color= \"[^\"]*\"|selected_item_color= \"#2DD4BF\"|" \
-		"$TEMA"
-	echo "I: gfxmenu temasi Kavis paletine cevrildi"
+# --- gfxmenu teması: Kavis'in KENDİ theme.txt'i (test8 H1) ------------
+# live-build temasının paletini boyamak yerine tema baştan yazılıyor:
+# koyu zemin + ortada logo (grub-arkaplan.png üst üçte birlikte),
+# girdi ikonları (--class eşleşmesi), SEÇİLİ girdi turkuaz yuvarlak
+# kutu (9 dilim), altta geri sayım + ipucu satırı.
+#
+# GRUB SINIRLARI (mümkün olmayanlar — H1 istedi, yazıyoruz):
+#   - kutu YALNIZ seçili girdiye verilebilir (item_pixmap yok);
+#     seçili olmayan girdiler düz metin kalır.
+#   - girdi altına AYRI açıklama satırı çizilemez; açıklama başlığın
+#     devamında "— ..." olarak (zaten öyle).
+#   - fare/hover yok; klavye menüsü.
+TEMA_DIZIN="$kok/live-theme"
+TEMA="$TEMA_DIZIN/theme.txt"
+if [ -d "$TEMA_DIZIN" ]; then
+	# Varlıklar: tema paketinin ürettiği dilimler + ikonlar + arka plan.
+	varlik=""
+	for aday in \
+		../chroot/usr/share/kavis/logo/grub-tema \
+		chroot/usr/share/kavis/logo/grub-tema
+	do
+		if [ -d "$aday" ]; then
+			varlik="$aday"
+			break
+		fi
+	done
+	if [ -n "$varlik" ]; then
+		cp "$varlik"/select_*.png "$TEMA_DIZIN"/
+		mkdir -p "$TEMA_DIZIN/icons"
+		cp "$varlik"/icons/*.png "$TEMA_DIZIN/icons/"
+	else
+		echo "W: grub-tema varliklari yok, kutu/ikon cikmayacak" >&2
+	fi
+	if [ -n "$arka" ]; then
+		cp "$arka" "$TEMA_DIZIN/kavis-arkaplan.png"
+	fi
 
-	# --- geri sayım: gri kutu yerine sade satır (İş 3) ----------------
-	# live-build teması geri sayımı `progress_bar { id = "__timeout__" }`
-	# ile çiziyor: gri zeminli bir kutu + İngilizce "The highlighted
-	# entry will be executed automatically in %ds". Koyu temanın ortasında
-	# sırıtıyor. GRUB'da id'si __timeout__ olan HERHANGİ bir bileşen
-	# varsayılan geri sayım kutusunu devre dışı bırakır ve `text`
-	# özelliğindeki %d her saniye kalan süreyle basılır — kutu yerine
-	# ikincil metin renginde tek satır yazıyoruz. Metin tablodan:
-	# boot.autoboot_countdown EN sütunu (varsayılan dil EN — 2 Eyl
-	# kararı; GRUB tek dilli).
-	# progress_bar temadaki SON blok; oradan dosya sonuna kadar siliyoruz.
-	sed -i '/^#progress bar$/,$d' "$TEMA"
-	cat >> "$TEMA" <<'EOF'
+	cat > "$TEMA" <<'TEOF'
+# Kavis GRUB gfxmenu temasi — 9600 hook'u uretti (test8 H1)
+title-text: ""
+desktop-image: "kavis-arkaplan.png"
+desktop-color: "#0D141B"
+terminal-font: "Unifont Regular 16"
+
++ boot_menu {
+	left = 20%
+	width = 60%
+	top = 45%
+	height = 38%
+	item_font = "Unifont Regular 16"
+	item_color = "#E6EDF3"
+	selected_item_color = "#0D141B"
+	item_height = 36
+	item_spacing = 8
+	item_padding = 4
+	icon_width = 24
+	icon_height = 24
+	item_icon_space = 12
+	selected_item_pixmap_style = "select_*.png"
+}
+
 #geri sayim (Kavis)
 + label {
 	id = "__timeout__"
@@ -122,14 +159,27 @@ if [ -f "$TEMA" ]; then
 	font = "Unifont Regular 16"
 	text = "Starting automatically in %d seconds"
 }
-EOF
-	if grep -q '__timeout__' "$TEMA" && ! grep -q 'progress_bar' "$TEMA"; then
-		echo "I: geri sayim kutusu sade satira cevrildi"
+
++ label {
+	left = 0
+	width = 100%
+	top = 100%-52
+	height = 20
+	align = "center"
+	color = "#8B9BA8"
+	font = "Unifont Regular 16"
+	text = "Enter: start    F3: advanced menu"
+}
+TEOF
+
+	if grep -q '__timeout__' "$TEMA" && grep -q 'boot_menu' "$TEMA"; then
+		echo "I: Kavis gfxmenu temasi yazildi (kutu + ikon + geri sayim)"
 	else
-		echo "W: geri sayim degisikligi dogrulanamadi" >&2
+		echo "E: theme.txt yazimi dogrulanamadi" >&2
+		exit 1
 	fi
 else
-	echo "W: live-theme/theme.txt yok, tema paleti atlandi" >&2
+	echo "W: live-theme dizini yok, tema atlandi" >&2
 fi
 
 # --- metin kipi yedeği (tema yüklenemezse) ----------------------------

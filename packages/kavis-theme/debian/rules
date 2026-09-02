@@ -84,6 +84,9 @@ override_dh_auto_install:
 	# GRUB arka planı: her zaman koyu logo, düz zemin (madde 1).
 	# 9600-grub-marka.hook.binary bunu ISO'daki GRUB'a kopyalıyor.
 	python3 tools/gen-wallpapers.py --grub $(SHARE)/logo/grub-arkaplan.png
+	# GRUB gfxmenu tema varlıkları (test8 H1): seçili girdinin turkuaz
+	# yuvarlak kutusu (9 dilim) + sınıf ikonları; 9600 hook'u kopyalar.
+	python3 tools/gen-grub-tema.py $(SHARE)/logo/grub-tema
 
 	# --- Simge teması --------------------------------------------------
 	install -d $(ICONS)/scalable/apps
