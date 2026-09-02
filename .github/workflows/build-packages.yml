@@ -97,6 +97,21 @@ jobs:
             hata=1
           fi
 
+          # Ornek orani da denetlenir (boot-sound isi, Grup D): rules
+          # 44100'e cevirir; farkli bir deger donusum adiminin
+          # degistigini/atlandigini gosterir.
+          oran=$(ffprobe -v error -select_streams a:0 \
+            -show_entries stream=sample_rate \
+            -of default=noprint_wrappers=1:nokey=1 \
+            kb/usr/share/kavis/boot/boot-sound.wav 2>/dev/null || echo 0)
+          echo "ornek orani: ${oran} Hz"
+          if [ "$oran" = "44100" ]; then
+            echo "✓ ornek orani 44100"
+          else
+            echo "::error::boot-sound.wav ornek orani ${oran} — beklenen 44100"
+            hata=1
+          fi
+
           exit $hata
 
       # Panel artık derlenmiş Vala ikilisi (madde 3): derleme hataları

@@ -87,12 +87,20 @@ ffmpeg -i kaynak.mp3 -af "silenceremove=start_periods=1:start_threshold=-50dB,lo
        -codec:a libmp3lame -b:a 128k -ar 44100 assets/boot/boot-sound.mp3
 ```
 
-### Neden MP3, WAV değil
+### Depoda MP3, sistemde WAV (güncel akış)
 
-Açılışın çok erken bir anında, `kavis-boot-sound.service` adlı küçük bir
-systemd servisi sesi `mpg123` ile çalacak (Plymouth'un kendi ses desteği yok).
-`mpg123` ~1 MB'lık, bağımlılığı az bir araç; MP3'ü doğrudan ALSA'ya veriyor.
-WAV kullanmak dosyayı 10 kat büyütür, ISO'ya bedava yer kaybettirir.
+Bu dizindeki MP3 yalnızca KAYNAK. Paket derlenirken (`kavis-boot`,
+debian/rules) sonuna 0,4 saniyelik fade-out eklenip 44.1 kHz stereo
+WAV'a çevrilir ve sistemde `aplay` (alsa-utils) çalar — açılışta mp3
+çözücü bağımlılığı yok. CI, üretilen WAV'ın süresini ve örnek oranını
+denetler; boot-check kurulu dosyanın boş olmadığına bakar.
+
+> Tarihçe: ilk tasarım MP3'ü `mpg123` ile çalmaktı; fade-out ve
+> bağımlılık sebebiyle WAV+aplay'e geçildi (durum.md). Buradaki eski
+> "Neden MP3, WAV değil" bölümü bu akışla değiştirildi.
+
+**Güncel müzik** (2 Eyl 2026): ~4,8 saniye, sentezlenerek üretildi,
+lisans kısıtı yok.
 
 ---
 

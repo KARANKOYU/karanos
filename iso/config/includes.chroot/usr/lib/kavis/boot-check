@@ -191,10 +191,12 @@ else
 	fatal "SPLASH-FAIL plymouth temasi eksik" "splash"
 fi
 
-if [ -f /usr/share/kavis/boot/boot-sound.wav ]; then
+# -s: dosya var VE boş değil — sıfır baytlık WAV (bozuk dönüşüm)
+# sessiz açılışta ancak burada yakalanır (boot-sound işi, Grup D).
+if [ -s /usr/share/kavis/boot/boot-sound.wav ]; then
 	log "BOOTSOUND-OK $(stat -c %s /usr/share/kavis/boot/boot-sound.wav) bayt"
 else
-	fatal "BOOTSOUND-FAIL acilis muzigi yok" "acilis-muzigi"
+	fatal "BOOTSOUND-FAIL acilis muzigi yok ya da bos" "acilis-muzigi"
 fi
 
 # Ses servisi çalıştı mı — çalmadıysa splash'i tutan mekanizma da
