@@ -444,6 +444,9 @@ msgstr "⟪Stop··⟫"
 msgid "Screen recording saved"
 msgstr "⟪Screen recording saved········⟫"
 
+msgid "usage: kavis-tools open-with <file>\n"
+msgstr "⟪usage: kavis-tools open-with <file>··············⟫\n"
+
 msgid "How should %s be opened?"
 msgstr "⟪How should %s be opened?·········⟫"
 

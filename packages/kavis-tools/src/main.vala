@@ -55,7 +55,7 @@ int main (string[] args) {
     case "open-with":
         /* "Bununla aç" penceresi (sonraki-isler 6c). */
         if (args.length < 3) {
-            stderr.printf ("kullanim: kavis-tools open-with <dosya>\n");
+            stderr.printf (_("usage: kavis-tools open-with <file>\n"));
             return 2;
         }
         window = new Kavis.Tools.OpenWithWindow (args[2]);
@@ -64,7 +64,7 @@ int main (string[] args) {
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
     default:
-        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n");
+        stderr.printf (_("usage: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"));
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

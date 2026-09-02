@@ -56,7 +56,7 @@ BOOTAPPEND="boot=live components \
 username=karan \
 hostname=${ID} \
 user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin,input \
-locales=en_US.UTF-8 \
+locales=en_US.UTF-8,tr_TR.UTF-8 \
 timezone=Europe/Istanbul \
 keyboard-layouts=tr \
 quiet loglevel=3 vt.global_cursor_default=0 rd.udev.log_level=3 \

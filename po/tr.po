@@ -492,3 +492,9 @@ msgstr "Görev çubuğundan kaldır"
 
 msgid "Open %s"
 msgstr "%s aç"
+
+msgid "usage: kavis-tools open-with <file>\n"
+msgstr "kullanım: kavis-tools open-with <dosya>\n"
+
+msgid "usage: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"
+msgstr "kullanım: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"

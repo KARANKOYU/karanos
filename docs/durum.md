@@ -528,6 +528,18 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
+- Karar (test8 E3): /home → /users bağı chroot hook'uyla (0230);
+  /home boş değilse bağ atlanır, içerik korunur. Kurulu sistemde de
+  aynı hook mantığı Calamares'e taşınacak (Grup I notu).
+- Karar (test8 G2): .desktop Actions fiil kalıbı EN 'Open %s', TR
+  '%s aç' — Türkçe ek uyumu (Çöpü aç) genel kalıpla verilemiyor;
+  daha iyi TR istenirse eyleme özel çeviri tablosu gerekir.
+- Karar (test8 E2): locales=en_US,tr_TR birlikte üretiliyor — dil
+  geçişi (Grup F) locale üretimi beklemeden çalışsın; kendi
+  araçlarımızın kullanıcıya dönük terminal metinleri (usage) po'ya
+  taşındı, günlük/warning satırları bilinçli olarak İngilizce-ASCII
+  kaldı (journal logları çeviri yüzeyi değil).
+
 - ATLANDI (6c, kısmen): nemo'nun KENDİ 'bilinmeyen tür' diyaloğu
   değiştirilemedi (nemo yaması gerekir); Kavis penceresi nemo sağ tık
   aksiyonu + `kavis-tools open-with` olarak var. Çift-tık varsayılanı

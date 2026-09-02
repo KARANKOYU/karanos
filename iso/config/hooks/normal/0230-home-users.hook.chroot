@@ -1,0 +1,21 @@
+#!/bin/sh
+# Kavis — /home → /users sembolik bağı (test8 E3)
+#
+# Evler /users altında (Grup B kararı: autologin + /users/karan);
+# boş /home dosya yöneticisinde kafa karıştırıyordu. /home artık
+# /users'a bağ — iki yol da aynı yere çıkar.
+
+set -e
+
+if [ -L /home ]; then
+	echo "I: /home zaten bag"
+	exit 0
+fi
+if [ -d /home ] && [ -n "$(ls -A /home 2>/dev/null)" ]; then
+	echo "W: /home bos degil, bag atlanti (icerik korunuyor)" >&2
+	exit 0
+fi
+rmdir /home 2>/dev/null || true
+mkdir -p /users
+ln -sfn /users /home
+echo "I: /home -> /users bagi kuruldu"

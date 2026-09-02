@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 15:28+0000\n"
+"POT-Creation-Date: 2026-09-02 15:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -667,6 +667,17 @@ msgstr ""
 
 #: packages/kavis-tools/src/capture.vala:1244
 msgid "Screen recording saved"
+msgstr ""
+
+#: packages/kavis-tools/src/main.vala:58
+#, c-format
+msgid "usage: kavis-tools open-with <file>\n"
+msgstr ""
+
+#: packages/kavis-tools/src/main.vala:67
+#, c-format
+msgid ""
+"usage: kavis-tools [tasks|calc|emoji|capture|open-with|secure-menu|alt-f4]\n"
 msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:35

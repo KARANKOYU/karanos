@@ -38,7 +38,13 @@ def main() -> int:
         msgid = m.group(1)
         pad = "·" * max(2, int(len(msgid) * 0.4))
         out.append('msgid "%s"' % msgid)
-        out.append('msgstr "⟪%s%s⟫"' % (msgid, pad))
+        if msgid.endswith("\\n"):
+            # msgfmt kuralı: iki taraf da \n ile bitmeli — dolgu
+            # satır sonundan ÖNCE.
+            body = msgid[:-2]
+            out.append('msgstr "⟪%s%s⟫\\n"' % (body, pad))
+        else:
+            out.append('msgstr "⟪%s%s⟫"' % (msgid, pad))
         out.append("")
         count += 1
     XX.write_text("\n".join(out), encoding="utf-8")
