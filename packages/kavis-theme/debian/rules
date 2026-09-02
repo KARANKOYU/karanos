@@ -55,6 +55,9 @@ override_dh_auto_install:
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
 	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
 	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc
+	# İnce başlık düğmesi ikonları (sonraki-isler 3): — ☐ ✕ ve geri
+	# yükleme; openbox bunları tema dizininden adla bulur.
+	install -m644 src/openbox-3/*.xbm      $(THEME)/openbox-3/
 	install -m644 src/index.theme          $(THEME)/index.theme
 
 	# --- Sistem geneli varsayılanlar ---------------------------------

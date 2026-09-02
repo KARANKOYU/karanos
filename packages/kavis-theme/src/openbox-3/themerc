@@ -1,18 +1,24 @@
 # Kavis — Openbox pencere teması
 #
-# Windows benzeri davranış hedefi (bölüm 6): başlık çubuğunda solda
-# simge ve başlık, sağda küçült / büyült / kapat.
+# Sonraki-isler bölüm 3 (2 Eyl): W11 görünümü — turkuaz degrade
+# KALKTI, turkuaz yalnız vurgu (etkin pencere kenarlığı). Başlık ~32px,
+# etkin #17222C / etkisiz #121C26, ikon solda (titleLayout NLIMC —
+# 0200 hook'u), başlık sola hizalı. İnce çizgili — ☐ ✕ ikonları
+# xbm dosyalarından. Kapat hover'ı W11 kırmızısı (#C42B1C).
 #
-# Varsayılan tema koyu. Etkin pencerenin başlık çubuğu marka degradesini
-# (turkuaz→mavi) taşıyor, etkisiz olan koyu yüzey rengine düşüyor —
-# hangi pencerede olduğun renginden anlaşılsın. Degrade açık bir renk
-# olduğu için başlık yazısı beyaz değil KOYU; beyaz olsaydı turkuazın
-# üstünde okunmazdı.
+# OPENBOX SINIRLARI (CSD'ye GEÇİLMEDİ — karar kullanıcının):
+#   ✓ düğme başına hover/pressed rengi (kırmızı kapat DAHİL, 3.6+)
+#   ✗ geçiş animasyonu yok — renkler anlık değişir (120-150 ms fade
+#     ancak CSD/kompozitör hilesiyle olur)
+#   ✗ düğme genişliği ayarlanamaz (~46px olmaz; kare, başlık
+#     yüksekliğine bağlı) ve düğmeler arasında 1-2px boşluk kalır
+#   ✗ hover bg yalnız düğme kutusu kadar — tam yükseklik dolgu değil
 
 # --- kenarlar --------------------------------------------------------
 border.width: 1
-padding.width: 6
-padding.height: 4
+padding.width: 8
+# ~32px başlık: yazı (~11px) + 2×8 iç boşluk + çerçeve.
+padding.height: 8
 window.handle.width: 0
 window.client.padding.width: 0
 window.client.padding.height: 0
@@ -21,55 +27,68 @@ window.active.border.color: #2DD4BF
 window.inactive.border.color: #233A45
 
 # --- etkin pencere ---------------------------------------------------
-window.active.title.bg: gradient horizontal
-window.active.title.bg.color: #2DD4BF
-window.active.title.bg.colorTo: #4F92F7
-window.active.title.separator.color: #1E9C90
+window.active.title.bg: flat solid
+window.active.title.bg.color: #17222C
+window.active.title.separator.color: #233A45
 # label.bg yazılmazsa Openbox etiket kutusunu siyaha boyuyor ve başlık
-# çubuğunun ortasında siyah bir şerit çıkıyor. parentrelative = başlık
-# çubuğunun degradesini olduğu gibi devam ettir.
+# çubuğunun ortasında siyah bir şerit çıkıyor.
 window.active.label.bg: parentrelative
-window.active.label.text.color: #0D141B
+window.active.label.text.color: #E6EDF3
+window.label.text.justify: left
 
 window.active.button.unpressed.bg: parentrelative
-window.active.button.unpressed.image.color: #0D141B
-window.active.button.pressed.bg: flat solid
-window.active.button.pressed.bg.color: #17222C
-window.active.button.pressed.image.color: #E6EDF3
+window.active.button.unpressed.image.color: #E6EDF3
+# hover: başlık zemini + beyaz %10 (openbox rgba bilmez — karışım
+# önceden hesaplandı: #17222C ⊕ %10 beyaz = #2E3842)
 window.active.button.hover.bg: flat solid
-window.active.button.hover.bg.color: #E6EDF3
-window.active.button.hover.image.color: #0D141B
+window.active.button.hover.bg.color: #2E3842
+window.active.button.hover.image.color: #E6EDF3
+# basılı: %14 → #374149
+window.active.button.pressed.bg: flat solid
+window.active.button.pressed.bg.color: #374149
+window.active.button.pressed.image.color: #E6EDF3
 window.active.button.disabled.bg: parentrelative
 window.active.button.disabled.image.color: #6E8A92
-window.active.button.toggled.bg: flat solid
-window.active.button.toggled.bg.color: #17222C
-window.active.button.toggled.image.color: #2DD4BF
+window.active.button.toggled.bg: parentrelative
+window.active.button.toggled.image.color: #E6EDF3
+window.active.button.toggled.hover.bg: flat solid
+window.active.button.toggled.hover.bg.color: #2E3842
+window.active.button.toggled.hover.image.color: #E6EDF3
 
-# Kapat düğmesi üstüne gelince kırmızı — yanlışlıkla tıklamayı azaltır
+# Kapat: hover W11 kırmızısı, beyaz ikon; basılı bir ton koyu.
 window.active.button.close.hover.bg: flat solid
-window.active.button.close.hover.bg.color: #EF4444
+window.active.button.close.hover.bg.color: #C42B1C
 window.active.button.close.hover.image.color: #FFFFFF
+window.active.button.close.pressed.bg: flat solid
+window.active.button.close.pressed.bg.color: #A02316
+window.active.button.close.pressed.image.color: #FFFFFF
 
 # --- etkisiz pencere -------------------------------------------------
 window.inactive.title.bg: flat solid
-window.inactive.title.bg.color: #17222C
+window.inactive.title.bg.color: #121C26
 window.inactive.title.separator.color: #233A45
 window.inactive.label.bg: parentrelative
 window.inactive.label.text.color: #8B9BA8
 
+# Pasifte soluk, hover'da canlanır.
 window.inactive.button.unpressed.bg: parentrelative
 window.inactive.button.unpressed.image.color: #8B9BA8
-window.inactive.button.pressed.bg: flat solid
-window.inactive.button.pressed.bg.color: #233A45
-window.inactive.button.pressed.image.color: #E6EDF3
 window.inactive.button.hover.bg: flat solid
-window.inactive.button.hover.bg.color: #1D2C38
+window.inactive.button.hover.bg.color: #2A333C
 window.inactive.button.hover.image.color: #E6EDF3
+window.inactive.button.pressed.bg: flat solid
+window.inactive.button.pressed.bg.color: #333D47
+window.inactive.button.pressed.image.color: #E6EDF3
 window.inactive.button.disabled.bg: parentrelative
 window.inactive.button.disabled.image.color: #3C4E5A
-window.inactive.button.toggled.bg: flat solid
-window.inactive.button.toggled.bg.color: #233A45
-window.inactive.button.toggled.image.color: #2DD4BF
+window.inactive.button.toggled.bg: parentrelative
+window.inactive.button.toggled.image.color: #8B9BA8
+window.inactive.button.close.hover.bg: flat solid
+window.inactive.button.close.hover.bg.color: #C42B1C
+window.inactive.button.close.hover.image.color: #FFFFFF
+window.inactive.button.close.pressed.bg: flat solid
+window.inactive.button.close.pressed.bg.color: #A02316
+window.inactive.button.close.pressed.image.color: #FFFFFF
 
 # --- menü ------------------------------------------------------------
 menu.border.width: 1

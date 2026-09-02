@@ -534,6 +534,16 @@ yok (Unicode ad veritabanı gerek).
 - Karar (sonraki-isler 2, çok pencereli yuva sağ tık): tek pencerede
   "Pencereyi kapat", birden çokta "Tüm pencereleri kapat" (W11
   davranışı; iki ayrı msgid).
+- **GTK CSD KARARI BEKLİYOR (sonraki-isler 3):** themerc sonucu —
+  ÇIKANLAR: ~32px koyu başlık (etkin #17222C / pasif #121C26),
+  degrade kalktı, ikon solda + başlık sola hizalı, ince — ☐ ✕ xbm
+  ikonları, düğme hover/pressed renkleri DÜĞME BAŞINA (kapat hover'ı
+  W11 kırmızısı #C42B1C beyaz ikonla, pasifte de), pasif soluk →
+  hover'da canlanma. ÇIKMAYANLAR: 120-150ms yumuşak geçiş (openbox
+  animasyonsuz, renk anlık değişir), ~46px geniş düğme (kare kalır,
+  aralarında 1-2px boşluk), tam yükseklik hover dolgusu. CSD'ye
+  GEÇİLMEDİ; ekran görüntüleri Xvfb'de doğrulandı. Karar: bu kadarı
+  yeter mi, yoksa CSD mi?
 - Kullanıcıya söz verilenler: test5 sonucu + `kavis-0.3-test5-amd64.iso`
   adı bildirilecek; Grup D özeti verildi; VirtualBox testi + "devam"
   bekleniyor (grup kapısı).
