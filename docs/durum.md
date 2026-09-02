@@ -420,6 +420,16 @@ almak (indirme yöneticisi madde 23 gelince).
 >   temizlendi (commit 9fb045a). Etiket v0.3-test9 bu commit'e
 >   taşındı (önce 4adeaf0'daydı; push edilmemişti — edildiyse
 >   kullanıcının etiketi zorla itmesi gerekir). Push KULLANICIDA.
+> - GRUP F 3. ADIM BİTTİ (3 Eyl): 7537ad7 menü temizliği —
+>   /etc/kavis/applications NoDisplay override'ları + Xsession.d
+>   XDG_DATA_DIRS önceliği (3A), 72d742b adlar Files/Terminal/Notepad
+>   + kategoriler üçe indi (Uygulamalar/Sistem/<ürün> araçları — ad
+>   os-release'ten, marka kuralı) (3B), 8ef37ae parlaklık: ortak
+>   Brightness backend'i (backlight→brightnessctl, yoksa xrandr
+>   yazılım kipi — kaydırıcı hep görünür), W11 sırası, değer balonu,
+>   OSD BrightnessShow, Ayarlar>Ekran aynı veri (3C), bca0c83 Battery
+>   alt paneli 4 modla Ayarlar>Güç'le tek veri (3D), 32bfdab dinamik
+>   sanal masaüstleri: + / boşken ✕, kavis.conf [desktop] count (3E).
 > - GRUP F 2. ADIM BİTTİ (3 Eyl, VM hata listesi): eb17dc3
 >   screenEdgeWarpTime=0 (2A — snap'in önü açıldı; gerçek fare VM'de),
 >   1d93f65 Alt+F4 tek örnek kilidi flock'la + Ctrl+Alt+Del'e de (2B),
