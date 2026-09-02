@@ -255,17 +255,24 @@ if [ -n "$x_pid" ] && [ -r "/proc/$x_pid/stat" ]; then
 	esac
 fi
 if [ "$ply_bitir" -ne 0 ] && [ "$x_basla" -ne 0 ]; then
+	# YÖN ÖNEMLİ (v0.3-test2 dersi — ilk sürüm mutlak fark alıp 5 sn
+	# eşiğiyle düşüyordu ve TAM DA DOĞRU davranışı cezalandırıyordu):
+	#   quit X'ten SONRA  → splash, X hazırlanırken ekranda TUTULMUŞ
+	#     (retain-splash devri işliyor; konsol hiç görünmez). TCG'de X
+	#     açılışı 13+ sn sürebiliyor, bu sürenin uzunluğu sorun değil.
+	#   quit X'ten ÖNCE   → splash erken bırakılmış; X gelene kadar
+	#     ekranda konsol/siyahlık var. Kopukluk yalnız bu yön.
 	if [ "$ply_bitir" -ge "$x_basla" ]; then
 		devir=$((ply_bitir - x_basla))
+		log "SPLASH-HANDOFF=+$(sn "$devir")s (splash, X basladiktan sonra kapandi — devir teslim tuttu)"
 	else
 		devir=$((x_basla - ply_bitir))
-	fi
-	log "SPLASH-HANDOFF=$(sn "$devir")s (splash kapanisi ile X baslangici arasi)"
-	# Eşik 5 sn: CI'daki QEMU KVM'siz (TCG) çalıştığı için her şey
-	# gerçek makineden kat kat yavaş; gerçek donanım/VirtualBox
-	# beklentisi 1-2 sn. 5'i aşmak TCG'de bile kopukluk işareti.
-	if [ "$devir" -gt 5000000 ]; then
-		fatal "SPLASH-HANDOFF-FAIL splash ile X arasi $(sn "$devir")s — devir teslim kopuk" "splash-devir"
+		log "SPLASH-HANDOFF=-$(sn "$devir")s (splash X'ten ONCE birakildi)"
+		# Eşik 5 sn: KVM'siz QEMU payı; gerçek donanım/VirtualBox
+		# beklentisi 1-2 sn.
+		if [ "$devir" -gt 5000000 ]; then
+			fatal "SPLASH-HANDOFF-FAIL splash X'ten $(sn "$devir")s once birakilmis — arada konsol gorunur" "splash-devir"
+		fi
 	fi
 else
 	log "SPLASH-HANDOFF-YOK (quit=$(sn "$ply_bitir")s x=$(sn "$x_basla")s olculemedi)"
