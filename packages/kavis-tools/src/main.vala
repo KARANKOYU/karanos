@@ -54,6 +54,14 @@ int main (string[] args) {
         }
         window = new Kavis.Tools.ShutdownDialog ();
         break;
+    case "power-dialog":
+        /* Aynı diyalog, odak kontrolü olmadan — Ctrl+Alt+Del
+         * ekranının güç düğmesi çağırır (2D: tek bileşen). */
+        if (!Kavis.Tools.SingleInstance.acquire ("kavis-power")) {
+            return 0;
+        }
+        window = new Kavis.Tools.ShutdownDialog ();
+        break;
     case "secure-menu":
         /* Ctrl+Alt+Del (sonraki-isler 6d) — panelden bağımsız.
          * Aynı tek örnek koruması: basılı tutunca üst üste karartma

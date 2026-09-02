@@ -27,7 +27,41 @@ namespace Kavis.Tools {
         }
     }
 
+    /* Power dialog (2D): the Kavis design-language version — no title
+     * bar, centered, 12px corners on #17222C, four big icon buttons
+     * side by side (Sleep / Restart / Shut down / Cancel). Escape
+     * closes; the 180 ms open animation is picom's appear preset.
+     * SHARED component: Alt+F4 (desktop) and the Ctrl+Alt+Del screen's
+     * power button both open exactly this window (no second code).
+     * app_paintable penceresi kendi CSS zeminini ÇİZMEZ (bilinen
+     * tuzak) — sınıf İÇ kutuda. */
     public class ShutdownDialog : Gtk.Window {
+
+        private const string CSS = """
+        .kavis-power-dialog {
+            background-color: #17222C;
+            border: 1px solid #233A45;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .kavis-power-dialog label { color: #E6EDF3; }
+        .kavis-power-dialog button {
+            background-image: none;
+            background-color: transparent;
+            border: none;
+            border-radius: 8px;
+            box-shadow: none;
+            color: #E6EDF3;
+            padding: 12px;
+            transition: background-color 140ms ease;
+        }
+        .kavis-power-dialog button:hover {
+            background-color: rgba(255,255,255,0.08);
+        }
+        .kavis-power-dialog button:active {
+            background-color: rgba(255,255,255,0.14);
+        }
+        """;
 
         public ShutdownDialog () {
             set_title (_("Shut down"));
@@ -38,47 +72,44 @@ namespace Kavis.Tools {
             set_wmclass ("kavis-power", "kavis-power");
             icon_name = "system-shutdown";
             set_resizable (false);
+            set_decorated (false);
             set_position (Gtk.WindowPosition.CENTER);
             set_keep_above (true);
 
-            var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
-            column.set_border_width (16);
-            add (column);
+            /* Yuvarlak köşe: RGBA görsel + saydam pencere, zemin iç
+             * kutuda. */
+            set_app_paintable (true);
+            var visual = get_screen ().get_rgba_visual ();
+            if (visual != null) {
+                set_visual (visual);
+            }
+            var provider = new Gtk.CssProvider ();
+            try {
+                provider.load_from_data (CSS, CSS.length);
+                Gtk.StyleContext.add_provider_for_screen (
+                    Gdk.Screen.get_default (), provider,
+                    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            } catch (Error e) { }
 
-            var combo = new Gtk.ComboBoxText ();
-            combo.append ("shutdown", _("Shut down"));
-            combo.append ("restart", _("Restart"));
-            combo.append ("sleep", _("Sleep"));
-            combo.append ("logout", _("Sign out"));
-            combo.set_active_id ("shutdown");
-            column.pack_start (combo, false, false, 0);
+            var card = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            card.get_style_context ().add_class ("kavis-power-dialog");
+            add (card);
 
-            var buttons = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-            buttons.set_halign (Gtk.Align.END);
-            var cancel = new Gtk.Button.with_label (_("Cancel"));
-            cancel.clicked.connect (() => destroy ());
-            buttons.pack_start (cancel, false, false, 0);
-            var ok = new Gtk.Button.with_label (_("OK"));
-            ok.get_style_context ().add_class ("suggested-action");
-            ok.clicked.connect (() => {
-                switch (combo.get_active_id ()) {
-                case "restart":
-                    Power.reboot ();
-                    break;
-                case "sleep":
+            card.pack_start (power_button (
+                "weather-clear-night-symbolic", _("Sleep"), () => {
                     Power.suspend ();
-                    break;
-                case "logout":
-                    Power.log_out ();
-                    break;
-                default:
+                }), false, false, 0);
+            card.pack_start (power_button (
+                "view-refresh-symbolic", _("Restart"), () => {
+                    Power.reboot ();
+                }), false, false, 0);
+            card.pack_start (power_button (
+                "system-shutdown-symbolic", _("Shut down"), () => {
                     Power.shutdown ();
-                    break;
-                }
-                destroy ();
-            });
-            buttons.pack_start (ok, false, false, 0);
-            column.pack_start (buttons, false, false, 0);
+                }), false, false, 0);
+            card.pack_start (power_button (
+                "window-close-symbolic", _("Cancel"), () => { }),
+                false, false, 0);
 
             key_press_event.connect ((event) => {
                 if (event.keyval == Gdk.Key.Escape) {
@@ -87,6 +118,28 @@ namespace Kavis.Tools {
                 }
                 return false;
             });
+        }
+
+        private delegate void PowerAction ();
+
+        /* One big icon button: icon on top, label below (~110px). */
+        private Gtk.Button power_button (string icon_name, string text,
+                                         owned PowerAction action) {
+            var button = new Gtk.Button ();
+            button.set_relief (Gtk.ReliefStyle.NONE);
+            var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 8);
+            var icon = new Gtk.Image.from_icon_name (
+                icon_name, Gtk.IconSize.DIALOG);
+            icon.pixel_size = 40;
+            column.pack_start (icon, false, false, 0);
+            column.pack_start (new Gtk.Label (text), false, false, 0);
+            column.set_size_request (96, -1);
+            button.add (column);
+            button.clicked.connect (() => {
+                action ();
+                destroy ();
+            });
+            return button;
         }
     }
 }

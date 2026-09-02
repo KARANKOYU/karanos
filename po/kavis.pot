@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 18:41+0000\n"
+"POT-Creation-Date: 2026-09-02 18:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -459,7 +459,7 @@ msgid "Delete"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:520
-#: packages/kavis-tools/src/altf4.vala:52
+#: packages/kavis-tools/src/altf4.vala:111
 msgid "Cancel"
 msgstr ""
 
@@ -473,21 +473,18 @@ msgid "Lock"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:119
-#: packages/kavis-tools/src/altf4.vala:45
-#: packages/kavis-tools/src/securemenu.vala:108
+#: packages/kavis-tools/src/altf4.vala:99
 msgid "Sleep"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:121
-#: packages/kavis-tools/src/altf4.vala:33
-#: packages/kavis-tools/src/altf4.vala:43
-#: packages/kavis-tools/src/securemenu.vala:109
+#: packages/kavis-tools/src/altf4.vala:67
+#: packages/kavis-tools/src/altf4.vala:107
 msgid "Shut down"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:123
-#: packages/kavis-tools/src/altf4.vala:44
-#: packages/kavis-tools/src/securemenu.vala:111
+#: packages/kavis-tools/src/altf4.vala:103
 msgid "Restart"
 msgstr ""
 
@@ -1017,15 +1014,6 @@ msgstr ""
 msgid "Find a setting"
 msgstr ""
 
-#: packages/kavis-tools/src/altf4.vala:46
-#: packages/kavis-tools/src/securemenu.vala:81
-msgid "Sign out"
-msgstr ""
-
-#: packages/kavis-tools/src/altf4.vala:55
-msgid "OK"
-msgstr ""
-
 #: packages/kavis-tools/src/calc.vala:14
 msgid "Calculator"
 msgstr ""
@@ -1108,17 +1096,17 @@ msgstr ""
 msgid "Screen recording saved"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:58
+#: packages/kavis-tools/src/main.vala:77
 #, c-format
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:66
+#: packages/kavis-tools/src/main.vala:85
 #, c-format
 msgid "usage: kavis-tools repair-drive <device>\n"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:80
+#: packages/kavis-tools/src/main.vala:99
 #, c-format
 msgid ""
 "usage: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|"
@@ -1222,6 +1210,10 @@ msgstr ""
 msgid ""
 "If the drive keeps failing, the hardware itself may be dying — software "
 "cannot fix that."
+msgstr ""
+
+#: packages/kavis-tools/src/securemenu.vala:81
+msgid "Sign out"
 msgstr ""
 
 #: packages/kavis-tools/src/tasks.vala:46

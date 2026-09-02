@@ -104,23 +104,16 @@ namespace Kavis.Tools {
             power_button.set_margin_end (32);
             power_button.set_margin_bottom (32);
             power_button.clicked.connect (() => {
-                var menu = new Gtk.Menu ();
-                append_power (menu, _("Sleep"), () => Power.suspend ());
-                append_power (menu, _("Shut down"),
-                              () => Power.shutdown ());
-                append_power (menu, _("Restart"), () => Power.reboot ());
-                /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
-                 * deactivate'ten SONRA koştuğu için Idle ile). */
-                menu.deactivate.connect (() => {
-                    Idle.add (() => {
-                        menu.destroy ();
-                        return Source.REMOVE;
-                    });
-                });
-                menu.show_all ();
-                menu.popup_at_widget (power_button,
-                    Gdk.Gravity.NORTH_EAST, Gdk.Gravity.SOUTH_EAST,
-                    null);
+                /* 2D: güç eylemleri TEK bileşen — Alt+F4'ün açtığı
+                 * diyaloğun aynısı ayrı süreçte açılır (bu pencerenin
+                 * yok oluşu ana döngüyü kapattığı için içeriden
+                 * açılamaz). */
+                close_menu ();
+                try {
+                    Process.spawn_async (null,
+                        { "kavis-tools", "power-dialog" }, null,
+                        SpawnFlags.SEARCH_PATH, null, null);
+                } catch (Error e) { }
             });
             overlay.add_overlay (power_button);
 
@@ -164,18 +157,6 @@ namespace Kavis.Tools {
                 close_menu ();
             });
             return button;
-        }
-
-        private delegate void PowerFunc ();
-
-        private void append_power (Gtk.Menu menu, string text,
-                                   owned PowerFunc action) {
-            var item = new Gtk.MenuItem.with_label (text);
-            item.activate.connect (() => {
-                action ();
-                close_menu ();
-            });
-            menu.append (item);
         }
 
         private void grab_input () {

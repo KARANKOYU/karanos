@@ -651,12 +651,6 @@ msgstr "⟪Taskbar··⟫"
 msgid "Find a setting"
 msgstr "⟪Find a setting·····⟫"
 
-msgid "Sign out"
-msgstr "⟪Sign out···⟫"
-
-msgid "OK"
-msgstr "⟪OK··⟫"
-
 msgid "Calculator"
 msgstr "⟪Calculator····⟫"
 
@@ -785,6 +779,9 @@ msgstr "⟪Repair could not fix the drive.············⟫"
 
 msgid "Deeper NTFS repair needs Windows: run chkdsk /f there."
 msgstr "⟪Deeper NTFS repair needs Windows: run chkdsk /f there.·····················⟫"
+
+msgid "Sign out"
+msgstr "⟪Sign out···⟫"
 
 msgid "End task"
 msgstr "⟪End task···⟫"
