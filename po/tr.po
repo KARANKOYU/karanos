@@ -176,8 +176,6 @@ msgstr "Odaklanma"
 msgid "Do not disturb"
 msgstr "Rahatsız etme"
 
-msgid "Battery saver"
-msgstr "Pil tasarrufu"
 
 msgid "Accessibility"
 msgstr "Erişilebilirlik"

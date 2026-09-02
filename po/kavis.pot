@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 19:16+0000\n"
+"POT-Creation-Date: 2026-09-02 19:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,7 +132,7 @@ msgstr ""
 #: packages/kavis-panel/src/kavis_osd.vala:275
 #: packages/kavis-panel/src/kavis_osd.vala:288
 #: packages/kavis-panel/src/ui/indicators.vala:188
-#: packages/kavis-panel/src/ui/quick_settings.vala:709
+#: packages/kavis-panel/src/ui/quick_settings.vala:724
 #, c-format
 msgid "%d%%"
 msgstr ""
@@ -157,7 +157,7 @@ msgid "Focus session finished"
 msgstr ""
 
 #: packages/kavis-panel/src/logic/launch.vala:58
-#: packages/kavis-panel/src/ui/quick_settings.vala:521
+#: packages/kavis-panel/src/ui/quick_settings.vala:536
 msgid "Settings app coming soon"
 msgstr ""
 
@@ -171,7 +171,7 @@ msgid "Notifications"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:39
-#: packages/kavis-panel/src/ui/quick_settings.vala:387
+#: packages/kavis-panel/src/ui/quick_settings.vala:388
 #: packages/kavis-settings/src/ui/window.vala:77
 msgid "Settings"
 msgstr ""
@@ -207,7 +207,7 @@ msgid "Network, sound, battery"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:194
-#: packages/kavis-panel/src/ui/quick_settings.vala:327
+#: packages/kavis-panel/src/ui/quick_settings.vala:328
 msgid "Mute"
 msgstr ""
 
@@ -220,29 +220,27 @@ msgid "Network settings"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:261
-#: packages/kavis-panel/src/ui/quick_settings.vala:474
+#: packages/kavis-panel/src/ui/quick_settings.vala:475
 #: packages/kavis-settings/src/ui/page_power.vala:17
 msgid "When plugged in"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:261
-#: packages/kavis-panel/src/ui/quick_settings.vala:477
+#: packages/kavis-panel/src/ui/quick_settings.vala:478
 #: packages/kavis-settings/src/ui/page_power.vala:20
 msgid "On battery"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:297
-#: packages/kavis-panel/src/ui/quick_settings.vala:497
 msgid "High performance"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:299
-#: packages/kavis-panel/src/ui/quick_settings.vala:499
 msgid "Power saver"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:301
-#: packages/kavis-panel/src/ui/quick_settings.vala:499
+#: packages/kavis-panel/src/ui/quick_settings.vala:512
 #: packages/kavis-settings/src/ui/page_power.vala:79
 msgid "Balanced"
 msgstr ""
@@ -420,7 +418,7 @@ msgid "Add to favorites"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:402
-#: packages/kavis-panel/src/ui/quick_settings.vala:589
+#: packages/kavis-panel/src/ui/quick_settings.vala:604
 msgid "None"
 msgstr ""
 
@@ -468,8 +466,8 @@ msgid "Restart"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:182
-#: packages/kavis-panel/src/ui/quick_settings.vala:442
-#: packages/kavis-panel/src/ui/quick_settings.vala:683
+#: packages/kavis-panel/src/ui/quick_settings.vala:443
+#: packages/kavis-panel/src/ui/quick_settings.vala:698
 #: packages/kavis-settings/src/ui/page_network.vala:24
 msgid "Wi-Fi"
 msgstr ""
@@ -500,54 +498,69 @@ msgstr ""
 msgid "Do not disturb"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:253
-msgid "Battery saver"
+#: packages/kavis-panel/src/ui/quick_settings.vala:256
+#: packages/kavis-panel/src/ui/quick_settings.vala:471
+msgid "Battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:268
-#: packages/kavis-panel/src/ui/quick_settings.vala:518
+#: packages/kavis-panel/src/ui/quick_settings.vala:269
+#: packages/kavis-panel/src/ui/quick_settings.vala:533
 msgid "Accessibility"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:298
+#: packages/kavis-panel/src/ui/quick_settings.vala:299
 #: packages/kavis-settings/src/ui/page_display.vala:86
 msgid "Brightness (backlight)"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:299
+#: packages/kavis-panel/src/ui/quick_settings.vala:300
 #: packages/kavis-settings/src/ui/page_display.vala:87
 msgid "Brightness (software — no backlight hardware)"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:341
+#: packages/kavis-panel/src/ui/quick_settings.vala:342
 msgid "Volume"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:361
-#: packages/kavis-panel/src/ui/quick_settings.vala:456
+#: packages/kavis-panel/src/ui/quick_settings.vala:362
+#: packages/kavis-panel/src/ui/quick_settings.vala:457
 #: packages/kavis-settings/src/ui/page_sound.vala:21
 #: packages/kavis-settings/src/ui/window.vala:94
 msgid "Output device"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:414
+#: packages/kavis-panel/src/ui/quick_settings.vala:415
 msgid "Back"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:449
+#: packages/kavis-panel/src/ui/quick_settings.vala:450
 msgid "Paired devices"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:470
-msgid "Battery"
+#: packages/kavis-panel/src/ui/quick_settings.vala:503
+#: packages/kavis-settings/src/ui/page_power.vala:76
+#: packages/kavis-settings/src/ui/window.vala:102
+msgid "Efficiency"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:544
+#: packages/kavis-panel/src/ui/quick_settings.vala:506
+#: packages/kavis-settings/src/ui/page_power.vala:77
+#: packages/kavis-settings/src/ui/window.vala:102
+msgid "Performance"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:509
+#: packages/kavis-settings/src/ui/page_power.vala:78
+#: packages/kavis-settings/src/ui/window.vala:103
+msgid "Game"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:559
 #: packages/kavis-settings/src/ui/page_network.vala:40
 msgid "Connected"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/quick_settings.vala:560
+#: packages/kavis-panel/src/ui/quick_settings.vala:575
 #: packages/kavis-settings/src/ui/page_network.vala:52
 msgid "No networks found"
 msgstr ""
@@ -896,21 +909,6 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_power.vala:41
 #: packages/kavis-settings/src/ui/window.vala:101
 msgid "Turn off screen after"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_power.vala:76
-#: packages/kavis-settings/src/ui/window.vala:102
-msgid "Efficiency"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_power.vala:77
-#: packages/kavis-settings/src/ui/window.vala:102
-msgid "Performance"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_power.vala:78
-#: packages/kavis-settings/src/ui/window.vala:103
-msgid "Game"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_sound.vala:22

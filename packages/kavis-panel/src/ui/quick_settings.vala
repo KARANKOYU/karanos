@@ -154,7 +154,7 @@ namespace Kavis.Ui {
             } else if (name == "sinks") {
                 rebuild_sink_list ();
             } else if (name == "battery"
-                       && plugged_choices.length == 3) {
+                       && plugged_choices.length == 4) {
                 plans_building = true;
                 plugged_choices[(int) PowerPlan.get_plan (true)]
                     .set_active (true);
@@ -249,16 +249,17 @@ namespace Kavis.Ui {
             attach_tile (grid, dnd_tile, ref col, ref row);
 
             if (Battery.present ()) {
+                /* 3D: kutucuk artık aç/kapa değil — "Battery" alt
+                 * paneline açılır (4 mod orada); pil yoksa kutucuk
+                 * HİÇ görünmez. */
                 saver_tile = new SettingTile ("battery-good-symbolic",
-                                              N_("Battery saver"), false);
+                                              N_("Battery"), true);
                 saver_tile.toggled_by_user.connect ((on) => {
-                    /* Tasarruf, o anki güç kaynağının planını değiştirir;
-                     * kapatınca Normal'e döner. Kaynak yaklaşık olarak
-                     * şarj durumundan okunur. */
-                    bool plugged = Battery.charging ();
-                    PowerPlan.set_plan (plugged, on
-                        ? PowerPlan.Plan.SAVER : PowerPlan.Plan.NORMAL,
-                        Battery.on_ac ());
+                    saver_tile.set_state (false);
+                    show_page ("battery");
+                });
+                saver_tile.details_requested.connect (() => {
+                    show_page ("battery");
                 });
                 attach_tile (grid, saver_tile, ref col, ref row);
             }
@@ -489,14 +490,28 @@ namespace Kavis.Ui {
             column.pack_start (title, false, false, 0);
             Gtk.RadioButton? group = null;
             Gtk.RadioButton[] built = {};
-            PowerPlan.Plan[] plans = { PowerPlan.Plan.PERFORMANCE,
+            /* 3D: Ayarlar > Güç ile aynı 4 mod, aynı veri
+             * (kavis.conf [power] — PowerPlan tek yazıcı). */
+            PowerPlan.Plan[] plans = { PowerPlan.Plan.SAVER,
                                        PowerPlan.Plan.NORMAL,
-                                       PowerPlan.Plan.SAVER };
+                                       PowerPlan.Plan.PERFORMANCE,
+                                       PowerPlan.Plan.GAME };
             foreach (var plan in plans) {
-                string label = (plan == PowerPlan.Plan.PERFORMANCE)
-                    ? _("High performance")
-                    : (plan == PowerPlan.Plan.SAVER)
-                    ? _("Power saver") : _("Balanced");
+                string label;
+                switch (plan) {
+                case PowerPlan.Plan.SAVER:
+                    label = _("Efficiency");
+                    break;
+                case PowerPlan.Plan.PERFORMANCE:
+                    label = _("Performance");
+                    break;
+                case PowerPlan.Plan.GAME:
+                    label = _("Game");
+                    break;
+                default:
+                    label = _("Balanced");
+                    break;
+                }
                 var choice = new Gtk.RadioButton.with_label_from_widget (
                     group, label);
                 group = choice;

@@ -309,8 +309,8 @@ msgstr "⟪Focus··⟫"
 msgid "Do not disturb"
 msgstr "⟪Do not disturb·····⟫"
 
-msgid "Battery saver"
-msgstr "⟪Battery saver·····⟫"
+msgid "Battery"
+msgstr "⟪Battery··⟫"
 
 msgid "Accessibility"
 msgstr "⟪Accessibility·····⟫"
@@ -333,8 +333,14 @@ msgstr "⟪Back··⟫"
 msgid "Paired devices"
 msgstr "⟪Paired devices·····⟫"
 
-msgid "Battery"
-msgstr "⟪Battery··⟫"
+msgid "Efficiency"
+msgstr "⟪Efficiency····⟫"
+
+msgid "Performance"
+msgstr "⟪Performance····⟫"
+
+msgid "Game"
+msgstr "⟪Game··⟫"
 
 msgid "Connected"
 msgstr "⟪Connected···⟫"
@@ -569,15 +575,6 @@ msgstr "⟪30 minutes····⟫"
 
 msgid "Turn off screen after"
 msgstr "⟪Turn off screen after········⟫"
-
-msgid "Efficiency"
-msgstr "⟪Efficiency····⟫"
-
-msgid "Performance"
-msgstr "⟪Performance····⟫"
-
-msgid "Game"
-msgstr "⟪Game··⟫"
 
 msgid "Applies to newly started applications"
 msgstr "⟪Applies to newly started applications··············⟫"
