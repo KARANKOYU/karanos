@@ -6,6 +6,7 @@ Build-Depends:
  debhelper-compat (= 13),
  valac,
  libgtk-3-dev,
+ libwnck-3-dev,
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://github.com/KARANKOYU/karanos

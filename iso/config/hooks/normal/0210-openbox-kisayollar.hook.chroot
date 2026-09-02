@@ -84,6 +84,18 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.VolumeMute</command>
       </action>
     </keybind>
+    <!-- Ekran goruntusu (madde 29): PrtScr arac menusu, Ctrl+PrtScr
+         sormadan hizli yakalama (ne yakalanacagi capture.conf'tan) -->
+    <keybind key="Print">
+      <action name="Execute">
+        <command>kavis-tools capture</command>
+      </action>
+    </keybind>
+    <keybind key="C-Print">
+      <action name="Execute">
+        <command>kavis-tools capture --quick</command>
+      </action>
+    </keybind>
 EOF
 
 awk -v snippet="$SNIPPET" '

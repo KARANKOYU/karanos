@@ -25,11 +25,17 @@ int main (string[] args) {
     case "emoji":
         window = new Kavis.Tools.EmojiWindow ();
         break;
+    case "capture":
+        if (args.length > 2 && args[2] == "--quick") {
+            return Kavis.Tools.Capture.quick ();
+        }
+        window = Kavis.Tools.Capture.chooser ();
+        break;
     case "tasks":
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
     default:
-        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji]\n");
+        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji|capture]\n");
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

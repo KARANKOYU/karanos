@@ -125,6 +125,14 @@ namespace Kavis.Strings {
         { "emoji.cat_travel",         "Gezi",                      "Travel" },
         { "emoji.cat_objects",        "Nesneler",                  "Objects" },
         { "emoji.cat_symbols",        "Semboller",                 "Symbols" },
+
+        /* Ekran görüntüsü ve kaydı (madde 29, kavis-tools). */
+        { "capture.image",            "Görsel",                    "Image" },
+        { "capture.video",            "Video",                     "Video" },
+        { "capture.stop",             "Durdur",                    "Stop" },
+        { "capture.recording",        "Kayıt sürüyor",             "Recording" },
+        { "capture.saved_video",      "Ekran kaydı kaydedildi",    "Screen recording saved" },
+        { "screenshot.saved",         "Ekran görüntüsü kaydedildi", "Screenshot saved" },
     };
 
     private bool turkish_selected;
@@ -192,7 +200,9 @@ namespace Kavis.Strings {
                 || e.key.has_prefix ("clipboard.")
                 || e.key.has_prefix ("tm.")
                 || e.key.has_prefix ("calc.")
-                || e.key.has_prefix ("emoji.");
+                || e.key.has_prefix ("emoji.")
+                || e.key.has_prefix ("capture.")
+                || e.key.has_prefix ("screenshot.");
             if (!known_prefix) {
                 stderr.printf ("beklenmeyen anahtar oneki: %s\n", e.key);
                 errors++;

@@ -7,8 +7,8 @@ export DH_VERBOSE = 1
 
 DEST := debian/kavis-tools
 
-VALA_PAKETLER := --pkg gtk+-3.0 --pkg posix
-VALA_CFLAGS := -X -O2 -X -w -X -lm
+VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg posix
+VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm
 
 KAYNAKLAR := $(wildcard src/*.vala)
 

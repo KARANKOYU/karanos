@@ -72,3 +72,10 @@ libglib2.0-bin
 # çizsin.
 xdotool
 fonts-noto-color-emoji
+
+# --- ekran görüntüsü ve kaydı (madde 29) ---
+# flameshot: donmuş kare + karartma + seçiciler + düzenleme (29F temel)
+# slop: video için bölge seçimi; ffmpeg: x11grab kaydı
+flameshot
+slop
+ffmpeg
