@@ -198,6 +198,9 @@ bu dosyayı kaynak olarak kullanacak.
 | `panel.menu_monitor` | Ekran | Monitor |
 | `panel.monitor_primary` | Birincil ekran | Primary monitor |
 | `panel.menu_autohide` | Otomatik gizle | Auto-hide |
+| `panel.menu_align` | Hizalama | Alignment |
+| `panel.align_left` | Sola hizala | Align left |
+| `panel.align_center` | Ortala | Center |
 | `panel.display_settings` | Ekran ayarları | Display settings |
 | `panel.desktop_n` | Masaüstü %d | Desktop %d |
 | `panel.no_results` | Sonuç bulunamadı | No results found |

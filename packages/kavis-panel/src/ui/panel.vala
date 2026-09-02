@@ -121,6 +121,11 @@ namespace Kavis.Ui {
         private unowned Wnck.Screen screen;
         private PanelConfig config;
         private int thickness;
+        /* Arka plan sınıfını taşıyan kök kutu: app_paintable pencerede
+         * GTK pencerenin CSS arka planını ÇİZMEZ (PanelPopup/Overview
+         * deseni) — sınıf pencereye verilince panel VM'de tamamen
+         * saydam çıkıyordu ("duvar kağıdına karışıyor" hatası). */
+        private Gtk.Box root_box;
         private StartMenu start_menu;
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
@@ -153,7 +158,6 @@ namespace Kavis.Ui {
             set_skip_pager_hint (true);
             set_keep_above (true);
             stick ();
-            get_style_context ().add_class ("kavis-panel");
 
             /* Akrilik (madde 4): kompozitör varken RGBA görsel + yarı
              * saydam arka plan; picom yoksa (kurtarma, çökme) düz
@@ -251,7 +255,10 @@ namespace Kavis.Ui {
         }
 
         private void update_acrylic () {
-            unowned Gtk.StyleContext context = get_style_context ();
+            if (root_box == null) {
+                return;
+            }
+            unowned Gtk.StyleContext context = root_box.get_style_context ();
             if (get_screen ().is_composited ()) {
                 context.add_class ("acrylic");
             } else {
@@ -278,19 +285,34 @@ namespace Kavis.Ui {
             var axis = config.vertical
                 ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL;
             var box = new Gtk.Box (axis, 0);
+            root_box = box;
+            box.get_style_context ().add_class ("kavis-panel");
+            update_acrylic ();
             add (box);
 
-            /* --- start button (madde 4: W11 gibi yalnız logo) --- */
+            /* --- start button --- */
             start_button = new Gtk.Button ();
             start_button.get_style_context ().add_class ("start");
             start_button.set_relief (Gtk.ReliefStyle.NONE);
             /* Logo follows the active theme (item 1): dark logo on the
              * dark theme, light on light. The choice lives in Brand —
-             * one place. The label moved into the tooltip when the
-             * cluster was centered: an icon row reads better without
-             * a lone word in it. */
-            start_button.add (Brand.logo_image (24));
-            start_button.set_tooltip_text (Strings.get ("panel.start"));
+             * one place. Left-aligned (the Windows 10 default) the
+             * logo carries a "Başlat" label; centered (Windows 11
+             * option) it is icon-only with the label in the tooltip. */
+            bool centered =
+                config.alignment == PanelConfig.Alignment.CENTER;
+            if (centered || config.vertical) {
+                start_button.add (Brand.logo_image (24));
+                start_button.set_tooltip_text (Strings.get ("panel.start"));
+            } else {
+                var start_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+                start_row.pack_start (Brand.logo_image (24),
+                                      false, false, 0);
+                start_row.pack_start (
+                    new Gtk.Label (Strings.get ("panel.start")),
+                    false, false, 0);
+                start_button.add (start_row);
+            }
             start_button.clicked.connect (on_start_clicked);
 
             /* --- window list --- */
@@ -318,21 +340,25 @@ namespace Kavis.Ui {
                 queue_button_width_update ();
             });
 
-            /* --- centered cluster (madde 4) --- */
-            /* W11 yerleşimi: Başlat + pencere ikonları ekranın
-             * ortasında bir küme; sağ bölge sağda sabit. İki genişleyen
-             * boşluk kümeyi ortalar; pencere listesi doğal genişliğini
-             * aşınca boşluklar sıfırlanır ve kaydırma devreye girer —
-             * sağ bölge yine asla ezilmez (Aşama 2 kuralı geçerli). */
+            /* --- cluster placement (madde 4 + hizalama seçeneği) --- */
+            /* Sol hizalı (varsayılan, W10): Başlat + pencere listesi
+             * soldan başlar. Ortalı (W11 seçeneği): iki genişleyen
+             * boşluk kümeyi ortalar. Her iki düzende de pencere listesi
+             * doğal genişliğini aşınca kaydırma devreye girer — sağ
+             * bölge asla ezilmez (Aşama 2 kuralı geçerli). */
             var cluster = new Gtk.Box (axis, 4);
             cluster.pack_start (start_button, false, false, 0);
             cluster.pack_start (window_scroll, false, false, 0);
 
-            var left_spacer = new Gtk.Box (axis, 0);
-            var right_spacer = new Gtk.Box (axis, 0);
-            box.pack_start (left_spacer, true, true, 0);
-            box.pack_start (cluster, false, false, 0);
-            box.pack_start (right_spacer, true, true, 0);
+            if (centered) {
+                var left_spacer = new Gtk.Box (axis, 0);
+                var right_spacer = new Gtk.Box (axis, 0);
+                box.pack_start (left_spacer, true, true, 0);
+                box.pack_start (cluster, false, false, 0);
+                box.pack_start (right_spacer, true, true, 0);
+            } else {
+                box.pack_start (cluster, false, false, 0);
+            }
 
             /* --- right edge --- */
             /* Packed with expand=false: it always gets exactly its
@@ -815,6 +841,36 @@ namespace Kavis.Ui {
             }
             size_item.set_submenu (size_menu);
             menu.append (size_item);
+
+            /* Hizalama (Grup D düzeltmesi): sol varsayılan, ortalı
+             * seçenek. Yerleşimi build() kurduğu için değişim de
+             * konum/boyut gibi restart_self() ister. */
+            var align_item = new Gtk.MenuItem.with_label (
+                Strings.get ("panel.menu_align"));
+            var align_menu = new Gtk.Menu ();
+            unowned SList<Gtk.RadioMenuItem>? align_group = null;
+            PanelConfig.Alignment[] alignments = {
+                PanelConfig.Alignment.LEFT, PanelConfig.Alignment.CENTER
+            };
+            string[] align_keys = {
+                "panel.align_left", "panel.align_center"
+            };
+            for (int i = 0; i < alignments.length; i++) {
+                var item = new Gtk.RadioMenuItem.with_label (
+                    align_group, Strings.get (align_keys[i]));
+                align_group = item.get_group ();
+                item.set_active (config.alignment == alignments[i]);
+                PanelConfig.Alignment value = alignments[i];
+                item.activate.connect (() => {
+                    if (item.get_active () && config.alignment != value) {
+                        config.alignment = value;
+                        restart_self ();
+                    }
+                });
+                align_menu.append (item);
+            }
+            align_item.set_submenu (align_menu);
+            menu.append (align_item);
 
             /* Ekran — yalnız birden fazla monitör varsa. */
             var display = Gdk.Display.get_default ();

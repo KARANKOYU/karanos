@@ -63,8 +63,29 @@ namespace Kavis {
             }
         }
 
+        public enum Alignment {
+            LEFT, CENTER;
+
+            public string id () {
+                switch (this) {
+                case CENTER: return "center";
+                default:     return "left";
+                }
+            }
+
+            public static Alignment from_id (string id) {
+                switch (id) {
+                case "center": return CENTER;
+                default:       return LEFT;
+                }
+            }
+        }
+
         public Position position = Position.BOTTOM;
         public Thickness thickness = Thickness.MEDIUM;
+        /* Start button + window list placement: Windows 10 style on the
+         * left (the default) or Windows 11 style centered. */
+        public Alignment alignment = Alignment.LEFT;
         /* Monitor model string, or "primary". Matched against
          * Gdk.Monitor.get_model(); a vanished monitor falls back to
          * primary at placement time (never fails hard). */
@@ -100,6 +121,10 @@ namespace Kavis {
                     file.get_string ("panel", "size"));
             } catch (Error e) { }
             try {
+                config.alignment = Alignment.from_id (
+                    file.get_string ("panel", "align"));
+            } catch (Error e) { }
+            try {
                 config.monitor = file.get_string ("panel", "monitor");
             } catch (Error e) { }
             try {
@@ -110,7 +135,13 @@ namespace Kavis {
 
         public void save () {
             var file = new KeyFile ();
+            /* panel.conf carries other groups too ([clipboard] limit);
+             * writing a fresh KeyFile would silently drop them. */
+            try {
+                file.load_from_file (config_path (), KeyFileFlags.KEEP_COMMENTS);
+            } catch (Error e) { }
             file.set_string ("panel", "position", position.id ());
+            file.set_string ("panel", "align", alignment.id ());
             file.set_string ("panel", "size", thickness.id ());
             file.set_string ("panel", "monitor", monitor);
             file.set_boolean ("panel", "autohide", autohide);

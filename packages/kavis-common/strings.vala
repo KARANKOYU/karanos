@@ -56,6 +56,9 @@ namespace Kavis.Strings {
         { "panel.menu_monitor",       "Ekran",                     "Monitor" },
         { "panel.monitor_primary",    "Birincil ekran",            "Primary monitor" },
         { "panel.menu_autohide",      "Otomatik gizle",            "Auto-hide" },
+        { "panel.menu_align",         "Hizalama",                  "Alignment" },
+        { "panel.align_left",         "Sola hizala",               "Align left" },
+        { "panel.align_center",       "Ortala",                    "Center" },
         { "panel.display_settings",   "Ekran ayarları",            "Display settings" },
 
         /* Gösterge popup'ları (Aşama 4) — "Güç", "Ses / Ekran /
