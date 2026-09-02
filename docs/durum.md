@@ -471,8 +471,15 @@ yok (Unicode ad veritabanı gerek).
 
 ## 5. KALDIĞIM YER
 
-- YARIM KALAN DEĞİŞİKLİK YOK: çalışma ağacı temiz, her şey commit'li
-  ve push'lu (son commit'ler: `59a8a13` kod, `b3058e9` docs).
+- Kod tarafında yarım değişiklik yok; her şey commit'li ve push'lu
+  (son kod commit'i `59a8a13`).
+- **DİKKAT — çalışma ağacında commit'lenmemiş BİR dosya var:**
+  `assets/boot/boot-sound.mp3` DEĞİŞTİRİLMİŞ durumda (kullanıcı yeni
+  açılış müziğini koydu; /btw işi 4a'nın girdisi). BİLEREK
+  commit'lenmedi: boot-sound işiyle birlikte işlenecek (boot-check -s
+  denetimi + WAV dönüşüm doğrulaması + eski referans temizliği +
+  kavis-boot yeniden derlemesi aynı commit'te). Yeni oturum bu dosyayı
+  SİLME/geri alma — işin parçası.
 - Tek açık uç: **v0.3-test5 koşusu 33616072408** sonucu (2. bölüm,
   1. sıra). Arka plan izleyicisi bu oturumla öldü — yeni oturum
   kendisi bakmalı.
