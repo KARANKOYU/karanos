@@ -83,7 +83,8 @@ namespace Kavis.Strings {
          * küçük araçlar", "Ağ", "Ayarlar", "Ses / Ekran" tabloları. */
         { "notif.center",             "Bildirimler",               "Notifications" },
         { "notif.clear_all",          "Tümünü temizle",            "Clear all" },
-        { "notif.no_notifications",   "Bildirim yok",              "No notifications" },
+        { "notif.no_notifications",   "Yeni bildirim yok",         "No new notifications" },
+        { "settings.coming_soon",     "Ayarlar uygulaması yakında", "Settings app coming soon" },
         { "notif.dnd",                "Rahatsız etme",             "Do not disturb" },
         { "network.wifi",             "Wi-Fi",                     "Wi-Fi" },
         { "settings.bluetooth",       "Bluetooth",                 "Bluetooth" },
@@ -92,6 +93,8 @@ namespace Kavis.Strings {
         { "game.mode",                "Oyun Modu",                 "Game Mode" },
         { "focus.mode",               "Odaklanma",                 "Focus" },
         { "common.clear",             "Temizle",                   "Clear" },
+        { "common.settings",          "Ayarlar",                   "Settings" },
+        { "common.back",              "Geri",                      "Back" },
 
         /* Genel bakış + odaklanma (madde 55). */
         { "panel.desktop_n",          "Masaüstü %d",               "Desktop %d" },

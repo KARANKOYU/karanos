@@ -18,7 +18,7 @@ namespace Kavis.Ui {
     public class Clock : Gtk.Button {
 
         private Gtk.Label text_label;
-        private CalendarPopup popup;
+        private NotificationCenterPopup popup;
 
         public Clock () {
             set_relief (Gtk.ReliefStyle.NONE);
@@ -28,7 +28,7 @@ namespace Kavis.Ui {
             text_label.set_justify (Gtk.Justification.CENTER);
             add (text_label);
 
-            popup = new CalendarPopup ();
+            popup = new NotificationCenterPopup ();
             clicked.connect (() => popup.toggle_at (this));
 
             refresh ();

@@ -91,6 +91,20 @@ namespace Kavis {
          * primary at placement time (never fails hard). */
         public string monitor = "primary";
         public bool autohide = false;
+        /* Notification-center calendar collapsed state (Grup D fix:
+         * remembered across sessions, [clock] group). */
+        public bool calendar_collapsed = false;
+
+        /* One shared instance: the popups save settings too, and a
+         * second instance would write back stale panel values. */
+        private static PanelConfig? instance = null;
+
+        public static PanelConfig get_default () {
+            if (instance == null) {
+                instance = load ();
+            }
+            return instance;
+        }
 
         public bool vertical {
             get {
@@ -130,6 +144,10 @@ namespace Kavis {
             try {
                 config.autohide = file.get_boolean ("panel", "autohide");
             } catch (Error e) { }
+            try {
+                config.calendar_collapsed =
+                    file.get_boolean ("clock", "calendar_collapsed");
+            } catch (Error e) { }
             return config;
         }
 
@@ -145,6 +163,8 @@ namespace Kavis {
             file.set_string ("panel", "size", thickness.id ());
             file.set_string ("panel", "monitor", monitor);
             file.set_boolean ("panel", "autohide", autohide);
+            file.set_boolean ("clock", "calendar_collapsed",
+                              calendar_collapsed);
             string path = config_path ();
             DirUtils.create_with_parents (Path.get_dirname (path), 0755);
             try {

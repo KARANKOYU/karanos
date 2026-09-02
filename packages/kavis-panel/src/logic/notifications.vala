@@ -23,6 +23,13 @@ namespace Kavis {
         public string body;
         public bool critical;
         public DateTime timestamp;
+        /* Optional attachments (Grup D fix): a preview image shown in
+         * the notification center ("image-path" hint, file path form)
+         * and a file the click opens ("x-kavis-path" hint — Kavis'
+         * own tools set it, e.g. a screenshot revealing itself in the
+         * file manager). Empty when absent. */
+        public string image_path = "";
+        public string target_path = "";
     }
 
     [DBus (name = "org.freedesktop.Notifications")]
@@ -67,6 +74,19 @@ namespace Kavis {
             unowned Variant? urgency = hints.lookup ("urgency");
             entry.critical = (urgency != null
                               && urgency.get_byte () == 2);
+            /* "image-path" is spec 1.2; "image_path" the 1.1 spelling —
+             * accept both, file paths only (no raw image data). */
+            unowned Variant? image = hints.lookup ("image-path")
+                ?? hints.lookup ("image_path");
+            if (image != null
+                && image.is_of_type (VariantType.STRING)) {
+                entry.image_path = image.get_string ();
+            }
+            unowned Variant? target = hints.lookup ("x-kavis-path");
+            if (target != null
+                && target.is_of_type (VariantType.STRING)) {
+                entry.target_path = target.get_string ();
+            }
 
             /* Bir bildirim yenilendiyse (replaces_id) eski kaydı düşür. */
             for (int i = 0; i < history.length; i++) {

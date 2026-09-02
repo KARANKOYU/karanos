@@ -295,6 +295,8 @@ bu dosyayı kaynak olarak kullanacak.
 | Anahtar | Türkçe | English |
 |---|---|---|
 | `settings.title` | Ayarlar | Settings |
+| `settings.coming_soon` | Ayarlar uygulaması yakında | Settings app coming soon |
+| `settings.accessibility` | Erişilebilirlik | Accessibility |
 | `settings.search` | Ayarlarda ara | Search settings |
 | `settings.appearance` | Görünüm | Appearance |
 | `settings.users` | Kullanıcılar | Users |
@@ -331,9 +333,10 @@ bu dosyayı kaynak olarak kullanacak.
 | `appearance.desktop_shortcuts` | Kurulan uygulamaları masaüstüne ekle | Add installed apps to the desktop |
 | `appearance.restore_icons` | Varsayılan masaüstü simgelerini geri yükle | Restore default desktop icons |
 
-> Üstü çizili üç anahtar **artık kullanılmıyor.** Kavis tek temalı
-> (koyu); Ayarlar > Görünüm'de tema seçimi yok. Metinler kayıt olarak
-> duruyor, arayüzde görünmüyor.
+> Üstü çizili üç anahtar **şimdilik** arayüzde görünmüyor: tema
+> seçimi Ayarlar uygulamasıyla (Grup F) gelecek — plan iki tema, koyu
+> varsayılan (2 Eyl 2026 düzeltmesi). Anahtarlar o gün bu hâliyle
+> kullanılacak.
 
 ### Kullanıcılar
 
@@ -556,7 +559,7 @@ bu dosyayı kaynak olarak kullanacak.
 |---|---|---|
 | `notif.center` | Bildirimler | Notifications |
 | `notif.clear_all` | Tümünü temizle | Clear all |
-| `notif.no_notifications` | Bildirim yok | No notifications |
+| `notif.no_notifications` | Yeni bildirim yok | No new notifications |
 | `notif.dnd` | Rahatsız etme | Do not disturb |
 | `game.mode` | Oyun Modu | Game Mode |
 | `focus.mode` | Odaklanma | Focus |

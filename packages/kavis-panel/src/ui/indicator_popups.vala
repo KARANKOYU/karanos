@@ -8,44 +8,40 @@
 
 namespace Kavis.Ui {
 
-    /* Clock popup (madde 37): monthly calendar on top, the
-     * notification center in the middle (grouped by app, per-group and
-     * global clear), quick settings at the bottom. */
-    public class CalendarPopup : PanelPopup {
+    /* Clock popup (Grup D fix — Windows 11 layout): notification
+     * center on top (grouped by app, per-group clear, previews,
+     * click-to-open), collapsible calendar below. Quick settings
+     * moved to their own popup (QuickSettingsPopup). */
+    public class NotificationCenterPopup : PanelPopup {
 
         private Gtk.Calendar calendar;
         private Gtk.Box notif_list;
+        private Gtk.ScrolledWindow notif_scroll;
         private Gtk.Button clear_all_button;
+        private Gtk.Label date_label;
+        private Gtk.Label collapse_arrow;
+        private PanelConfig config;
 
-        /* Quick toggles that need their state refreshed on open. */
-        private QuickTile? wifi_tile = null;
-        private QuickTile? bt_tile = null;
-        private QuickTile? night_tile = null;
-        private QuickTile? game_tile = null;
-        private QuickTile? focus_tile = null;
-        private QuickTile? dnd_tile = null;
-        private Gtk.Scale? brightness_slider = null;
-        private bool updating = false;
-        private uint brightness_source = 0;
+        public NotificationCenterPopup () {
+            edge_aligned = true;
+            config = PanelConfig.get_default ();
+            content.set_size_request (380, -1);
 
-        public CalendarPopup () {
-            content.set_size_request (330, -1);
-
-            calendar = new Gtk.Calendar ();
-            calendar.show_heading = true;
-            calendar.show_day_names = true;
-            content.pack_start (calendar, false, false, 0);
-
-            content.pack_start (
-                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
-                false, false, 4);
-
-            /* --- bildirim merkezi --- */
+            /* --- bildirim merkezi başlığı --- */
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             var title = new Gtk.Label (Strings.get ("notif.center"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);
             header.pack_start (title, true, true, 0);
+            var gear = new Gtk.Button.from_icon_name (
+                "emblem-system-symbolic", Gtk.IconSize.BUTTON);
+            gear.set_relief (Gtk.ReliefStyle.NONE);
+            gear.set_tooltip_text (Strings.get ("common.settings"));
+            gear.clicked.connect (() => {
+                dismiss ();
+                Launch.settings ("notifications");
+            });
+            header.pack_end (gear, false, false, 0);
             clear_all_button = new Gtk.Button.with_label (
                 Strings.get ("notif.clear_all"));
             clear_all_button.set_relief (Gtk.ReliefStyle.NONE);
@@ -57,18 +53,22 @@ namespace Kavis.Ui {
             header.pack_end (clear_all_button, false, false, 0);
             content.pack_start (header, false, false, 0);
 
-            var scroll = new Gtk.ScrolledWindow (null, null);
-            scroll.set_policy (Gtk.PolicyType.NEVER,
-                               Gtk.PolicyType.AUTOMATIC);
-            scroll.set_size_request (-1, 180);
+            content.pack_start (
+                new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
+                false, false, 4);
+
+            notif_scroll = new Gtk.ScrolledWindow (null, null);
+            notif_scroll.set_policy (Gtk.PolicyType.NEVER,
+                                     Gtk.PolicyType.AUTOMATIC);
             notif_list = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
-            scroll.add (notif_list);
-            content.pack_start (scroll, true, true, 0);
+            notif_scroll.add (notif_list);
+            content.pack_start (notif_scroll, true, true, 0);
 
             if (Notifications.server != null) {
                 Notifications.server.history_changed.connect (() => {
                     if (get_visible ()) {
                         rebuild_notifications ();
+                        refit ();
                     }
                 });
             }
@@ -77,98 +77,41 @@ namespace Kavis.Ui {
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 4);
 
-            /* --- hızlı ayarlar --- */
-            build_quick_settings ();
+            /* --- takvim bölümü: başlık satırı + daraltma --- */
+            var cal_header = new Gtk.Button ();
+            cal_header.set_relief (Gtk.ReliefStyle.NONE);
+            var cal_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            date_label = new Gtk.Label ("");
+            date_label.set_xalign (0);
+            cal_row.pack_start (date_label, true, true, 0);
+            collapse_arrow = new Gtk.Label ("⌄");
+            collapse_arrow.get_style_context ().add_class ("dim");
+            cal_row.pack_end (collapse_arrow, false, false, 0);
+            cal_header.add (cal_row);
+            cal_header.clicked.connect (() => {
+                set_calendar_collapsed (!config.calendar_collapsed, true);
+                rebuild_notifications ();   /* liste yüksekliği değişir */
+                if (get_visible ()) {
+                    refit ();
+                }
+            });
+            content.pack_start (cal_header, false, false, 0);
+
+            calendar = new Gtk.Calendar ();
+            calendar.show_heading = true;    /* "Eylül 2026" + ▲▼ */
+            calendar.show_day_names = true;
+            content.pack_start (calendar, false, false, 0);
         }
 
-        private void build_quick_settings () {
-            var grid = new Gtk.FlowBox ();
-            grid.set_selection_mode (Gtk.SelectionMode.NONE);
-            grid.set_max_children_per_line (4);
-            grid.set_min_children_per_line (4);
-            grid.set_homogeneous (true);
-
-            if (Quick.wifi_available ()) {
-                wifi_tile = new QuickTile ("network-wireless-symbolic",
-                                           "network.wifi");
-                wifi_tile.toggled_by_user.connect ((on) => {
-                    Quick.wifi_set (on);
-                });
-                grid.add (wifi_tile);
-            }
-            if (Quick.bluetooth_available ()) {
-                bt_tile = new QuickTile ("bluetooth-active-symbolic",
-                                         "settings.bluetooth");
-                bt_tile.toggled_by_user.connect ((on) => {
-                    Quick.bluetooth_set (on);
-                });
-                grid.add (bt_tile);
-            }
-            if (Quick.night_available ()) {
-                night_tile = new QuickTile ("night-light-symbolic",
-                                            "display.night_mode");
-                night_tile.toggled_by_user.connect ((on) => {
-                    Quick.night_set (on);
-                });
-                grid.add (night_tile);
-            }
-            game_tile = new QuickTile ("input-gaming-symbolic",
-                                       "game.mode");
-            game_tile.toggled_by_user.connect ((on) => {
-                Quick.gamemode_set (on);
-            });
-            grid.add (game_tile);
-
-            /* Odaklanma (madde 55): süreli DND; bitince bildirim. */
-            focus_tile = new QuickTile ("alarm-symbolic", "focus.mode");
-            focus_tile.toggled_by_user.connect ((on) => {
-                if (on) {
-                    Focus.start ();
-                } else {
-                    Focus.cancel ();
-                }
-            });
-            grid.add (focus_tile);
-
-            dnd_tile = new QuickTile ("notifications-disabled-symbolic",
-                                      "notif.dnd");
-            dnd_tile.toggled_by_user.connect ((on) => {
-                if (Notifications.server != null) {
-                    Notifications.server.set_dnd (on);
-                }
-            });
-            grid.add (dnd_tile);
-
-            content.pack_start (grid, false, false, 0);
-
-            /* Parlaklık kaydırıcısı yalnız backlight olan makinelerde
-             * (masaüstlerinde monitör DDC'si ayrı iş — madde 10). */
-            if (Quick.brightness_available ()) {
-                var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-                var icon = new Gtk.Image.from_icon_name (
-                    "display-brightness-symbolic", Gtk.IconSize.BUTTON);
-                row.pack_start (icon, false, false, 0);
-                brightness_slider = new Gtk.Scale.with_range (
-                    Gtk.Orientation.HORIZONTAL, 5, 100, 5);
-                brightness_slider.set_draw_value (false);
-                brightness_slider.set_tooltip_text (
-                    Strings.get ("display.brightness"));
-                brightness_slider.value_changed.connect (() => {
-                    if (updating) {
-                        return;
-                    }
-                    int value = (int) brightness_slider.get_value ();
-                    if (brightness_source != 0) {
-                        Source.remove (brightness_source);
-                    }
-                    brightness_source = Timeout.add (80, () => {
-                        brightness_source = 0;
-                        Quick.brightness_set (value);
-                        return Source.REMOVE;
-                    });
-                });
-                row.pack_start (brightness_slider, true, true, 0);
-                content.pack_start (row, false, false, 0);
+        /* Daraltılınca yalnız başlık satırı kalır; durum panel.conf'ta
+         * hatırlanır ([clock] calendar_collapsed). */
+        private void set_calendar_collapsed (bool collapsed, bool save) {
+            calendar.set_no_show_all (collapsed);
+            calendar.set_visible (!collapsed);
+            collapse_arrow.set_text (collapsed ? "‹" : "⌄");
+            if (save) {
+                config.calendar_collapsed = collapsed;
+                config.save ();
             }
         }
 
@@ -178,15 +121,19 @@ namespace Kavis.Ui {
             }
             unowned NotificationServer? server = Notifications.server;
             if (server == null || server.history.length == 0) {
+                /* Bildirim yokken liste küçülür, takvim tam boy kalır. */
+                notif_scroll.set_size_request (-1, 64);
                 var empty = new Gtk.Label (
                     Strings.get ("notif.no_notifications"));
                 empty.get_style_context ().add_class ("dim");
-                empty.set_margin_top (24);
+                empty.set_margin_top (20);
                 notif_list.pack_start (empty, false, false, 0);
                 clear_all_button.set_sensitive (false);
                 notif_list.show_all ();
                 return;
             }
+            notif_scroll.set_size_request (-1,
+                config.calendar_collapsed ? 320 : 220);
             clear_all_button.set_sensitive (true);
 
             /* Uygulama bazlı grupla: geçmiş zaten yeni→eski sıralı;
@@ -215,9 +162,11 @@ namespace Kavis.Ui {
                 app_label.get_style_context ().add_class ("dim");
                 app_label.set_xalign (0);
                 group_header.pack_start (app_label, true, true, 0);
-                var clear_button = new Gtk.Button.with_label (
-                    Strings.get ("common.clear"));
+                var clear_button = new Gtk.Button.from_icon_name (
+                    "window-close-symbolic", Gtk.IconSize.BUTTON);
                 clear_button.set_relief (Gtk.ReliefStyle.NONE);
+                clear_button.set_tooltip_text (
+                    Strings.get ("common.clear"));
                 string app_copy = app;
                 clear_button.clicked.connect (() => {
                     Notifications.server.clear_app (app_copy);
@@ -230,62 +179,103 @@ namespace Kavis.Ui {
                     if (entry.app_name != app) {
                         continue;
                     }
-                    var row = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
-                    var line = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
-                    var summary = new Gtk.Label (null);
-                    summary.set_markup ("<b>%s</b>".printf (
-                        Markup.escape_text (entry.summary)));
-                    summary.set_xalign (0);
-                    summary.set_ellipsize (Pango.EllipsizeMode.END);
-                    line.pack_start (summary, true, true, 0);
-                    var when = new Gtk.Label (
-                        entry.timestamp.format ("%H:%M"));
-                    when.get_style_context ().add_class ("dim");
-                    line.pack_end (when, false, false, 0);
-                    row.pack_start (line, false, false, 0);
-                    if (entry.body != "") {
-                        var body = new Gtk.Label (entry.body);
-                        body.get_style_context ().add_class ("dim");
-                        body.set_xalign (0);
-                        body.set_ellipsize (Pango.EllipsizeMode.END);
-                        row.pack_start (body, false, false, 0);
-                    }
-                    notif_list.pack_start (row, false, false, 0);
+                    notif_list.pack_start (notification_row (entry),
+                                           false, false, 0);
                 }
             }
             notif_list.show_all ();
         }
 
+        /* One notification: a time line whose chevron collapses the
+         * card (W11 behavior), then summary / body / optional image
+         * preview. Clicking the card opens what it points at (e.g. a
+         * screenshot reveals itself in the file manager). */
+        private Gtk.Widget notification_row (NotificationEntry entry) {
+            var row = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+
+            var toggle = new Gtk.Button ();
+            toggle.set_relief (Gtk.ReliefStyle.NONE);
+            var line = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+            var when = new Gtk.Label (entry.timestamp.format ("%H:%M"));
+            when.get_style_context ().add_class ("dim");
+            when.set_xalign (0);
+            line.pack_start (when, true, true, 0);
+            var arrow = new Gtk.Label ("⌄");
+            arrow.get_style_context ().add_class ("dim");
+            line.pack_end (arrow, false, false, 0);
+            toggle.add (line);
+            row.pack_start (toggle, false, false, 0);
+
+            var details = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
+            var summary = new Gtk.Label (null);
+            summary.set_markup ("<b>%s</b>".printf (
+                Markup.escape_text (entry.summary)));
+            summary.set_xalign (0);
+            summary.set_ellipsize (Pango.EllipsizeMode.END);
+            details.pack_start (summary, false, false, 0);
+            if (entry.body != "") {
+                var body = new Gtk.Label (entry.body);
+                body.get_style_context ().add_class ("dim");
+                body.set_xalign (0);
+                body.set_ellipsize (Pango.EllipsizeMode.END);
+                details.pack_start (body, false, false, 0);
+            }
+            if (entry.image_path != ""
+                && FileUtils.test (entry.image_path, FileTest.IS_REGULAR)) {
+                try {
+                    var preview = new Gtk.Image.from_pixbuf (
+                        new Gdk.Pixbuf.from_file_at_scale (
+                            entry.image_path, 320, 110, true));
+                    preview.set_halign (Gtk.Align.START);
+                    details.pack_start (preview, false, false, 2);
+                } catch (Error e) { }
+            }
+
+            /* Hedefi olan bildirim tıklanabilir bir karta sarılır. */
+            Gtk.Widget detail_holder;
+            if (entry.target_path != "") {
+                var card = new Gtk.Button ();
+                card.set_relief (Gtk.ReliefStyle.NONE);
+                card.add (details);
+                string target = entry.target_path;
+                card.clicked.connect (() => {
+                    dismiss ();
+                    Launch.reveal (target);
+                });
+                row.pack_start (card, false, false, 0);
+                detail_holder = card;
+            } else {
+                details.set_margin_start (8);
+                row.pack_start (details, false, false, 0);
+                detail_holder = details;
+            }
+
+            /* Chevron daraltması: ayrıntı kutusu gizlenir, saat satırı
+             * kalır. Durum geçicidir (yeniden kurulunca açık gelir). */
+            toggle.clicked.connect (() => {
+                bool visible = detail_holder.get_visible ();
+                detail_holder.set_no_show_all (visible);
+                detail_holder.set_visible (!visible);
+                arrow.set_text (visible ? "‹" : "⌄");
+            });
+            return row;
+        }
+
         protected override void refresh_content () {
+            /* Başlık: "Çarşamba, 2 Eylül" — gün/ay adları yereldan. */
+            var now = new DateTime.now_local ();
+            date_label.set_markup ("<b>%s, %d %s</b>".printf (
+                Markup.escape_text (now.format ("%A")),
+                now.get_day_of_month (),
+                Markup.escape_text (now.format ("%B"))));
+
             /* Jump back to the current month with today selected —
              * whatever month was browsed last time. */
-            var now = new DateTime.now_local ();
             calendar.select_month (now.get_month () - 1, now.get_year ());
             calendar.select_day (now.get_day_of_month ());
+            set_calendar_collapsed (config.calendar_collapsed, false);
 
             rebuild_notifications ();
-
-            if (wifi_tile != null) {
-                wifi_tile.set_state (Quick.wifi_enabled ());
-            }
-            if (bt_tile != null) {
-                bt_tile.set_state (Quick.bluetooth_enabled ());
-            }
-            if (night_tile != null) {
-                night_tile.set_state (Quick.night_enabled ());
-            }
-            game_tile.set_state (Quick.gamemode_enabled ());
-            focus_tile.set_state (Focus.active ());
-            dnd_tile.set_state (Notifications.server != null
-                                && Notifications.server.dnd);
-            if (brightness_slider != null) {
-                int percent = Quick.brightness_percent ();
-                if (percent >= 0) {
-                    updating = true;
-                    brightness_slider.set_value (percent);
-                    updating = false;
-                }
-            }
         }
     }
 

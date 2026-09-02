@@ -19,8 +19,9 @@ namespace Kavis.Ui {
 
         private const int MARGIN_SHADOW = 10;
         private const int MARGIN_PLAIN = 0;
-        /* Visual gap between the popup box and the panel edge. */
-        private const int GAP = 6;
+        /* Visual gap between the popup box and the panel edge (Grup D
+         * fix: 8 px, W11 spacing). */
+        private const int GAP = 8;
 
         private const string CSS = """
         .kavis-popup {
@@ -91,12 +92,19 @@ namespace Kavis.Ui {
 
         /* At most one popup open — opening any dismisses the other. */
         private static unowned PanelPopup? open_popup = null;
+        /* Refit () needs the anchor after the open (collapse/expand
+         * while visible). Unowned: an indicator outlives its popup. */
+        private unowned Gtk.Widget? anchor_widget = null;
         /* The start menu takes part in the same exclusivity: opening a
          * popup closes it and vice versa (Panel sets this once). */
         public static unowned StartMenu? start_menu = null;
         private static bool css_loaded = false;
 
         protected Gtk.Box content;
+        /* W11 davranışı (Grup D): bildirim merkezi ve hızlı ayarlar
+         * göstergeye değil monitörün sağ kenarına hizalanır. Yatay
+         * panelde geçerli; dikey panelde göstergeye hizalı kalır. */
+        protected bool edge_aligned = false;
         private bool composited;
         private int shadow_margin;
         private bool gtk_grabbed = false;
@@ -228,12 +236,40 @@ namespace Kavis.Ui {
                 start_menu.dismiss ();
             }
 
+            anchor_widget = anchor;
             refresh_content ();
             show_all ();
+            refit ();
 
+            /* GTK-level grab (madde 60): events on OTHER widgets of
+             * this application (the panel, the start menu) are
+             * redirected here instead of reaching them, so a click
+             * anywhere else in the app closes the popup — and the
+             * widget under it does NOT also act on the press, which
+             * would instantly re-open what we just closed. Events on
+             * our own children still flow normally. */
+            Gtk.grab_add (this);
+            gtk_grabbed = true;
+            seat_grab (this);
+            open_popup = this;
+        }
+
+        /* Size the window to its CURRENT natural size and re-place it
+         * against the anchor. A popup window never shrinks by itself:
+         * without the explicit resize a reopened (or collapsed) popup
+         * keeps its old height and drifts over the panel (Grup D VM
+         * finding). Also called by subclasses whose content grows or
+         * shrinks while open (calendar collapse, history rebuild). */
+        protected void refit () {
+            if (anchor_widget == null) {
+                return;
+            }
             Gtk.Requisition natural;
             get_preferred_size (null, out natural);
+            resize (int.max (1, natural.width),
+                    int.max (1, natural.height));
 
+            unowned Gtk.Widget anchor = anchor_widget;
             var anchor_window = anchor.get_window ();
             if (anchor_window == null) {
                 hide ();
@@ -283,6 +319,12 @@ namespace Kavis.Ui {
                 break;
             }
 
+            if (edge_aligned
+                && (panel_position == PanelConfig.Position.BOTTOM
+                    || panel_position == PanelConfig.Position.TOP)) {
+                x = area.x + area.width - box_width - GAP - shadow_margin;
+            }
+
             /* Monitör içine kıstır. */
             x = int.max (area.x + GAP - shadow_margin,
                          int.min (x, area.x + area.width - box_width
@@ -292,18 +334,6 @@ namespace Kavis.Ui {
                                   - GAP - shadow_margin));
 
             move (x, y);
-
-            /* GTK-level grab (madde 60): events on OTHER widgets of
-             * this application (the panel, the start menu) are
-             * redirected here instead of reaching them, so a click
-             * anywhere else in the app closes the popup — and the
-             * widget under it does NOT also act on the press, which
-             * would instantly re-open what we just closed. Events on
-             * our own children still flow normally. */
-            Gtk.grab_add (this);
-            gtk_grabbed = true;
-            seat_grab (this);
-            open_popup = this;
         }
 
         /* Whether any indicator popup is currently open (auto-hide
