@@ -34,6 +34,11 @@ unsupported hypervisor. This configuration is likely broken.
 
 ## Diğer VirtualBox notları
 
+- Açılışta görünen `BdsDxe: failed to load Boot0002 ...` satırı BİZİM
+  hatamız değil: VM'in BOŞ sabit diskini önce denemesinden geliyor.
+  Çözüm: VM ayarlarında önyükleme sırasını optik sürücü önce yapın
+  (ya da diski listeden çıkarın); kurulumdan sonra sıra normale döner.
+
 - Pano paylaşımı / otomatik çözünürlük Guest Additions ister; DKMS
   modülleri Secure Boot açıkken imzasız oldukları için yüklenmez.
   Karar (MOK imzalama mı, "Secure Boot'u kapatın" belgesi mi) Grup

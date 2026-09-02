@@ -49,6 +49,10 @@ cat >> "$CFG" <<'EOF'
 # Menü 10 saniye görünür, sonra ilk girdi (Live system) kendiliğinden açılır.
 set default=0
 set timeout=10
+# H3a (test8): GRUB'un framebuffer'ı çekirdeğe DEVREDİLİR — mod
+# değişimi olmaz, GRUB'un son karesi Plymouth başlayana kadar kalır;
+# GRUB→çekirdek arasındaki siyah ekran kapanır.
+set gfxpayload=keep
 set timeout_style=menu
 
 # GRUB çıktısını seri porta da ver — CI'daki QEMU testi menüyü görebilsin.
@@ -60,8 +64,9 @@ if serial --unit=0 --speed=115200; then
 fi
 EOF
 
-if grep -q '^set timeout=10$' "$CFG"; then
-	echo "I: GRUB menusune timeout=10 ve seri konsol eklendi"
+if grep -q '^set timeout=10$' "$CFG" \
+	&& grep -q '^set gfxpayload=keep$' "$CFG"; then
+	echo "I: GRUB menusune timeout=10, gfxpayload=keep ve seri konsol eklendi"
 else
 	echo "E: yazma basarisiz gorunuyor, $CFG icinde timeout yok" >&2
 	exit 1

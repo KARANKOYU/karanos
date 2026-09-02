@@ -34,7 +34,6 @@ AYARLAR=/etc/kavis/boot.conf
 AYGIT_BEKLEME=8
 YOKLAMA=0.2
 AZAMI_CALMA=10    # çalma en fazla bu kadar sürsün
-SONME_PAYI=0.5
 
 log() { echo "kavis-boot-sound: $*"; }
 
@@ -149,8 +148,8 @@ if [ "$plymouth_var" -eq 1 ]; then
 	if [ "$atlandi" -eq 1 ]; then
 		plymouth update --status=kavis-atlandi >/dev/null 2>&1 || true
 	else
+		# Fade kalktı (test8 H3b) — bekleme payı da gereksiz.
 		plymouth update --status=kavis-sonlaniyor >/dev/null 2>&1 || true
-		sleep "$SONME_PAYI"
 	fi
 fi
 
