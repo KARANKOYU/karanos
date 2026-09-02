@@ -39,12 +39,12 @@ namespace Kavis.Ui {
             set_size_request (WIDTH, HEIGHT);
 
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-            var title = new Gtk.Label (Strings.get ("clipboard.history"));
+            var title = new Gtk.Label (_("Clipboard history"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);
             header.pack_start (title, true, true, 0);
             var clear_button = new Gtk.Button.with_label (
-                Strings.get ("notif.clear_all"));
+                _("Clear all"));
             clear_button.set_relief (Gtk.ReliefStyle.NONE);
             clear_button.clicked.connect (() => history.clear ());
             header.pack_end (clear_button, false, false, 0);
@@ -118,7 +118,7 @@ namespace Kavis.Ui {
                 list_box.remove (child);
             }
             if (history.pinned.length == 0 && history.items.length == 0) {
-                var empty = new Gtk.Label (Strings.get ("clipboard.empty"));
+                var empty = new Gtk.Label (_("Clipboard history is empty"));
                 empty.get_style_context ().add_class ("dim");
                 empty.set_margin_top (32);
                 list_box.pack_start (empty, false, false, 0);
@@ -161,8 +161,8 @@ namespace Kavis.Ui {
             var pin = new Gtk.Button.from_icon_name (
                 "view-pin-symbolic", Gtk.IconSize.BUTTON);
             pin.set_relief (Gtk.ReliefStyle.NONE);
-            pin.set_tooltip_text (Strings.get (
-                pinned ? "clipboard.unpin" : "clipboard.pin"));
+            pin.set_tooltip_text (_(
+                pinned ? N_("Unpin") : N_("Pin")));
             if (pinned) {
                 pin.get_style_context ().add_class ("quick-tile");
                 pin.get_style_context ().add_class ("on");

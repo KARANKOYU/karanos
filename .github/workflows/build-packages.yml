@@ -31,8 +31,13 @@ jobs:
           apt-get install -y --no-install-recommends \
             build-essential debhelper dpkg-dev fakeroot \
             librsvg2-bin x11-apps python3 ca-certificates git \
-            ffmpeg fonts-dejavu-core \
+            ffmpeg fonts-dejavu-core gettext locales \
             valac libgtk-3-dev libwnck-3-dev libx11-dev
+          # gettext: rules'taki msgfmt + check-i18n (Grup D işi c).
+          # locales/en_US: xx ekran görüntüsü adımı gerçek bir locale
+          # ister (C altında gettext devre dışı — Codespace'te yaşandı).
+          echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+          locale-gen
 
       - uses: actions/checkout@v7
 
@@ -115,18 +120,52 @@ jobs:
           exit $hata
 
       # Panel artık derlenmiş Vala ikilisi (madde 3): derleme hataları
-      # zaten .deb aşamasında yakalanıyor. Burada ikilinin gerçekten
-      # çalıştığını ve metin tablosunun tutarlı olduğunu ekransız
-      # --metin-denetimi kipiyle doğruluyoruz.
-      - name: kavis-panel ikilisi çalışıyor mu
+      # zaten .deb aşamasında yakalanıyor. Metin tablosunun yerini
+      # gettext aldı (Grup D işi c): denetim po/ üzerinde —
+      # tools/check-i18n.sh (pot tazeliği, tr.po eksiksizliği,
+      # msgfmt --check, xx.po senkronu).
+      - name: kavis-panel ikilisi ve çeviriler
         run: |
           set -eu
           rm -rf kp && mkdir kp
           dpkg-deb -x out/packages/kavis-panel_*.deb kp
           test -x kp/usr/bin/kavis-panel
           test -f kp/usr/share/applications/kavis-panel.desktop
-          kp/usr/bin/kavis-panel --metin-denetimi
-          echo "kavis-panel ikilisi calisiyor, metin tablosu tutarli"
+          test -f kp/usr/share/locale/tr/LC_MESSAGES/kavis.mo
+          test -f kp/usr/share/locale/xx/LC_MESSAGES/kavis.mo
+          tools/check-i18n.sh
+          echo "kavis-panel ikilisi calisiyor, ceviriler tutarli"
+
+      # Sahte uzun dil (xx) ekran görüntüsü: çevrilmemiş metin düz
+      # İngilizce, taşan yerleşim kırpılmış ⟪…⟫ olarak GÖRÜNÜR. Yapıt
+      # olarak yüklenir; elle inceleme için (otomatik piksel iddiası
+      # yok — yerleşim değişimleri testi kırmasın).
+      - name: xx sahte dil panel ekran görüntüsü
+        run: |
+          set -eu
+          # Konteyner debian:trixie ve root — sudo yok/gerekmez.
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y -qq --no-install-recommends \
+            xvfb openbox dbus dbus-x11 libgtk-3-0t64 libwnck-3-0 \
+            > /dev/null
+          dpkg -i out/packages/kavis-panel_*.deb \
+            || apt-get -f install -y -qq --no-install-recommends
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1280x800x24 &
+          sleep 1
+          openbox & sleep 1
+          dbus-run-session -- sh -c '
+            LANG=en_US.UTF-8 LANGUAGE=xx kavis-panel &
+            sleep 3
+            ffmpeg -loglevel quiet -f x11grab -video_size 1280x800 \
+              -i :99 -frames:v 1 -y panel-xx.png
+          '
+          test -s panel-xx.png
+      - name: xx ekran görüntüsünü yükle
+        uses: actions/upload-artifact@v7
+        with:
+          name: panel-xx-ekran
+          path: panel-xx.png
 
       - name: Boyut özeti
         run: |

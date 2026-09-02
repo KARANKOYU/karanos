@@ -1,7 +1,7 @@
 /* The four indicator popups (UI layer) — stage 4.
  *
- * Shared open/close behavior lives in PanelPopup. Texts come from
- * docs/kavis-arayuz-metinleri.md via Strings; system access goes
+ * Shared open/close behavior lives in PanelPopup. UI texts are
+ * gettext msgids (English source, po/tr.po); system access goes
  * through the logic namespaces (Battery, Keyboard, Volume, PowerPlan)
  * so no widget file touches /sys or spawns a process directly.
  */
@@ -29,21 +29,21 @@ namespace Kavis.Ui {
 
             /* --- bildirim merkezi başlığı --- */
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-            var title = new Gtk.Label (Strings.get ("notif.center"));
+            var title = new Gtk.Label (_("Notifications"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);
             header.pack_start (title, true, true, 0);
             var gear = new Gtk.Button.from_icon_name (
                 "emblem-system-symbolic", Gtk.IconSize.BUTTON);
             gear.set_relief (Gtk.ReliefStyle.NONE);
-            gear.set_tooltip_text (Strings.get ("common.settings"));
+            gear.set_tooltip_text (_("Settings"));
             gear.clicked.connect (() => {
                 dismiss ();
                 Launch.settings ("notifications");
             });
             header.pack_end (gear, false, false, 0);
             clear_all_button = new Gtk.Button.with_label (
-                Strings.get ("notif.clear_all"));
+                _("Clear all"));
             clear_all_button.set_relief (Gtk.ReliefStyle.NONE);
             clear_all_button.clicked.connect (() => {
                 if (Notifications.server != null) {
@@ -124,7 +124,7 @@ namespace Kavis.Ui {
                 /* Bildirim yokken liste küçülür, takvim tam boy kalır. */
                 notif_scroll.set_size_request (-1, 64);
                 var empty = new Gtk.Label (
-                    Strings.get ("notif.no_notifications"));
+                    _("No new notifications"));
                 empty.get_style_context ().add_class ("dim");
                 empty.set_margin_top (20);
                 notif_list.pack_start (empty, false, false, 0);
@@ -166,7 +166,7 @@ namespace Kavis.Ui {
                     "window-close-symbolic", Gtk.IconSize.BUTTON);
                 clear_button.set_relief (Gtk.ReliefStyle.NONE);
                 clear_button.set_tooltip_text (
-                    Strings.get ("common.clear"));
+                    _("Clear"));
                 string app_copy = app;
                 clear_button.clicked.connect (() => {
                     Notifications.server.clear_app (app_copy);
@@ -290,7 +290,7 @@ namespace Kavis.Ui {
         public KeyboardPopup () {
             /* Grup D 2c: başlık ve satırlar kenara yapışıktı — 8-10px
              * iç boşluk, başlıkla liste arasına ince ayrım çizgisi. */
-            var title = new Gtk.Label (Strings.get ("keyboard.layout"));
+            var title = new Gtk.Label (_("Keyboard layout"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);
             title.set_margin_start (8);
@@ -303,10 +303,10 @@ namespace Kavis.Ui {
                 false, false, 4);
 
             content.pack_start (
-                layout_row ("setup.keyboard_trq", "tr", out tr_mark),
+                layout_row (N_("Turkish Q"), "tr", out tr_mark),
                 false, false, 0);
             content.pack_start (
-                layout_row ("setup.keyboard_en", "us", out en_mark),
+                layout_row (N_("English (US)"), "us", out en_mark),
                 false, false, 0);
         }
 
@@ -317,7 +317,7 @@ namespace Kavis.Ui {
             var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 12);
             row.set_margin_start (2);
             row.set_margin_end (2);
-            var label = new Gtk.Label (Strings.get (label_key));
+            var label = new Gtk.Label (_(label_key));
             label.set_xalign (0);
             label.set_width_chars (16);
             row.pack_start (label, true, true, 0);

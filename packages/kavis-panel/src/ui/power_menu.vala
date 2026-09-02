@@ -3,7 +3,7 @@
  * Windows 11 style: a small rounded, softly shadowed box with icon
  * rows. Hovering highlights a row; clicking outside closes it.
  *
- * Texts come from docs/kavis-arayuz-metinleri.md panel.* keys.
+ * Texts come from po/ (gettext) panel.* keys.
  */
 
 namespace Kavis.Ui {
@@ -114,13 +114,13 @@ namespace Kavis.Ui {
 
             /* Row order as requested: Kilitle, Uyku, Kapat, Yeniden
              * başlat. */
-            box.pack_start (row ("panel.lock",
+            box.pack_start (row (N_("Lock"),
                 "system-lock-screen-symbolic", Power.lock), false, false, 0);
-            box.pack_start (row ("panel.sleep",
+            box.pack_start (row (N_("Sleep"),
                 "weather-clear-night-symbolic", Power.suspend), false, false, 0);
-            box.pack_start (row ("panel.shutdown",
+            box.pack_start (row (N_("Shut down"),
                 "system-shutdown-symbolic", Power.shutdown), false, false, 0);
-            box.pack_start (row ("panel.restart",
+            box.pack_start (row (N_("Restart"),
                 "system-reboot-symbolic", Power.reboot), false, false, 0);
         }
 
@@ -132,7 +132,7 @@ namespace Kavis.Ui {
             var inner = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 12);
             inner.pack_start (new Gtk.Image.from_icon_name (
                 icon_name, Gtk.IconSize.LARGE_TOOLBAR), false, false, 0);
-            var label = new Gtk.Label (Strings.get (key));
+            var label = new Gtk.Label (_(key));
             label.set_xalign (0);
             inner.pack_start (label, true, true, 0);
             button.add (inner);

@@ -16,7 +16,8 @@
 #      linux16, UEFI'de chainloader, imzasız olduğu için Secure Boot
 #      kapalıyken) ve UEFI ayarları girdisi eklenir
 #
-# Menü metinleri docs/kavis-arayuz-metinleri.md `boot.*` anahtarlarından
+# Menü metinleri İngilizce kaynak dizgiler (GRUB .mo okuyamaz; eski
+# boot.* tablosunun EN sütunu buraya gömüldü)
 # (GRUB tek dilli; varsayılan dil EN — 2 Eyl 2026 kararı). Girdi başlıkları "ad — tek satır
 # açıklama" biçiminde: GRUB girdi altına ayrı açıklama satırı çizemiyor.
 #

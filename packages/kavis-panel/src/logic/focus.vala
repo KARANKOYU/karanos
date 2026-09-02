@@ -47,7 +47,7 @@ namespace Kavis.Focus {
         if (announce) {
             try {
                 server.notify ("Kavis", 0, "alarm-symbolic",
-                               Strings.get ("focus.finished"), "",
+                               _("Focus session finished"), "",
                                {}, new HashTable<string, Variant> (
                                    str_hash, str_equal), 8000);
             } catch (Error e) {

@@ -42,13 +42,19 @@ kadar CI'a eklenmez.
 |---|---|
 | `docs/gorev-listesi.md` | GÜNCEL görev listesi: 58 madde + grup sırası + değişmez kurallar. Asıl yönerge bu. |
 | `docs/roadmap.md` | Hangi grup bitince hangi sürüm çıkacak; her grup sonunda güncellenir. |
-| `docs/kavis-arayuz-metinleri.md` | Arayüzde görünen **bütün** TR/EN metinler. |
+| `po/` | Arayüz çevirileri (gettext, alan adı `kavis`): `kavis.pot` + `tr.po` + üretilen `xx.po` (sahte uzun test dili). Kaynak metinler koddaki İngilizce msgid'ler. |
 | `docs/kavis-claude-code-prompt.md` | ESKİ görev tanımı (Karan OS dönemi). Tarihsel bağlam; yeni listeyle çelişirse yeni liste kazanır. |
 | `docs/github-kurulumu.md` | GitHub tarafında ne oluşturulacağı (depolar, Pages, GPG, secret'lar). |
 
-**Arayüzde görünecek hiçbir metni kendin uydurma.** Etiket, buton yazısı,
-hata mesajı, bildirim — hepsi `docs/kavis-arayuz-metinleri.md` içindeki
-tablolardan alınır. Tabloda karşılığı yoksa uydurmak yerine sor.
+**Arayüz metinleri (gettext, 2 Eyl 2026'dan beri):** koddaki İngilizce
+msgid kaynak metindir; Türkçesi `po/tr.po`'da. Yeni metin eklerken üç
+adım ZORUNLU: `_("English text")` yaz → `tools/gen-pot.sh` →
+`po/tr.po`'ya çeviriyi ekle ve `tools/gen-xx-po.py` çalıştır
+(`tools/check-i18n.sh` yerelde geçmeli; CI aynı denetimi koşar).
+Kullanıcının onayladığı bir metin varsa birebir onu kullan; kararsız
+kaldığın kullanıcıya görünür metinlerde uydurmak yerine sor. GRUB ve
+Plymouth .mo okuyamaz: oradaki metinler derlemede gömülür (9600/9601
+hook'ları, kavis-boot SVG'leri) ve İngilizce yazılır.
 
 ## Renk kimliği
 

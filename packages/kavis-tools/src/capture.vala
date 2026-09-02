@@ -146,7 +146,7 @@ namespace Kavis.Tools {
             }
 
             Gtk.Clipboard.get_default (display).set_image (pixbuf);
-            notify_user (Strings.get ("screenshot.saved"), path,
+            notify_user (_("Screenshot saved"), path,
                          "camera-photo-symbolic", path);
             hold_clipboard_then_quit ();
             Gtk.main ();
@@ -338,9 +338,9 @@ namespace Kavis.Tools {
             } catch (Error e) { }
 
             image_toggle = new Gtk.ToggleButton.with_label (
-                "📷 " + Strings.get ("capture.image"));
+                "📷 " + _("Image"));
             video_toggle = new Gtk.ToggleButton.with_label (
-                "🔴 " + Strings.get ("capture.video"));
+                "🔴 " + _("Video"));
             image_toggle.set_active (true);
             image_toggle.toggled.connect (() => {
                 set_video_mode (false);
@@ -355,14 +355,14 @@ namespace Kavis.Tools {
                 Gtk.Orientation.VERTICAL), false, false, 2);
 
             string[] mode_keys = {
-                "capture.mode_rect", "capture.mode_freeform",
-                "capture.mode_window", "capture.mode_fullscreen"
+                N_("Rectangle"), N_("Freeform"),
+                N_("Window"), N_("Full screen")
             };
             Mode[] modes = { Mode.RECT, Mode.FREEFORM,
                              Mode.WINDOW, Mode.FULL };
             for (int i = 0; i < modes.length; i++) {
                 var button = new Gtk.ToggleButton.with_label (
-                    Strings.get (mode_keys[i]));
+                    _(mode_keys[i]));
                 button.set_active (i == 0);
                 Mode chosen = modes[i];
                 button.toggled.connect (() => {
@@ -374,10 +374,10 @@ namespace Kavis.Tools {
 
             /* Ses seçenekleri yalnız video kipinde görünür. */
             audio_check = new Gtk.CheckButton.with_label (
-                Strings.get ("capture.record_audio"));
+                _("Record audio too"));
             audio_check.set_no_show_all (true);
             mic_check = new Gtk.CheckButton.with_label (
-                Strings.get ("sound.input"));
+                _("Microphone"));
             mic_check.set_no_show_all (true);
             bar.pack_start (audio_check, false, false, 0);
             bar.pack_start (mic_check, false, false, 0);
@@ -386,7 +386,7 @@ namespace Kavis.Tools {
                 Gtk.Orientation.VERTICAL), false, false, 2);
             var close = new Gtk.Button.with_label ("✕");
             close.set_relief (Gtk.ReliefStyle.NONE);
-            close.set_tooltip_text (Strings.get ("common.close"));
+            close.set_tooltip_text (_("Close"));
             close.clicked.connect (cancel);
             bar.pack_start (close, false, false, 0);
 
@@ -656,7 +656,7 @@ namespace Kavis.Tools {
             }
             Gtk.Clipboard.get_default (
                 Gdk.Display.get_default ()).set_image (result);
-            Capture.notify_user (Strings.get ("screenshot.saved"), path,
+            Capture.notify_user (_("Screenshot saved"), path,
                                  "camera-photo-symbolic", path);
             hide ();
             Capture.hold_clipboard_then_quit ();
@@ -757,11 +757,11 @@ namespace Kavis.Tools {
             Object (type: Gtk.WindowType.TOPLEVEL);
             this.ffmpeg_pid = ffmpeg_pid;
             this.path = path;
-            set_title (Strings.get ("capture.recording"));
+            set_title (_("Recording"));
             set_resizable (false);
             set_keep_above (true);
             stick ();
-            set_tooltip_text (Strings.get ("capture.stop_hint"));
+            set_tooltip_text (_("You can also press PrtSc to stop"));
 
             var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
             row.set_border_width (10);
@@ -770,7 +770,7 @@ namespace Kavis.Tools {
             set_counter_text ();
             row.pack_start (counter, false, false, 0);
             var stop = new Gtk.Button.with_label (
-                Strings.get ("capture.stop"));
+                _("Stop"));
             stop.clicked.connect (finish);
             row.pack_start (stop, false, false, 0);
 
@@ -821,7 +821,7 @@ namespace Kavis.Tools {
             /* SIGINT: ffmpeg dosyayı düzgün kapatır (moov atomu). */
             Posix.kill ((Posix.pid_t) ffmpeg_pid, Posix.Signal.INT);
             hide ();
-            Capture.notify_user (Strings.get ("capture.saved_video"),
+            Capture.notify_user (_("Screen recording saved"),
                                  path, "camera-video-symbolic", path);
             /* ChildWatch ffmpeg bitince ana döngüyü kapatır. */
         }

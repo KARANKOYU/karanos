@@ -1,0 +1,497 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kavis package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: kavis\n"
+"Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
+"POT-Creation-Date: 2026-09-02 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: packages/kavis-panel/src/logic/apps.vala:43
+msgid "Internet"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:43
+msgid "Office"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:43
+msgid "Sound & Video"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:44
+msgid "Graphics"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:44
+msgid "Development"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:44
+msgid "Games"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:45
+msgid "Accessories"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:45
+msgid "System"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:45
+#: packages/kavis-panel/src/ui/indicator_popups.vala:39
+#: packages/kavis-panel/src/ui/quick_settings.vala:363
+msgid "Settings"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/apps.vala:45
+msgid "Other"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/focus.vala:50
+msgid "Focus session finished"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/launch.vala:49
+#: packages/kavis-panel/src/ui/quick_settings.vala:441
+msgid "Settings app coming soon"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/notifications.vala:168
+#, c-format
+msgid "%d new notifications"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/clipboard_popup.vala:42
+msgid "Clipboard history"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/clipboard_popup.vala:47
+#: packages/kavis-panel/src/ui/indicator_popups.vala:46
+msgid "Clear all"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/clipboard_popup.vala:121
+msgid "Clipboard history is empty"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/clipboard_popup.vala:165
+msgid "Unpin"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/clipboard_popup.vala:165
+msgid "Pin"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:32
+msgid "Notifications"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:127
+msgid "No new notifications"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:169
+msgid "Clear"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:293
+msgid "Keyboard layout"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:306
+msgid "Turkish Q"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicator_popups.vala:309
+msgid "English (US)"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:90
+#: packages/kavis-panel/src/ui/quick_settings.vala:318
+msgid "Volume"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:121
+#: packages/kavis-panel/src/ui/quick_settings.vala:304
+msgid "Mute"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:205
+msgid "When plugged in"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:205
+msgid "On battery"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:242
+msgid "High performance"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:244
+msgid "Power saver"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:246
+msgid "Balanced"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:259
+#: packages/kavis-panel/src/ui/osd.vala:56
+#: packages/kavis-panel/src/ui/quick_settings.vala:604
+#, c-format
+msgid "%d%%"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/overview.vala:179
+#, c-format
+msgid "Desktop %d"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:306
+#: packages/kavis-panel/src/ui/panel.vala:312
+msgid "Start"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:381
+msgid "Show desktop"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:792
+msgid "Position"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:800
+msgid "Bottom"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:800
+msgid "Top"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:801
+msgid "Left"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:801
+msgid "Right"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:822
+msgid "Size"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:830
+msgid "Thin"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:830
+msgid "Medium"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:830
+msgid "Thick"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:853
+msgid "Alignment"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:860
+msgid "Align left"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:860
+msgid "Center"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:883
+msgid "Monitor"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:888
+msgid "Primary monitor"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:926
+msgid "Auto-hide"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:943
+msgid "Display settings"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/panel.vala:945
+#: packages/kavis-tools/src/tasks.vala:34
+msgid "Task Manager"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/power_menu.vala:117
+msgid "Lock"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/power_menu.vala:119
+msgid "Sleep"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/power_menu.vala:121
+msgid "Shut down"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/power_menu.vala:123
+msgid "Restart"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:167
+#: packages/kavis-panel/src/ui/quick_settings.vala:417
+#: packages/kavis-panel/src/ui/quick_settings.vala:573
+#: packages/kavis-panel/src/ui/tray.vala:184
+msgid "Wi-Fi"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:178
+msgid "Bluetooth"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:190
+msgid "Airplane mode"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:203
+msgid "Night light"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:210
+msgid "Game Mode"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:217
+msgid "Focus"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:228
+msgid "Do not disturb"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:238
+msgid "Battery saver"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:252
+#: packages/kavis-panel/src/ui/quick_settings.vala:438
+msgid "Accessibility"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:279
+msgid "Brightness"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:337
+#: packages/kavis-panel/src/ui/quick_settings.vala:431
+msgid "Output device"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:390
+msgid "Back"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:424
+msgid "Paired devices"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:464
+msgid "Connected"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:480
+msgid "No networks found"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/quick_settings.vala:509
+msgid "None"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/start_menu.vala:47
+msgid "Search apps and files"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/start_menu.vala:72
+#: packages/kavis-panel/src/ui/start_menu.vala:77
+msgid "Power"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/start_menu.vala:137
+msgid "No results found"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:25
+#: packages/kavis-panel/src/ui/tray.vala:85
+#: packages/kavis-panel/src/ui/tray.vala:133
+msgid "Safely remove"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:66
+#, c-format
+msgid "Safely remove %s"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:109
+msgid "You can now remove the device"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:110
+msgid "Could not remove the device — files may still be in use"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:190
+msgid "Disconnect"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/tray.vala:197
+msgid "Network settings"
+msgstr ""
+
+#: packages/kavis-tools/src/calc.vala:14
+msgid "Calculator"
+msgstr ""
+
+#: packages/kavis-tools/src/calc.vala:80
+msgid "Invalid expression"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:149
+#: packages/kavis-tools/src/capture.vala:659
+msgid "Screenshot saved"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:341
+msgid "Image"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:343
+msgid "Video"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:358
+msgid "Rectangle"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:358
+msgid "Freeform"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:359
+msgid "Window"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:359
+msgid "Full screen"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:377
+msgid "Record audio too"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:380
+msgid "Microphone"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:389
+msgid "Close"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:760
+msgid "Recording"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:764
+msgid "You can also press PrtSc to stop"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:773
+msgid "Stop"
+msgstr ""
+
+#: packages/kavis-tools/src/capture.vala:824
+msgid "Screen recording saved"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:20
+msgid "Smileys"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:22
+msgid "People"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:24
+msgid "Nature"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:26
+msgid "Food"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:28
+msgid "Travel"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:30
+msgid "Objects"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:32
+msgid "Symbols"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:45
+msgid "Emoji Picker"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:53
+msgid "Search"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:71
+msgid "All"
+msgstr ""
+
+#: packages/kavis-tools/src/emoji.vala:76
+msgid "Recent"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:46
+msgid "End task"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:75
+msgid "Name"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:77
+msgid "CPU"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:79
+msgid "Memory"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:81
+msgid "Disk"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:125
+msgid "Ending this system process may cause problems. Continue?"
+msgstr ""

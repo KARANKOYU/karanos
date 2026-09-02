@@ -87,7 +87,7 @@ namespace Kavis.Ui {
             icon = new Gtk.Image.from_icon_name (
                 "audio-volume-high-symbolic", Gtk.IconSize.BUTTON);
             add (icon);
-            set_tooltip_text (Strings.get ("sound.volume"));
+            set_tooltip_text (_("Volume"));
 
             if (!Volume.available ()) {
                 set_no_show_all (true);
@@ -118,7 +118,7 @@ namespace Kavis.Ui {
         private void show_menu (Gdk.EventButton event) {
             var menu = new Gtk.Menu ();
             var mute = new Gtk.MenuItem.with_label (
-                Strings.get ("sound.mute"));
+                _("Mute"));
             mute.activate.connect (() => {
                 Volume.toggle_mute ();
                 Timeout.add (150, () => {
@@ -202,11 +202,11 @@ namespace Kavis.Ui {
             var menu = new Gtk.Menu ();
             bool[] sources = { true, false };
             string[] source_keys = {
-                "power.when_plugged", "power.when_battery"
+                N_("When plugged in"), N_("On battery")
             };
             for (int s = 0; s < sources.length; s++) {
                 var source_item = new Gtk.MenuItem.with_label (
-                    Strings.get (source_keys[s]));
+                    _(source_keys[s]));
                 var submenu = new Gtk.Menu ();
                 unowned SList<Gtk.RadioMenuItem>? group = null;
                 bool plugged = sources[s];
@@ -216,7 +216,7 @@ namespace Kavis.Ui {
                 var current = PowerPlan.get_plan (plugged);
                 foreach (var plan in plans) {
                     var item = new Gtk.RadioMenuItem.with_label (
-                        group, Strings.get ("power.plan_" + plan.id ()));
+                        group, plan_label (plan));
                     group = item.get_group ();
                     item.set_active (current == plan);
                     var chosen = plan;   /* closure copy */
@@ -234,6 +234,19 @@ namespace Kavis.Ui {
             menu.popup_at_pointer (event);
         }
 
+        /* Anahtar birleştirme gettext'e çevrilemez (msgid sabit metin
+         * olmalı) — plan adı açık eşlemeyle. */
+        private static unowned string plan_label (PowerPlan.Plan plan) {
+            switch (plan) {
+            case PowerPlan.Plan.PERFORMANCE:
+                return _("High performance");
+            case PowerPlan.Plan.SAVER:
+                return _("Power saver");
+            default:
+                return _("Balanced");
+            }
+        }
+
         private void refresh () {
             int percent = Battery.percent ();
             if (percent < 0) {
@@ -241,7 +254,9 @@ namespace Kavis.Ui {
                 return;
             }
             unowned string mark = Battery.charging () ? "⚡" : "";
-            text_label.set_text ("%s%%%d".printf (mark, percent));
+            /* Yüzde biçimi dile göre değişir (TR: %93, EN: 93%) —
+             * biçim dizgesinin kendisi çevrilir. */
+            text_label.set_text (mark + _("%d%%").printf (percent));
         }
     }
 

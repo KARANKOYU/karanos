@@ -10,7 +10,8 @@ ekran görüntüsü alırken bunu açıyor.
 gösterecek başka bir şey yoktu). 4. aşamada gerçek panel gelince
 buraya, geliştirme araçlarının arasına taşındı.
 
-Etiketler docs/kavis-arayuz-metinleri.md içindeki `appearance.*`
+Etiketler eski appearance.* tablosundan alınmış sabitler (tablo po/
+düzenine geçince kaldırıldı); `appearance.*`
 anahtarlarından alınmıştır; bu pencereye özgü metin uydurulmadı.
 """
 

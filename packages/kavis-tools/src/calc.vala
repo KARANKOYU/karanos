@@ -11,7 +11,7 @@ namespace Kavis.Tools {
         private Gtk.Label result_label;
 
         public CalculatorWindow () {
-            set_title (Strings.get ("calc.title"));
+            set_title (_("Calculator"));
             set_default_size (280, 360);
             set_resizable (false);
 
@@ -77,7 +77,7 @@ namespace Kavis.Tools {
                         .printf (value));
                 }
             } else {
-                result_label.set_text (Strings.get ("calc.error"));
+                result_label.set_text (_("Invalid expression"));
             }
         }
     }

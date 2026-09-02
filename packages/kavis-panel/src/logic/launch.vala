@@ -46,7 +46,7 @@ namespace Kavis.Launch {
         try {
             Notifications.server.notify ("Kavis", 0,
                 "preferences-system-symbolic",
-                Strings.get ("settings.coming_soon"), "",
+                _("Settings app coming soon"), "",
                 {}, hints, 4000);
         } catch (Error e) { }
     }

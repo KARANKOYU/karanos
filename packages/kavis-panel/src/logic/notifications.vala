@@ -165,7 +165,7 @@ namespace Kavis {
                 summary_entry.app_name = "";
                 summary_entry.app_icon = "notification-symbolic";
                 summary_entry.summary =
-                    Strings.get ("notif.missed").printf (suppressed);
+                    _("%d new notifications").printf (suppressed);
                 summary_entry.body = "";
                 summary_entry.critical = false;
                 summary_entry.timestamp = new DateTime.now_local ();

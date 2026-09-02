@@ -18,25 +18,32 @@ namespace Kavis.Apps {
 
     private struct CategoryName {
         public unowned string key;
-        public unowned string tr;
-        public unowned string en;
+        public unowned string name;   /* EN msgid; çeviri po/'dan */
     }
 
-    /* Category display names are not in docs/kavis-arayuz-metinleri.md
-     * (store categories are a separate list); XDG's own names are
-     * shown. Will be merged with store categories in item 12. */
+    /* XDG category → display name. The names are English msgids
+     * translated via po/ (gettext); will be merged with the store
+     * categories in item 12. */
     private const CategoryName[] CATEGORY_NAMES = {
-        { "Network",     "İnternet",     "Internet" },
-        { "Office",      "Ofis",         "Office" },
-        { "AudioVideo",  "Ses ve Video", "Sound & Video" },
-        { "Graphics",    "Grafik",       "Graphics" },
-        { "Development", "Geliştirme",   "Development" },
-        { "Game",        "Oyun",         "Games" },
-        { "Utility",     "Araçlar",      "Accessories" },
-        { "System",      "Sistem",       "System" },
-        { "Settings",    "Ayarlar",      "Settings" },
-        { "Other",       "Diğer",        "Other" },
+        { "Network",     "Internet" },
+        { "Office",      "Office" },
+        { "AudioVideo",  "Sound & Video" },
+        { "Graphics",    "Graphics" },
+        { "Development", "Development" },
+        { "Game",        "Games" },
+        { "Utility",     "Accessories" },
+        { "System",      "System" },
+        { "Settings",    "Settings" },
+        { "Other",       "Other" },
     };
+
+    /* xgettext markers for the const table above (N_ cannot sit in a
+     * const initializer); never called. */
+    private void category_translation_markers () {
+        N_("Internet"); N_("Office"); N_("Sound & Video");
+        N_("Graphics"); N_("Development"); N_("Games");
+        N_("Accessories"); N_("System"); N_("Settings"); N_("Other");
+    }
 
     public class App : Object {
         public AppInfo app_info;
@@ -134,7 +141,7 @@ namespace Kavis.Apps {
     public unowned string category_display_name (string category) {
         foreach (unowned CategoryName cn in CATEGORY_NAMES) {
             if (cn.key == category) {
-                return Strings.is_turkish () ? cn.tr : cn.en;
+                return _(cn.name);
             }
         }
         return category;

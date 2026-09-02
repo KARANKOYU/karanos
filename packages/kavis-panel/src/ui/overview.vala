@@ -176,7 +176,7 @@ namespace Kavis.Ui {
             unowned Wnck.Workspace target = workspace;
 
             var header = new Gtk.Button.with_label (
-                Strings.get ("panel.desktop_n").printf (
+                _("Desktop %d").printf (
                     workspace.get_number () + 1));
             header.set_relief (Gtk.ReliefStyle.NONE);
             header.clicked.connect (() => {

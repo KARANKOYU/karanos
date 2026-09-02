@@ -31,7 +31,7 @@ namespace Kavis.Tools {
                            DISK_TEXT, PID, UID }
 
         public TaskManagerWindow () {
-            set_title (Strings.get ("tm.title"));
+            set_title (_("Task Manager"));
             set_default_size (620, 480);
 
             var root = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
@@ -43,7 +43,7 @@ namespace Kavis.Tools {
             search.search_changed.connect (() => filtered.refilter ());
             top.pack_start (search, true, true, 0);
             var end_button = new Gtk.Button.with_label (
-                Strings.get ("tm.end_task"));
+                _("End task"));
             end_button.clicked.connect (() => end_selected (false));
             top.pack_end (end_button, false, false, 0);
             root.pack_start (top, false, false, 0);
@@ -72,13 +72,13 @@ namespace Kavis.Tools {
                                          Gtk.SortType.DESCENDING);
 
             view = new Gtk.TreeView.with_model (sortable);
-            append_column (Strings.get ("tm.name"), Col.NAME, Col.NAME,
+            append_column (_("Name"), Col.NAME, Col.NAME,
                            true);
-            append_column (Strings.get ("tm.cpu"), Col.CPU_TEXT, Col.CPU,
+            append_column (_("CPU"), Col.CPU_TEXT, Col.CPU,
                            false);
-            append_column (Strings.get ("tm.memory"), Col.MEM_TEXT,
+            append_column (_("Memory"), Col.MEM_TEXT,
                            Col.MEM_KB, false);
-            append_column (Strings.get ("tm.disk"), Col.DISK_TEXT, -1,
+            append_column (_("Disk"), Col.DISK_TEXT, -1,
                            false);
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.add (view);
@@ -122,7 +122,7 @@ namespace Kavis.Tools {
                 var dialog = new Gtk.MessageDialog (this,
                     Gtk.DialogFlags.MODAL, Gtk.MessageType.WARNING,
                     Gtk.ButtonsType.YES_NO, "%s",
-                    Strings.get ("tm.critical_warning"));
+                    _("Ending this system process may cause problems. Continue?"));
                 int response = dialog.run ();
                 dialog.destroy ();
                 if (response != Gtk.ResponseType.YES) {

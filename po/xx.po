@@ -1,0 +1,349 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kavis\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: xx\n"
+
+msgid "Internet"
+msgstr "⟪Internet···⟫"
+
+msgid "Office"
+msgstr "⟪Office··⟫"
+
+msgid "Sound & Video"
+msgstr "⟪Sound & Video·····⟫"
+
+msgid "Graphics"
+msgstr "⟪Graphics···⟫"
+
+msgid "Development"
+msgstr "⟪Development····⟫"
+
+msgid "Games"
+msgstr "⟪Games··⟫"
+
+msgid "Accessories"
+msgstr "⟪Accessories····⟫"
+
+msgid "System"
+msgstr "⟪System··⟫"
+
+msgid "Settings"
+msgstr "⟪Settings···⟫"
+
+msgid "Other"
+msgstr "⟪Other··⟫"
+
+msgid "Focus session finished"
+msgstr "⟪Focus session finished········⟫"
+
+msgid "Settings app coming soon"
+msgstr "⟪Settings app coming soon·········⟫"
+
+msgid "%d new notifications"
+msgstr "⟪%d new notifications········⟫"
+
+msgid "Clipboard history"
+msgstr "⟪Clipboard history······⟫"
+
+msgid "Clear all"
+msgstr "⟪Clear all···⟫"
+
+msgid "Clipboard history is empty"
+msgstr "⟪Clipboard history is empty··········⟫"
+
+msgid "Unpin"
+msgstr "⟪Unpin··⟫"
+
+msgid "Pin"
+msgstr "⟪Pin··⟫"
+
+msgid "Notifications"
+msgstr "⟪Notifications·····⟫"
+
+msgid "No new notifications"
+msgstr "⟪No new notifications········⟫"
+
+msgid "Clear"
+msgstr "⟪Clear··⟫"
+
+msgid "Keyboard layout"
+msgstr "⟪Keyboard layout······⟫"
+
+msgid "Turkish Q"
+msgstr "⟪Turkish Q···⟫"
+
+msgid "English (US)"
+msgstr "⟪English (US)····⟫"
+
+msgid "Volume"
+msgstr "⟪Volume··⟫"
+
+msgid "Mute"
+msgstr "⟪Mute··⟫"
+
+msgid "When plugged in"
+msgstr "⟪When plugged in······⟫"
+
+msgid "On battery"
+msgstr "⟪On battery····⟫"
+
+msgid "High performance"
+msgstr "⟪High performance······⟫"
+
+msgid "Power saver"
+msgstr "⟪Power saver····⟫"
+
+msgid "Balanced"
+msgstr "⟪Balanced···⟫"
+
+msgid "%d%%"
+msgstr "⟪%d%%··⟫"
+
+msgid "Desktop %d"
+msgstr "⟪Desktop %d····⟫"
+
+msgid "Start"
+msgstr "⟪Start··⟫"
+
+msgid "Show desktop"
+msgstr "⟪Show desktop····⟫"
+
+msgid "Position"
+msgstr "⟪Position···⟫"
+
+msgid "Bottom"
+msgstr "⟪Bottom··⟫"
+
+msgid "Top"
+msgstr "⟪Top··⟫"
+
+msgid "Left"
+msgstr "⟪Left··⟫"
+
+msgid "Right"
+msgstr "⟪Right··⟫"
+
+msgid "Size"
+msgstr "⟪Size··⟫"
+
+msgid "Thin"
+msgstr "⟪Thin··⟫"
+
+msgid "Medium"
+msgstr "⟪Medium··⟫"
+
+msgid "Thick"
+msgstr "⟪Thick··⟫"
+
+msgid "Alignment"
+msgstr "⟪Alignment···⟫"
+
+msgid "Align left"
+msgstr "⟪Align left····⟫"
+
+msgid "Center"
+msgstr "⟪Center··⟫"
+
+msgid "Monitor"
+msgstr "⟪Monitor··⟫"
+
+msgid "Primary monitor"
+msgstr "⟪Primary monitor······⟫"
+
+msgid "Auto-hide"
+msgstr "⟪Auto-hide···⟫"
+
+msgid "Display settings"
+msgstr "⟪Display settings······⟫"
+
+msgid "Task Manager"
+msgstr "⟪Task Manager····⟫"
+
+msgid "Lock"
+msgstr "⟪Lock··⟫"
+
+msgid "Sleep"
+msgstr "⟪Sleep··⟫"
+
+msgid "Shut down"
+msgstr "⟪Shut down···⟫"
+
+msgid "Restart"
+msgstr "⟪Restart··⟫"
+
+msgid "Wi-Fi"
+msgstr "⟪Wi-Fi··⟫"
+
+msgid "Bluetooth"
+msgstr "⟪Bluetooth···⟫"
+
+msgid "Airplane mode"
+msgstr "⟪Airplane mode·····⟫"
+
+msgid "Night light"
+msgstr "⟪Night light····⟫"
+
+msgid "Game Mode"
+msgstr "⟪Game Mode···⟫"
+
+msgid "Focus"
+msgstr "⟪Focus··⟫"
+
+msgid "Do not disturb"
+msgstr "⟪Do not disturb·····⟫"
+
+msgid "Battery saver"
+msgstr "⟪Battery saver·····⟫"
+
+msgid "Accessibility"
+msgstr "⟪Accessibility·····⟫"
+
+msgid "Brightness"
+msgstr "⟪Brightness····⟫"
+
+msgid "Output device"
+msgstr "⟪Output device·····⟫"
+
+msgid "Back"
+msgstr "⟪Back··⟫"
+
+msgid "Paired devices"
+msgstr "⟪Paired devices·····⟫"
+
+msgid "Connected"
+msgstr "⟪Connected···⟫"
+
+msgid "No networks found"
+msgstr "⟪No networks found······⟫"
+
+msgid "None"
+msgstr "⟪None··⟫"
+
+msgid "Search apps and files"
+msgstr "⟪Search apps and files········⟫"
+
+msgid "Power"
+msgstr "⟪Power··⟫"
+
+msgid "No results found"
+msgstr "⟪No results found······⟫"
+
+msgid "Safely remove"
+msgstr "⟪Safely remove·····⟫"
+
+msgid "Safely remove %s"
+msgstr "⟪Safely remove %s······⟫"
+
+msgid "You can now remove the device"
+msgstr "⟪You can now remove the device···········⟫"
+
+msgid "Could not remove the device — files may still be in use"
+msgstr "⟪Could not remove the device — files may still be in use······················⟫"
+
+msgid "Disconnect"
+msgstr "⟪Disconnect····⟫"
+
+msgid "Network settings"
+msgstr "⟪Network settings······⟫"
+
+msgid "Calculator"
+msgstr "⟪Calculator····⟫"
+
+msgid "Invalid expression"
+msgstr "⟪Invalid expression·······⟫"
+
+msgid "Screenshot saved"
+msgstr "⟪Screenshot saved······⟫"
+
+msgid "Image"
+msgstr "⟪Image··⟫"
+
+msgid "Video"
+msgstr "⟪Video··⟫"
+
+msgid "Rectangle"
+msgstr "⟪Rectangle···⟫"
+
+msgid "Freeform"
+msgstr "⟪Freeform···⟫"
+
+msgid "Window"
+msgstr "⟪Window··⟫"
+
+msgid "Full screen"
+msgstr "⟪Full screen····⟫"
+
+msgid "Record audio too"
+msgstr "⟪Record audio too······⟫"
+
+msgid "Microphone"
+msgstr "⟪Microphone····⟫"
+
+msgid "Close"
+msgstr "⟪Close··⟫"
+
+msgid "Recording"
+msgstr "⟪Recording···⟫"
+
+msgid "You can also press PrtSc to stop"
+msgstr "⟪You can also press PrtSc to stop············⟫"
+
+msgid "Stop"
+msgstr "⟪Stop··⟫"
+
+msgid "Screen recording saved"
+msgstr "⟪Screen recording saved········⟫"
+
+msgid "Smileys"
+msgstr "⟪Smileys··⟫"
+
+msgid "People"
+msgstr "⟪People··⟫"
+
+msgid "Nature"
+msgstr "⟪Nature··⟫"
+
+msgid "Food"
+msgstr "⟪Food··⟫"
+
+msgid "Travel"
+msgstr "⟪Travel··⟫"
+
+msgid "Objects"
+msgstr "⟪Objects··⟫"
+
+msgid "Symbols"
+msgstr "⟪Symbols··⟫"
+
+msgid "Emoji Picker"
+msgstr "⟪Emoji Picker····⟫"
+
+msgid "Search"
+msgstr "⟪Search··⟫"
+
+msgid "All"
+msgstr "⟪All··⟫"
+
+msgid "Recent"
+msgstr "⟪Recent··⟫"
+
+msgid "End task"
+msgstr "⟪End task···⟫"
+
+msgid "Name"
+msgstr "⟪Name··⟫"
+
+msgid "CPU"
+msgstr "⟪CPU··⟫"
+
+msgid "Memory"
+msgstr "⟪Memory··⟫"
+
+msgid "Disk"
+msgstr "⟪Disk··⟫"
+
+msgid "Ending this system process may cause problems. Continue?"
+msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"

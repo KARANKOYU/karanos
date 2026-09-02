@@ -15,9 +15,13 @@ DEST := debian/kavis-panel
 # derlemeyi reddediyor (API kararlılığı feragatnamesi).
 VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
                  --pkg x11 --pkg gio-unix-2.0 --pkg posix
-VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w
+# GETTEXT_PACKAGE: valac'ın _() / N_() bağları glib/gi18n-lib.h
+# üzerinden bu tanımı ister (çeviri alanı "kavis" — Grup D işi c).
+VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w \
+               -X -DGETTEXT_PACKAGE='"kavis"'
 
 KAYNAKLAR := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala)
+PO_DOSYALAR := $(wildcard po/*.po)
 
 %:
 	dh $@
@@ -34,6 +38,17 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/share/applications
 	install -m644 src/kavis-panel.desktop \
 		$(DEST)/usr/share/applications/kavis-panel.desktop
+	# Çeviriler: po/ kanonik kaynağı depo kökünde, build-packages.sh
+	# kopyalar. Meson'a BİLEREK geçilmedi (en hafif çözüm kuralı):
+	# msgfmt adımı yeterli. kavis.mo'yu bu paket taşır; kavis-tools
+	# aynı alanı kullanır (Depends: kavis-panel).
+	set -e; for po in $(PO_DOSYALAR); do \
+		dil=$$(basename $$po .po); \
+		install -d $(DEST)/usr/share/locale/$$dil/LC_MESSAGES; \
+		msgfmt --check -o \
+			$(DEST)/usr/share/locale/$$dil/LC_MESSAGES/kavis.mo \
+			$$po; \
+	done
 
 override_dh_auto_clean:
 	rm -f kavis-panel kavis-snap

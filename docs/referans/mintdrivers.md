@@ -149,6 +149,6 @@ Madde 35'i (sürücü yardımcısı) yazarken:
   `amd64-microcode`, bunlar trixie'de mevcut). Test kipi (sahte cihaz enjekte eden
   bir bayrak) UI'yi donanımsız/CI'da denemek için aynen alınmaya değer bir fikir
   (fikir olarak; kod değil).
-- Arayüz metinleri her zamanki gibi `docs/kavis-arayuz-metinleri.md`'den gelecek;
+- Arayüz metinleri her zamanki gibi `po/` (gettext)'den gelecek;
   bu incelemedeki kategori adları (önerilen/alternatif vb.) oradaki tablolara
   eklenmeden kullanılmamalı.

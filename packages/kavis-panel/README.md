@@ -9,8 +9,8 @@ GTK'nın kendi maliyeti).
 
 | Dosya | Ne yapar |
 |---|---|
-| `src/main.vala` | Giriş noktası; `--metin-denetimi` kipiyle ekransız tablo denetimi (CI kullanıyor) |
-| `src/logic/strings.vala` | TR/EN metin tablosu (`docs/kavis-arayuz-metinleri.md`'den birebir), dil seçimi |
+| `src/main.vala` | Giriş noktası (çeviri denetimi artık `tools/check-i18n.sh` — po/ üzerinde) |
+| `po/` (depo kökü) | gettext çevirileri — msgid'ler koddaki İngilizce metinler, TR `po/tr.po` |
 | `src/logic/brand.vala` | Ürün kimliği: os-release'ten ad, temaya göre logo yolu (madde 1) |
 | `src/logic/apps.vala` | Uygulama listesi/arama/kategoriler (GLib.AppInfo — kendi .desktop ayrıştırıcımız yok) |
 | `src/logic/power.vala` | Güç eylemleri (systemctl/loginctl, polkit üzerinden; sudo yok) |
@@ -38,7 +38,6 @@ tools/panel-screenshot.sh out/panel.png   # Xvfb'de çiz, PNG al
 MENU=1 tools/panel-screenshot.sh          # başlat menüsü açık
 GUC=1  tools/panel-screenshot.sh          # güç popup'ı açık
 BUYUT=1 tools/panel-screenshot.sh         # strut doğrulaması
-out/packages/... --metin-denetimi         # metin tablosu tutarlılığı
 ```
 
 ## Verilen kararlar

@@ -44,7 +44,7 @@ namespace Kavis.Ui {
             search_box.set_border_width (10);
             search_entry = new Gtk.SearchEntry ();
             search_entry.set_placeholder_text (
-                Strings.get ("panel.search_placeholder"));
+                _("Search apps and files"));
             search_entry.search_changed.connect (on_search_changed);
             search_entry.activate.connect (launch_first_result);
             search_box.pack_start (search_entry, true, true, 0);
@@ -69,12 +69,12 @@ namespace Kavis.Ui {
             power_box.set_border_width (8);
             var power_button = new Gtk.Button ();
             power_button.set_relief (Gtk.ReliefStyle.NONE);
-            power_button.set_tooltip_text (Strings.get ("panel.power"));
+            power_button.set_tooltip_text (_("Power"));
             var power_inner = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             power_inner.pack_start (new Gtk.Image.from_icon_name (
                 "system-shutdown-symbolic", Gtk.IconSize.LARGE_TOOLBAR),
                 false, false, 0);
-            power_inner.pack_start (new Gtk.Label (Strings.get ("panel.power")),
+            power_inner.pack_start (new Gtk.Label (_("Power")),
                                     false, false, 0);
             power_button.add (power_inner);
             power_button.clicked.connect (open_power_menu);
@@ -134,7 +134,7 @@ namespace Kavis.Ui {
             }
 
             if (apps.length == 0) {
-                var empty = new Gtk.Label (Strings.get ("panel.no_results"));
+                var empty = new Gtk.Label (_("No results found"));
                 empty.get_style_context ().add_class ("dim-label");
                 empty.set_margin_top (24);
                 list_box.pack_start (empty, false, false, 0);

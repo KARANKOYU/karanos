@@ -139,7 +139,7 @@ En çok yorum alan issue'lardan (2026-09-01, `gh api` ile):
    Modu düğmesi ya gizlenmeli ya da arayüz metinleri belgesindeki uygun
    hata mesajıyla reddetmeli (`vulkaninfo`/aygıt sorgusu ile ön kontrol).
    Bu durum arayüz metinlerine mesaj eklenmesini gerektirebilir —
-   `docs/kavis-arayuz-metinleri.md`'de karşılığı yoksa metin uydurmadan
+   `po/` (gettext)'de karşılığı yoksa metin uydurmadan
    sorulmalı.
 4. **CI sınırı kabullenilmeli:** QEMU duman testi Oyun Modu'nu asla
    çalıştıramayacak; CI yalnızca paketin kurulduğunu ve betiğin sözdizimini

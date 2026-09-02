@@ -68,6 +68,5 @@ packages/kavis-panel/kavis-snap
 # packages/kavis-common/, kopyaları build-packages.sh koyar
 packages/*/src/logic/appinit.vala
 packages/*/src/appinit.vala
-packages/*/src/logic/strings.vala
-packages/*/src/strings.vala
+packages/kavis-panel/po/
 packages/kavis-tools/kavis-tools

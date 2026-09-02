@@ -3,7 +3,9 @@
   Açılış ekranının altındaki iki ipucu satırı (madde 30):
     boot.advanced_hint  → "F3 — Advanced menu"
     boot.skip_hint      → "Press space to skip"
-  Metinler docs/kavis-arayuz-metinleri.md tablosundan; splash varsayılan
+  Metinler İngilizce kaynak dizgilerdir (gettext düzeninin msgid'leriyle
+  aynı üslup; Plymouth çalışma anında .mo okuyamaz, metin buraya
+  derlemede gömülür); splash varsayılan
   dilde (EN — 2 Eyl 2026 kararı) gösteriliyor; Plymouth'ta çalışma
   anında dil seçimi yok.
 

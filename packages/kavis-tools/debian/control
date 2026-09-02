@@ -16,6 +16,7 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
+ kavis-panel,
  fonts-noto-color-emoji,
 Description: Kavis küçük araçları — görev yöneticisi, hesap makinesi, emoji
  Tek ikili, üç araç (madde 7): `kavis-tools tasks` işlem listesi

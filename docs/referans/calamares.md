@@ -141,7 +141,7 @@ tarandı. Öne çıkanlar:
   (lightdm autologin), grubcfg/bootloader, umount. Trixie'nin 3.3.14
   paketi yeterli; kaynaktan derleme gerekmez.
 - **Yapılandırma ile çözülür**: koyu branding (branding.desc + QSS + QML
-  slideshow, metinler `docs/kavis-arayuz-metinleri.md`'den),
+  slideshow, metinler `po/` (gettext)'den),
   `defaultFileSystemType: btrfs`, `userSwapChoices` seçimi,
   `partitionLayout`, `doAutologin`.
 - **Özel Python modülü gerekir**: (1) A/B düzeni — @b subvolume'unun

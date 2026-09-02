@@ -51,7 +51,9 @@ namespace Kavis.Ui {
             icon.set_from_icon_name (Volume.icon_name (percent, muted),
                                      Gtk.IconSize.DND);
             bar.set_value (muted ? 0 : percent.clamp (0, 100));
-            unowned string fmt = Strings.is_turkish () ? "%%%d" : "%d%%";
+            /* Yüzde biçimi dile göre (TR %93 / EN 93%) — biçim
+             * dizgesinin kendisi çevriliyor. */
+            unowned string fmt = _("%d%%");
             percent_label.set_text (muted ? "—" : fmt.printf (percent));
 
             var display = Gdk.Display.get_default ();

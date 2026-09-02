@@ -14,6 +14,15 @@ namespace Kavis.AppInit {
 
     /* Call BEFORE Gtk.init. Safe to call more than once. */
     public void init () {
+        /* Locale + gettext (Grup D task c): every kavis binary reads
+         * its UI texts from the "kavis" domain (msgids are English —
+         * the product default language; tr.po carries Turkish). The
+         * .mo files ship in kavis-panel. */
+        Intl.setlocale (LocaleCategory.ALL, "");
+        Intl.bindtextdomain ("kavis", "/usr/share/locale");
+        Intl.bind_textdomain_codeset ("kavis", "UTF-8");
+        Intl.textdomain ("kavis");
+
         /* Kavis GTK apps never use GL themselves (drawing is cairo,
          * compositing is picom's job), but GTK3's X11 backend probes
          * GLX on the first realized window — and without a GPU

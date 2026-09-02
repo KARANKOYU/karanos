@@ -303,13 +303,13 @@ namespace Kavis.Ui {
                 config.alignment == PanelConfig.Alignment.CENTER;
             if (centered || config.vertical) {
                 start_button.add (Brand.logo_image (24));
-                start_button.set_tooltip_text (Strings.get ("panel.start"));
+                start_button.set_tooltip_text (_("Start"));
             } else {
                 var start_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
                 start_row.pack_start (Brand.logo_image (24),
                                       false, false, 0);
                 start_row.pack_start (
-                    new Gtk.Label (Strings.get ("panel.start")),
+                    new Gtk.Label (_("Start")),
                     false, false, 0);
                 start_button.add (start_row);
             }
@@ -378,7 +378,7 @@ namespace Kavis.Ui {
             var show_desktop = new Gtk.Button ();
             show_desktop.get_style_context ().add_class ("edge");
             show_desktop.set_relief (Gtk.ReliefStyle.NONE);
-            show_desktop.set_tooltip_text (Strings.get ("panel.show_desktop"));
+            show_desktop.set_tooltip_text (_("Show desktop"));
             if (config.vertical) {
                 show_desktop.set_size_request (-1, 8);
             } else {
@@ -789,7 +789,7 @@ namespace Kavis.Ui {
 
             /* Konum */
             var position_item = new Gtk.MenuItem.with_label (
-                Strings.get ("panel.menu_position"));
+                _("Position"));
             var position_menu = new Gtk.Menu ();
             unowned SList<Gtk.RadioMenuItem>? position_group = null;
             PanelConfig.Position[] positions = {
@@ -797,12 +797,12 @@ namespace Kavis.Ui {
                 PanelConfig.Position.LEFT, PanelConfig.Position.RIGHT
             };
             string[] position_keys = {
-                "panel.position_bottom", "panel.position_top",
-                "panel.position_left", "panel.position_right"
+                N_("Bottom"), N_("Top"),
+                N_("Left"), N_("Right")
             };
             for (int i = 0; i < positions.length; i++) {
                 var item = new Gtk.RadioMenuItem.with_label (
-                    position_group, Strings.get (position_keys[i]));
+                    position_group, _(position_keys[i]));
                 position_group = item.get_group ();
                 item.set_active (config.position == positions[i]);
                 PanelConfig.Position value = positions[i];
@@ -819,7 +819,7 @@ namespace Kavis.Ui {
 
             /* Boyut */
             var size_item = new Gtk.MenuItem.with_label (
-                Strings.get ("panel.menu_size"));
+                _("Size"));
             var size_menu = new Gtk.Menu ();
             unowned SList<Gtk.RadioMenuItem>? size_group = null;
             PanelConfig.Thickness[] sizes = {
@@ -827,11 +827,11 @@ namespace Kavis.Ui {
                 PanelConfig.Thickness.THICK
             };
             string[] size_keys = {
-                "panel.size_thin", "panel.size_medium", "panel.size_thick"
+                N_("Thin"), N_("Medium"), N_("Thick")
             };
             for (int i = 0; i < sizes.length; i++) {
                 var item = new Gtk.RadioMenuItem.with_label (
-                    size_group, Strings.get (size_keys[i]));
+                    size_group, _(size_keys[i]));
                 size_group = item.get_group ();
                 item.set_active (config.thickness == sizes[i]);
                 PanelConfig.Thickness value = sizes[i];
@@ -850,18 +850,18 @@ namespace Kavis.Ui {
              * seçenek. Yerleşimi build() kurduğu için değişim de
              * konum/boyut gibi restart_self() ister. */
             var align_item = new Gtk.MenuItem.with_label (
-                Strings.get ("panel.menu_align"));
+                _("Alignment"));
             var align_menu = new Gtk.Menu ();
             unowned SList<Gtk.RadioMenuItem>? align_group = null;
             PanelConfig.Alignment[] alignments = {
                 PanelConfig.Alignment.LEFT, PanelConfig.Alignment.CENTER
             };
             string[] align_keys = {
-                "panel.align_left", "panel.align_center"
+                N_("Align left"), N_("Center")
             };
             for (int i = 0; i < alignments.length; i++) {
                 var item = new Gtk.RadioMenuItem.with_label (
-                    align_group, Strings.get (align_keys[i]));
+                    align_group, _(align_keys[i]));
                 align_group = item.get_group ();
                 item.set_active (config.alignment == alignments[i]);
                 PanelConfig.Alignment value = alignments[i];
@@ -880,12 +880,12 @@ namespace Kavis.Ui {
             var display = Gdk.Display.get_default ();
             if (display.get_n_monitors () > 1) {
                 var monitor_item = new Gtk.MenuItem.with_label (
-                    Strings.get ("panel.menu_monitor"));
+                    _("Monitor"));
                 var monitor_menu = new Gtk.Menu ();
                 unowned SList<Gtk.RadioMenuItem>? monitor_group = null;
 
                 var primary_item = new Gtk.RadioMenuItem.with_label (
-                    monitor_group, Strings.get ("panel.monitor_primary"));
+                    monitor_group, _("Primary monitor"));
                 monitor_group = primary_item.get_group ();
                 primary_item.set_active (config.monitor == "primary");
                 primary_item.activate.connect (() => {
@@ -923,7 +923,7 @@ namespace Kavis.Ui {
 
             /* Otomatik gizle */
             var autohide_item = new Gtk.CheckMenuItem.with_label (
-                Strings.get ("panel.menu_autohide"));
+                _("Auto-hide"));
             autohide_item.set_active (config.autohide);
             autohide_item.toggled.connect (() => {
                 config.autohide = autohide_item.get_active ();
@@ -940,9 +940,9 @@ namespace Kavis.Ui {
             /* Kısayollar. Hedef uygulama henüz kurulu değilse öğe soluk
              * kalır — kavis-settings Grup F'de, kavis-tools madde 7'de
              * geliyor. */
-            menu.append (launcher_item ("panel.display_settings",
+            menu.append (launcher_item (N_("Display settings"),
                 "kavis-settings", { "kavis-settings", "display" }));
-            menu.append (launcher_item ("panel.task_manager",
+            menu.append (launcher_item (N_("Task Manager"),
                 "kavis-tools", { "kavis-tools", "tasks" }));
 
             menu.show_all ();
@@ -951,7 +951,7 @@ namespace Kavis.Ui {
 
         private Gtk.MenuItem launcher_item (string key, string program,
                                             string[] argv) {
-            var item = new Gtk.MenuItem.with_label (Strings.get (key));
+            var item = new Gtk.MenuItem.with_label (_(key));
             if (Environment.find_program_in_path (program) == null) {
                 item.set_sensitive (false);
                 return item;

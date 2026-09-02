@@ -22,7 +22,7 @@ namespace Kavis.Ui {
             get_style_context ().add_class ("indicator-button");
             add (new Gtk.Image.from_icon_name (
                 "drive-removable-media-symbolic", Gtk.IconSize.BUTTON));
-            set_tooltip_text (Strings.get ("usb.eject"));
+            set_tooltip_text (_("Safely remove"));
 
             popup = new UsbPopup ();
             clicked.connect (() => popup.toggle_at (this));
@@ -63,7 +63,7 @@ namespace Kavis.Ui {
             var menu = new Gtk.Menu ();
             foreach (unowned Usb.Device device in Usb.devices ()) {
                 var item = new Gtk.MenuItem.with_label (
-                    Strings.get ("usb.eject_named").printf (device.name));
+                    _("Safely remove %s").printf (device.name));
                 string node = device.node;
                 item.activate.connect (() => {
                     UsbPopup.eject_in_background (node);
@@ -82,7 +82,7 @@ namespace Kavis.Ui {
         private Gtk.Box list;
 
         public UsbPopup () {
-            var title = new Gtk.Label (Strings.get ("usb.eject"));
+            var title = new Gtk.Label (_("Safely remove"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);
             title.set_margin_start (4);
@@ -106,8 +106,8 @@ namespace Kavis.Ui {
                         try {
                             Notifications.server.notify ("Kavis", 0,
                                 "drive-removable-media-symbolic",
-                                Strings.get (ok ? "usb.safe_to_remove"
-                                                : "usb.eject_failed"),
+                                _(ok ? N_("You can now remove the device")
+                                                : N_("Could not remove the device — files may still be in use")),
                                 "", {}, hints, 5000);
                         } catch (Error e) { }
                     }
@@ -130,7 +130,7 @@ namespace Kavis.Ui {
                 var eject = new Gtk.Button.from_icon_name (
                     "media-eject-symbolic", Gtk.IconSize.BUTTON);
                 eject.set_relief (Gtk.ReliefStyle.NONE);
-                eject.set_tooltip_text (Strings.get ("usb.eject"));
+                eject.set_tooltip_text (_("Safely remove"));
                 string node = device.node;
                 eject.clicked.connect (() => {
                     dismiss ();
@@ -181,20 +181,20 @@ namespace Kavis.Ui {
         private void refresh () {
             string ssid = Quick.wifi_ssid ();
             set_tooltip_text (
-                ssid != "" ? ssid : Strings.get ("network.wifi"));
+                ssid != "" ? ssid : _("Wi-Fi"));
         }
 
         private void show_menu (Gdk.EventButton event) {
             var menu = new Gtk.Menu ();
             var disconnect = new Gtk.MenuItem.with_label (
-                Strings.get ("network.disconnect"));
+                _("Disconnect"));
             disconnect.set_sensitive (Quick.wifi_ssid () != "");
             disconnect.activate.connect (() => {
                 Quick.wifi_disconnect ();
             });
             menu.append (disconnect);
             var settings = new Gtk.MenuItem.with_label (
-                Strings.get ("network.settings"));
+                _("Network settings"));
             settings.activate.connect (() => {
                 Launch.settings ("network");
             });

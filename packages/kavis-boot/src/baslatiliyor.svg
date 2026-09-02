@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Boşluk tuşuyla müzik atlanınca ipucu satırlarının yerine geçen tek
-  satır (Grup D düzeltmesi 6): boot.starting_short → "Starting…"
-  Metin docs/kavis-arayuz-metinleri.md tablosundan; splash varsayılan
+  satır (Grup D düzeltmesi 6): "Starting…"
+  (İngilizce kaynak dizgi — Plymouth çalışma anında .mo okuyamaz,
+  metin derlemede gömülür); splash varsayılan
   dilde (EN — 2 Eyl 2026 kararı) gösteriliyor; Plymouth'ta çalışma
   anında dil seçimi yok.
 

@@ -22,7 +22,7 @@ Algılayınca üçüncü seçenek sunulur:
 
 > "Kavis'i yeniden kur — dosyalarımı ve uygulamalarımı koru"
 
-(Metin, uygulanırken `docs/kavis-arayuz-metinleri.md` tablosuna
+(Metin, uygulanırken `po/` çeviri düzenine
 eklenecek; Calamares TR/EN çevirileriyle birlikte.)
 
 ## Akış (seçilirse)

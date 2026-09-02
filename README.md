@@ -86,5 +86,5 @@ grup bitince hangi sürümün çıkacağı yol haritasında:
 
 Karar günlüğü: [`docs/durum.md`](docs/durum.md) ·
 Eski görev tanımı (Karan OS dönemi): [`docs/kavis-claude-code-prompt.md`](docs/kavis-claude-code-prompt.md) ·
-Arayüz metinleri (TR/EN): [`docs/kavis-arayuz-metinleri.md`](docs/kavis-arayuz-metinleri.md) ·
+Arayüz çevirileri (gettext): [`po/`](po/) ·
 GitHub kurulumu: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)

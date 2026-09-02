@@ -448,10 +448,10 @@ almak (indirme yöneticisi madde 23 gelince).
   SPLASH-HANDOFF (quit→openbox, 3 sn; retain kanıtlıysa yalnız uyarı).
 - Blur: xrender'da yok; madde 38 GPU tespitiyle değerlendirecek.
   Akrilik = rgba saydamlık.
-- **AÇIK KARAR — gettext derleme yolu**: Meson'a mı geçilir yoksa
-  mevcut debian/rules içine msgfmt adımı mı eklenir? SEÇİLMEDİ.
-  Eğilim: rules içinde msgfmt (en hafif; build sistemi değiştirmek
-  ayrı büyük iş) — ama kullanıcıya sorulmadan kesinleştirme.
+- ~~**AÇIK KARAR — gettext derleme yolu**~~ KAPANDI (2 Eyl, kullanıcı
+  kararı): Meson GETİRİLMEDİ; debian/rules içinde msgfmt adımı (en
+  hafif çözüm). Uygulandı — po/ kökte, kavis.mo'yu kavis-panel taşır,
+  kavis-tools ona bağımlı; denetim tools/check-i18n.sh.
 - **Yerelleştirme kuralı**: UI'da sabit piksel genişliği verme (EN/TR
   metin uzunlukları farklı); yer darsa metin yerine ikon tercih et
   (araç ipucuyla). Mevcut kodda genişlik istekleri var (ör. StartMenu
@@ -462,9 +462,12 @@ almak (indirme yöneticisi madde 23 gelince).
   Gtk.grab_add + yeniden denemeli seat grab deseni kullan.
 - Kısayolların TEK yeri: rc.xml'deki "Kavis kisayollari" bloğu (0210
   hook'u); çalışan panele org.kavis.Panel üzerinden seslen.
-- Metin tablosunun TEK yeri: packages/kavis-common/strings.vala
-  (kopyalar derlemede; docs tablosuna satır eklemeden koda metin
-  GİRME). Ortak kaynak deseni: prepare_sources + .gitignore.
+- ~~Metin tablosunun TEK yeri: packages/kavis-common/strings.vala~~
+  GEÇERSİZ (2 Eyl, gettext geçişi): Strings sınıfı ve
+  kavis-arayuz-metinleri.md KALKTI; tek kaynak po/ + koddaki İngilizce
+  msgid'ler. Yeni metin akışı CLAUDE.md'de (gen-pot → tr.po →
+  gen-xx-po → check-i18n). Ortak kaynak deseni (prepare_sources +
+  .gitignore) appinit ve po/ için sürüyor.
 
 ## 4. BİLİNEN SORUNLAR / TEKNİK BORÇ
 

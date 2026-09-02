@@ -51,15 +51,15 @@ prepare_sources() {
 		# derlemede kendi src ağacına alır (kopyalar .gitignore'da).
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-panel/src/logic/appinit.vala
-		install -m644 packages/kavis-common/strings.vala \
-			packages/kavis-panel/src/logic/strings.vala
+		# Çeviriler (Grup D işi c): po/ kanonik, panel derlemede
+		# msgfmt ile .mo üretir ve kavis.mo'yu paket olarak taşır.
+		rm -rf packages/kavis-panel/po
+		cp -r po packages/kavis-panel/po
 		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-tools/src/appinit.vala
-		install -m644 packages/kavis-common/strings.vala \
-			packages/kavis-tools/src/strings.vala
 		;;
 	kavis-boot)
 		install -d packages/kavis-boot/src/boot

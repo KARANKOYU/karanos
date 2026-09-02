@@ -5,6 +5,7 @@ Maintainer: Karan <farukyildiz3207@gmail.com>
 Build-Depends:
  debhelper-compat (= 13),
  valac,
+ gettext,
  libgtk-3-dev,
  libwnck-3-dev,
  libx11-dev,

@@ -7,12 +7,6 @@
  */
 
 int main (string[] args) {
-    Intl.setlocale (LocaleCategory.ALL, "");
-
-    if (args.length > 1 && args[1] == "--metin-denetimi") {
-        return Kavis.Strings.self_check () == 0 ? 0 : 1;
-    }
-
     Kavis.AppInit.init ();
     Gtk.init (ref args);
 

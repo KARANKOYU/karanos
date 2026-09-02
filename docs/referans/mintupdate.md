@@ -189,7 +189,7 @@ Madde 26'yı (güncelleme sistemi) yazarken:
    her tetikte tam cache yeniden kurma.
 5. **Nagging eşiği**: her kontrolde bildirim değil, "X gündür bekliyor +
    yakınlarda elle güncelleme yapılmamış" eşiği. Bildirim metinleri
-   `docs/kavis-arayuz-metinleri.md`den gelecek; tabloda güncelleme
+   `po/` (gettext)den gelecek; tabloda güncelleme
    bildirimi satırı yoksa önce eklenmesi istenmeli.
 6. **Öz-güncelleme önceliği** (önce güncelleyicinin kendisi) küçük ama
    değerli bir fikir; Kavis'in güncelleyici paketi için aynen uygulanabilir.

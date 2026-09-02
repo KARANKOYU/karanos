@@ -50,7 +50,7 @@ namespace Kavis.Ui {
             caption = new Gtk.Label (null);
             caption.set_ellipsize (Pango.EllipsizeMode.END);
             caption.set_max_width_chars (12);
-            set_caption (Strings.get (label_key));
+            set_caption (_(label_key));
             pack_start (caption, false, false, 0);
         }
 
@@ -164,7 +164,7 @@ namespace Kavis.Ui {
 
             if (Quick.wifi_available ()) {
                 wifi_tile = new SettingTile ("network-wireless-symbolic",
-                                             "network.wifi", true);
+                                             N_("Wi-Fi"), true);
                 wifi_tile.toggled_by_user.connect ((on) => {
                     Quick.wifi_set (on);
                 });
@@ -175,7 +175,7 @@ namespace Kavis.Ui {
             }
             if (Quick.bluetooth_available ()) {
                 bt_tile = new SettingTile ("bluetooth-active-symbolic",
-                    "settings.bluetooth",
+                    N_("Bluetooth"),
                     Quick.bluetooth_list_available ());
                 bt_tile.toggled_by_user.connect ((on) => {
                     Quick.bluetooth_set (on);
@@ -187,7 +187,7 @@ namespace Kavis.Ui {
             }
             if (Quick.airplane_available ()) {
                 airplane_tile = new SettingTile ("airplane-mode-symbolic",
-                                                 "network.airplane", false);
+                                                 N_("Airplane mode"), false);
                 airplane_tile.toggled_by_user.connect ((on) => {
                     Quick.airplane_set (on);
                     /* Telsiz kutucukları da değişir. */
@@ -200,21 +200,21 @@ namespace Kavis.Ui {
             }
             if (Quick.night_available ()) {
                 night_tile = new SettingTile ("night-light-symbolic",
-                                              "display.night_mode", false);
+                                              N_("Night light"), false);
                 night_tile.toggled_by_user.connect ((on) => {
                     Quick.night_set (on);
                 });
                 attach_tile (grid, night_tile, ref col, ref row);
             }
             game_tile = new SettingTile ("input-gaming-symbolic",
-                                         "game.mode", false);
+                                         N_("Game Mode"), false);
             game_tile.toggled_by_user.connect ((on) => {
                 Quick.gamemode_set (on);
             });
             attach_tile (grid, game_tile, ref col, ref row);
 
             focus_tile = new SettingTile ("alarm-symbolic",
-                                          "focus.mode", false);
+                                          N_("Focus"), false);
             focus_tile.toggled_by_user.connect ((on) => {
                 if (on) {
                     Focus.start ();
@@ -225,7 +225,7 @@ namespace Kavis.Ui {
             attach_tile (grid, focus_tile, ref col, ref row);
 
             dnd_tile = new SettingTile ("notifications-disabled-symbolic",
-                                        "notif.dnd", false);
+                                        N_("Do not disturb"), false);
             dnd_tile.toggled_by_user.connect ((on) => {
                 if (Notifications.server != null) {
                     Notifications.server.set_dnd (on);
@@ -235,7 +235,7 @@ namespace Kavis.Ui {
 
             if (Battery.present ()) {
                 saver_tile = new SettingTile ("battery-good-symbolic",
-                                              "power.battery_saver", false);
+                                              N_("Battery saver"), false);
                 saver_tile.toggled_by_user.connect ((on) => {
                     /* Tasarruf, o anki güç kaynağının planını değiştirir;
                      * kapatınca Normal'e döner. Kaynak yaklaşık olarak
@@ -249,7 +249,7 @@ namespace Kavis.Ui {
 
             var access_tile = new SettingTile (
                 "preferences-desktop-accessibility-symbolic",
-                "settings.accessibility", true);
+                N_("Accessibility"), true);
             access_tile.toggled_by_user.connect ((on) => {
                 /* Aç/kapa karşılığı yok; kutucuk yalnız alt panele
                  * açılır. Durum vurgusunu geri al. */
@@ -276,7 +276,7 @@ namespace Kavis.Ui {
                     Gtk.Orientation.HORIZONTAL, 5, 100, 5);
                 brightness_slider.set_draw_value (false);
                 brightness_slider.set_tooltip_text (
-                    Strings.get ("display.brightness"));
+                    _("Brightness"));
                 brightness_slider.value_changed.connect (() => {
                     if (updating) {
                         return;
@@ -301,7 +301,7 @@ namespace Kavis.Ui {
                     "audio-volume-high-symbolic", Gtk.IconSize.BUTTON);
                 var mute = new Gtk.Button ();
                 mute.set_relief (Gtk.ReliefStyle.NONE);
-                mute.set_tooltip_text (Strings.get ("sound.mute"));
+                mute.set_tooltip_text (_("Mute"));
                 mute.add (volume_icon);
                 mute.clicked.connect (() => {
                     Volume.toggle_mute ();
@@ -315,7 +315,7 @@ namespace Kavis.Ui {
                     Gtk.Orientation.HORIZONTAL, 0, 100, 5);
                 volume_slider.set_draw_value (false);
                 volume_slider.set_tooltip_text (
-                    Strings.get ("sound.volume"));
+                    _("Volume"));
                 volume_slider.value_changed.connect (() => {
                     if (updating) {
                         return;
@@ -334,7 +334,7 @@ namespace Kavis.Ui {
                 if (Quick.sound_output_available ()) {
                     var arrow = new Gtk.Button.with_label ("›");
                     arrow.set_relief (Gtk.ReliefStyle.NONE);
-                    arrow.set_tooltip_text (Strings.get ("sound.output"));
+                    arrow.set_tooltip_text (_("Output device"));
                     arrow.clicked.connect (() => {
                         show_page ("sinks");
                     });
@@ -360,7 +360,7 @@ namespace Kavis.Ui {
             var gear = new Gtk.Button.from_icon_name (
                 "emblem-system-symbolic", Gtk.IconSize.BUTTON);
             gear.set_relief (Gtk.ReliefStyle.NONE);
-            gear.set_tooltip_text (Strings.get ("common.settings"));
+            gear.set_tooltip_text (_("Settings"));
             gear.clicked.connect (() => {
                 dismiss ();
                 Launch.settings ("home");
@@ -387,14 +387,14 @@ namespace Kavis.Ui {
             var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
             var back = new Gtk.Button.with_label (
-                "‹ " + Strings.get ("common.back"));
+                "‹ " + _("Back"));
             back.set_relief (Gtk.ReliefStyle.NONE);
             back.clicked.connect (() => {
                 stack.set_visible_child_name ("main");
                 refit ();
             });
             header.pack_start (back, false, false, 0);
-            var title = new Gtk.Label (Strings.get (title_key));
+            var title = new Gtk.Label (_(title_key));
             title.get_style_context ().add_class ("dim");
             header.pack_start (title, true, true, 0);
             page.pack_start (header, false, false, 0);
@@ -414,31 +414,31 @@ namespace Kavis.Ui {
 
         private Gtk.Widget build_wifi_page () {
             Gtk.Box body;
-            var page = subpage ("network.wifi", out body);
+            var page = subpage (N_("Wi-Fi"), out body);
             wifi_list = body;
             return page;
         }
 
         private Gtk.Widget build_bt_page () {
             Gtk.Box body;
-            var page = subpage ("bt.paired_devices", out body);
+            var page = subpage (N_("Paired devices"), out body);
             bt_list = body;
             return page;
         }
 
         private Gtk.Widget build_sink_page () {
             Gtk.Box body;
-            var page = subpage ("sound.output", out body);
+            var page = subpage (N_("Output device"), out body);
             sink_list = body;
             return page;
         }
 
         private Gtk.Widget build_access_page () {
             Gtk.Box body;
-            var page = subpage ("settings.accessibility", out body);
+            var page = subpage (N_("Accessibility"), out body);
             /* Erişilebilirlik seçenekleri Ayarlar uygulamasıyla
              * geliyor (Grup F); alt panel o güne kadar bunu söyler. */
-            var soon = new Gtk.Label (Strings.get ("settings.coming_soon"));
+            var soon = new Gtk.Label (_("Settings app coming soon"));
             soon.get_style_context ().add_class ("dim");
             soon.set_margin_top (20);
             body.pack_start (soon, false, false, 0);
@@ -461,7 +461,7 @@ namespace Kavis.Ui {
             row.pack_start (label, true, true, 0);
             if (active) {
                 var mark = new Gtk.Label (
-                    Strings.get ("network.connected"));
+                    _("Connected"));
                 mark.get_style_context ().add_class ("dim");
                 row.pack_end (mark, false, false, 0);
             }
@@ -477,7 +477,7 @@ namespace Kavis.Ui {
             var networks = Quick.wifi_networks ();
             if (networks.length == 0) {
                 var empty = new Gtk.Label (
-                    Strings.get ("network.no_networks"));
+                    _("No networks found"));
                 empty.get_style_context ().add_class ("dim");
                 empty.set_margin_top (20);
                 wifi_list.pack_start (empty, false, false, 0);
@@ -506,7 +506,7 @@ namespace Kavis.Ui {
             clear_box (bt_list);
             var devices = Quick.bluetooth_devices ();
             if (devices.length == 0) {
-                var empty = new Gtk.Label (Strings.get ("common.none"));
+                var empty = new Gtk.Label (_("None"));
                 empty.get_style_context ().add_class ("dim");
                 empty.set_margin_top (20);
                 bt_list.pack_start (empty, false, false, 0);
@@ -570,7 +570,7 @@ namespace Kavis.Ui {
                 wifi_tile.set_state (Quick.wifi_enabled ());
                 string ssid = Quick.wifi_ssid ();
                 wifi_tile.set_caption (
-                    ssid != "" ? ssid : Strings.get ("network.wifi"));
+                    ssid != "" ? ssid : _("Wi-Fi"));
             }
             if (bt_tile != null) {
                 bt_tile.set_state (Quick.bluetooth_enabled ());
@@ -601,8 +601,7 @@ namespace Kavis.Ui {
             refresh_sound_row ();
             if (Battery.present ()) {
                 int percent = Battery.percent ();
-                unowned string fmt =
-                    Strings.is_turkish () ? "%%%d" : "%d%%";
+                unowned string fmt = _("%d%%");
                 battery_label.set_text (
                     (percent >= 0) ? fmt.printf (percent) : "—");
             }
