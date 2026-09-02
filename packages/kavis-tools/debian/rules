@@ -24,6 +24,9 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/bin
 	install -m755 kavis-tools $(DEST)/usr/bin/kavis-tools
 	install -d $(DEST)/usr/share/applications
+	install -d $(DEST)/usr/share/nemo/actions
+	install -m644 desktop/kavis-open-with.nemo_action \
+		$(DEST)/usr/share/nemo/actions/kavis-open-with.nemo_action
 	install -m644 desktop/kavis-tasks.desktop \
 		$(DEST)/usr/share/applications/kavis-tasks.desktop
 	install -m644 desktop/kavis-calc.desktop \

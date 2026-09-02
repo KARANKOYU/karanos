@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kavis\n"
 "Report-Msgid-Bugs-To: https://github.com/KARANKOYU/karanos/issues\n"
-"POT-Creation-Date: 2026-09-02 13:00+0000\n"
+"POT-Creation-Date: 2026-09-02 13:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -185,7 +185,7 @@ msgstr ""
 msgid "Settings app coming soon"
 msgstr ""
 
-#: packages/kavis-panel/src/logic/notifications.vala:173
+#: packages/kavis-panel/src/logic/notifications.vala:179
 #, c-format
 msgid "%d new notifications"
 msgstr ""
@@ -533,21 +533,21 @@ msgid "Add desktop shortcut"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/tray.vala:25
-#: packages/kavis-panel/src/ui/tray.vala:85
-#: packages/kavis-panel/src/ui/tray.vala:133
+#: packages/kavis-panel/src/ui/tray.vala:95
+#: packages/kavis-panel/src/ui/tray.vala:143
 msgid "Safely remove"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:66
+#: packages/kavis-panel/src/ui/tray.vala:76
 #, c-format
 msgid "Safely remove %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:109
+#: packages/kavis-panel/src/ui/tray.vala:119
 msgid "You can now remove the device"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/tray.vala:110
+#: packages/kavis-panel/src/ui/tray.vala:120
 msgid "Could not remove the device — files may still be in use"
 msgstr ""
 
@@ -622,6 +622,36 @@ msgstr ""
 
 #: packages/kavis-tools/src/capture.vala:1033
 msgid "Screen recording saved"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:35
+#: packages/kavis-tools/src/openwith.vala:46
+#, c-format
+msgid "How should %s be opened?"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:64
+msgid "Always open this file type with this app"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:69
+msgid "Search the Store"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:72
+msgid "Open"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:98
+msgid "Recommended"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:147
+msgid "Other applications"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:209
+msgid "Store app coming soon"
 msgstr ""
 
 #: packages/kavis-tools/src/tasks.vala:46

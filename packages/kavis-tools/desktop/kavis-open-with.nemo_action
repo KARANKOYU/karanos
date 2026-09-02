@@ -1,0 +1,8 @@
+[Nemo Action]
+Name=Open with…
+Name[tr]=Bununla aç…
+Comment=Choose the application to open this file
+Comment[tr]=Bu dosyayı açacak uygulamayı seç
+Exec=kavis-tools open-with %F
+Selection=s
+Extensions=any;

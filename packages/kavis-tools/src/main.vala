@@ -41,11 +41,19 @@ int main (string[] args) {
          * (sonraki-isler 5c). */
         return Kavis.Tools.Capture.snip (
             args.length > 2 && args[2] == "--color");
+    case "open-with":
+        /* "Bununla aç" penceresi (sonraki-isler 6c). */
+        if (args.length < 3) {
+            stderr.printf ("kullanim: kavis-tools open-with <dosya>\n");
+            return 2;
+        }
+        window = new Kavis.Tools.OpenWithWindow (args[2]);
+        break;
     case "tasks":
         window = new Kavis.Tools.TaskManagerWindow ();
         break;
     default:
-        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji|capture]\n");
+        stderr.printf ("kullanim: kavis-tools [tasks|calc|emoji|capture|open-with]\n");
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

@@ -447,3 +447,24 @@ msgstr "Num Lock kapalı"
 
 msgid "Pin to taskbar"
 msgstr "Görev çubuğuna sabitle"
+
+msgid "How should %s be opened?"
+msgstr "%s nasıl açılsın?"
+
+msgid "Recommended"
+msgstr "Önerilen"
+
+msgid "Other applications"
+msgstr "Diğer uygulamalar"
+
+msgid "Always open this file type with this app"
+msgstr "Bu tür dosyaları her zaman bu uygulamayla aç"
+
+msgid "Search the Store"
+msgstr "Mağazada uygulama ara"
+
+msgid "Open"
+msgstr "Aç"
+
+msgid "Store app coming soon"
+msgstr "Mağaza uygulaması yakında"

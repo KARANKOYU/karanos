@@ -423,6 +423,27 @@ msgstr "⟪Stop··⟫"
 msgid "Screen recording saved"
 msgstr "⟪Screen recording saved········⟫"
 
+msgid "How should %s be opened?"
+msgstr "⟪How should %s be opened?·········⟫"
+
+msgid "Always open this file type with this app"
+msgstr "⟪Always open this file type with this app················⟫"
+
+msgid "Search the Store"
+msgstr "⟪Search the Store······⟫"
+
+msgid "Open"
+msgstr "⟪Open··⟫"
+
+msgid "Recommended"
+msgstr "⟪Recommended····⟫"
+
+msgid "Other applications"
+msgstr "⟪Other applications·······⟫"
+
+msgid "Store app coming soon"
+msgstr "⟪Store app coming soon········⟫"
+
 msgid "End task"
 msgstr "⟪End task···⟫"
 
