@@ -534,6 +534,12 @@ yok (Unicode ad veritabanı gerek).
 - Karar (sonraki-isler 2, çok pencereli yuva sağ tık): tek pencerede
   "Pencereyi kapat", birden çokta "Tüm pencereleri kapat" (W11
   davranışı; iki ayrı msgid).
+- ATLANDI (sonraki-isler 4, tetik 2): büyüt düğmesinde 600ms hover —
+  openbox başlık çubuğu hover olayını dışarı vermiyor, teknik olarak
+  imkânsız ("mümkünse" şartlıydı); Win+Z tek tetik.
+- Karar (sonraki-isler 4): yerleştirme kavis-snap daemon'una IPC
+  yerine panel içinde Wnck set_geometry ile (aynı kesirler; daemon'a
+  IPC eklemek hiçbir şey kazandırmadan altyapı isterdi).
 - **GTK CSD KARARI BEKLİYOR (sonraki-isler 3):** themerc sonucu —
   ÇIKANLAR: ~32px koyu başlık (etkin #17222C / pasif #121C26),
   degrade kalktı, ikon solda + başlık sola hizalı, ince — ☐ ✕ xbm

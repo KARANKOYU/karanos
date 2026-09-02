@@ -149,6 +149,8 @@ namespace Kavis.Ui {
         private ClipboardHistory clipboard_history;
         private ClipboardPopup clipboard_popup;
         private VolumeOsd volume_osd;
+        /* Snap yerleşim menüsü (sonraki-isler 4, Win+Z). */
+        private SnapMenu snap_menu = new SnapMenu ();
         private GenericArray<TaskSlot> slots =
             new GenericArray<TaskSlot> ();
         private int current_button_width = 0;
@@ -211,6 +213,9 @@ namespace Kavis.Ui {
                     (number, new_window) => {
                         activate_slot_number (number, new_window);
                     });
+                PanelBus.service.snap_menu_requested.connect (() => {
+                    snap_menu.open ();
+                });
                 PanelBus.service.volume_changed.connect ((percent, muted) => {
                     volume_osd.show_level (percent, muted);
                 });

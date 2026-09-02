@@ -22,6 +22,9 @@ namespace Kavis {
         /* Win+sayı (sonraki-isler 2): soldan N. görev çubuğu yuvası. */
         [DBus (visible = false)]
         public signal void slot_requested (int number, bool new_window);
+        /* Win+Z (sonraki-isler 4): snap yerleşim menüsü. */
+        [DBus (visible = false)]
+        public signal void snap_menu_requested ();
 
         public void show_overview () throws Error {
             overview_requested ();
@@ -30,6 +33,10 @@ namespace Kavis {
         public void activate_slot (int number, bool new_window)
             throws Error {
             slot_requested (number, new_window);
+        }
+
+        public void show_snap_menu () throws Error {
+            snap_menu_requested ();
         }
 
         public void show_clipboard () throws Error {

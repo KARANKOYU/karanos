@@ -62,6 +62,12 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowOverview</command>
       </action>
     </keybind>
+    <!-- Snap yerlesim menusu (sonraki-isler 4) -->
+    <keybind key="W-z">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowSnapMenu</command>
+      </action>
+    </keybind>
     <!-- Pano gecmisi (madde 7) -->
     <keybind key="W-v">
       <action name="Execute">
