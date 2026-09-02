@@ -315,14 +315,17 @@ msgstr "⟪Battery saver·····⟫"
 msgid "Accessibility"
 msgstr "⟪Accessibility·····⟫"
 
+msgid "Brightness (backlight)"
+msgstr "⟪Brightness (backlight)········⟫"
+
+msgid "Brightness (software — no backlight hardware)"
+msgstr "⟪Brightness (software — no backlight hardware)··················⟫"
+
 msgid "Volume"
 msgstr "⟪Volume··⟫"
 
 msgid "Output device"
 msgstr "⟪Output device·····⟫"
-
-msgid "Brightness"
-msgstr "⟪Brightness····⟫"
 
 msgid "Back"
 msgstr "⟪Back··⟫"
@@ -476,6 +479,9 @@ msgstr "⟪Scale··⟫"
 
 msgid "Text and interface size"
 msgstr "⟪Text and interface size·········⟫"
+
+msgid "Brightness"
+msgstr "⟪Brightness····⟫"
 
 msgid "Warmer colors in the evening (4500K)"
 msgstr "⟪Warmer colors in the evening (4500K)··············⟫"

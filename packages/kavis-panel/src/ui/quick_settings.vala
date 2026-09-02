@@ -282,7 +282,42 @@ namespace Kavis.Ui {
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 0);
 
-            /* --- kaydırıcılar --- */
+            /* --- kaydırıcılar (3C: W11 sırası — parlaklık ÜSTTE,
+             * ses altta; sürüklerken değer balonu; parlaklık artık
+             * donanımsız da görünür, xrandr yazılım kipiyle) --- */
+            {
+                var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+                row_box.pack_start (new Gtk.Image.from_icon_name (
+                    "display-brightness-symbolic", Gtk.IconSize.BUTTON),
+                    false, false, 0);
+                brightness_slider = new Gtk.Scale.with_range (
+                    Gtk.Orientation.HORIZONTAL, 10, 100, 5);
+                brightness_slider.set_draw_value (false);
+                brightness_slider.set_tooltip_text (
+                    Brightness.hardware ()
+                    ? _("Brightness (backlight)")
+                    : _("Brightness (software — no backlight hardware)"));
+                attach_value_bubble (brightness_slider);
+                brightness_slider.value_changed.connect (() => {
+                    if (updating) {
+                        return;
+                    }
+                    int value = (int) brightness_slider.get_value ();
+                    if (brightness_source != 0) {
+                        Source.remove (brightness_source);
+                    }
+                    brightness_source = Timeout.add (80, () => {
+                        brightness_source = 0;
+                        Quick.brightness_set (value);
+                        /* Fn tuşlarıyla aynı OSD (3C). */
+                        show_brightness_osd ();
+                        return Source.REMOVE;
+                    });
+                });
+                row_box.pack_start (brightness_slider, true, true, 0);
+                page.pack_start (row_box, false, false, 0);
+            }
+
             if (Volume.available ()) {
                 var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
                 volume_icon = new Gtk.Image.from_icon_name (
@@ -304,6 +339,7 @@ namespace Kavis.Ui {
                 volume_slider.set_draw_value (false);
                 volume_slider.set_tooltip_text (
                     _("Volume"));
+                attach_value_bubble (volume_slider);
                 volume_slider.value_changed.connect (() => {
                     if (updating) {
                         return;
@@ -328,34 +364,6 @@ namespace Kavis.Ui {
                     });
                     row_box.pack_end (arrow, false, false, 0);
                 }
-                page.pack_start (row_box, false, false, 0);
-            }
-
-            if (Quick.brightness_available ()) {
-                var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-                row_box.pack_start (new Gtk.Image.from_icon_name (
-                    "display-brightness-symbolic", Gtk.IconSize.BUTTON),
-                    false, false, 0);
-                brightness_slider = new Gtk.Scale.with_range (
-                    Gtk.Orientation.HORIZONTAL, 5, 100, 5);
-                brightness_slider.set_draw_value (false);
-                brightness_slider.set_tooltip_text (
-                    _("Brightness"));
-                brightness_slider.value_changed.connect (() => {
-                    if (updating) {
-                        return;
-                    }
-                    int value = (int) brightness_slider.get_value ();
-                    if (brightness_source != 0) {
-                        Source.remove (brightness_source);
-                    }
-                    brightness_source = Timeout.add (80, () => {
-                        brightness_source = 0;
-                        Quick.brightness_set (value);
-                        return Source.REMOVE;
-                    });
-                });
-                row_box.pack_start (brightness_slider, true, true, 0);
                 page.pack_start (row_box, false, false, 0);
             }
 
@@ -617,6 +625,36 @@ namespace Kavis.Ui {
         }
 
         /* --- durum tazeleme ------------------------------------------- */
+
+        /* 3C: sürüklerken kaydırıcının üstünde değer balonu ("90") —
+         * GTK3'te hazır balon yok, en hafifi draw_value'yu yalnız
+         * basılıyken açmak. */
+        private void attach_value_bubble (Gtk.Scale scale) {
+            scale.set_digits (0);
+            scale.set_value_pos (Gtk.PositionType.TOP);
+            scale.button_press_event.connect (() => {
+                scale.set_draw_value (true);
+                return false;
+            });
+            scale.button_release_event.connect (() => {
+                scale.set_draw_value (false);
+                return false;
+            });
+        }
+
+        /* Fn tuşlarıyla aynı OSD'yi göster (kavis-osd ayrı süreç). */
+        private void show_brightness_osd () {
+            try {
+                Process.spawn_async (null, {
+                    "gdbus", "call", "--session",
+                    "--dest", "org.kavis.Osd",
+                    "--object-path", "/org/kavis/Osd",
+                    "--method", "org.kavis.Osd.BrightnessShow"
+                }, null, SpawnFlags.SEARCH_PATH
+                   | SpawnFlags.STDOUT_TO_DEV_NULL
+                   | SpawnFlags.STDERR_TO_DEV_NULL, null, null);
+            } catch (Error e) { }
+        }
 
         private void refresh_sound_row () {
             if (volume_slider == null) {

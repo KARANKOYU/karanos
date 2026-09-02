@@ -328,43 +328,13 @@ namespace Kavis.Quick {
         return int.parse (contents.strip ());
     }
 
-    /* 0-100; -1 when unreadable. */
+    /* 3C: ortak backend'e delege — donanım yoksa xrandr yazılım
+     * parlaklığı, değer kavis.conf'ta; kaydırıcı artık HEP görünür. */
     public int brightness_percent () {
-        string? dir = backlight_dir ();
-        if (dir == null) {
-            return -1;
-        }
-        int current = read_int_file (Path.build_filename (dir, "brightness"));
-        int max = read_int_file (Path.build_filename (dir, "max_brightness"));
-        if (current < 0 || max <= 0) {
-            return -1;
-        }
-        return current * 100 / max;
+        return Brightness.percent ();
     }
 
     public void brightness_set (int percent) {
-        /* brightnessctl, yetki işini udev kurallarıyla çözer (sysfs'e
-         * doğrudan yazmak root ister). Yoksa deneme yine yapılır ama
-         * sessizce başarısız olabilir — kaydırıcı zaten yalnız
-         * backlight varken görünür. */
-        if (has_program ("brightnessctl")) {
-            run_async ({ "brightnessctl", "set", "%d%%".printf (percent) });
-            return;
-        }
-        string? dir = backlight_dir ();
-        if (dir == null) {
-            return;
-        }
-        int max = read_int_file (Path.build_filename (dir, "max_brightness"));
-        if (max <= 0) {
-            return;
-        }
-        try {
-            FileUtils.set_contents (
-                Path.build_filename (dir, "brightness"),
-                "%d".printf (int.max (1, percent * max / 100)));
-        } catch (Error e) {
-            /* yetki yoksa sessiz: kaydırıcı görünür ama etkisiz kalır */
-        }
+        Brightness.set_percent (percent);
     }
 }

@@ -69,6 +69,7 @@ packages/kavis-panel/kavis-snap
 packages/*/src/logic/appinit.vala
 packages/*/src/logic/config.vala
 packages/*/src/logic/powerplan.vala
+packages/*/src/logic/brightness.vala
 packages/*/src/appinit.vala
 packages/kavis-panel/po/
 packages/kavis-panel/src/logic/picker_data.vala

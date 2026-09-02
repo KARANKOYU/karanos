@@ -71,6 +71,22 @@ namespace Kavis.Settings.Pages {
         body.pack_start (row (_("Scale"),
             _("Text and interface size"), scale), false, false, 0);
 
+        /* Parlaklık (3C): hızlı ayarlar kaydırıcısıyla AYNI veri —
+         * ortak Brightness backend'i kavis.conf [display] brightness
+         * yazar; donanım yoksa xrandr yazılım kipi. */
+        var bright = new Gtk.Scale.with_range (
+            Gtk.Orientation.HORIZONTAL, 10, 100, 5);
+        bright.set_size_request (200, -1);
+        bright.set_value (Brightness.percent ());
+        bright.value_changed.connect (() => {
+            Brightness.set_percent ((int) bright.get_value ());
+        });
+        body.pack_start (row (_("Brightness"),
+            Brightness.hardware ()
+            ? _("Brightness (backlight)")
+            : _("Brightness (software — no backlight hardware)"),
+            bright), false, false, 0);
+
         /* Gece ışığı (xsct). */
         var night = new Gtk.Switch ();
         night.active = conf_get_bool ("display", "nightlight", false);

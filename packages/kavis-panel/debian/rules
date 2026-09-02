@@ -32,7 +32,7 @@ override_dh_auto_build:
 		src/snap.vala src/logic/appinit.vala
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
-		src/logic/config.vala \
+		src/logic/config.vala src/logic/brightness.vala \
 		src/logic/volume.vala src/logic/quick.vala
 
 override_dh_auto_install:

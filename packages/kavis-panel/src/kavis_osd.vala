@@ -51,6 +51,12 @@ namespace Kavis.Osd {
             adjust_brightness (-5);
         }
 
+        /* 3C: hızlı ayarlar kaydırıcısı değeri kendisi yazar, OSD
+         * yalnız gösterir. */
+        public void brightness_show () throws Error {
+            brightness_shown ();
+        }
+
         public void media (string op) throws Error {
             media_shown (op);
         }
@@ -62,11 +68,10 @@ namespace Kavis.Osd {
         }
 
         private void adjust_brightness (int delta) {
+            /* 3C: donanım yoksa xrandr yazılım kipi devrede — OSD
+             * artık her makinede çalışır. */
             int current = Quick.brightness_percent ();
-            if (current < 0) {
-                return;   /* backlight yok → OSD de yok */
-            }
-            Quick.brightness_set ((current + delta).clamp (5, 100));
+            Quick.brightness_set ((current + delta).clamp (10, 100));
             settle (() => { brightness_shown (); return Source.REMOVE; });
         }
 
