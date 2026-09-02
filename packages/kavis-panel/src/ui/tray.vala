@@ -44,8 +44,18 @@ namespace Kavis.Ui {
             });
         }
 
+        private int known_count = -1;
+
         private void refresh () {
-            if (Usb.present ()) {
+            /* Tak/çıkar sesi (6b): udev olayını ayrıca dinlemek yerine
+             * zaten dönen 5 sn'lik yoklamanın gördüğü değişim yeter. */
+            int count = Usb.devices ().length;
+            if (known_count >= 0 && count != known_count) {
+                Sounds.play (count > known_count
+                    ? "device-added" : "device-removed");
+            }
+            known_count = count;
+            if (count > 0) {
                 /* show_all, no_show_all işaretli widget'ın KENDİSİNDE
                  * de işlemez — bayrağı önce kaldır. */
                 set_no_show_all (false);

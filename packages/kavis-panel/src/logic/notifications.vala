@@ -117,6 +117,12 @@ namespace Kavis {
                     timeout = 0;   /* elle kapatılana kadar kalır */
                 }
                 toast_requested (entry, timeout);
+                /* Bildirim sesi (6b): Rahatsız etmede HİÇ çalmaz
+                 * (kritik toast görünse bile — kural açık). */
+                if (!dnd) {
+                    Sounds.play (entry.critical
+                        ? "dialog-warning" : "message-new-instant");
+                }
             }
             return entry.id;
         }

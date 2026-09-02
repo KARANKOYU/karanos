@@ -47,10 +47,10 @@ override_dh_auto_build:
 override_dh_auto_install:
 	# --- GTK3 / GTK2 / Openbox teması --------------------------------
 	install -d $(THEME)/gtk-3.0 $(THEME)/gtk-2.0 $(THEME)/openbox-3
-	# Kavis tek temalı: koyu. Aynı dosya hem gtk.css hem gtk-dark.css
-	# olarak kuruluyor — böylece gtk-application-prefer-dark-theme
-	# kapatılsa ya da bir uygulama açık temayı zorlasa bile görünüm
-	# değişmiyor. src/gtk-3.0/gtk-light.css kasten KURULMUYOR.
+	# Şimdilik yalnız koyu tema kurulu (plan iki tema — 2 Eyl kararı;
+	# açık tema Ayarlar'la, Grup F). Aynı dosya hem gtk.css hem
+	# gtk-dark.css olarak kuruluyor; gtk-light.css o güne dek
+	# KURULMUYOR (kaynak olarak depoda).
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk.css
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
 	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
@@ -63,6 +63,15 @@ override_dh_auto_install:
 	# --- Sistem geneli varsayılanlar ---------------------------------
 	install -d $(DEST)/etc/gtk-3.0 $(DEST)/etc/gtk-2.0
 	install -m644 src/settings.ini $(DEST)/etc/gtk-3.0/settings.ini
+
+	# Sistem sesleri (sonraki-isler 6b): depoya blob girmez — betik
+	# derlemede sentezler (saf stdlib sinüs, lisanssız). freedesktop
+	# ses teması adları: GTK uygulamaları da kendiliğinden kullanır.
+	install -d $(DEST)/usr/share/sounds/kavis/stereo
+	python3 ../../tools/gen-sistem-sesleri.py \
+		$(DEST)/usr/share/sounds/kavis/stereo
+	printf '[Sound Theme]\nName=Kavis\nDirectories=stereo\n\n[stereo]\nOutputProfile=stereo\n' \
+		> $(DEST)/usr/share/sounds/kavis/index.theme
 	printf 'gtk-theme-name="Kavis"\ngtk-icon-theme-name="Kavis"\ngtk-font-name="DejaVu Sans 10"\n' \
 		> $(DEST)/etc/gtk-2.0/gtkrc
 
