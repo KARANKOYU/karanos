@@ -420,6 +420,16 @@ almak (indirme yöneticisi madde 23 gelince).
 >   temizlendi (commit 9fb045a). Etiket v0.3-test9 bu commit'e
 >   taşındı (önce 4adeaf0'daydı; push edilmemişti — edildiyse
 >   kullanıcının etiketi zorla itmesi gerekir). Push KULLANICIDA.
+> - GRUP F 2. ADIM BİTTİ (3 Eyl, VM hata listesi): eb17dc3
+>   screenEdgeWarpTime=0 (2A — snap'in önü açıldı; gerçek fare VM'de),
+>   1d93f65 Alt+F4 tek örnek kilidi flock'la + Ctrl+Alt+Del'e de (2B),
+>   471a029 güç diyaloğuna kendi WM_CLASS + kavis-power.desktop (2C),
+>   36f9dad diyalog tasarım dilinde — 4 ikonlu düğme, kenarlıksız
+>   12px, Ctrl+Alt+Del güç düğmesi AYNI bileşeni ayrı süreçte açıyor
+>   (2D), ad258f3 Tilix VTE uyarısı: bash.bashrc'e vte kancası +
+>   warn-vte-config-issue=false (2E), e2a33f0 tek global klavye
+>   düzeni — enforce() sapınca geri çeker, set_layout kavis.conf'a
+>   yazar (2F). 1B kararı: themerc'te kalındı (Seçenek A).
 > - GRUP F 1. ADIM / 1A BİTTİ (3 Eyl): kavis-settings paketi 4
 >   commit'te — 6256fed iskelet (W11 yerleşim, tembel sayfalar),
 >   fae84fb kavis.conf tek dosya (panel.conf [panel]→[taskbar] içe
