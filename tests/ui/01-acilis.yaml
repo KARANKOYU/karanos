@@ -15,11 +15,11 @@ steps:
     expect: shell grep -q "timeout_style=hidden" /run/live/medium/boot/grub/config.cfg
     note: B1 — GRUB menüsü gizli
   - do: none
-    expect: shell test "$(plymouth-set-default-theme 2>/dev/null)" = kavis
-    note: splash teması
+    expect: shell grep -q "^Theme=kavis" /etc/plymouth/plymouthd.conf
+    note: splash teması (plymouth-set-default-theme kullanıcı olarak çalışmıyor)
   - do: none
-    expect: shell journalctl -b -q --no-pager 2>/dev/null | grep -qE "DESKTOP-READY|PANEL-OK"
-    note: masaüstü hazır satırı journal'da (test2 ISO'sunda PANEL-OK, sonrasında DESKTOP-READY)
+    expect: shell grep -q DESKTOP-READY /run/kavis/boot-check.log
+    note: boot-check DESKTOP-READY yazdı (journal kullanıcıya kapalı; boot-check /run/kavis/boot-check.log'a da yazar — test2 ISO'sunda bu dosya yok, düşer)
   - do: none
     expect: process kavis-panel running
   - do: none

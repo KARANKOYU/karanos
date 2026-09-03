@@ -7,7 +7,14 @@
 
 set -u
 
-log() { echo "KAVIS-CHECK: $*"; }
+# Satırlar seri konsola (CI) ve /run/kavis/boot-check.log'a (selftest ve
+# kullanıcı okuyabilsin — journal canlı kullanıcıya kapalı) yazılır.
+mkdir -p /run/kavis 2>/dev/null && chmod 755 /run/kavis 2>/dev/null
+log() {
+	echo "KAVIS-CHECK: $*"
+	echo "KAVIS-CHECK: $*" >> /run/kavis/boot-check.log 2>/dev/null
+	chmod 644 /run/kavis/boot-check.log 2>/dev/null
+}
 
 # Ölümcül sayılan hatalar burada birikir. En sonda RESULT=FAIL veriyoruz.
 # NEDEN: 1. ve 2. aşamada grafik oturum hiç açılmadığı hâlde bu script
