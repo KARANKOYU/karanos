@@ -1054,10 +1054,12 @@ namespace Kavis.Ui {
 
         /* C4: 150 ms'lik parlama sınıfı — tık ve Win+sayı için aynı. */
         private void flash (Gtk.Widget widget) {
-            unowned Gtk.StyleContext ctx = widget.get_style_context ();
-            ctx.add_class ("flash");
+            widget.get_style_context ().add_class ("flash");
+            /* widget closure'da güçlü tutulur: 150 ms içinde yeniden
+             * kurulan bir slot düğmesi yok olsa da serbest bırakılmış
+             * bir StyleContext'e dokunulmaz. */
             Timeout.add (150, () => {
-                ctx.remove_class ("flash");
+                widget.get_style_context ().remove_class ("flash");
                 return Source.REMOVE;
             });
         }

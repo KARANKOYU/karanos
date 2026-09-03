@@ -467,11 +467,17 @@ namespace Kavis.Ui {
             close_button.set_relief (Gtk.ReliefStyle.NONE);
             bool single = screen.get_workspace_count () <= 1;
             close_button.set_sensitive (!single);
-            close_button.set_tooltip_text (single
-                ? _("Only one desktop")
-                : (last_workspace_has_windows ()
-                   ? _("Close the last desktop — its windows move to the previous one")
-                   : _("Close the last desktop")));
+            /* Metin her gösterimde hesaplanır: pencere taşınınca
+             * yeniden kurulum olmadan da doğru kalsın. */
+            close_button.set_has_tooltip (true);
+            close_button.query_tooltip.connect ((x, y, kb, tip) => {
+                tip.set_text (screen.get_workspace_count () <= 1
+                    ? _("Only one desktop")
+                    : (last_workspace_has_windows ()
+                       ? _("Close the last desktop — its windows move to the previous one")
+                       : _("Close the last desktop")));
+                return true;
+            });
             close_button.clicked.connect (() => close_last_workspace ());
             pack_start (close_button, false, false, 0);
 
