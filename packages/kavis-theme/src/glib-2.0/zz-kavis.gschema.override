@@ -18,6 +18,13 @@ bulk-rename-tool=b'gprename'
 # değiştirmesin diye açıkça sabitleniyor.
 date-format='locale'
 
+# E (v0.4-test1): kenar çubuğundaki "Network" bölümü. nemo'da bölümü
+# gizleyen ayar YOK (nemo-places-sidebar.c add_heading koşulsuz) —
+# yalnız daraltılmış tutulabiliyor; tamamen kaldırmak kaynak yaması
+# ister (ONAY BEKLEYEN).
+[org.nemo.window-state]
+network-expanded=false
+
 [org.nemo.list-view]
 # Sütunlar ve sırası: Name / Modified / Type / Size (test8 F).
 default-visible-columns=['name','date_modified','type','size']
