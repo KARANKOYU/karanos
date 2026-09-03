@@ -118,7 +118,7 @@ shellcheck -S warning tools/*.sh iso/auto/* iso/config/hooks/normal/*.hook.*
 
 | Ölçü | Hedef | Mutlak sınır |
 |---|---|---|
-| ISO boyutu | 1.5 GB altı | GitHub release sınırı gereği aşılmamalı |
+| ISO boyutu | 1700 MB altı | 1900 MB (kararlar.md 8; GitHub Release 2 GiB sınırına pay) |
 | Boşta RAM | 1 GB | 1.5 GB |
 
 Canlı (live) oturumda ölçülen RAM kurulu sistemden yüksek çıkar — squashfs

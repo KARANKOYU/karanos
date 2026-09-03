@@ -229,13 +229,16 @@ jobs:
           rm -rf grubcheck
           exit $hata
 
-      - name: Boyut kontrolü (hedef 1.5 GB)
+      - name: Boyut kontrolü (sınır 1900 MB, kararlar.md 8)
         working-directory: out
         run: |
           set -eu
           BYTES=$(stat -c%s "${{ steps.meta.outputs.iso_name }}")
           MB=$((BYTES / 1024 / 1024))
-          LIMIT=1536
+          # Grup G kararı 8 (3 Eyl): 1536 → 1900 (GitHub Release 2 GiB
+          # sınırına pay); 1700 üstü erken uyarı.
+          LIMIT=1900
+          WARN=1700
           echo "ISO boyutu: ${MB} MB (sınır ${LIMIT} MB)"
           {
             echo "### ISO"
@@ -252,6 +255,8 @@ jobs:
           if [ "$MB" -gt "$LIMIT" ]; then
             echo "::error::ISO ${MB} MB — ${LIMIT} MB sınırının ÜSTÜNDE"
             exit 1
+          elif [ "$MB" -gt "$WARN" ]; then
+            echo "::warning::ISO ${MB} MB — ${WARN} MB uyarı eşiğini aştı (sınır ${LIMIT})"
           fi
 
       - name: Paket listesini kaydet (boyut ayıklaması için)

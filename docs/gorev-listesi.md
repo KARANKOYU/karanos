@@ -131,7 +131,18 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
 15. **Kurulum sihirbazı (ilk açılış):** dil, klavye, saat dilimi, ağ,
     tema. DÜRÜST UYUMLULUK EKRANI: "Şunlar çalışmıyor: Valorant,
     Fortnite, Rocket League, Adobe, MS Office masaüstü." Kurulumdan ÖNCE.
-16. **Calamares + canlı mod.** Disk düzeninde 27C'nin A/B yapısı ŞİMDİDEN
+16. **Kurucu + canlı mod.** DEĞİŞTİ (2026-09-03, docs/kararlar.md 2):
+    Calamares ALINMIYOR — kendi GTK3/Vala kurucumuz. "Tüm diski kullan"
+    / "Windows'un yanına kur" parted/sfdisk + mkfs ile kendi kodumuz;
+    "Elle bölümle" GParted'ı açar, dönüşte kök + EFI seçilir. btrfs
+    @ + @home varsayılan (ext4 yalnız elle bölümlemede, snapshot
+    özellikleri kapalı), EFI 512 MB FAT32, swap dosyası (RAM kadar,
+    ≤8 GB), BIOS'ta GPT + bios_grub. KURULUM TESTİ CI'DA: QEMU'da boş
+    sanal diske otomatik (kiosk/preseed) kurulum → kurulan sistemden
+    yeniden önyükleme → boot-check; ayrıca önceden NTFS bölümlü sanal
+    disk imajıyla "Windows'un yanına kur" senaryosu. İkisi yeşil
+    olmadan kurucu bitmiş sayılmaz.
+    Disk düzeninde 27C'nin A/B yapısı ŞİMDİDEN
     hesaba katılır; hibernate swap alanı da (51). EK (2026-09-02):
     "Yeniden kur — dosyalarımı koru" kipi artık madde 69 — alt birim
     yapısı (@ / @users / @flatpak / @old-*) disk düzeni kararının
@@ -282,7 +293,9 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     c, cpp, sh, md, ini, conf), satır no, girinti, parantez eşleme, JSON
     biçimlendir + hata, katlama, ara-değiştir. Kate'i kur ve ayarla.
 41. **Flatpak:** mağaza apt + Flatpak; kaynak görünür, ikisi varsa seçim.
-    Flathub ekli. Güncellemeler 26'nın ekranında.
+    Flathub ekli. Güncellemeler 26'nın ekranında. AYRINTI (2026-09-03):
+    çift kaynak kuralları, JSON katalog, sürücü kategorisi ve
+    istemcinin ISO'ya girmesi docs/kararlar.md 1'de.
 42. **Disk ve USB:** otomatik bağlama + bildirim, NTFS okuma/yazma
     (ntfs-3g), güvenli çıkar. Biçimlendirme: NTFS/FAT32/exFAT/ext4/btrfs,
     tek cümle açıklamalı. ISO yazma aracı (Rufus karşılığı). SMART +
@@ -298,7 +311,8 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
 46. **TEST ALTYAPISI.** A) CI: QEMU bios/uefi/secureboot (koru), donanım
     profilleri (2/4 GB RAM, tek/çok çekirdek, farklı sanal GPU'lar),
     masaüstü + panel gerçekten açıldı mı (ekran görüntüsü boş değil),
-    BOŞTA RAM ölçümü (1 GB üstü UYARI), ISO > 1536 MB HATA, paketler
+    BOŞTA RAM ölçümü (1 GB üstü UYARI), ISO > 1900 MB HATA + > 1700 MB
+    UYARI (2026-09-03, kararlar.md 8: eski sınır 1536'ydı), paketler
     kuruldu mu, servisler başladı mı, job summary'ye tablo. B) HATA
     BİLDİRME ARACI: Ayarlar + sorun gidericide "Sorun bildir"; sistem
     bilgisi + log toplanır, NE GÖNDERİLECEĞİ GÖSTERİLİR, onayla GitHub
