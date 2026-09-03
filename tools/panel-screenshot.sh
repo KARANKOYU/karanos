@@ -177,6 +177,24 @@ if [[ "${GUC:-0}" == "1" ]]; then
 	sleep 3
 fi
 
+# DONGU=N: başlat menüsünü N kez aç/kapa, hızlı ayarları N kez aç/kapa;
+# panelin USS'si (smaps_rollup Private_*) önce/sonra yazılır — sızıntı
+# taraması (debug turu). Sonuç yalnız bilgi; eşik yok.
+if [[ "${DONGU:-0}" -gt 0 ]]; then
+	uss() { awk '/^Private_(Clean|Dirty)/{s+=$2} END{printf "%d", s/1024}' "/proc/$PANEL_PID/smaps_rollup"; }
+	genislik=$(xdotool getdisplaygeometry | cut -d' ' -f1)
+	yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)
+	xdotool mousemove 40 $((yukseklik - 22)) click 1; sleep 1; xdotool key Escape; sleep 0.5
+	echo "USS baslangic: $(uss) MB"
+	for ((d = 0; d < DONGU; d++)); do
+		xdotool mousemove 40 $((yukseklik - 22)) click 1; sleep 0.25; xdotool key Escape; sleep 0.25
+		xdotool mousemove $((genislik - ${HIZLI_X:-110})) $((yukseklik - 22)) click 1; sleep 0.25; xdotool key Escape; sleep 0.25
+		xdotool mousemove $((genislik - 45)) $((yukseklik - 22)) click 1; sleep 0.25; xdotool key Escape; sleep 0.25
+	done
+	sleep 2
+	echo "USS $DONGU dongu sonra: $(uss) MB"
+fi
+
 mkdir -p "$(dirname "$OUT")"
 /usr/bin/python3 - "$OUT" <<'PY'
 import sys
