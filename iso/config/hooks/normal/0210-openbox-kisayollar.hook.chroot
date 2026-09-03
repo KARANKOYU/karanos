@@ -58,7 +58,7 @@ awk '
 		skip = 1; end_tag = "</keybind>"; next
 	}
 	(ctx == "Desktop" || ctx == "Root" || ctx == "MoveResize") \
-		&& /<mousebind button="(Up|Down)" action="Click">/ {
+		&& /<mousebind button="([CA]-)*(Up|Down)" action="Click">/ {
 		skip = 1; end_tag = "</mousebind>"; next
 	}
 	ctx == "Root" && /<mousebind button="(Middle|Right)" action="Press">/ {
