@@ -25,9 +25,17 @@ DISPLAY_NO=${DISPLAY_NO:-77}
 WINDOW_CMD=${KAVIS_WINDOW_CMD:-xterm}
 HOOK=iso/config/hooks/normal/0210-openbox-kisayollar.hook.chroot
 
-for tool in Xvfb openbox xdotool xprop; do
-	command -v "$tool" >/dev/null || { echo "HATA: $tool yok" >&2; exit 2; }
+# Gereken araçların HEPSİ tek seferde denetlenir; eksikler tek satırda
+# (CI'da teker teker düşmesin — v0.4-test2 kırmızısı: xprop yoktu).
+# Debian paketleri: xvfb, openbox, xdotool, x11-utils (xprop), xterm.
+eksik=""
+for tool in Xvfb openbox xdotool xprop "${WINDOW_CMD%% *}" sed awk; do
+	command -v "$tool" >/dev/null 2>&1 || eksik="$eksik $tool"
 done
+if [ -n "$eksik" ]; then
+	echo "HATA: eksik araçlar:$eksik (apt: xvfb openbox xdotool x11-utils xterm)" >&2
+	exit 2
+fi
 [ -f "$STOCK" ] || { echo "HATA: $STOCK yok" >&2; exit 2; }
 
 T=$(mktemp -d)

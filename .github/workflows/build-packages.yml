@@ -157,9 +157,11 @@ jobs:
           # apt'a verilir: bağımlılıkları arşivden kendisi çözer,
           # çözemezse adım KIRMIZI olur, sökme riski yok.
           export DEBIAN_FRONTEND=noninteractive
+          # x11-utils = xprop (KEYBIND adımı da bunlara güvenir; hepsi
+          # burada, ISO paket listesine GİRMEZ — yalnız CI aracı).
           apt-get install -y -qq --no-install-recommends \
-            xvfb openbox dbus dbus-x11 x11-xserver-utils xdotool \
-            > /dev/null
+            xvfb openbox dbus dbus-x11 x11-xserver-utils x11-utils \
+            xdotool xterm > /dev/null
           apt-get install -y -qq --no-install-recommends \
             ./out/packages/kavis-theme_*.deb \
             ./out/packages/kavis-panel_*.deb > /dev/null
@@ -219,8 +221,8 @@ jobs:
       - name: KEYBIND — kısayol denetimi
         run: |
           set -eu
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get install -y -qq --no-install-recommends xterm > /dev/null
+          # Araçlar bir önceki adımda kuruldu (xvfb, openbox, xdotool,
+          # x11-utils, xterm); betik eksik olanı tek satırda söyler.
           DISPLAY_NO=77 tools/check-keybinds.sh /etc/xdg/openbox/rc.xml
 
       - name: xx ekran görüntüsünü yükle
