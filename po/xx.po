@@ -147,8 +147,11 @@ msgstr "⟪Power saver····⟫"
 msgid "Balanced"
 msgstr "⟪Balanced···⟫"
 
-msgid "Desktop has windows — move or close them first"
-msgstr "⟪Desktop has windows — move or close them first··················⟫"
+msgid "Close desktop"
+msgstr "⟪Close desktop·····⟫"
+
+msgid "Windows are open"
+msgstr "⟪Windows are open······⟫"
 
 msgid "New desktop"
 msgstr "⟪New desktop····⟫"

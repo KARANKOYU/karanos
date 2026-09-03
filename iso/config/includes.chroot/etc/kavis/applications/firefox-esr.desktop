@@ -1,0 +1,27 @@
+[Desktop Entry]
+# Kavis F2 (v0.4-test1): "Firefox ESR Web Browser" → "Firefox".
+# Debian firefox-esr.desktop'unun override'ı (3A düzeni); alanlar
+# upstream'le aynı, yalnız Name kısaldı.
+Version=1.0
+Name=Firefox
+Comment=Browse the World Wide Web
+GenericName=Web Browser
+Keywords=Internet;WWW;Browser;Web;Explorer
+Exec=/usr/lib/firefox-esr/firefox-esr %u
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Icon=firefox-esr
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/vnd.mozilla.xul+xml;x-scheme-handler/http;x-scheme-handler/https;
+StartupWMClass=firefox-esr
+StartupNotify=true
+Actions=new-window;new-private-window;
+
+[Desktop Action new-window]
+Name=Open a New Window
+Exec=/usr/lib/firefox-esr/firefox-esr -new-window
+
+[Desktop Action new-private-window]
+Name=Open a New Private Window
+Exec=/usr/lib/firefox-esr/firefox-esr -private-window

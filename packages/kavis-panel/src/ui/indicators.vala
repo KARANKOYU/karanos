@@ -437,52 +437,44 @@ namespace Kavis.Ui {
             foreach (unowned Wnck.Workspace workspace in
                      screen.get_workspaces ()) {
                 int number = workspace.get_number ();
-                var cell = new Gtk.EventBox ();
-                var pair = new Gtk.Box (orientation, 0);
-                var button = new Gtk.Button.with_label (
-                    "%d".printf (number + 1));
+                string caption = "%d".printf (number + 1);
+                var button = new Gtk.Button.with_label (caption);
                 button.set_relief (Gtk.ReliefStyle.NONE);
                 button.set_tooltip_text (workspace.get_name () ?? "");
                 unowned Wnck.Workspace target = workspace;
-                button.clicked.connect (() => {
-                    target.activate (Gtk.get_current_event_time ());
-                });
-                pair.pack_start (button, false, false, 0);
-
-                /* Kapat düğmesi: yalnız hover'da ve yalnız boşken. */
-                var close_button = new Gtk.Button.with_label ("✕");
-                close_button.set_relief (Gtk.ReliefStyle.NONE);
-                close_button.set_no_show_all (true);
-                close_button.clicked.connect (() => {
-                    close_workspace (number);
-                });
-                pair.pack_start (close_button, false, false, 0);
-                cell.add (pair);
-                cell.enter_notify_event.connect (() => {
+                /* D (v0.4-test1): boş masaüstünün üstüne gelince SAYI
+                 * ✕'e dönüşür (tarayıcı sekmesi gibi) — ayrı düğme yok,
+                 * satır kaymaz. Doluysa ✕ çıkmaz, tooltip nedenini
+                 * söyler. Tıklama: ✕ görünüyorsa kapat, değilse git. */
+                button.enter_notify_event.connect (() => {
                     if (screen.get_workspace_count () > 1) {
                         if (workspace_empty (number)) {
-                            close_button.set_no_show_all (false);
-                            close_button.show ();
+                            button.set_label ("✕");
+                            button.set_tooltip_text (_("Close desktop"));
                         } else {
-                            /* Doluysa kapatılmaz; sebep tooltip'te. */
-                            cell.set_tooltip_text (
-                                _("Desktop has windows — move or close them first"));
+                            button.set_tooltip_text (_("Windows are open"));
                         }
                     }
                     return false;
                 });
-                cell.leave_notify_event.connect ((event) => {
-                    if (event.detail != Gdk.NotifyType.INFERIOR) {
-                        close_button.hide ();
-                    }
+                button.leave_notify_event.connect (() => {
+                    button.set_label (caption);
+                    button.set_tooltip_text (target.get_name () ?? "");
                     return false;
+                });
+                button.clicked.connect (() => {
+                    if (button.get_label () == "✕") {
+                        close_workspace (number);
+                    } else {
+                        target.activate (Gtk.get_current_event_time ());
+                    }
                 });
                 buttons += button;
                 numbers += number;
-                pack_start (cell, false, false, 0);
+                pack_start (button, false, false, 0);
             }
 
-            /* "+" — yeni masaüstü (3E). */
+            /* "+" — yeni masaüstü (3E), her zaman en sonda. */
             var add_button = new Gtk.Button.with_label ("+");
             add_button.set_relief (Gtk.ReliefStyle.NONE);
             add_button.set_tooltip_text (_("New desktop"));

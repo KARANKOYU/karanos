@@ -818,9 +818,6 @@ msgstr "Parlaklık (yazılım — arka ışık donanımı yok)"
 msgid "New desktop"
 msgstr "Yeni masaüstü"
 
-msgid "Desktop has windows — move or close them first"
-msgstr "Masaüstünde pencere var — önce taşıyın ya da kapatın"
-
 
 msgid "Dark is the default"
 msgstr "Koyu varsayılandır"
@@ -858,3 +855,10 @@ msgstr "Dosyalar"
 
 msgid "Run"
 msgstr "Çalıştır"
+
+
+msgid "Close desktop"
+msgstr "Masaüstünü kapat"
+
+msgid "Windows are open"
+msgstr "Pencereler açık"
