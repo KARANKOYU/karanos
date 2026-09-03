@@ -126,8 +126,11 @@ namespace Kavis.Ui {
                 row.set_margin_end (6);
             }
             if (has_wifi) {
+                /* 4E: ikon gerçek durumu gösterir (refresh_fast) —
+                 * görünürlüğü de oradan yönetilir, show_all karışmasın. */
                 wifi_icon = new Gtk.Image.from_icon_name (
                     "network-wireless-symbolic", Gtk.IconSize.BUTTON);
+                wifi_icon.set_no_show_all (true);
                 row.pack_start (wifi_icon, false, false, 0);
             }
             if (has_volume) {
@@ -165,14 +168,36 @@ namespace Kavis.Ui {
             });
         }
 
-        /* Ses ikonu (10 sn). Araç ipucu grubu anlatır (test8 B5) —
-         * SSID değil: küme tek düğme, adı da bütünü söylemeli. */
+        /* Ses + ağ ikonu (10 sn). Araç ipucu grubu anlatır (test8 B5)
+         * — SSID değil: küme tek düğme, adı da bütünü söylemeli. */
         private void refresh_fast () {
             if (volume_icon != null) {
                 var state = Volume.read ();
                 volume_icon.set_from_icon_name (
                     Volume.icon_name (state.percent, state.muted),
                     Gtk.IconSize.BUTTON);
+            }
+            if (wifi_icon != null) {
+                /* 4E: donanım yoksa ikon YOK; kablolu varsa kablolu
+                 * ikonu; bağlı değilse üstü çizili (offline) sürüm. */
+                var net = Quick.net_status ();
+                if (net.kind == Quick.NetKind.NONE) {
+                    wifi_icon.hide ();
+                } else {
+                    unowned string name;
+                    if (net.kind == Quick.NetKind.WIRED) {
+                        name = net.connected
+                            ? "network-wired-symbolic"
+                            : "network-wired-disconnected-symbolic";
+                    } else {
+                        name = net.connected
+                            ? "network-wireless-symbolic"
+                            : "network-wireless-offline-symbolic";
+                    }
+                    wifi_icon.set_from_icon_name (
+                        name, Gtk.IconSize.BUTTON);
+                    wifi_icon.show ();
+                }
             }
         }
 

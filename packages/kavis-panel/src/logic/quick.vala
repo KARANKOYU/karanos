@@ -47,6 +47,54 @@ namespace Kavis.Quick {
         return has_program ("nmcli");
     }
 
+    /* 4E: gösterge için GERÇEK ağ durumu. nmcli'nin varlığı donanım
+     * demek değil (VM'de Wi-Fi yokken bağlı görünüyordu) — aygıt
+     * listesi okunur. Öncelik W11 gibi: kablolu BAĞLIYSA kablolu
+     * ikonu; değilse Wi-Fi donanımı varsa onun durumu; o da yoksa
+     * kablolu donanımın durumu; hiç aygıt yoksa gösterge gizli. */
+    public enum NetKind { NONE, WIFI, WIRED }
+    public struct NetStatus {
+        public NetKind kind;
+        public bool connected;
+    }
+
+    public NetStatus net_status () {
+        NetStatus status = { NetKind.NONE, false };
+        string? output = run_capture (
+            { "nmcli", "-t", "-f", "TYPE,STATE", "dev" });
+        if (output == null) {
+            return status;
+        }
+        bool wifi_hw = false, wired_hw = false;
+        bool wifi_up = false, wired_up = false;
+        foreach (unowned string line in output.split ("\n")) {
+            var parts = line.split (":");
+            if (parts.length < 2) {
+                continue;
+            }
+            /* STATE "connected" ya da "connected (externally)". */
+            bool up = parts[1].has_prefix ("connected");
+            if (parts[0] == "wifi") {
+                wifi_hw = true;
+                wifi_up = wifi_up || up;
+            } else if (parts[0] == "ethernet") {
+                wired_hw = true;
+                wired_up = wired_up || up;
+            }
+        }
+        if (wired_up) {
+            status.kind = NetKind.WIRED;
+            status.connected = true;
+        } else if (wifi_hw) {
+            status.kind = NetKind.WIFI;
+            status.connected = wifi_up;
+        } else if (wired_hw) {
+            status.kind = NetKind.WIRED;
+            status.connected = false;
+        }
+        return status;
+    }
+
     public bool wifi_enabled () {
         string? output = run_capture ({ "nmcli", "radio", "wifi" });
         return output != null && output.strip () == "enabled";
