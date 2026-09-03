@@ -25,8 +25,9 @@ namespace Kavis.Settings.Pages {
     public Gtk.Widget row (string title, string? subtitle,
                            Gtk.Widget? control) {
         var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 16);
-        box.margin_top = 4;
-        box.margin_bottom = 4;
+        /* B4: her ayar satırı W11 gibi bir KART — zemin, 1px kenarlık,
+         * 8px köşe; kartlar arası boşluk gövde spacing'i (8). */
+        box.get_style_context ().add_class ("kavis-card");
         var text = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
         var label = new Gtk.Label (title);
         label.set_xalign (0);
@@ -51,6 +52,7 @@ namespace Kavis.Settings.Pages {
         var label = new Gtk.Label (title);
         label.set_xalign (0);
         label.margin_top = 12;
+        label.margin_start = 4;
         label.get_style_context ().add_class ("dim-label");
         return label;
     }

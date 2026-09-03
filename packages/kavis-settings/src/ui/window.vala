@@ -45,6 +45,20 @@ namespace Kavis.Settings {
             font-size: 20px;
             font-weight: bold;
         }
+        .kavis-card {
+            background-color: @kavis_card;
+            border: 1px solid @kavis_card_border;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .kavis-key {
+            background-color: @kavis_overlay_hover;
+            border: 1px solid @kavis_card_border;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-family: monospace;
+            font-size: 12px;
+        }
         .kavis-accent-swatch {
             background-color: @kavis_teal;
             border-radius: 6px;
