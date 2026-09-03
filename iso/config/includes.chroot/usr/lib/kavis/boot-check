@@ -648,6 +648,27 @@ done
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"
 
+# 12) Selftest (madde 72): masaüstü hazırsa senaryolar gerçek oturumda
+# koşar; run.log satırları seri günlüğe SELFTEST öneki ile düşer.
+# Boşta RAM ölçümünden SONRA (uygulama açıp kapatıyor). 15 dk sınırı
+# (TCG'de yavaş); sınır aşımı ya da hata SELFTEST-FAIL = kırmızı.
+if [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
+	selftest_rc=0
+	runuser -u karan -- env DISPLAY=:0 HOME=/users/karan \
+		XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+		timeout 900 kavis-selftest --all 2>/dev/null | while IFS= read -r satir; do
+		log "SELFTEST ${satir}"
+	done
+	selftest_rc=$(runuser -u karan -- sh -c 'd=$(ls -1d /users/karan/.local/share/kavis/selftest/*/ 2>/dev/null | tail -1); grep -c "SELFTEST-FAIL" "${d}run.log" 2>/dev/null' || true)
+	if [ "${selftest_rc:-0}" = "0" ]; then
+		log "SELFTEST-OK"
+	else
+		fatal "SELFTEST-FAIL senaryo hatasi (run.log)" "selftest"
+	fi
+else
+	log "SELFTEST-SKIP panel yok ya da kavis-selftest kurulu degil"
+fi
+
 if [ -n "$olumcul" ]; then
 	log "FAILED-CHECKS=${olumcul# }"
 	log "RESULT=FAIL"
