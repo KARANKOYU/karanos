@@ -73,8 +73,11 @@ XDG_DOCUMENTS_DIR="\$HOME/documents"
 XDG_PICTURES_DIR="\$HOME/pictures"
 XDG_VIDEOS_DIR="\$HOME/videos"
 XDG_MUSIC_DIR="\$HOME/music"
-XDG_TEMPLATES_DIR="\$HOME/Templates"
+XDG_TEMPLATES_DIR="/usr/share/kavis/templates"
 XDG_PUBLICSHARE_DIR="\$HOME"
+# H2 (feedback test2): user folders stay lower case and Templates is NOT
+# one of them — the "New file" templates live in the read-only system
+# directory above, so the home directory keeps six folders.
 XDG
 
 	# Desktop shortcut (item 9): Settings. nemo-desktop does not trust an
