@@ -1,0 +1,6 @@
+# Kavis (C5): imleç teması TÜM araç setleri için ortamdan — GTK
+# settings.ini'yi yalnız GTK okur; Qt/Firefox/Electron XCURSOR_THEME'e
+# bakar. Tema kavis-theme'den (update-alternatives da aynı ada bakar).
+XCURSOR_THEME=Kavis-Cursors
+XCURSOR_SIZE=24
+export XCURSOR_THEME XCURSOR_SIZE
