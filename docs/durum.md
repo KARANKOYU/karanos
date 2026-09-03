@@ -382,6 +382,12 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - v0.4-test1 TURU TAMAM (3 Eyl): I 95925a3 (Shift/Zorla kapat),
+>   J bdf0321 (USS ölçümü: SETTINGS-USS-WARN >10 MB, PANEL-USS;
+>   panel-xx gerçek '…' denetimi), Ctrl+Esc e30cc29, madde 70 kilit
+>   ekranı 587d679. Etiket v0.4-test2 → bdf0321. Push kullanıcıda
+>   (önce git pull --rebase). Sıra: CI + VM testi → Grup F kapanış
+>   onayı → optimizasyon turu → Grup G.
 > - v0.4-test1 VM GERİ BİLDİRİM TURU A–H BİTTİ (3 Eyl), H'de DUR:
 >   A 36e6d38 CSD başlık çubuğu (kavis-common/headerbar.vala) +
 >   themerc 35px/16px xbm; B1 956dc8b; B2 1ca8259 palet tek kaynak
