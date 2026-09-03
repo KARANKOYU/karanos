@@ -68,37 +68,21 @@ namespace Kavis.Settings.Pages {
             _("Taskbar and popup translucency (blur needs a GPU backend — design limit)"),
             transparency), false, false, 0);
 
-        /* Duvar kâğıdı: /usr/share/backgrounds/kavis içindekiler. */
+        /* Duvar kâğıdı (B5): çerçevesiz 8px köşeli küçük resimler,
+         * seçilide 2px turkuaz dış çizgi + sağ üstte onay. B8: küçük
+         * resimler 200px'e ölçeklenir ve pencere çizildikten sonra
+         * boşta yüklenir — açılış RSS'ine girmez. */
         body.pack_start (group (_("Wallpaper")), false, false, 0);
         var flow = new Gtk.FlowBox ();
         flow.max_children_per_line = 4;
+        flow.column_spacing = 8;
+        flow.row_spacing = 8;
         flow.selection_mode = Gtk.SelectionMode.NONE;
-        try {
-            var dir = Dir.open ("/usr/share/backgrounds/kavis");
-            string? name;
-            while ((name = dir.read_name ()) != null) {
-                if (!name.has_suffix (".png")
-                    && !name.has_suffix (".jpg")) {
-                    continue;
-                }
-                string path = "/usr/share/backgrounds/kavis/" + name;
-                var button = new Gtk.Button ();
-                try {
-                    var pix = new Gdk.Pixbuf.from_file_at_scale (
-                        path, 140, 80, true);
-                    button.add (new Gtk.Image.from_pixbuf (pix));
-                } catch (Error e) {
-                    button.label = name;
-                }
-                button.set_tooltip_text (name);
-                button.clicked.connect (() => {
-                    conf_set ("appearance", "wallpaper", path);
-                    Apply.wallpaper (path);
-                });
-                flow.add (button);
-            }
-        } catch (FileError e) { }
         body.pack_start (flow, false, false, 0);
+        Idle.add (() => {
+            load_wallpapers (flow);
+            return Source.REMOVE;
+        });
 
         /* Vurgu rengi: sabit turkuaz — yalnız gösterim (madde 38). */
         var swatch = new Gtk.Label ("   ");
@@ -108,6 +92,108 @@ namespace Kavis.Settings.Pages {
             false, false, 0);
 
         return page;
+    }
+
+    private void load_wallpapers (Gtk.FlowBox flow) {
+        string current = conf_get ("appearance", "wallpaper", "");
+        Thumbnail[] thumbs = {};
+        try {
+            var dir = Dir.open ("/usr/share/backgrounds/kavis");
+            string? name;
+            while ((name = dir.read_name ()) != null) {
+                /* -onizleme.png: tema paketinin kendi küçük kopyası
+                 * (menü/GRUB önizlemesi) — listede ikinci kez çıkmasın. */
+                if ((!name.has_suffix (".png") && !name.has_suffix (".jpg"))
+                    || name.contains ("-onizleme")) {
+                    continue;
+                }
+                string path = "/usr/share/backgrounds/kavis/" + name;
+                var thumb = new Thumbnail (path, path == current);
+                thumb.set_tooltip_text (name);
+                thumbs += thumb;
+                flow.add (thumb);
+            }
+        } catch (FileError e) { }
+        foreach (unowned Thumbnail thumb in thumbs) {
+            thumb.chosen.connect ((path) => {
+                foreach (unowned Thumbnail other in thumbs) {
+                    other.set_selected (other == thumb);
+                }
+                conf_set ("appearance", "wallpaper", path);
+                Apply.wallpaper (path);
+            });
+        }
+        flow.show_all ();
+    }
+
+    /* Rounded wallpaper thumbnail drawn with cairo (a GtkImage cannot
+     * clip its pixels to a radius). 200×112, selection = teal ring +
+     * check badge. */
+    private class Thumbnail : Gtk.DrawingArea {
+        public signal void chosen (string path);
+        private const int W = 200;
+        private const int H = 112;
+        private const double R = 8;
+        private Gdk.Pixbuf? pixbuf = null;
+        private string path;
+        private bool selected;
+
+        public Thumbnail (string path, bool selected) {
+            this.path = path;
+            this.selected = selected;
+            set_size_request (W + 4, H + 4);
+            try {
+                pixbuf = new Gdk.Pixbuf.from_file_at_scale (
+                    path, W, H, false);
+            } catch (Error e) { }
+            add_events (Gdk.EventMask.BUTTON_PRESS_MASK);
+            button_press_event.connect (() => {
+                chosen (this.path);
+                return true;
+            });
+        }
+
+        public void set_selected (bool on) {
+            selected = on;
+            queue_draw ();
+        }
+
+        public override bool draw (Cairo.Context cr) {
+            double x = 2, y = 2;
+            cr.new_sub_path ();
+            cr.arc (x + W - R, y + R, R, -Math.PI / 2, 0);
+            cr.arc (x + W - R, y + H - R, R, 0, Math.PI / 2);
+            cr.arc (x + R, y + H - R, R, Math.PI / 2, Math.PI);
+            cr.arc (x + R, y + R, R, Math.PI, 3 * Math.PI / 2);
+            cr.close_path ();
+            if (pixbuf != null) {
+                cr.save ();
+                cr.clip_preserve ();
+                Gdk.cairo_set_source_pixbuf (cr, pixbuf, x, y);
+                cr.paint ();
+                cr.restore ();
+            }
+            if (selected) {
+                cr.set_line_width (2);
+                cr.set_source_rgb (0x2D / 255.0, 0xD4 / 255.0,
+                                   0xBF / 255.0);
+                cr.stroke ();
+                /* Onay rozeti: sağ üst, turkuaz daire + koyu tik. */
+                double cx = x + W - 14, cy = y + 14;
+                cr.arc (cx, cy, 9, 0, 2 * Math.PI);
+                cr.fill ();
+                cr.set_source_rgb (0x0D / 255.0, 0x14 / 255.0,
+                                   0x1B / 255.0);
+                cr.set_line_width (2);
+                cr.move_to (cx - 4, cy);
+                cr.line_to (cx - 1, cy + 3);
+                cr.line_to (cx + 4, cy - 3);
+                cr.stroke ();
+            } else {
+                cr.new_path ();
+            }
+            return true;
+        }
     }
 
     private void apply_picom (int radius, int anim) {
