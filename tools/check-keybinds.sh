@@ -118,6 +118,7 @@ xdotool key --clearmodifiers super+d; sleep 0.3
 
 # --- Execute bağları (saplama günlüğü) ---------------------------------
 check "Win → başlat menüsü (XF86Launch5/xcape)" XF86Launch5 'log_has "ShowStartMenu false"'
+check "Ctrl+Esc → başlat menüsü" ctrl+Escape 'log_has "ShowStartMenu false"'
 check "Win+R → başlat + arama"  super+r     'log_has "ShowStartMenu true"'
 check "Win+E → Dosyalar"        super+e     'log_has "^nemo"'
 check "Win+I → Ayarlar"         super+i     'log_has "^kavis-settings"'

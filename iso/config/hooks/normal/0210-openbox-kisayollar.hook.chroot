@@ -234,6 +234,13 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false</command>
       </action>
     </keybind>
+    <!-- Ctrl+Esc: Windows'un eski kisayolu; VirtualBox host Win'i
+         yakaladiginda da baslat menusune ulasilsin. -->
+    <keybind key="C-Escape">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false</command>
+      </action>
+    </keybind>
     <keybind key="W-r">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu true</command>
