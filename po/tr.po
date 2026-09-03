@@ -993,3 +993,7 @@ msgstr "Shift ile: sormadan kapat"
 
 msgid "Force shut down"
 msgstr "Zorla kapat"
+
+
+msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
+msgstr "İşlemci %%%.0f   ·   Bellek %s / %s (%%%.0f)   ·   %d süreç"

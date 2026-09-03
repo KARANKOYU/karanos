@@ -951,6 +951,9 @@ msgstr "⟪Name··⟫"
 msgid "Ending this system process may cause problems. Continue?"
 msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"
 
+msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
+msgstr "⟪CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes·······················⟫"
+
 msgid "This system uses apt, not %s. See: man apt"
 msgstr "⟪This system uses apt, not %s. See: man apt················⟫"
 

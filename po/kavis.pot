@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 11:19+0000\n"
+"POT-Creation-Date: 2026-09-03 12:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -136,7 +136,9 @@ msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:421
 #: packages/kavis-tools/src/perf.vala:119
-#: packages/kavis-tools/src/tasks.vala:100
+#: packages/kavis-tools/src/tasks.vala:132
+#: packages/kavis-tools/src/tasks.vala:262
+#, c-format
 msgid "Memory"
 msgstr ""
 
@@ -151,7 +153,7 @@ msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:427
 #: packages/kavis-tools/src/perf.vala:121
-#: packages/kavis-tools/src/tasks.vala:102
+#: packages/kavis-tools/src/tasks.vala:133
 msgid "Disk"
 msgstr ""
 
@@ -177,7 +179,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/kavis_osd.vala:275
 #: packages/kavis-panel/src/kavis_osd.vala:288
-#: packages/kavis-panel/src/ui/indicators.vala:217
+#: packages/kavis-panel/src/ui/indicators.vala:223
 #: packages/kavis-panel/src/ui/quick_settings.vala:724
 #, c-format
 msgid "%d%%"
@@ -255,58 +257,58 @@ msgstr ""
 msgid "English (US)"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:146
+#: packages/kavis-panel/src/ui/indicators.vala:152
 msgid "Network, sound, battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:223
+#: packages/kavis-panel/src/ui/indicators.vala:229
 #: packages/kavis-panel/src/ui/quick_settings.vala:328
 msgid "Mute"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:256
+#: packages/kavis-panel/src/ui/indicators.vala:262
 msgid "Disconnect"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:263
+#: packages/kavis-panel/src/ui/indicators.vala:269
 msgid "Network settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:290
+#: packages/kavis-panel/src/ui/indicators.vala:296
 #: packages/kavis-panel/src/ui/quick_settings.vala:475
 #: packages/kavis-settings/src/ui/page_power.vala:17
 msgid "When plugged in"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:290
+#: packages/kavis-panel/src/ui/indicators.vala:296
 #: packages/kavis-panel/src/ui/quick_settings.vala:478
 #: packages/kavis-settings/src/ui/page_power.vala:20
 msgid "On battery"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:326
+#: packages/kavis-panel/src/ui/indicators.vala:332
 msgid "High performance"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:328
+#: packages/kavis-panel/src/ui/indicators.vala:334
 msgid "Power saver"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:330
+#: packages/kavis-panel/src/ui/indicators.vala:336
 #: packages/kavis-panel/src/ui/quick_settings.vala:512
 #: packages/kavis-settings/src/ui/page_power.vala:79
 msgid "Balanced"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:453
+#: packages/kavis-panel/src/ui/indicators.vala:459
 msgid "Close desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:455
+#: packages/kavis-panel/src/ui/indicators.vala:461
 msgid "Windows are open"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:480
+#: packages/kavis-panel/src/ui/indicators.vala:486
 msgid "New desktop"
 msgstr ""
 
@@ -425,8 +427,8 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/panel.vala:1395
 #: packages/kavis-tools/src/securemenu.vala:87
-#: packages/kavis-tools/src/tasks.vala:34
-#: packages/kavis-tools/src/tasks.vala:37
+#: packages/kavis-tools/src/tasks.vala:57
+#: packages/kavis-tools/src/tasks.vala:59
 msgid "Task Manager"
 msgstr ""
 
@@ -467,7 +469,7 @@ msgid "Clipboard history"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:178
-#: packages/kavis-tools/src/logs.vala:40
+#: packages/kavis-tools/src/logs.vala:40 packages/kavis-tools/src/tasks.vala:95
 msgid "Search"
 msgstr ""
 
@@ -616,7 +618,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/quick_settings.vala:506
 #: packages/kavis-settings/src/ui/page_power.vala:77
 #: packages/kavis-settings/src/ui/window.vala:120
-#: packages/kavis-tools/src/tasks.vala:57
+#: packages/kavis-tools/src/tasks.vala:82
 msgid "Performance"
 msgstr ""
 
@@ -1262,7 +1264,9 @@ msgid "Store app coming soon"
 msgstr ""
 
 #: packages/kavis-tools/src/perf.vala:118
-#: packages/kavis-tools/src/tasks.vala:98
+#: packages/kavis-tools/src/tasks.vala:131
+#: packages/kavis-tools/src/tasks.vala:261
+#, c-format
 msgid "CPU"
 msgstr ""
 
@@ -1440,28 +1444,33 @@ msgstr ""
 msgid "Choose an app to start with your session"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:56
+#: packages/kavis-tools/src/tasks.vala:81
 msgid "Processes"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:58
+#: packages/kavis-tools/src/tasks.vala:83
 msgid "Startup"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:59
+#: packages/kavis-tools/src/tasks.vala:84
 msgid "Logs"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:67
+#: packages/kavis-tools/src/tasks.vala:98
 msgid "End task"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:96
+#: packages/kavis-tools/src/tasks.vala:130
 msgid "Name"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:146
+#: packages/kavis-tools/src/tasks.vala:197
 msgid "Ending this system process may cause problems. Continue?"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:258
+#, c-format
+msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
 msgstr ""
 
 #: iso/config/includes.chroot/usr/share/kavis/terminal-tips.sh:33
