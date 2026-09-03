@@ -33,6 +33,7 @@ namespace Kavis.Ui {
              * keyboard are grabbed directly instead. */
             button_press_event.connect (on_outside_click);
             key_press_event.connect (on_key_press);
+            key_release_event.connect (on_key_release);
         }
 
         private void build () {
@@ -337,17 +338,40 @@ namespace Kavis.Ui {
             return false;
         }
 
+        /* xcape yoksa (Xvfb, başka kurulum) Super bırakılınca da kapansın:
+         * 200 ms içinde XF86Launch5 gelmezse kapat. */
+        private uint super_release_source = 0;
+
+        private bool on_key_release (Gdk.EventKey event) {
+            if (event.keyval == Gdk.Key.Super_L
+                || event.keyval == Gdk.Key.Super_R) {
+                if (super_release_source != 0) {
+                    Source.remove (super_release_source);
+                }
+                super_release_source = Timeout.add (200, () => {
+                    super_release_source = 0;
+                    if (get_visible ()) {
+                        dismiss ();
+                    }
+                    return Source.REMOVE;
+                });
+            }
+            return false;
+        }
+
         private bool on_key_press (Gdk.EventKey event) {
             /* C2 (v0.4-test2): menü açıkken klavye bizde (seat grab) —
-             * xcape'in ürettiği XF86Launch5, Super'in kendisi ya da
-             * Ctrl+Esc openbox'a ulaşmaz; toggle'ın kapanış yarısı
-             * burada. Tuş tekrarı yok sayılır (is_modifier/repeat). */
+             * Esc / Ctrl+Esc ve xcape'in Super bırakılınca ürettiği
+             * XF86Launch5 openbox'a ulaşmaz; toggle'ın kapanış yarısı
+             * burada. Super'in BASILIŞINDA kapatmak yanlıştı (debug
+             * turu): grab kalkınca xcape'in XF86Launch5'i openbox'a
+             * gidip menüyü yeniden açıyordu. Bırakılış on_key_release. */
             if (event.keyval == Gdk.Key.Escape
-                || event.keyval == 0x1008FF45  /* XF86Launch5 — gdk vapi'de yok */
-                || event.keyval == Gdk.Key.Super_L
-                || event.keyval == Gdk.Key.Super_R
-                || (event.keyval == Gdk.Key.Escape
-                    && (event.state & Gdk.ModifierType.CONTROL_MASK) != 0)) {
+                || event.keyval == 0x1008FF45  /* XF86Launch5 — gdk vapi'de yok */) {
+                if (super_release_source != 0) {
+                    Source.remove (super_release_source);
+                    super_release_source = 0;
+                }
                 dismiss ();
                 return true;
             }
