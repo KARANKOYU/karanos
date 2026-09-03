@@ -225,6 +225,12 @@ jobs:
           # x11-utils, xterm); betik eksik olanı tek satırda söyler.
           DISPLAY_NO=77 tools/check-keybinds.sh /etc/xdg/openbox/rc.xml
 
+      # Debug turu (3 Eyl): snap iki kez "Xvfb'de çalışıyor" sanılıp
+      # gerçek sürüklemede çalışmadı. Bu adım pencereyi xdotool ile
+      # taşımaz, başlığa basıp fareyi sürükler — taşımayı openbox yapar.
+      - name: SNAP — kenara yapıştırma denetimi
+        run: DISPLAY_NO=78 tools/check-snap.sh
+
       - name: xx ekran görüntüsünü yükle
         uses: actions/upload-artifact@v7
         with:
