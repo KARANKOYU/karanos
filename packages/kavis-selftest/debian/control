@@ -1,0 +1,26 @@
+Source: kavis-selftest
+Section: utils
+Priority: optional
+Maintainer: Karan <farukyildiz3207@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ valac,
+ libgtk-3-dev,
+ libwnck-3-dev,
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/KARANKOYU/karanos
+
+Package: kavis-selftest
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ xdotool,
+ x11-utils,
+Description: Kavis sistem içi otomatik UI testi (madde 72)
+ Gerçek oturumda fare/klavye olaylarını üretip her adımı günlükleyen,
+ beklentileri ve anormallikleri (coredump, süreç ölümü, RAM sıçraması,
+ bilinmeyen pencere) yakalayan test koşucusu. Senaryolar YAML alt
+ kümesinde /usr/share/kavis/selftest altında; rapor
+ ~/.local/share/kavis/selftest/<tarih-saat>/.

@@ -195,6 +195,24 @@ if [[ "${DONGU:-0}" -gt 0 ]]; then
 	echo "USS $DONGU dongu sonra: $(uss) MB"
 fi
 
+# SELFTEST=1: kavis-selftest'i bu Xvfb oturumunda koştur (senaryolar
+# tests/ui, çıktı $ROOT/selftest → run.log basılır). Gerçek oturum değil:
+# canlı sisteme özgü adımlar (autologin, /users/karan) burada düşer;
+# amaç motorun kendisini denemek. İkili: KAVIS_SELFTEST_BIN ya da deb.
+if [[ "${SELFTEST:-0}" == "1" ]]; then
+	BIN=${KAVIS_SELFTEST_BIN:-$ROOT/usr/bin/kavis-selftest}
+	if [[ ! -x "$BIN" ]]; then
+		dpkg-deb -x "$REPO_ROOT"/out/packages/kavis-selftest_*.deb "$ROOT" 2>/dev/null || true
+	fi
+	"$BIN" --scenarios "$REPO_ROOT/tests/ui" --dir "$ROOT/selftest" \
+		${SELFTEST_ARGS:-} > "$ROOT/selftest.log" 2>&1 || true
+	echo "--- selftest run.log ---"
+	cat "$ROOT/selftest.log"
+	if [[ -n "${SELFTEST_KOPYA:-}" ]]; then
+		cp -r "$ROOT/selftest" "$SELFTEST_KOPYA"
+	fi
+fi
+
 mkdir -p "$(dirname "$OUT")"
 /usr/bin/python3 - "$OUT" <<'PY'
 import sys

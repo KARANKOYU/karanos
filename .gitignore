@@ -88,3 +88,5 @@ packages/kavis-tools/src/power.vala
 packages/kavis-tools/kavis-tools
 packages/kavis-settings/kavis-settings
 packages/kavis-tools/fastfetch/os-release
+packages/kavis-selftest/scenarios/
+packages/kavis-selftest/kavis-selftest

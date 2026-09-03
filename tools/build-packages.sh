@@ -37,6 +37,10 @@ fi
 # kopyalanıyorlar. Kopya .gitignore'da — iki yerde durup birbirinden
 # ayrı düşmesinler.
 prepare_sources() {
+	# Selftest senaryoları (madde 72): kanonik yer tests/ui/, paket
+	# ağacındaki kopya gitignore'da.
+	mkdir -p packages/kavis-selftest/scenarios
+	install -m644 tests/ui/*.yaml packages/kavis-selftest/scenarios/
 	case "$1" in
 	kavis-theme)
 		install -d packages/kavis-theme/src/logo
