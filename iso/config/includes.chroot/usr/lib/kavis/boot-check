@@ -344,6 +344,13 @@ ply_renderer=$(journalctl -b --no-pager 2>/dev/null |
 if [ -n "$ply_renderer" ]; then
 	echo "$ply_renderer" | sed 's/^/KAVIS-CHECK: SPLASH-RENDERER: /'
 fi
+# C1 (v0.4-test1): kenara yapıştırma daemon'u oturumda ayakta mı —
+# VM'de snap çalışmıyorsa ilk şüpheli bu.
+if pgrep -x kavis-snap >/dev/null 2>&1; then
+	log "SNAP-RUNNING-OK"
+else
+	log "SNAP-RUNNING-FAIL kavis-snap sureci yok"
+fi
 log "DRM-DEVICES=$(ls -1 /dev/dri 2>/dev/null | tr '\n' ' ')"
 
 sira_hatasi=""

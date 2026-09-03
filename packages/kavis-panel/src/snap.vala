@@ -1,4 +1,5 @@
-/* kavis-snap — drag-to-edge window snapping (madde 6).
+/* kavis-snap — drag-to-edge window snapping + W11 drag rules (madde 6,
+ * v0.4-test1 C1/C2/C3).
  *
  * Openbox has no built-in aero snap and patching Debian's openbox is
  * off the table (signed archive package). This small daemon does what
@@ -10,24 +11,39 @@
  *     plugging/unplugging monitors cannot leave stale zones;
  *   - zones are computed per-monitor (multi-monitor from day one).
  *
- * Mechanism: poll the pointer (~80 ms — idle cost is one XQueryPointer
- * round trip). A drag is recognized only when the ACTIVE window's
- * geometry actually moves while button 1 is down — clicking the panel
- * or rubber-banding the desktop can never trigger a snap. Edges give
- * halves, corners give quarters ("hazır düzenler"), the top edge
- * maximizes. A translucent preview shows the target area while a zone
- * is armed (skipped without a compositor, where it would draw as a
- * solid box).
+ * Mechanism: poll the pointer (80 ms idle — one XQueryPointer round
+ * trip; 16 ms while a button is held on a window, so a drag never lags
+ * behind the hand). A drag is recognized only when the pressed
+ * window's frame actually moves while button 1 is down — clicking the
+ * panel or rubber-banding the desktop can never trigger a snap. Edges
+ * give halves, corners give quarters, the top edge maximizes. The
+ * pressed window is the one UNDER THE POINTER (C1: the active window
+ * was wrong when the press itself changed focus).
+ *
+ * C3 — dragging a MAXIMIZED window: rc.xml (0210 hook) tells openbox
+ * to do nothing for that case; this daemon unmaximizes, puts the
+ * window under the pointer at the same proportional titlebar spot
+ * (W11) and follows the pointer until release, then the usual zones
+ * apply. Openbox's own Move would restore the old position first and
+ * leave the window far from the hand.
+ *
+ * C2 — the titlebar always stays on screen: after every drag (ours or
+ * openbox's) and on any geometry change while no button is held, a
+ * window whose titlebar left the work area is pulled back.
  */
 
 namespace Kavis {
 
     public class SnapDaemon : Object {
 
-        private const int POLL_MS = 80;
+        private const int POLL_IDLE_MS = 80;
+        private const int POLL_DRAG_MS = 16;
         private const int EDGE = 3;
         private const int CORNER = 180;
-        private const int DRAG_MIN = 20;
+        private const int DRAG_MIN = 8;
+        /* C2: bu kadar piksel içeride kalmalı (yatay), başlık tamamen
+         * dikeyde. */
+        private const int KEEP_INSIDE = 80;
 
         private enum Zone { NONE, LEFT, RIGHT, TOP, TL, TR, BL, BR }
 
@@ -44,7 +60,26 @@ namespace Kavis {
         private bool restored_this_drag = false;
         private unowned Wnck.Window? drag_window = null;
         private Gdk.Rectangle press_geometry;
+        private int press_x = 0;
+        private int press_y = 0;
         private Zone zone = Zone.NONE;
+
+        /* C3 takeover state. */
+        private bool press_was_maximized = false;
+        private bool taking_over = false;
+        private bool takeover_placed = false;
+        private double grab_ratio = 0;   /* pointer x / frame width */
+        private int grab_dy = 0;         /* pointer y - frame y */
+        /* İlk yerleştirmeden sonra ölçülen sapma: wnck'nin okuduğu
+         * çerçeve konumu ile set_geometry'nin kullandığı gravity
+         * koordinatı openbox'ta her zaman aynı değil (Xvfb testinde
+         * dikeyde başlık yüksekliği kadar fark çıktı) — bir kez ölçüp
+         * sonraki her adımda düzeltiyoruz. */
+        private bool bias_known = false;
+        private int bias_x = 0;
+        private int bias_y = 0;
+        private int intended_x = 0;
+        private int intended_y = 0;
 
         public SnapDaemon () {
             screen = Wnck.Screen.get_default ();
@@ -65,7 +100,14 @@ namespace Kavis {
             preview.add (box);
             load_css ();
 
-            Timeout.add (POLL_MS, poll);
+            /* C2: her pencerenin geometri değişimini izle (klavye,
+             * uygulamanın kendi taşıması). Var olanlar + sonrakiler. */
+            foreach (unowned Wnck.Window w in screen.get_windows ()) {
+                watch_window (w);
+            }
+            screen.window_opened.connect ((w) => watch_window (w));
+
+            Timeout.add (POLL_IDLE_MS, poll);
         }
 
         private void load_css () {
@@ -104,6 +146,8 @@ namespace Kavis {
             return true;
         }
 
+        /* Değişken hızlı yoklama: düğme bir pencerenin üstünde
+         * basılıyken 16 ms, boşta 80 ms. */
         private bool poll () {
             int x, y;
             bool down;
@@ -112,7 +156,7 @@ namespace Kavis {
             }
 
             if (down && !button_was_down) {
-                begin_press ();
+                begin_press (x, y);
             }
             if (down && drag_window != null) {
                 track_drag (x, y);
@@ -120,30 +164,94 @@ namespace Kavis {
             if (!down && button_was_down) {
                 end_drag ();
             }
+            bool fast_before = button_was_down && drag_window != null;
             button_was_down = down;
+            bool fast_now = down && drag_window != null;
+            if (fast_now != fast_before) {
+                Timeout.add (fast_now ? POLL_DRAG_MS : POLL_IDLE_MS, poll);
+                return Source.REMOVE;
+            }
             return Source.CONTINUE;
         }
 
-        private void begin_press () {
+        /* Topmost normal window whose frame contains the point. */
+        private unowned Wnck.Window? window_at (int x, int y) {
+            unowned List<Wnck.Window> stacked = screen.get_windows_stacked ();
+            unowned Wnck.Window? hit = null;
+            foreach (unowned Wnck.Window w in stacked) {
+                if (w.is_skip_tasklist () || w.is_minimized ()
+                    || w.get_window_type () == Wnck.WindowType.DESKTOP
+                    || w.get_window_type () == Wnck.WindowType.DOCK) {
+                    continue;
+                }
+                int wx, wy, ww, wh;
+                w.get_geometry (out wx, out wy, out ww, out wh);
+                if (x >= wx && x < wx + ww && y >= wy && y < wy + wh) {
+                    hit = w;   /* liste alttan üste: sonuncu en üstte */
+                }
+            }
+            return hit;
+        }
+
+        private void begin_press (int x, int y) {
             dragging = false;
             restored_this_drag = false;
+            taking_over = false;
+            takeover_placed = false;
             zone = Zone.NONE;
-            drag_window = null;
-            unowned Wnck.Window? active = screen.get_active_window ();
-            if (active == null || active.is_skip_tasklist ()
-                || active.is_fullscreen ()) {
+            drag_window = window_at (x, y);
+            if (drag_window == null || drag_window.is_fullscreen ()) {
+                drag_window = null;
                 return;
             }
-            drag_window = active;
+            press_x = x;
+            press_y = y;
             drag_window.get_geometry (out press_geometry.x,
                                       out press_geometry.y,
                                       out press_geometry.width,
                                       out press_geometry.height);
+            press_was_maximized = drag_window.is_maximized ();
+            if (press_was_maximized) {
+                /* Basış başlıkta mı? (çerçeve üstü ile istemci üstü
+                 * arası). İçerik alanındaki basış sürükleme değildir. */
+                int cx, cy, cw, ch;
+                drag_window.get_client_window_geometry (
+                    out cx, out cy, out cw, out ch);
+                int title_h = int.max (cy - press_geometry.y, 24);
+                if (y > press_geometry.y + title_h) {
+                    press_was_maximized = false;
+                } else {
+                    grab_ratio = (double) (x - press_geometry.x)
+                        / (double) int.max (press_geometry.width, 1);
+                    grab_dy = y - press_geometry.y;
+                }
+            }
         }
 
         private void track_drag (int x, int y) {
             int wx, wy, ww, wh;
             drag_window.get_geometry (out wx, out wy, out ww, out wh);
+
+            /* C3: büyütülmüş pencere — openbox bu durumda hiçbir şey
+             * yapmıyor (rc.xml If kuralı); işaretçi eşiği geçince
+             * sürüklemeyi biz üstleniriz. */
+            if (press_was_maximized && !taking_over) {
+                if ((x - press_x).abs () < DRAG_MIN
+                    && (y - press_y).abs () < DRAG_MIN) {
+                    return;
+                }
+                taking_over = true;
+                dragging = true;
+                drag_window.unmaximize ();
+                return;   /* geometri bir sonraki yoklamada gelir */
+            }
+            if (taking_over) {
+                follow_pointer (x, y, wx, wy, ww, wh);
+                zone = zone_at (x, y);
+                update_preview (x, y);
+                return;
+            }
+
             if (!dragging) {
                 /* Sürükleme = pencere gerçekten yer değiştirdi. Panel
                  * tıklaması / masaüstünde seçim asla tetiklemez. */
@@ -177,6 +285,36 @@ namespace Kavis {
 
             zone = zone_at (x, y);
             update_preview (x, y);
+        }
+
+        /* C3: geri yüklenmiş pencereyi işaretçinin altına, başlıkta aynı
+         * oransal noktaya koy ve izle. Geometri henüz büyük (unmaximize
+         * işlenmemiş) ise bekle. */
+        private void follow_pointer (int x, int y, int wx, int wy,
+                                     int ww, int wh) {
+            if (!takeover_placed) {
+                if (ww >= press_geometry.width - 2
+                    && wh >= press_geometry.height - 2) {
+                    return;   /* hâlâ büyütülmüş boyutta */
+                }
+                takeover_placed = true;
+                bias_known = false;
+                ulong xid = drag_window.get_xid ();
+                saved.remove (xid);
+                press_geometry = { 0, 0, ww, wh };
+            } else if (!bias_known) {
+                int dx = wx - intended_x, dy = wy - intended_y;
+                if (dx.abs () < 200 && dy.abs () < 200) {
+                    bias_x = dx;
+                    bias_y = dy;
+                }
+                bias_known = true;
+            }
+            intended_x = x - (int) (grab_ratio * ww);
+            intended_y = y - grab_dy;
+            drag_window.set_geometry (Wnck.WindowGravity.NORTHWEST,
+                Wnck.WindowMoveResizeMask.X | Wnck.WindowMoveResizeMask.Y,
+                intended_x - bias_x, intended_y - bias_y, 0, 0);
         }
 
         private Zone zone_at (int x, int y) {
@@ -262,11 +400,16 @@ namespace Kavis {
 
         private void end_drag () {
             preview.hide ();
-            if (dragging && zone != Zone.NONE && drag_window != null) {
-                apply_zone ();
+            if (dragging && drag_window != null) {
+                if (zone != Zone.NONE) {
+                    apply_zone ();
+                } else {
+                    clamp_to_screen (drag_window);
+                }
             }
             drag_window = null;
             dragging = false;
+            taking_over = false;
             zone = Zone.NONE;
         }
 
@@ -293,6 +436,52 @@ namespace Kavis {
                 | Wnck.WindowMoveResizeMask.WIDTH
                 | Wnck.WindowMoveResizeMask.HEIGHT,
                 r.x, r.y, r.width, r.height);
+        }
+
+        /* --- C2: başlık çubuğu ekranda kalır ------------------------- */
+
+        private void watch_window (Wnck.Window w) {
+            w.geometry_changed.connect ((win) => {
+                /* Sürükleme sırasında karışma; bırakınca end_drag
+                 * zaten düzeltir. */
+                if (button_was_down) {
+                    return;
+                }
+                clamp_to_screen (win);
+            });
+        }
+
+        private void clamp_to_screen (Wnck.Window w) {
+            if (w.is_skip_tasklist () || w.is_minimized ()
+                || w.is_maximized () || w.is_fullscreen ()
+                || w.get_window_type () == Wnck.WindowType.DESKTOP
+                || w.get_window_type () == Wnck.WindowType.DOCK) {
+                return;
+            }
+            int wx, wy, ww, wh;
+            w.get_geometry (out wx, out wy, out ww, out wh);
+            int cx, cy, cw, ch;
+            w.get_client_window_geometry (out cx, out cy, out cw, out ch);
+            int title_h = int.max (cy - wy, 24);
+            Gdk.Rectangle wa = workarea_at (wx + ww / 2, wy + title_h / 2);
+            int nx = wx, ny = wy;
+            /* Dikey: başlık çalışma alanının içinde. */
+            if (wy < wa.y) {
+                ny = wa.y;
+            } else if (wy + title_h > wa.y + wa.height) {
+                ny = wa.y + wa.height - title_h;
+            }
+            /* Yatay: pencerenin en az KEEP_INSIDE pikseli içeride. */
+            if (wx + ww < wa.x + KEEP_INSIDE) {
+                nx = wa.x + KEEP_INSIDE - ww;
+            } else if (wx > wa.x + wa.width - KEEP_INSIDE) {
+                nx = wa.x + wa.width - KEEP_INSIDE;
+            }
+            if (nx != wx || ny != wy) {
+                w.set_geometry (Wnck.WindowGravity.NORTHWEST,
+                    Wnck.WindowMoveResizeMask.X
+                    | Wnck.WindowMoveResizeMask.Y, nx, ny, 0, 0);
+            }
         }
     }
 }
