@@ -382,6 +382,19 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - GRUP F 5. ADIM + DEBUG TARAMASI BİTTİ (3 Eyl): scrot bağı 0210
+>   temizliğinde kalkıyor ve hook kalırsa DERLEMEYİ KIRIYOR (exit 1 =
+>   CI denetimi); Root orta/sağ tık ve çıplak tekerlek zaten temizdi,
+>   BULGU: Alt/Ctrl+Alt+tekerlek Desktop bağları kalmıştı → 29141f1
+>   kalıp genişletildi (stok rc.xml'de doğrulandı, kalan 0). Dikey
+>   panel Xvfb'de ekran görüntüsüyle doğrulandı (anahtarlayıcı+saat
+>   kısa tarih dikey ✓). Debug: panel boşta 90 sn RSS/fd DÜZ
+>   (37.6MB/10fd); 30x emoji + 20x pano + 20x başlat + 20x takvim
+>   aç-kapa → büyüme YOK (picker ilk açılış +8.8MB tek seferlik);
+>   kavis-settings 8 sayfa ayakta (~36MB); 3E +/✕ gerçek tıklamayla
+>   uçtan uca (count conf'a işleniyor). Düzeltme: b6ffadb çözünürlük
+>   onayının süre dolumunda geçersiz Source.remove uyarısı. Etiket
+>   v0.4-test1 → b6ffadb. Push kullanıcıda (önce git pull --rebase).
 > - GRUP F 4. ADIM BİTTİ (3 Eyl, CI işleri): c065a86 Start etiketi
 >   ellipsize'sız + genişlik stderr'e, CI EN/xx koşup <%30 büyümede
 >   I18N-WIDTH-WARN (4A — yerel ölçüm EN=31px/xx=53px), 62d5a9c
