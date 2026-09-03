@@ -132,7 +132,9 @@ hemen (aynı gün iki commit).
   (ekleme/çıkarma/sürüm) release notlarına otomatik. (Grup F kapanışı)
 - **Servis sağlığı:** QEMU'da `systemctl --failed` boş (SERVICES-OK);
   journal'da öncelik ≤ err satır sayısı eşiğin altında (JOURNAL-OK;
-  **eşik 60**, ilk koşuların JOURNAL-ERRORS değerine göre daraltılır);
+  **eşik 20** — 3 Eyl kalibrasyonu: QEMU'da test2 ISO'sunda 0 satır,
+  failed birim yok, coredump yok; açılış 6 dk TCG'de, live-config
+  3:24 en yavaş birim);
   coredump yok (COREDUMP-OK).
 - **Açılış süresi:** `systemd-analyze` toplamı + en yavaş 5 birim
   seri günlüğe (BOOT-TIME / BOOT-BLAME); önceki etikete göre %20'den

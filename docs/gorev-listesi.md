@@ -540,7 +540,7 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       haftalık cron (pazartesi 03:00 UTC, kırmızıysa otomatik issue),
       DEPS-RANGE-OK (picom/tilix/nemo/openbox/plymouth/lightdm/gtk3
       için >= ve << sınırı), sürüm kilidi raporu docs/surumler/,
-      SERVICES-OK / JOURNAL-OK (eşik 60) / COREDUMP-OK, açılış süresi
+      SERVICES-OK / JOURNAL-OK (eşik 20) / COREDUMP-OK, açılış süresi
       + RAM/ISO regresyon WARN'ları, TR+EN %100 çeviri, kaynak kod
       kuralları (shellcheck/vala 0 uyarı, set -eu), kurtarma testi.
       Küçük olanlar (dpkg-verify, servis, journal, coredump, cron +

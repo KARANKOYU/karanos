@@ -582,17 +582,17 @@ else
 fi
 
 # 11b) Journal: bu açılışta öncelik <= err olan satır sayısı eşiğin
-# altında olmalı. Eşik 60 (kararlar.md 9a) — ilk koşuların
-# JOURNAL-ERRORS değerine göre daraltılır; ilk 20 satır teşhis için.
+# altında olmalı. Eşik 20 (kararlar.md 9a): QEMU'daki test2 ISO'sunda
+# ölçülen değer 0 (3 Eyl kalibrasyonu); ilk 20 satır teşhis için.
 journal_hata=$(journalctl -b -p err --no-pager -q 2>/dev/null | wc -l)
 log "JOURNAL-ERRORS=${journal_hata}"
 journalctl -b -p err --no-pager -q -o short 2>/dev/null | head -20 | while IFS= read -r satir; do
 	log "JOURNAL-ERR ${satir}"
 done
-if [ "$journal_hata" -le 60 ]; then
-	log "JOURNAL-OK ${journal_hata} <= 60"
+if [ "$journal_hata" -le 20 ]; then
+	log "JOURNAL-OK ${journal_hata} <= 20"
 else
-	fatal "JOURNAL-FAIL ${journal_hata} err satiri (esik 60)" "journal"
+	fatal "JOURNAL-FAIL ${journal_hata} err satiri (esik 20)" "journal"
 fi
 
 # 11c) Coredump: ne systemd-coredump kaydı ne de dosyası
