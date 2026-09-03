@@ -1,0 +1,21 @@
+# Görev Yöneticisi (madde 39/7): açılış, sekmeler, kapanış
+name: 39-gorev-yoneticisi
+title: Görev Yöneticisi
+madde: 39
+allowed: [kavis-tools]
+steps:
+  - do: launch kavis-tools tasks
+    expect: window kavis-tools visible
+    timeout: 40000
+    shot: true
+  - do: wait 1500
+    expect: window kavis-tools focused
+    timeout: 5000
+  - do: none
+    expect: process kavis-tools running
+  - do: key ctrl+f
+    expect: ok
+    note: arama kutusu (varsa) — beklenti yok, yalnız anormallik taraması
+  - do: close window kavis-tools
+    expect: window kavis-tools absent
+    timeout: 8000

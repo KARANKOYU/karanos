@@ -1,0 +1,31 @@
+# Açılış (madde 0/2/30 — GRUB gizli, splash, ses, autologin, /users/karan)
+name: 01-acilis
+title: Açılış
+madde: 0
+steps:
+  - do: none
+    expect: shell test "$(id -un)" = karan
+    note: otomatik giriş canlı kullanıcıya
+  - do: none
+    expect: shell test -n "$DISPLAY"
+  - do: none
+    expect: shell test "$(ls -d /users/karan/*/ | wc -l)" -ge 6
+    note: 6 kullanıcı klasörü (USERS-OK ile aynı)
+  - do: none
+    expect: shell grep -q "timeout_style=hidden" /run/live/medium/boot/grub/config.cfg
+    note: B1 — GRUB menüsü gizli
+  - do: none
+    expect: shell test "$(plymouth-set-default-theme 2>/dev/null)" = kavis
+    note: splash teması
+  - do: none
+    expect: shell journalctl -b -q --no-pager 2>/dev/null | grep -qE "DESKTOP-READY|PANEL-OK"
+    note: masaüstü hazır satırı journal'da (test2 ISO'sunda PANEL-OK, sonrasında DESKTOP-READY)
+  - do: none
+    expect: process kavis-panel running
+  - do: none
+    expect: process kavis-snap running
+  - do: none
+    expect: process picom running
+  - do: none
+    expect: window kavis-panel visible
+    shot: true

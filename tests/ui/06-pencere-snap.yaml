@@ -1,0 +1,41 @@
+# Pencere yönetimi (madde 6): sürükle-kenar snap, Win+ok, büyütme, ekran dışına çıkamama
+name: 06-pencere-snap
+title: Pencere ve snap
+madde: 6
+allowed: [nemo]
+steps:
+  - do: launch nemo --no-desktop /users/karan
+    expect: window nemo visible
+    timeout: 30000
+    note: test penceresi
+  - do: wait 1500
+    expect: window nemo focused
+    timeout: 5000
+  - do: drag window nemo to left
+    expect: geometry nemo left-half
+    timeout: 4000
+    note: sol kenara sürükle → sol yarı (E1)
+    shot: true
+  - do: drag window nemo to 700 300
+    expect: geometry nemo on-screen
+    timeout: 4000
+    note: geri çekince serbest
+  - do: key super+Right
+    expect: geometry nemo right-half
+    timeout: 4000
+  - do: key super+Up
+    expect: geometry nemo maximized
+    timeout: 4000
+  - do: key super+Down
+    expect: geometry nemo on-screen
+    timeout: 4000
+  - do: drag window nemo to tr
+    expect: geometry nemo top-right
+    timeout: 4000
+    shot: true
+  - do: drag window nemo to br
+    expect: geometry nemo bottom-right
+    timeout: 4000
+  - do: close window nemo
+    expect: window nemo absent
+    timeout: 8000
