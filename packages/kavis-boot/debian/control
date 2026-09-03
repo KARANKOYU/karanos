@@ -16,6 +16,10 @@ Package: kavis-boot
 Architecture: all
 Depends:
  ${misc:Depends},
+ plymouth (>= 24),
+ plymouth (<< 25),
+ lightdm (>= 1.32),
+ lightdm (<< 1.34),
  plymouth,
  plymouth-themes,
  alsa-utils,

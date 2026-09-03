@@ -17,6 +17,10 @@ Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
+ tilix (>= 1.9.6),
+ tilix (<< 2),
+ nemo (>= 6.4),
+ nemo (<< 7),
  kavis-panel,
  fastfetch,
  fonts-noto-color-emoji,

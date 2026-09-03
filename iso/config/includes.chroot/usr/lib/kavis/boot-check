@@ -572,6 +572,73 @@ else
 	fatal "EARLYOOM-FAIL servis calismiyor" "earlyoom"
 fi
 
+# 11) Sağlamlık denetimleri (madde 72, kararlar.md 9a)
+# 11a) Servis sağlığı: hiçbir systemd birimi failed durumunda olmasın
+basarisiz=$(systemctl --failed --no-legend --plain 2>/dev/null | awk '{print $1}' | tr '\n' ' ')
+if [ -z "${basarisiz% }" ]; then
+	log "SERVICES-OK"
+else
+	fatal "SERVICES-FAIL basarisiz birim: ${basarisiz% }" "servisler"
+fi
+
+# 11b) Journal: bu açılışta öncelik <= err olan satır sayısı eşiğin
+# altında olmalı. Eşik 60 (kararlar.md 9a) — ilk koşuların
+# JOURNAL-ERRORS değerine göre daraltılır; ilk 20 satır teşhis için.
+journal_hata=$(journalctl -b -p err --no-pager -q 2>/dev/null | wc -l)
+log "JOURNAL-ERRORS=${journal_hata}"
+journalctl -b -p err --no-pager -q -o short 2>/dev/null | head -20 | while IFS= read -r satir; do
+	log "JOURNAL-ERR ${satir}"
+done
+if [ "$journal_hata" -le 60 ]; then
+	log "JOURNAL-OK ${journal_hata} <= 60"
+else
+	fatal "JOURNAL-FAIL ${journal_hata} err satiri (esik 60)" "journal"
+fi
+
+# 11c) Coredump: ne systemd-coredump kaydı ne de dosyası
+cekirdek_dosya=$(find /var/lib/systemd/coredump -type f 2>/dev/null | wc -l)
+cekirdek_kayit=0
+if command -v coredumpctl >/dev/null 2>&1; then
+	cekirdek_kayit=$(coredumpctl list --no-legend 2>/dev/null | wc -l)
+fi
+if [ "$cekirdek_dosya" -eq 0 ] && [ "$cekirdek_kayit" -eq 0 ]; then
+	log "COREDUMP-OK"
+else
+	coredumpctl list --no-legend 2>/dev/null | head -5 | while IFS= read -r satir; do
+		log "COREDUMP ${satir}"
+	done
+	fatal "COREDUMP-FAIL dosya=${cekirdek_dosya} kayit=${cekirdek_kayit}" "coredump"
+fi
+
+# 11d) dpkg -V: Kavis'in değiştirdiği Debian paket dosyası olmasın.
+# Conffile'lar (2. sütun 'c') serbest — sayısı loglanır; gerisi hata.
+# Tüm dosyaların md5'i alınır, 300 sn'de bitmezse WARN (kırmızı değil).
+dpkg_cikti=$(timeout 300 dpkg -V 2>/dev/null)
+dpkg_rc=$?
+if [ "$dpkg_rc" -eq 124 ]; then
+	log "DPKG-VERIFY-WARN 300 sn'de bitmedi"
+else
+	conffile_sayi=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 == "c"' | wc -l)
+	degisen=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 != "c"')
+	printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 == "c" {print $NF}' | head -30 | while IFS= read -r satir; do
+		log "DPKG-CONFFILE ${satir}"
+	done
+	if [ -z "$degisen" ]; then
+		log "DPKG-VERIFY-OK conffile=${conffile_sayi}"
+	else
+		printf '%s\n' "$degisen" | head -30 | while IFS= read -r satir; do
+			log "DPKG-VERIFY-DIFF ${satir}"
+		done
+		fatal "DPKG-VERIFY-FAIL $(printf '%s\n' "$degisen" | wc -l) degismis paket dosyasi (conffile=${conffile_sayi})" "dpkg-verify"
+	fi
+fi
+
+# 11e) Açılış süresi: toplam + en yavaş 5 birim (karşılaştırma docs'ta)
+log "BOOT-TIME $(systemd-analyze time 2>/dev/null | head -1 | tr -s ' ')"
+systemd-analyze blame --no-pager 2>/dev/null | head -5 | while IFS= read -r satir; do
+	log "BOOT-BLAME $(printf '%s' "$satir" | tr -s ' ')"
+done
+
 # 6) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"
