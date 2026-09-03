@@ -17,6 +17,7 @@ Depends:
  ${misc:Depends},
  kavis-panel,
  x11-xserver-utils,
+ xkb-data,
  network-manager,
  pkexec,
  locales,

@@ -283,9 +283,16 @@ namespace Kavis.Settings.Apply {
     }
 
     /* Keyboard layout: one GLOBAL layout, no per-window groups (decision
-     * 2F, ayarlar.md survey). */
-    public void keyboard_layout (string layout) {
-        Run.fire ({ "setxkbmap", layout });
+     * 2F, ayarlar.md survey). The variant is the xkeyboard-config one
+     * ("dvorak", "azerty", ...) and is empty for a plain layout;
+     * -option "" clears any group/toggle option left behind. */
+    public void keyboard_layout (string layout, string variant = "") {
+        if (variant == "") {
+            Run.fire ({ "setxkbmap", "-layout", layout, "-option", "" });
+        } else {
+            Run.fire ({ "setxkbmap", "-layout", layout,
+                        "-variant", variant, "-option", "" });
+        }
     }
 
     /* Screen blank timeout (minutes; 0 = never) via DPMS. */

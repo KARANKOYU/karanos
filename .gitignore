@@ -79,6 +79,7 @@ packages/kavis-settings/src/logic/sysinfo.vala
 packages/*/src/logic/config.vala
 packages/*/src/logic/powerplan.vala
 packages/*/src/logic/brightness.vala
+packages/*/src/logic/xkb.vala
 packages/*/src/appinit.vala
 packages/kavis-panel/po/
 packages/kavis-panel/src/logic/picker_data.vala

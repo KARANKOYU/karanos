@@ -283,13 +283,14 @@ namespace Kavis.Ui {
         }
     }
 
-    /* Keyboard-layout popup: TR / EN choice, the active one marked. */
+    /* Layout switcher (F4): the layouts the user has collected in
+     * Settings, not the whole xkeyboard-config catalogue. Rebuilt on
+     * every open, because Settings may have added one meanwhile. */
     public class KeyboardPopup : PanelPopup {
 
         public signal void changed ();
 
-        private Gtk.Image tr_mark;
-        private Gtk.Image en_mark;
+        private Gtk.Box rows;
 
         public KeyboardPopup () {
             /* Grup D 2c: title and rows were stuck to the edge — 8-10px
@@ -306,31 +307,30 @@ namespace Kavis.Ui {
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 4);
 
-            content.pack_start (
-                layout_row (N_("Turkish Q"), "tr", out tr_mark),
-                false, false, 0);
-            content.pack_start (
-                layout_row (N_("English (US)"), "us", out en_mark),
-                false, false, 0);
+            rows = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            content.pack_start (rows, false, false, 0);
         }
 
-        private Gtk.Button layout_row (string label_key, string layout,
-                                       out Gtk.Image mark) {
+        private Gtk.Button layout_row (string id, bool active) {
             var button = new Gtk.Button ();
             button.set_relief (Gtk.ReliefStyle.NONE);
             var row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 12);
             row.set_margin_start (2);
             row.set_margin_end (2);
-            var label = new Gtk.Label (_(label_key));
+            var label = new Gtk.Label (Xkb.describe (id));
             label.set_xalign (0);
             label.set_width_chars (16);
+            label.set_max_width_chars (30);
+            label.set_ellipsize (Pango.EllipsizeMode.END);
             row.pack_start (label, true, true, 0);
-            var check = new Gtk.Image.from_icon_name (
-                "object-select-symbolic", Gtk.IconSize.BUTTON);
-            row.pack_end (check, false, false, 0);
+            if (active) {
+                row.pack_end (new Gtk.Image.from_icon_name (
+                    "object-select-symbolic", Gtk.IconSize.BUTTON),
+                    false, false, 0);
+            }
             button.add (row);
             button.clicked.connect (() => {
-                Keyboard.set_layout (layout);
+                Keyboard.set_layout (id);
                 dismiss ();
                 /* setxkbmap runs asynchronously; poke listeners after
                  * it has had time to apply. */
@@ -339,18 +339,19 @@ namespace Kavis.Ui {
                     return Source.REMOVE;
                 });
             });
-            mark = check;
             return button;
         }
 
         protected override void refresh_content () {
-            bool turkish = Keyboard.current_layout ().down ()
-                .has_prefix ("tr");
-            /* show_all on open would reveal both marks; pin them. */
-            tr_mark.set_no_show_all (!turkish);
-            en_mark.set_no_show_all (turkish);
-            tr_mark.set_visible (turkish);
-            en_mark.set_visible (!turkish);
+            foreach (unowned Gtk.Widget child in rows.get_children ()) {
+                rows.remove (child);
+            }
+            string active = Keyboard.current_id ();
+            foreach (unowned string id in Keyboard.menu_ids ()) {
+                rows.pack_start (layout_row (id, id == active),
+                                 false, false, 0);
+            }
+            rows.show_all ();
         }
     }
 

@@ -53,7 +53,9 @@ namespace Kavis.Ui {
         }
     }
 
-    /* Active keyboard layout (TR/EN); clicking opens the switcher. */
+    /* Active keyboard layout (TR/EN); left OR right click opens the
+     * switcher — F4 asked for the right-click menu explicitly, and the
+     * left click keeps working as it always did. */
     public class KeyboardIndicator : Gtk.Button {
 
         private Gtk.Label text_label;
@@ -69,6 +71,13 @@ namespace Kavis.Ui {
             popup = new KeyboardPopup ();
             popup.changed.connect (() => refresh ());
             clicked.connect (() => popup.toggle_at (this));
+            button_press_event.connect ((event) => {
+                if (event.button == 3) {
+                    popup.toggle_at (this);
+                    return true;
+                }
+                return false;
+            });
 
             refresh ();
             /* Optimization pass: event-driven instead of spawning

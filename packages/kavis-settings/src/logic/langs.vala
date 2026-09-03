@@ -170,6 +170,112 @@ namespace Kavis.Settings.Langs {
         }
     }
 
+    /* code -> English name. Used ONLY as the fallback below: the
+     * endonym is the name we want to show, but the font has to be able
+     * to draw it. Not run through gettext — these are English names by
+     * definition, the translated one would be the endonym. */
+    private unowned string english_of (string code) {
+        switch (code) {
+        case "en":     return "English";
+        case "tr":     return "Turkish";
+        case "en_GB":  return "English (UK)";
+        case "de":     return "German";
+        case "fr":     return "French";
+        case "es":     return "Spanish";
+        case "es_MX":  return "Spanish (Mexico)";
+        case "it":     return "Italian";
+        case "pt_PT":  return "Portuguese";
+        case "pt_BR":  return "Portuguese (Brazil)";
+        case "nl":     return "Dutch";
+        case "pl":     return "Polish";
+        case "cs":     return "Czech";
+        case "sk":     return "Slovak";
+        case "sl":     return "Slovenian";
+        case "hr":     return "Croatian";
+        case "bs":     return "Bosnian";
+        case "sr":     return "Serbian";
+        case "mk":     return "Macedonian";
+        case "sq":     return "Albanian";
+        case "bg":     return "Bulgarian";
+        case "ro":     return "Romanian";
+        case "hu":     return "Hungarian";
+        case "el":     return "Greek";
+        case "ru":     return "Russian";
+        case "uk":     return "Ukrainian";
+        case "be":     return "Belarusian";
+        case "lt":     return "Lithuanian";
+        case "lv":     return "Latvian";
+        case "et":     return "Estonian";
+        case "fi":     return "Finnish";
+        case "sv":     return "Swedish";
+        case "da":     return "Danish";
+        case "nb":     return "Norwegian Bokmål";
+        case "is":     return "Icelandic";
+        case "ga":     return "Irish";
+        case "cy":     return "Welsh";
+        case "ca":     return "Catalan";
+        case "gl":     return "Galician";
+        case "eu":     return "Basque";
+        case "ar":     return "Arabic";
+        case "he":     return "Hebrew";
+        case "fa":     return "Persian";
+        case "ku":     return "Kurdish";
+        case "ckb":    return "Central Kurdish";
+        case "az":     return "Azerbaijani";
+        case "kk":     return "Kazakh";
+        case "ky":     return "Kyrgyz";
+        case "uz":     return "Uzbek";
+        case "tk":     return "Turkmen";
+        case "tg":     return "Tajik";
+        case "hy":     return "Armenian";
+        case "ka":     return "Georgian";
+        case "hi":     return "Hindi";
+        case "ur":     return "Urdu";
+        case "bn":     return "Bengali";
+        case "pa":     return "Punjabi";
+        case "gu":     return "Gujarati";
+        case "mr":     return "Marathi";
+        case "ta":     return "Tamil";
+        case "te":     return "Telugu";
+        case "kn":     return "Kannada";
+        case "ml":     return "Malayalam";
+        case "si":     return "Sinhala";
+        case "ne":     return "Nepali";
+        case "zh_CN":  return "Chinese (Simplified)";
+        case "zh_TW":  return "Chinese (Traditional)";
+        case "ja":     return "Japanese";
+        case "ko":     return "Korean";
+        case "th":     return "Thai";
+        case "vi":     return "Vietnamese";
+        case "id":     return "Indonesian";
+        case "ms":     return "Malay";
+        case "tl":     return "Filipino";
+        case "mn":     return "Mongolian";
+        case "sw":     return "Swahili";
+        case "am":     return "Amharic";
+        case "zu":     return "Zulu";
+        case "af":     return "Afrikaans";
+        default:      return code;
+        }
+    }
+
+    /* The name to put in the language list. The ISO carries no Noto
+     * font pack yet (that is group G / decision 7), so an endonym in a
+     * script the current fonts do not cover would render as a row of
+     * tofu boxes. Rather than hardcoding which languages those are, ASK
+     * PANGO: lay the endonym out with the widget's own font and count
+     * the unknown glyphs; a single one means the user could not read
+     * the row, so the English name is shown instead. Once the Noto
+     * fonts land the same code silently starts showing endonyms. */
+    public string display_name (Gtk.Widget probe, string code,
+                                string endonym) {
+        var layout = probe.create_pango_layout (endonym);
+        if (layout.get_unknown_glyphs_count () > 0) {
+            return english_of (code);
+        }
+        return endonym;
+    }
+
     /* Selector order (dil-secici.md): 100% first, then percent desc,
      * 0% alphabetical at the end. English (the msgid source) is put on
      * top as a synthetic 100% entry. */

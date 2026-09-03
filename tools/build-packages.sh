@@ -71,6 +71,10 @@ prepare_sources() {
 			packages/kavis-panel/src/logic/brightness.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-panel/src/logic/theme.vala
+		# F4: the xkeyboard-config catalogue is read by Settings
+		# (full list) and by the panel (the configured layouts).
+		install -m644 packages/kavis-common/xkb.vala \
+			packages/kavis-panel/src/logic/xkb.vala
 		# Translations (Group D task c): po/ is canonical; the panel
 		# build runs msgfmt and ships kavis.mo in the package.
 		rm -rf packages/kavis-panel/po
@@ -90,6 +94,8 @@ prepare_sources() {
 			packages/kavis-settings/src/logic/brightness.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-settings/src/logic/theme.vala
+		install -m644 packages/kavis-common/xkb.vala \
+			packages/kavis-settings/src/logic/xkb.vala
 		# H4: the hardware/system reader is shared by Settings and Task Manager.
 		install -m644 packages/kavis-common/sysinfo.vala \
 			packages/kavis-settings/src/logic/sysinfo.vala

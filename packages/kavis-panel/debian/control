@@ -26,6 +26,7 @@ Depends:
  libgtk-3-0t64 (<< 3.25),
  kavis-theme,
  x11-xkb-utils,
+ xkb-data,
  librsvg2-common,
  alsa-utils,
 Description: Kavis taskbar and start menu
