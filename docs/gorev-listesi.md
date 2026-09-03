@@ -555,6 +555,15 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       CI'da üretilir, senaryosuz madde kırmızı. Kod ve ilk 5 senaryo
       Grup F kapanışında.
 
+73. **TUVAL — nesne düzenleme ve bağlamsal üst çubuk (2026-09-03 eki,
+    13b-EK).** Tasarım docs/tuval-tasarimi.md: her nesne (fırça darbesi
+    dahil) sonradan seçilip düzenlenir; Word/PowerPoint tutamakları
+    (köşe oranlı, kenar tek yön, döndürme tutamağı, Shift/Ctrl/Alt
+    kipleri); çift tık davranışları; seçime göre değişen üst çubuk;
+    stil kopyala/biçim boyacısı; geri alma; selftest senaryosu.
+    Önceki Tuval tasarımı depoda yok — bulununca belgeye eklenecek.
+    Grubu: Grup F sonrası (karar bekliyor).
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,
