@@ -13,6 +13,10 @@ quick-renames-with-pause-in-between=true
 # F2 çoklu seçimde toplu yeniden adlandırma aracı (madde 39; Mint'in
 # bulky'si trixie'de yok, gprename var — bkz. docs/referans/nemo.md).
 bulk-rename-tool=b'gprename'
+# 4B: tarih sütunu locale biçiminde — nemo 6.0'ın varsayılanı da bu;
+# panel saatiyle aynı dili konuşması ürün gereği olduğundan üst sürüm
+# değiştirmesin diye açıkça sabitleniyor.
+date-format='locale'
 
 [org.nemo.list-view]
 # Sütunlar ve sırası: Name / Modified / Type / Size (test8 F).

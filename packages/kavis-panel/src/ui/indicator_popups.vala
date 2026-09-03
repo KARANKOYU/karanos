@@ -196,7 +196,9 @@ namespace Kavis.Ui {
             var toggle = new Gtk.Button ();
             toggle.set_relief (Gtk.ReliefStyle.NONE);
             var line = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
-            var when = new Gtk.Label (entry.timestamp.format ("%H:%M"));
+            /* 4B: bildirim saati de locale'i izler (EN 3:04 PM). */
+            var when = new Gtk.Label (
+                entry.timestamp.format (TimeFmt.time_format ()));
             when.get_style_context ().add_class ("dim");
             when.set_xalign (0);
             line.pack_start (when, true, true, 0);

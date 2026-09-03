@@ -42,10 +42,14 @@ namespace Kavis.Ui {
 
         private void refresh () {
             var now = new DateTime.now_local ();
-            /* Dikey panelde (test8 A1) yıl sığmıyor: kısa tarih. */
+            /* 4B: biçim locale'den (EN 3:04 PM + 09/02/2026, TR 15:04
+             * + 02.09.2026). Dikey panelde (test8 A1) yıl sığmıyor:
+             * kısa tarih. */
             text_label.set_markup ("<small>%s\n%s</small>".printf (
-                now.format ("%H:%M"),
-                now.format (vertical ? "%d.%m" : "%d.%m.%Y")));
+                Markup.escape_text (now.format (TimeFmt.time_format ())),
+                Markup.escape_text (now.format (vertical
+                    ? TimeFmt.short_date_format ()
+                    : TimeFmt.date_format ()))));
         }
     }
 
