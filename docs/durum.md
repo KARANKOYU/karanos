@@ -382,6 +382,21 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - GRUP F 4. ADIM BİTTİ (3 Eyl, CI işleri): c065a86 Start etiketi
+>   ellipsize'sız + genişlik stderr'e, CI EN/xx koşup <%30 büyümede
+>   I18N-WIDTH-WARN (4A — yerel ölçüm EN=31px/xx=53px), 62d5a9c
+>   TimeFmt: saat/tarih nl_langinfo'dan (EN 3:04 PM 09/02/2026;
+>   tr istisnası nokta — glibc çizgi kullanıyor), nemo date-format
+>   'locale' sabitlendi (4B), f09c1ea firefox-esr(+l10n-tr) ISO'ya,
+>   ikon zinciri Kavis→Papirus-Dark→Adwaita→hicolor, papirus
+>   kavis-theme Depends'i; sabitli listesi zaten doğru sıradaydı,
+>   eksik olan uygulamaların kendisiydi (4C), 28312a0 boot-sound'dan
+>   After=systemd-udev-trigger kalktı — SOUND-DELAY'in kaynağı,
+>   aygıtı script zaten yokluyor (4D), c852a9d ağ göstergesi
+>   nmcli aygıt listesinden: kablolu önceliği, offline ikonlar,
+>   donanım yoksa gizli (4E). SOUND-DELAY/I18N-WIDTH etkisi ancak
+>   CI'da görülür. Sıra: 5. ADIM (eski maddelerin doğrulanması),
+>   sonra etiket v0.4-test1.
 > - v0.3-test5 sonrası VM geri bildirim turu (6 madde) BİTTİ:
 >   ab4c858 (hizalama+opaklık), 4583e5d (2a bildirim merkezi),
 >   6deba0d (2b hızlı ayarlar), 7539fb2 (2c klavye popup),
