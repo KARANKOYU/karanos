@@ -13,9 +13,15 @@ Documentation=file:///usr/share/doc/kavis-boot/README.md
 # Artık servis mümkün olan en erken noktada başlıyor ve ses aygıtını
 # BEKLEMEYİ script'in kendisi yapıyor (sınırlı süreyle). Böylece
 # başlama anı öngörülebilir ve splash'i tutan sıralama işliyor.
+#
+# NEDEN `systemd-udev-trigger` da YOK (4D): After=systemd-udev-trigger
+# SOUND-DELAY'i 3.7-4.0 saniyeye çıkarıyordu — KVM'siz QEMU'da trigger
+# splash başladıktan saniyeler sonra bitiyor ve servis o kadar bekliyordu.
+# Aygıt düğümünü script zaten kendi yokladığı için (0,2 sn'de bir,
+# en çok 8 sn) sıralama bağı gereksiz: tek koşulumuz splash'ten önce
+# başlamamak, onu da plymouth-start satırı sağlıyor.
 DefaultDependencies=no
-After=systemd-udev-trigger.service plymouth-start.service
-Wants=systemd-udev-trigger.service
+After=plymouth-start.service
 
 # Splash'i müzik bitene kadar tutan asıl mekanizma BU İKİ SATIR.
 # plymouth-quit tarafındaki drop-in'ler de aynı sıralamayı söylüyor;
