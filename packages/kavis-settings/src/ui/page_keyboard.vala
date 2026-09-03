@@ -64,7 +64,6 @@ namespace Kavis.Settings.Pages {
                 return;
             }
             conf_set ("keyboard", "language", code);
-            set_session_language (code);
             if (percent == 0) {
                 note.label = _("This language is not translated yet; the interface will appear in English. Contribute at %s")
                     .printf (CONTRIB_URL);
@@ -72,8 +71,12 @@ namespace Kavis.Settings.Pages {
                 note.label = _("%d%% translated — untranslated parts appear in English")
                     .printf (percent);
             } else {
-                note.label = _("Takes effect at the next sign-in");
+                note.label = _("Applying…");
             }
+            /* B6: sistem dili — yazımlar, locale-gen (pkexec), panel
+             * conf'u izleyip yeniden başlar, bildirim, Ayarlar kendini
+             * yeni dille yeniden açar. */
+            Apply.language (code, Langs.locale_of (code));
         });
         var list_scroll = new Gtk.ScrolledWindow (null, null);
         list_scroll.set_min_content_height (220);
@@ -105,57 +108,63 @@ namespace Kavis.Settings.Pages {
 
         /* --- Kısayollar (madde 34: liste; düzenleme yakalama
          * widget'ı ayrı iş — ayarlar.md taraması) --- */
+        /* B7: bölümler + tuş rozetleri (W11 kısayol listesi). Kaynak
+         * rc.xml (0210 hook'u) ve panelin kendi bağları. */
         body.pack_start (group (_("Shortcuts")), false, false, 0);
+        body.pack_start (group (_("System")), false, false, 0);
         add_shortcut (body, "Win", _("Start menu"));
-        add_shortcut (body, "Win+1…0", _("Open pinned app"));
-        add_shortcut (body, "Win+Tab", _("Task view"));
-        add_shortcut (body, "Win+Z", _("Snap layouts"));
+        add_shortcut (body, "Win+L", _("Lock"));
+        add_shortcut (body, "Ctrl+Alt+Del", _("Security screen"));
         add_shortcut (body, "Win+V", _("Clipboard history"));
         add_shortcut (body, "Win+.", _("Emoji and more"));
-        add_shortcut (body, "Win+Shift+S", _("Screenshot"));
-        add_shortcut (body, "Win+Shift+C", _("Color picker"));
+        body.pack_start (group (_("Window")), false, false, 0);
         add_shortcut (body, "Alt+F4",
                       _("Close window / power dialog"));
-        add_shortcut (body, "Ctrl+Alt+Del", _("Security screen"));
+        add_shortcut (body, "Alt+Tab", _("Switch windows"));
+        add_shortcut (body, "Win+←  Win+→", _("Snap left / right"));
+        add_shortcut (body, "Win+↑  Win+↓", _("Maximize / restore"));
+        add_shortcut (body, "Win+Z", _("Snap layouts"));
+        add_shortcut (body, "Win+D", _("Show desktop"));
+        body.pack_start (group (_("Virtual desktops")), false, false, 0);
+        add_shortcut (body, "Ctrl+Win+←  Ctrl+Win+→",
+                      _("Previous / next desktop"));
+        add_shortcut (body, "Win+Tab", _("Task view"));
+        body.pack_start (group (_("Screen")), false, false, 0);
+        add_shortcut (body, "PrtSc", _("Screenshot"));
+        add_shortcut (body, "Win+Shift+S", _("Screenshot"));
+        add_shortcut (body, "Win+Shift+C", _("Color picker"));
+        body.pack_start (group (_("Apps")), false, false, 0);
+        add_shortcut (body, "Win+E", _("Files"));
+        add_shortcut (body, "Win+I", _("Settings"));
+        add_shortcut (body, "Win+R", _("Run"));
+        add_shortcut (body, "Win+1…0", _("Open pinned app"));
 
         return page;
     }
 
-    /* One shortcut row: description left, key combo right. */
+    /* One shortcut row: description left, each key as a badge right
+     * ("Win+Shift+S" → three badges; two spaces separate alternatives). */
     private void add_shortcut (Gtk.Box body, string keys,
                                string description) {
-        var value = new Gtk.Label (keys);
-        value.get_style_context ().add_class ("dim-label");
-        body.pack_start (row (description, null, value),
+        var badges = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
+        foreach (unowned string combo in keys.split ("  ")) {
+            if (badges.get_children ().length () > 0) {
+                badges.pack_start (new Gtk.Label ("/"), false, false, 4);
+            }
+            bool first = true;
+            foreach (unowned string key in combo.split ("+")) {
+                if (!first) {
+                    badges.pack_start (new Gtk.Label ("+"),
+                                       false, false, 0);
+                }
+                first = false;
+                var badge = new Gtk.Label (key);
+                badge.get_style_context ().add_class ("kavis-key");
+                badges.pack_start (badge, false, false, 0);
+            }
+        }
+        body.pack_start (row (description, null, badges),
                          false, false, 0);
     }
 
-    /* LANG for the NEXT session: Debian Xsession sources ~/.xsessionrc.
-     * en → distro default (en_US), tr → tr_TR; both locales are
-     * generated on the ISO (test8 E2). Other codes fall back to
-     * ll_CC=ll upper guess and may need locale generation later. */
-    private void set_session_language (string code) {
-        string locale;
-        switch (code) {
-        case "en": locale = "en_US.UTF-8"; break;
-        case "tr": locale = "tr_TR.UTF-8"; break;
-        default:
-            if (code.contains ("_")) {
-                locale = code + ".UTF-8";
-            } else {
-                locale = "%s_%s.UTF-8".printf (code, code.up ());
-            }
-            break;
-        }
-        string path = Path.build_filename (
-            Environment.get_home_dir (), ".xsessionrc");
-        try {
-            FileUtils.set_contents (path,
-                "# Kavis Ayarlar > Dil yazdı.\nexport LANG=%s\nexport LANGUAGE=%s\n"
-                    .printf (locale, code));
-        } catch (Error e) {
-            warning ("kavis-settings: .xsessionrc yazilamadi: %s",
-                     e.message);
-        }
-    }
 }
