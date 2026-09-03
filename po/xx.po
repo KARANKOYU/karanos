@@ -405,6 +405,12 @@ msgstr "⟪Could not remove the device — files may still be in use······
 msgid "Still writing — do not remove"
 msgstr "⟪Still writing — do not remove···········⟫"
 
+msgid "Language changed"
+msgstr "⟪Language changed······⟫"
+
+msgid "Sign out and back in for the change to take full effect."
+msgstr "⟪Sign out and back in for the change to take full effect.······················⟫"
+
 msgid "%s used of %s"
 msgstr "⟪%s used of %s·····⟫"
 
@@ -513,8 +519,8 @@ msgstr "⟪Language···⟫"
 msgid "%d%% translated — untranslated parts appear in English"
 msgstr "⟪%d%% translated — untranslated parts appear in English·····················⟫"
 
-msgid "Takes effect at the next sign-in"
-msgstr "⟪Takes effect at the next sign-in············⟫"
+msgid "Applying…"
+msgstr "⟪Applying…···⟫"
 
 msgid "Layout"
 msgstr "⟪Layout··⟫"
@@ -528,14 +534,38 @@ msgstr "⟪Shortcuts···⟫"
 msgid "Start menu"
 msgstr "⟪Start menu····⟫"
 
-msgid "Open pinned app"
-msgstr "⟪Open pinned app······⟫"
+msgid "Security screen"
+msgstr "⟪Security screen······⟫"
+
+msgid "Window"
+msgstr "⟪Window··⟫"
+
+msgid "Close window / power dialog"
+msgstr "⟪Close window / power dialog··········⟫"
+
+msgid "Switch windows"
+msgstr "⟪Switch windows·····⟫"
+
+msgid "Snap left / right"
+msgstr "⟪Snap left / right······⟫"
+
+msgid "Maximize / restore"
+msgstr "⟪Maximize / restore·······⟫"
+
+msgid "Snap layouts"
+msgstr "⟪Snap layouts····⟫"
+
+msgid "Virtual desktops"
+msgstr "⟪Virtual desktops······⟫"
+
+msgid "Previous / next desktop"
+msgstr "⟪Previous / next desktop·········⟫"
 
 msgid "Task view"
 msgstr "⟪Task view···⟫"
 
-msgid "Snap layouts"
-msgstr "⟪Snap layouts····⟫"
+msgid "Screen"
+msgstr "⟪Screen··⟫"
 
 msgid "Screenshot"
 msgstr "⟪Screenshot····⟫"
@@ -543,11 +573,14 @@ msgstr "⟪Screenshot····⟫"
 msgid "Color picker"
 msgstr "⟪Color picker····⟫"
 
-msgid "Close window / power dialog"
-msgstr "⟪Close window / power dialog··········⟫"
+msgid "Files"
+msgstr "⟪Files··⟫"
 
-msgid "Security screen"
-msgstr "⟪Security screen······⟫"
+msgid "Run"
+msgstr "⟪Run··⟫"
+
+msgid "Open pinned app"
+msgstr "⟪Open pinned app······⟫"
 
 msgid "Available networks"
 msgstr "⟪Available networks·······⟫"
@@ -671,9 +704,6 @@ msgstr "⟪Ellipse··⟫"
 
 msgid "Freeform"
 msgstr "⟪Freeform···⟫"
-
-msgid "Window"
-msgstr "⟪Window··⟫"
 
 msgid "Full screen"
 msgstr "⟪Full screen····⟫"

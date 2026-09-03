@@ -140,6 +140,7 @@ namespace Kavis.Ui {
         private StartMenu start_menu;
         private int logged_start_width = 0;
         private Gtk.Image start_logo;
+        private string current_language = "";
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
         private Gtk.Box right_box;
@@ -278,8 +279,24 @@ namespace Kavis.Ui {
              * pahalı ve hataya açık, restart_self zaten var. Panelin
              * KENDİ save()'i de izleyiciyi tetikler; alanlar zaten
              * eşit olduğundan döngü oluşmaz. */
+            try {
+                current_language = Config.load ()
+                    .get_string ("keyboard", "language");
+            } catch (Error e) { }
             config_monitor = Config.watch (() => {
                 var fresh = PanelConfig.load ();
+                /* B6: dil değişti → gettext yeniden bağlanmalı; en
+                 * ucuz doğru yol yeniden başlamak (AppInit yeni dili
+                 * ~/.config/kavis/locale'den alır). */
+                string lang = "";
+                try {
+                    lang = Config.load ().get_string ("keyboard", "language");
+                } catch (Error e) { }
+                if (lang != current_language) {
+                    current_language = lang;
+                    restart_self ();
+                    return;
+                }
                 if (fresh.position != config.position
                     || fresh.thickness != config.thickness
                     || fresh.alignment != config.alignment
@@ -1406,7 +1423,14 @@ namespace Kavis.Ui {
         private void restart_self () {
             config.save ();
             string[] argv = { "kavis-panel" };
-            Posix.execv ("/proc/self/exe", argv);
+            /* Gerçek yolu çöz: /proc/self/exe ile exec edilince süreç
+             * adı (comm) "exe" oluyor ve pgrep/pkill -x kavis-panel
+             * (CI, tek örnek denetimleri) paneli göremiyor (B6 testi). */
+            string exe = "/proc/self/exe";
+            try {
+                exe = FileUtils.read_link ("/proc/self/exe");
+            } catch (FileError e) { }
+            Posix.execv (exe, argv);
             /* exec döndüyse başarısızdır — panelsiz kalma. */
             warning ("kavis-panel: yeniden baslatilamadi, ayar sonraki acilista gecerli");
         }

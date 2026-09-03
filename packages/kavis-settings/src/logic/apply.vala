@@ -98,6 +98,46 @@ namespace Kavis.Settings.Apply {
         Run.fire ({ "openbox", "--reconfigure" });
     }
 
+    /* System language (B6). Order matters: files first (every Kavis
+     * process reads ~/.config/kavis/locale in AppInit, the panel
+     * restarts on the kavis.conf change), then the root part through
+     * pkexec (/etc/default/locale + locale-gen — takes a few seconds
+     * on first use of a language), a notification, and finally this
+     * process re-executes itself so Settings speaks the new language. */
+    public void language (string code, string locale) {
+        string dir = Path.build_filename (
+            Environment.get_user_config_dir (), "kavis");
+        DirUtils.create_with_parents (dir, 0755);
+        try {
+            FileUtils.set_contents (Path.build_filename (dir, "locale"),
+                "LANG=%s\nLANGUAGE=%s\n".printf (locale, code));
+            /* Debian Xsession ~/.xsessionrc'yi kaynaklar: bir sonraki
+             * oturumda X altındaki HER süreç aynı dili görür. */
+            FileUtils.set_contents (
+                Path.build_filename (Environment.get_home_dir (),
+                                     ".xsessionrc"),
+                "# Kavis Ayarlar > Dil yazdı.\nexport LANG=%s\nexport LANGUAGE=%s\n"
+                    .printf (locale, code));
+        } catch (Error e) {
+            warning ("kavis-settings: dil dosyalari yazilamadi: %s",
+                     e.message);
+        }
+        /* Root kısmı arka planda; bitince bildirim. */
+        Run.fire ({ "sh", "-c",
+            "pkexec /usr/lib/kavis/set-locale '" + locale + "'; "
+            + "gdbus call --session --dest org.freedesktop.Notifications "
+            + "--object-path /org/freedesktop/Notifications "
+            + "--method org.freedesktop.Notifications.Notify "
+            + "kavis-settings 0 preferences-desktop-locale "
+            + "\"" + _("Language changed") + "\" "
+            + "\"" + _("Sign out and back in for the change to take full effect.") + "\" "
+            + "'[]' '{}' 8000 >/dev/null 2>&1" });
+        /* Kendini yeni dille yeniden aç (klavye bölümünde). */
+        Environment.set_variable ("LANG", locale, true);
+        Environment.set_variable ("LANGUAGE", code, true);
+        Posix.execvp ("kavis-settings", { "kavis-settings", "keyboard" });
+    }
+
     /* percent: 100/125/150/200 → Xft DPI (xsettingsd wants it ×1024). */
     public void scale (int percent) {
         int dpi = 96 * percent / 100;

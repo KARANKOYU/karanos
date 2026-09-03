@@ -18,6 +18,8 @@ Depends:
  kavis-panel,
  x11-xserver-utils,
  network-manager,
+ pkexec,
+ locales,
 Description: Kavis Ayarlar — sistem ayarları uygulaması (madde 9)
  Windows 11 Ayarlar düzeninde tek pencere: solda aranabilir bölüm
  listesi, sağda içerik. Görünüm, ekran, ses, klavye/dil, güç, ağ,

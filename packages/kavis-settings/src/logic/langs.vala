@@ -17,6 +17,74 @@ namespace Kavis.Settings.Langs {
 
     private const string STATS = "/usr/share/kavis/i18n-stats.json";
 
+    /* glibc locale for a LINGUAS code (B6). Region defaults follow the
+     * language's largest/primary glibc locale; codes carrying a region
+     * (pt_BR, zh_TW) pass through. */
+    public string locale_of (string code) {
+        if (code.contains ("_")) {
+            return code + ".UTF-8";
+        }
+        string region;
+        switch (code) {
+        case "en": region = "US"; break;
+        case "ja": region = "JP"; break;
+        case "ko": region = "KR"; break;
+        case "sv": region = "SE"; break;
+        case "da": region = "DK"; break;
+        case "cs": region = "CZ"; break;
+        case "el": region = "GR"; break;
+        case "he": region = "IL"; break;
+        case "hi": region = "IN"; break;
+        case "bn": region = "BD"; break;
+        case "pa": region = "IN"; break;
+        case "gu": region = "IN"; break;
+        case "mr": region = "IN"; break;
+        case "ta": region = "IN"; break;
+        case "te": region = "IN"; break;
+        case "kn": region = "IN"; break;
+        case "ml": region = "IN"; break;
+        case "ur": region = "PK"; break;
+        case "ne": region = "NP"; break;
+        case "si": region = "LK"; break;
+        case "ar": region = "SA"; break;
+        case "fa": region = "IR"; break;
+        case "ku": region = "TR"; break;
+        case "ckb": region = "IQ"; break;
+        case "uk": region = "UA"; break;
+        case "be": region = "BY"; break;
+        case "sl": region = "SI"; break;
+        case "sr": region = "RS"; break;
+        case "bs": region = "BA"; break;
+        case "sq": region = "AL"; break;
+        case "et": region = "EE"; break;
+        case "ca": region = "ES"; break;
+        case "gl": region = "ES"; break;
+        case "eu": region = "ES"; break;
+        case "cy": region = "GB"; break;
+        case "ga": region = "IE"; break;
+        case "nb": region = "NO"; break;
+        case "vi": region = "VN"; break;
+        case "th": region = "TH"; break;
+        case "ms": region = "MY"; break;
+        case "tl": region = "PH"; break;
+        case "sw": region = "KE"; break;
+        case "am": region = "ET"; break;
+        case "zu": region = "ZA"; break;
+        case "af": region = "ZA"; break;
+        case "az": region = "AZ"; break;
+        case "kk": region = "KZ"; break;
+        case "ky": region = "KG"; break;
+        case "uz": region = "UZ"; break;
+        case "tk": region = "TM"; break;
+        case "tg": region = "TJ"; break;
+        case "hy": region = "AM"; break;
+        case "ka": region = "GE"; break;
+        case "mn": region = "MN"; break;
+        default:   region = code.up (); break;
+        }
+        return "%s_%s.UTF-8".printf (code, region);
+    }
+
     /* code → endonym for every po/LINGUAS entry. */
     private unowned string endonym_of (string code) {
         switch (code) {

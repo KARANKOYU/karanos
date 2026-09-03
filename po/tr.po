@@ -686,9 +686,6 @@ msgstr "Bu dil henüz çevrilmedi, arayüz İngilizce görünür. Çeviriye katk
 msgid "%d%% translated — untranslated parts appear in English"
 msgstr "%%%d çevrildi — eksikler İngilizce görünür"
 
-msgid "Takes effect at the next sign-in"
-msgstr "Bir sonraki oturum açılışında geçerli olur"
-
 msgid "Layout"
 msgstr "Düzen"
 
@@ -827,3 +824,37 @@ msgstr "Masaüstünde pencere var — önce taşıyın ya da kapatın"
 
 msgid "Dark is the default"
 msgstr "Koyu varsayılandır"
+
+
+msgid "Language changed"
+msgstr "Dil değiştirildi"
+
+msgid "Sign out and back in for the change to take full effect."
+msgstr "Değişikliğin tam etkisi için oturumu kapatıp yeniden açın."
+
+msgid "Applying…"
+msgstr "Uygulanıyor…"
+
+msgid "Switch windows"
+msgstr "Pencereler arasında geçiş"
+
+msgid "Snap left / right"
+msgstr "Sola / sağa yasla"
+
+msgid "Maximize / restore"
+msgstr "Büyüt / geri yükle"
+
+msgid "Virtual desktops"
+msgstr "Sanal masaüstleri"
+
+msgid "Previous / next desktop"
+msgstr "Önceki / sonraki masaüstü"
+
+msgid "Screen"
+msgstr "Ekran"
+
+msgid "Files"
+msgstr "Dosyalar"
+
+msgid "Run"
+msgstr "Çalıştır"

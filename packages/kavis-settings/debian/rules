@@ -26,6 +26,12 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/share/applications
 	install -m644 desktop/kavis-settings.desktop \
 		$(DEST)/usr/share/applications/kavis-settings.desktop
+	# Sistem dili (B6): root yardımcısı + polkit izni (etkin kullanıcı
+	# parolasız; pkexec yolu annotate ile sabit).
+	install -d $(DEST)/usr/lib/kavis $(DEST)/usr/share/polkit-1/actions
+	install -m755 scripts/set-locale $(DEST)/usr/lib/kavis/set-locale
+	install -m644 polkit/org.kavis.settings.policy \
+		$(DEST)/usr/share/polkit-1/actions/org.kavis.settings.policy
 
 override_dh_auto_clean:
 	rm -f kavis-settings
