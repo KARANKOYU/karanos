@@ -32,8 +32,8 @@ namespace Kavis.Settings.Pages {
         body.pack_start (row (_("Size"), null, size), false, false, 0);
 
         var align = new Gtk.ComboBoxText ();
-        align.append ("left", _("Left (Windows 10)"));
-        align.append ("center", _("Center (Windows 11)"));
+        align.append ("left", _("Left"));
+        align.append ("center", _("Center"));
         align.active_id = conf_get ("taskbar", "align", "left");
         align.changed.connect (() => {
             conf_set ("taskbar", "align", align.active_id);
