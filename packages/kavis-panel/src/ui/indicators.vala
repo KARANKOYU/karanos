@@ -71,7 +71,13 @@ namespace Kavis.Ui {
             clicked.connect (() => popup.toggle_at (this));
 
             refresh ();
-            Timeout.add_seconds (2, () => {
+            /* Optimizasyon turu: 2 sn'de bir setxkbmap doğurmak yerine
+             * olay tabanlı — X klavye eşlemi değişince (2F: aygıt
+             * yeniden takılması) GDK keys_changed verir; 30 sn'lik
+             * yoklama yalnız emniyet ağı. 60 süreç/dk → ~0. */
+            var keymap = Gdk.Keymap.get_for_display (Gdk.Display.get_default ());
+            keymap.keys_changed.connect (() => refresh ());
+            Timeout.add_seconds (30, () => {
                 refresh ();
                 return Source.CONTINUE;
             });
