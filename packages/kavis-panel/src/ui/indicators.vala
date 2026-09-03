@@ -400,38 +400,33 @@ namespace Kavis.Ui {
             return true;
         }
 
-        /* ✕: boş masaüstünü kapat — sonrakilerdeki pencereler bir sola
-         * kayar ki numaralar bitişik kalsın, sonra sayı bir azalır. */
-        private void close_workspace (int number) {
+        /* C1 (v0.4-test2): ✕ her zaman EN SAĞDAKİ masaüstünü kapatır;
+         * içindeki pencereler bir öncekine taşınır (tooltip söyler). */
+        private void close_last_workspace () {
             int count = screen.get_workspace_count ();
-            if (count <= 1 || !workspace_empty (number)) {
+            if (count <= 1) {
                 return;
             }
-            foreach (unowned Wnck.Window window in
-                     screen.get_windows ()) {
-                unowned Wnck.Workspace? workspace =
-                    window.get_workspace ();
-                if (workspace != null
-                    && workspace.get_number () > number) {
-                    unowned Wnck.Workspace? target =
-                        screen.get_workspace (
-                            workspace.get_number () - 1);
-                    if (target != null) {
-                        window.move_to_workspace (target);
-                    }
+            int last = count - 1;
+            unowned Wnck.Workspace? previous = screen.get_workspace (last - 1);
+            foreach (unowned Wnck.Window window in screen.get_windows ()) {
+                unowned Wnck.Workspace? workspace = window.get_workspace ();
+                if (workspace != null && workspace.get_number () == last
+                    && previous != null) {
+                    window.move_to_workspace (previous);
                 }
             }
-            unowned Wnck.Workspace? active =
-                screen.get_active_workspace ();
-            if (active != null && active.get_number () >= count - 1) {
-                unowned Wnck.Workspace? last =
-                    screen.get_workspace (count - 2);
-                if (last != null) {
-                    last.activate (Gtk.get_current_event_time ());
-                }
+            unowned Wnck.Workspace? active = screen.get_active_workspace ();
+            if (active != null && active.get_number () == last
+                && previous != null) {
+                previous.activate (Gtk.get_current_event_time ());
             }
-            screen.change_workspace_count (count - 1);
-            save_count (count - 1);
+            screen.change_workspace_count (last);
+            save_count (last);
+        }
+
+        private bool last_workspace_has_windows () {
+            return !workspace_empty (screen.get_workspace_count () - 1);
         }
 
         private void rebuild () {
@@ -443,44 +438,19 @@ namespace Kavis.Ui {
             foreach (unowned Wnck.Workspace workspace in
                      screen.get_workspaces ()) {
                 int number = workspace.get_number ();
-                string caption = "%d".printf (number + 1);
-                var button = new Gtk.Button.with_label (caption);
+                var button = new Gtk.Button.with_label ("%d".printf (number + 1));
                 button.set_relief (Gtk.ReliefStyle.NONE);
                 button.set_tooltip_text (workspace.get_name () ?? "");
                 unowned Wnck.Workspace target = workspace;
-                /* D (v0.4-test1): boş masaüstünün üstüne gelince SAYI
-                 * ✕'e dönüşür (tarayıcı sekmesi gibi) — ayrı düğme yok,
-                 * satır kaymaz. Doluysa ✕ çıkmaz, tooltip nedenini
-                 * söyler. Tıklama: ✕ görünüyorsa kapat, değilse git. */
-                button.enter_notify_event.connect (() => {
-                    if (screen.get_workspace_count () > 1) {
-                        if (workspace_empty (number)) {
-                            button.set_label ("✕");
-                            button.set_tooltip_text (_("Close desktop"));
-                        } else {
-                            button.set_tooltip_text (_("Windows are open"));
-                        }
-                    }
-                    return false;
-                });
-                button.leave_notify_event.connect (() => {
-                    button.set_label (caption);
-                    button.set_tooltip_text (target.get_name () ?? "");
-                    return false;
-                });
                 button.clicked.connect (() => {
-                    if (button.get_label () == "✕") {
-                        close_workspace (number);
-                    } else {
-                        target.activate (Gtk.get_current_event_time ());
-                    }
+                    target.activate (Gtk.get_current_event_time ());
                 });
                 buttons += button;
                 numbers += number;
                 pack_start (button, false, false, 0);
             }
 
-            /* "+" — yeni masaüstü (3E), her zaman en sonda. */
+            /* "+" — yeni masaüstü (3E), hemen yanında sabit "✕" (C1). */
             var add_button = new Gtk.Button.with_label ("+");
             add_button.set_relief (Gtk.ReliefStyle.NONE);
             add_button.set_tooltip_text (_("New desktop"));
@@ -492,6 +462,18 @@ namespace Kavis.Ui {
                 }
             });
             pack_start (add_button, false, false, 0);
+
+            var close_button = new Gtk.Button.with_label ("✕");
+            close_button.set_relief (Gtk.ReliefStyle.NONE);
+            bool single = screen.get_workspace_count () <= 1;
+            close_button.set_sensitive (!single);
+            close_button.set_tooltip_text (single
+                ? _("Only one desktop")
+                : (last_workspace_has_windows ()
+                   ? _("Close the last desktop — its windows move to the previous one")
+                   : _("Close the last desktop")));
+            close_button.clicked.connect (() => close_last_workspace ());
+            pack_start (close_button, false, false, 0);
 
             show_all ();
             mark_active ();

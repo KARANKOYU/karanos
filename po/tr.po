@@ -782,12 +782,6 @@ msgstr "Küçük"
 msgid "Large"
 msgstr "Büyük"
 
-msgid "Left (Windows 10)"
-msgstr "Sol (Windows 10)"
-
-msgid "Center (Windows 11)"
-msgstr "Orta (Windows 11)"
-
 msgid "Start button and window list placement"
 msgstr "Başlat düğmesi ve pencere listesi yerleşimi"
 
@@ -855,13 +849,6 @@ msgstr "Dosyalar"
 
 msgid "Run"
 msgstr "Çalıştır"
-
-
-msgid "Close desktop"
-msgstr "Masaüstünü kapat"
-
-msgid "Windows are open"
-msgstr "Pencereler açık"
 
 
 msgid "Motherboard"
@@ -997,3 +984,13 @@ msgstr "Zorla kapat"
 
 msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
 msgstr "İşlemci %%%.0f   ·   Bellek %s / %s (%%%.0f)   ·   %d süreç"
+
+
+msgid "Only one desktop"
+msgstr "Tek masaüstü var"
+
+msgid "Close the last desktop — its windows move to the previous one"
+msgstr "Son masaüstünü kapat — pencereleri bir öncekine taşınır"
+
+msgid "Close the last desktop"
+msgstr "Son masaüstünü kapat"

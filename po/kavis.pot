@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 12:17+0000\n"
+"POT-Creation-Date: 2026-09-03 14:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -300,16 +300,20 @@ msgstr ""
 msgid "Balanced"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:459
-msgid "Close desktop"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:461
-msgid "Windows are open"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/indicators.vala:486
+#: packages/kavis-panel/src/ui/indicators.vala:456
 msgid "New desktop"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:471
+msgid "Only one desktop"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:473
+msgid "Close the last desktop — its windows move to the previous one"
+msgstr ""
+
+#: packages/kavis-panel/src/ui/indicators.vala:474
+msgid "Close the last desktop"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/overview.vala:179
@@ -317,115 +321,117 @@ msgstr ""
 msgid "Desktop %d"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:397
-#: packages/kavis-panel/src/ui/panel.vala:401
+#: packages/kavis-panel/src/ui/panel.vala:409
+#: packages/kavis-panel/src/ui/panel.vala:413
 msgid "Start"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:490
+#: packages/kavis-panel/src/ui/panel.vala:502
 #: packages/kavis-settings/src/ui/page_keyboard.vala:126
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1113
+#: packages/kavis-panel/src/ui/panel.vala:1158
 #, c-format
 msgid "Open %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1129
+#: packages/kavis-panel/src/ui/panel.vala:1174
 #: packages/kavis-panel/src/ui/start_menu.vala:215
 msgid "Unpin from taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1130
+#: packages/kavis-panel/src/ui/panel.vala:1175
 #: packages/kavis-panel/src/ui/start_menu.vala:215
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1146
+#: packages/kavis-panel/src/ui/panel.vala:1191
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1146
+#: packages/kavis-panel/src/ui/panel.vala:1191
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1242
+#: packages/kavis-panel/src/ui/panel.vala:1287
 #: packages/kavis-settings/src/ui/page_taskbar.vala:21
 #: packages/kavis-settings/src/ui/window.vala:127
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1250
+#: packages/kavis-panel/src/ui/panel.vala:1295
 #: packages/kavis-settings/src/ui/page_taskbar.vala:13
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1250
+#: packages/kavis-panel/src/ui/panel.vala:1295
 #: packages/kavis-settings/src/ui/page_taskbar.vala:14
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1251
+#: packages/kavis-panel/src/ui/panel.vala:1296
 #: packages/kavis-settings/src/ui/page_taskbar.vala:15
+#: packages/kavis-settings/src/ui/page_taskbar.vala:35
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1251
+#: packages/kavis-panel/src/ui/panel.vala:1296
 #: packages/kavis-settings/src/ui/page_taskbar.vala:16
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1272
+#: packages/kavis-panel/src/ui/panel.vala:1317
 #: packages/kavis-settings/src/ui/page_taskbar.vala:32
 #: packages/kavis-settings/src/ui/window.vala:127
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1280
+#: packages/kavis-panel/src/ui/panel.vala:1325
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1280
+#: packages/kavis-panel/src/ui/panel.vala:1325
 #: packages/kavis-settings/src/ui/page_taskbar.vala:26
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1280
+#: packages/kavis-panel/src/ui/panel.vala:1325
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1303
+#: packages/kavis-panel/src/ui/panel.vala:1348
 #: packages/kavis-settings/src/ui/page_taskbar.vala:41
 #: packages/kavis-settings/src/ui/window.vala:128
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1310
+#: packages/kavis-panel/src/ui/panel.vala:1355
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1310
+#: packages/kavis-panel/src/ui/panel.vala:1355
+#: packages/kavis-settings/src/ui/page_taskbar.vala:36
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1333
+#: packages/kavis-panel/src/ui/panel.vala:1378
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1338
+#: packages/kavis-panel/src/ui/panel.vala:1383
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1376
+#: packages/kavis-panel/src/ui/panel.vala:1421
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1393
+#: packages/kavis-panel/src/ui/panel.vala:1438
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1395
+#: packages/kavis-panel/src/ui/panel.vala:1440
 #: packages/kavis-tools/src/securemenu.vala:87
 #: packages/kavis-tools/src/tasks.vala:57
 #: packages/kavis-tools/src/tasks.vala:59
@@ -1021,14 +1027,6 @@ msgstr ""
 
 #: packages/kavis-settings/src/ui/page_taskbar.vala:27
 msgid "Large"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_taskbar.vala:35
-msgid "Left (Windows 10)"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_taskbar.vala:36
-msgid "Center (Windows 11)"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_taskbar.vala:42

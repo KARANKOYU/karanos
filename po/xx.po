@@ -177,14 +177,17 @@ msgstr "⟪Power saver····⟫"
 msgid "Balanced"
 msgstr "⟪Balanced···⟫"
 
-msgid "Close desktop"
-msgstr "⟪Close desktop·····⟫"
-
-msgid "Windows are open"
-msgstr "⟪Windows are open······⟫"
-
 msgid "New desktop"
 msgstr "⟪New desktop····⟫"
+
+msgid "Only one desktop"
+msgstr "⟪Only one desktop······⟫"
+
+msgid "Close the last desktop — its windows move to the previous one"
+msgstr "⟪Close the last desktop — its windows move to the previous one························⟫"
+
+msgid "Close the last desktop"
+msgstr "⟪Close the last desktop········⟫"
 
 msgid "Desktop %d"
 msgstr "⟪Desktop %d····⟫"
@@ -641,12 +644,6 @@ msgstr "⟪Small··⟫"
 
 msgid "Large"
 msgstr "⟪Large··⟫"
-
-msgid "Left (Windows 10)"
-msgstr "⟪Left (Windows 10)······⟫"
-
-msgid "Center (Windows 11)"
-msgstr "⟪Center (Windows 11)·······⟫"
 
 msgid "Start button and window list placement"
 msgstr "⟪Start button and window list placement···············⟫"
