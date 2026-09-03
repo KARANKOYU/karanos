@@ -226,10 +226,19 @@ namespace Kavis.Settings.Apply {
          * siyah kare yok. Yalnız kaydırıcı bırakılınca çağrılır. picom
          * hiç çalışmıyorsa (VM'de kapatılmış) kullanıcı kopyasıyla
          * başlatılır. */
+        /* Debug turu (3 Eyl): SIGUSR1 picom'un BAŞLADIĞI dosyayı yeniden
+         * okutur. Oturum kullanıcı kopyası olmadan açıldıysa picom
+         * /etc/xdg şablonuyla çalışıyordur ve sinyal hiçbir şeyi
+         * değiştirmez (VM'de görüldü). O durumda bir kez kullanıcı
+         * kopyasıyla yeniden başlatılır (~300 ms siyah kare, oturumda
+         * tek sefer); sonraki değişiklikler yine sinyalle. */
         Run.fire ({ "sh", "-c",
-            "pkill -USR1 -x picom || "
+            "pid=$(pgrep -x picom | head -1); "
+            + "if [ -n \"$pid\" ] && tr '\\0' ' ' < /proc/$pid/cmdline | grep -qF '"
+            + user_conf + "'; then kill -USR1 \"$pid\"; else "
+            + "pkill -x picom; sleep 0.3; "
             + "picom --backend xrender --config '" + user_conf
-            + "' -b" });
+            + "' -b; fi" });
     }
 
     /* The picom window rule for panel popups (C6). Durations are the
