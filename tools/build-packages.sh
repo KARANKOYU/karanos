@@ -86,6 +86,9 @@ prepare_sources() {
 			packages/kavis-settings/src/logic/brightness.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-settings/src/logic/theme.vala
+		# H4: donanım/sistem okuyucusu Ayarlar ve Görev Yöneticisi'nde ortak.
+		install -m644 packages/kavis-common/sysinfo.vala \
+			packages/kavis-settings/src/logic/sysinfo.vala
 		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src
@@ -98,6 +101,8 @@ prepare_sources() {
 			packages/kavis-tools/src/config.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-tools/src/theme.vala
+		install -m644 packages/kavis-common/sysinfo.vala \
+			packages/kavis-tools/src/sysinfo.vala
 		# Güç eylemleri (6d): Ctrl+Alt+Del ekranı panelin güç
 		# menüsüyle aynı logind komutlarını kullanır.
 		install -m644 packages/kavis-common/power.vala \

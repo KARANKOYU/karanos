@@ -10,9 +10,9 @@ namespace Kavis.Settings.Pages {
         var page = frame (title, out body);
 
         body.pack_start (group (_("About")), false, false, 0);
-        SysInfo.Fact[] facts = SysInfo.collect ();
+        Kavis.SysInfo.Fact[] facts = Kavis.SysInfo.collect ();
         var text = new StringBuilder ();
-        foreach (unowned SysInfo.Fact fact in facts) {
+        foreach (unowned Kavis.SysInfo.Fact fact in facts) {
             var value = new Gtk.Label (fact.value);
             value.set_xalign (1);
             value.set_selectable (true);
