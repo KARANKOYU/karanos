@@ -288,9 +288,17 @@ namespace Kavis.Ui {
              * donanımsız da görünür, xrandr yazılım kipiyle) --- */
             {
                 var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-                row_box.pack_start (new Gtk.Image.from_icon_name (
-                    "display-brightness-symbolic", Gtk.IconSize.BUTTON),
-                    false, false, 0);
+                /* D1 (test2): ikon, ses satırındaki sessize alma
+                 * düğmesiyle AYNI kapta (kenarlıksız düğme) — çıplak
+                 * Image'ın genişliği farklı olduğu için iki kaydırıcı
+                 * farklı x'te başlıyordu. Düğmenin işi yok. */
+                var icon_box = new Gtk.Button ();
+                icon_box.set_relief (Gtk.ReliefStyle.NONE);
+                icon_box.set_can_focus (false);
+                icon_box.set_tooltip_text (_("Brightness"));
+                icon_box.add (new Gtk.Image.from_icon_name (
+                    "display-brightness-symbolic", Gtk.IconSize.BUTTON));
+                row_box.pack_start (icon_box, false, false, 0);
                 brightness_slider = new Gtk.Scale.with_range (
                     Gtk.Orientation.HORIZONTAL, 10, 100, 5);
                 brightness_slider.set_draw_value (false);
@@ -316,6 +324,16 @@ namespace Kavis.Ui {
                     });
                 });
                 row_box.pack_start (brightness_slider, true, true, 0);
+                if (Volume.available () && Quick.sound_output_available ()) {
+                    /* D1: ses satırındaki "›" ile aynı boyda görünmez
+                     * yer tutucu — kaydırıcılar aynı x'te bitsin. */
+                    var spacer = new Gtk.Button.with_label ("\u203a");
+                    spacer.set_relief (Gtk.ReliefStyle.NONE);
+                    spacer.set_sensitive (false);
+                    spacer.set_can_focus (false);
+                    spacer.set_opacity (0);
+                    row_box.pack_end (spacer, false, false, 0);
+                }
                 page.pack_start (row_box, false, false, 0);
             }
 
