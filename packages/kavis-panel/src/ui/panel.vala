@@ -854,17 +854,29 @@ namespace Kavis.Ui {
             /* Icon centered, underline strip pinned to the bottom.
              * The strip is always in the layout (empty when the app
              * is not running) so state changes never shift the icon. */
-            var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            /* C3 (v0.4-test2): dikey panelde şerit ikonun SOLUNDA dikey
+             * (W10 dikey görev çubuğu gibi), yatayda altında. */
+            var column = new Gtk.Box (config.vertical
+                ? Gtk.Orientation.HORIZONTAL : Gtk.Orientation.VERTICAL, 0);
             slot.image = new Gtk.Image ();
             slot.image.set_valign (Gtk.Align.CENTER);
+            slot.image.set_halign (Gtk.Align.CENTER);
             set_slot_image (slot, current_icon_size > 0
                             ? current_icon_size : ICON_NORMAL);
-            column.pack_start (slot.image, true, true, 0);
 
-            slot.underline_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 3);
-            slot.underline_row.set_halign (Gtk.Align.CENTER);
-            slot.underline_row.set_size_request (-1, UNDERLINE_HEIGHT);
-            column.pack_end (slot.underline_row, false, false, 0);
+            if (config.vertical) {
+                slot.underline_row = new Gtk.Box (Gtk.Orientation.VERTICAL, 3);
+                slot.underline_row.set_valign (Gtk.Align.CENTER);
+                slot.underline_row.set_size_request (UNDERLINE_HEIGHT, -1);
+                column.pack_start (slot.underline_row, false, false, 0);
+                column.pack_start (slot.image, true, true, 0);
+            } else {
+                column.pack_start (slot.image, true, true, 0);
+                slot.underline_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 3);
+                slot.underline_row.set_halign (Gtk.Align.CENTER);
+                slot.underline_row.set_size_request (-1, UNDERLINE_HEIGHT);
+                column.pack_end (slot.underline_row, false, false, 0);
+            }
 
             button.add (column);
 
@@ -1065,7 +1077,11 @@ namespace Kavis.Ui {
                     bar.get_style_context ().add_class ("underline");
                     bar.get_style_context ().add_class (
                         any_active ? "on" : "idle");
-                    bar.set_size_request (bar_width, UNDERLINE_HEIGHT);
+                    if (config.vertical) {
+                        bar.set_size_request (UNDERLINE_HEIGHT, bar_width);
+                    } else {
+                        bar.set_size_request (bar_width, UNDERLINE_HEIGHT);
+                    }
                     slot.underline_row.pack_start (bar, false, false, 0);
                 }
                 slot.underline_row.show_all ();
