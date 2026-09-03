@@ -1,63 +1,64 @@
 #!/usr/bin/env bash
-# Kavis — kavis-* paketlerinin sürümlü bağımlılıkları ISO'daki gerçek
-# sürümlerle tutuyor mu? (madde 72, kararlar.md 9a: DEPS-RANGE-OK)
+# Kavis — do the versioned dependencies of the kavis-* packages hold
+# against the real versions in the ISO? (item 72, kararlar.md 9a: DEPS-RANGE-OK)
 #
-# Kullanım: tools/check-deps-range.sh <paket-listesi>
-#   paket-listesi: live-build'in chroot.packages.live dosyası
-#   (`dpkg-query -W` biçimi: "ad<TAB>sürüm", satır başına bir paket).
+# Usage: tools/check-deps-range.sh <package-list>
+#   package-list: live-build's chroot.packages.live file
+#   (`dpkg-query -W` format: "name<TAB>version", one package per line).
 #
-# packages/*/debian/control içindeki "ad (>= x)" / "ad (<< y)" gibi
-# sürümlü Depends girdileri okunur; her biri listedeki sürümle
-# `dpkg --compare-versions` üstünden sınanır. Listede olmayan paket
-# HATA'dır (bağımlılık kuruluşta zaten patlardı; burada adıyla görünsün).
-# Çıkış kodu: 0 = hepsi aralıkta, 1 = en az bir sınır dışı / eksik.
+# Versioned Depends entries such as "name (>= x)" / "name (<< y)" are read
+# from packages/*/debian/control; each is tested against the version in
+# the list with `dpkg --compare-versions`. A package missing from the list
+# is an ERROR (the dependency would already break at install; here it
+# shows up by name).
+# Exit code: 0 = all within range, 1 = at least one out of bounds / missing.
 set -eu
 
 REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
-LISTE=${1:-}
-if [ -z "$LISTE" ] || [ ! -r "$LISTE" ]; then
-	echo "kullanım: $0 <paket-listesi>" >&2
+LIST=${1:-}
+if [ -z "$LIST" ] || [ ! -r "$LIST" ]; then
+	echo "usage: $0 <package-list>" >&2
 	exit 2
 fi
 
-# Listeden sürüm oku (ad -> sürüm). Mimari ekli adlar (ad:amd64) da
-# eşleşsin diye iki nokta öncesi alınır.
-surum_bul() {
-	awk -v ad="$1" -F'\t' '{ split($1, p, ":"); if (p[1] == ad) { print $2; exit } }' "$LISTE"
+# Read a version from the list (name -> version). The part before the
+# colon is taken so that architecture-qualified names (name:amd64) match too.
+find_version() {
+	awk -v name="$1" -F'\t' '{ split($1, p, ":"); if (p[1] == name) { print $2; exit } }' "$LIST"
 }
 
-hata=0
-sayi=0
-# control dosyalarında yalnız Depends bloğundaki (Build-Depends değil)
-# sürümlü girdiler: " openbox (>= 3.6.1)," → openbox / >= / 3.6.1
-for kontrol in "$REPO_ROOT"/packages/*/debian/control; do
-	paket=$(basename "$(dirname "$(dirname "$kontrol")")")
-	# sed: yalnız "ad (op sürüm)" deseni; ${shlibs:Depends} gibi alanlar geçilir
-	while IFS='|' read -r ad op sinir; do
-		[ -n "$ad" ] || continue
-		sayi=$((sayi + 1))
-		surum=$(surum_bul "$ad")
-		if [ -z "$surum" ]; then
-			echo "DEPS-RANGE-FAIL $paket: $ad ($op $sinir) — ISO listesinde yok"
-			hata=1
+fail=0
+count=0
+# Only versioned entries in the Depends block (not Build-Depends) of the
+# control files: " openbox (>= 3.6.1)," → openbox / >= / 3.6.1
+for control in "$REPO_ROOT"/packages/*/debian/control; do
+	pkg=$(basename "$(dirname "$(dirname "$control")")")
+	# sed: only the "name (op version)" pattern; fields like ${shlibs:Depends} are skipped
+	while IFS='|' read -r name op bound; do
+		[ -n "$name" ] || continue
+		count=$((count + 1))
+		version=$(find_version "$name")
+		if [ -z "$version" ]; then
+			echo "DEPS-RANGE-FAIL $pkg: $name ($op $bound) — not in the ISO list"
+			fail=1
 			continue
 		fi
-		if dpkg --compare-versions "$surum" "$op" "$sinir"; then
-			echo "DEPS-RANGE $paket: $ad $surum ($op $sinir) tamam"
+		if dpkg --compare-versions "$version" "$op" "$bound"; then
+			echo "DEPS-RANGE $pkg: $name $version ($op $bound) ok"
 		else
-			echo "DEPS-RANGE-FAIL $paket: $ad $surum, sınır ($op $sinir) dışında"
-			hata=1
+			echo "DEPS-RANGE-FAIL $pkg: $name $version, outside bound ($op $bound)"
+			fail=1
 		fi
-	done < <(awk '/^Depends:/ { icinde = 1; next } /^[A-Z]/ { icinde = 0 } icinde' "$kontrol" \
+	done < <(awk '/^Depends:/ { inside = 1; next } /^[A-Z]/ { inside = 0 } inside' "$control" \
 		| sed -n 's/^ *\([a-z0-9.+-]*\) (\(>=\|<<\|>>\|<=\|=\) \([^)]*\)),\{0,1\}$/\1|\2|\3/p')
 done
 
-if [ "$sayi" -eq 0 ]; then
-	echo "DEPS-RANGE-FAIL control dosyalarında sürümlü bağımlılık bulunamadı"
+if [ "$count" -eq 0 ]; then
+	echo "DEPS-RANGE-FAIL no versioned dependency found in the control files"
 	exit 1
 fi
-if [ "$hata" -eq 0 ]; then
-	echo "DEPS-RANGE-OK $sayi sınır aralıkta"
+if [ "$fail" -eq 0 ]; then
+	echo "DEPS-RANGE-OK $count bounds within range"
 	exit 0
 fi
 exit 1

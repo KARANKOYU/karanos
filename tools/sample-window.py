@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Örnek GTK penceresi — YALNIZCA GELİŞTİRME ARACI, ISO'ya girmiyor.
+"""Sample GTK window — DEVELOPMENT TOOL ONLY, not shipped on the ISO.
 
-Temanın dokunduğu bileşenleri tek karede gösteriyor: düğme, giriş
-kutusu, onay kutusu, anahtar, kaydırıcı, ilerleme çubuğu ve pencere
-çerçevesi. tools/theme-screenshot.sh ve tools/panel-screenshot.sh
-ekran görüntüsü alırken bunu açıyor.
+Shows the widgets the theme touches in a single frame: button, entry,
+check box, switch, slider, progress bar and the window frame.
+tools/theme-screenshot.sh and tools/panel-screenshot.sh open it while
+taking their screenshots.
 
-2. ve 3. aşamada bu dosya ISO'ya giriyordu (panel yokken temayı
-gösterecek başka bir şey yoktu). 4. aşamada gerçek panel gelince
-buraya, geliştirme araçlarının arasına taşındı.
+In stages 2 and 3 this file was on the ISO (with no panel yet there was
+nothing else to show the theme). When the real panel arrived in stage 4
+it moved here, among the development tools.
 
-Etiketler eski appearance.* tablosundan alınmış sabitler (tablo po/
-düzenine geçince kaldırıldı); `appearance.*`
-anahtarlarından alınmıştır; bu pencereye özgü metin uydurulmadı.
+The labels are constants taken from the old appearance.* table (the
+table was dropped when the po/ layout arrived); they come from the
+`appearance.*` keys — no text was invented for this window.
 """
 
 import gi
@@ -42,46 +42,47 @@ def build():
 	win.add(outer)
 
 	head = Gtk.Label(xalign=0)
-	head.set_markup('<span size="x-large" weight="bold">Görünüm</span>')
+	head.set_markup('<span size="x-large" weight="bold">Appearance</span>')
 	outer.pack_start(head, False, False, 0)
 
-	# "Tema: Açık / Koyu" seçeneği kasten yok: Kavis tek temalı (koyu).
-	# Aynı bileşeni göstermek için yerine duvar kağıdı seçici kondu —
-	# eskisi var olmayan bir ayarı gösteriyordu ve ekran görüntüsünde
-	# "sistem açık temada" izlenimi veriyordu.
+	# The "Theme: Light / Dark" option is deliberately absent: Kavis was
+	# single-theme (dark). A wallpaper chooser stands in to show the same
+	# widget — the old one displayed a setting that did not exist and
+	# gave the impression in screenshots that "the system is in the
+	# light theme".
 	combo = Gtk.ComboBoxText()
-	for text in ("kavis", "kavis-gece", "kavis-duz"):
+	for text in ("kavis", "kavis-night", "kavis-plain"):
 		combo.append_text(text)
 	combo.set_active(0)
-	outer.pack_start(row("Duvar kağıdı", combo), False, False, 0)
+	outer.pack_start(row("Wallpaper", combo), False, False, 0)
 
 	entry = Gtk.Entry()
 	entry.set_text("Kavis-Cursors")
-	outer.pack_start(row("İmleç teması", entry), False, False, 0)
+	outer.pack_start(row("Cursor theme", entry), False, False, 0)
 
 	scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 16, 64, 8)
 	scale.set_value(24)
-	outer.pack_start(row("İmleç boyutu", scale), False, False, 0)
+	outer.pack_start(row("Cursor size", scale), False, False, 0)
 
 	switch = Gtk.Switch()
 	switch.set_active(True)
 	switch.set_halign(Gtk.Align.START)
-	outer.pack_start(row("Saniyeleri göster", switch), False, False, 0)
+	outer.pack_start(row("Show seconds", switch), False, False, 0)
 
-	check = Gtk.CheckButton(label="Kurulan uygulamaları masaüstüne ekle")
+	check = Gtk.CheckButton(label="Add installed apps to the desktop")
 	check.set_active(True)
 	outer.pack_start(check, False, False, 0)
 
 	bar = Gtk.ProgressBar()
 	bar.set_fraction(0.62)
 	bar.set_show_text(True)
-	outer.pack_start(row("Vurgu rengi", bar), False, False, 0)
+	outer.pack_start(row("Accent color", bar), False, False, 0)
 
 	buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
 	buttons.set_halign(Gtk.Align.END)
-	normal = Gtk.Button(label="Kapat")
+	normal = Gtk.Button(label="Close")
 	normal.connect("clicked", Gtk.main_quit)
-	suggested = Gtk.Button(label="Uygula")
+	suggested = Gtk.Button(label="Apply")
 	suggested.get_style_context().add_class("suggested-action")
 	buttons.pack_start(normal, False, False, 0)
 	buttons.pack_start(suggested, False, False, 0)
@@ -102,13 +103,13 @@ def extra_window(index):
 
 def main():
 	build()
-	# KAVIS_ORNEK_SAYISI=N: görev çubuğu sıkışma testi için N-1 ek küçük
-	# pencere aç (Aşama 2: 30 pencereyle saat hâlâ görünüyor mu).
+	# KAVIS_SAMPLE_WINDOWS=N: open N-1 extra small windows for the taskbar
+	# crowding test (stage 2: is the clock still visible with 30 windows).
 	import os
-	count = int(os.environ.get("KAVIS_ORNEK_SAYISI", "1"))
+	count = int(os.environ.get("KAVIS_SAMPLE_WINDOWS", "1"))
 	extras = [extra_window(i) for i in range(2, count + 1)]  # noqa: F841
-	# CI'da kimse kapatmıyor; QEMU testi bitene kadar açık kalması yeterli
-	# ama sonsuza kadar açık kalmasın diye üst sınır koyuyoruz.
+	# Nobody closes it in CI; staying open until the QEMU test ends is
+	# enough, but an upper bound keeps it from living forever.
 	GLib.timeout_add_seconds(900, Gtk.main_quit)
 	Gtk.main()
 

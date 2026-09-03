@@ -1,16 +1,17 @@
 /* Picker data (business logic — no widget code): the shared emoji /
  * kaomoji / symbol tables for the "Emoji and more" panel
- * (sonraki-isler bölüm 5). KANONİK KOPYA BURASI (kavis-common) —
- * appinit düzeni: build-packages.sh kavis-panel src ağacına kopyalar.
- * Emoji adları üretilen emoji_names.vala'da (gen-emoji-adlari.py).
- * Kaomoji/sembol listeleri statik ve halk malı dizgiler.
+ * (sonraki-isler section 5). THIS IS THE CANONICAL COPY (kavis-common)
+ * — appinit scheme: build-packages.sh copies it into the kavis-panel
+ * src tree. Emoji names are in the generated emoji_names.vala
+ * (gen-emoji-names.py). Kaomoji/symbol lists are static, public-domain
+ * strings.
  */
 
 namespace Kavis.PickerData {
 
     public struct Category {
-        public unowned string key;    /* EN msgid — çeviri po/ */
-        public unowned string items;  /* boşlukla ayrılmış öğeler */
+        public unowned string key;    /* EN msgid — translation in po/ */
+        public unowned string items;  /* space-separated items */
     }
 
     public const Category[] EMOJI = {
@@ -30,9 +31,9 @@ namespace Kavis.PickerData {
               "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ☮️ ✝️ ☪️ 🕉️ ☸️ ✡️ 🔯 🕎 ☯️ ☦️ 🛐 ⛎ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ 🆔 ⚛️ ☢️ ☣️ 📴 📳 🈶 🈚 🈸 🈺 🈷️ ✴️ 🆚 💮 🉐 ㊙️ ㊗️ 🈴 🈵 🈹 🈲 🅰️ 🅱️ 🆎 🆑 🅾️ 🆘 ❌ ⭕ 🛑 ⛔ 📛 🚫 💯 💢 ♨️ 🚷 🚯 🚳 🚱 🔞 📵 🚭 ❗ ❕ ❓ ❔ ‼️ ⁉️ 🔅 🔆 〽️ ⚠️ 🚸 🔱 ⚜️ 🔰 ♻️ ✅ 🈯 💹 ❇️ ✳️ ❎ 🌐 💠 Ⓜ️ 🌀 💤 🏧 🚾 ♿ 🅿️ 🈳 🈂️ 🛂 🛃 🛄 🛅 🚹 🚺 🚼 🚻 🚮 🎦 📶 🈁 🔣 ℹ️ 🔤 🔡 🔠 🆖 🆗 🆙 🆒 🆕 🆓 0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟" },
     };
 
-    /* xgettext markers (N_ const başlatıcıda duramaz). public: yalnız
-     * xgettext okusun diye vardır; private olsaydı valac "never used"
-     * derdi. */
+    /* xgettext markers (N_ cannot live in a const initializer). public:
+     * exists only so xgettext reads it; if private, valac would complain
+     * "never used". */
     public void emoji_markers () {
         N_("Smileys"); N_("People"); N_("Nature"); N_("Food");
         N_("Travel"); N_("Objects"); N_("Symbols");

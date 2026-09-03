@@ -8,7 +8,7 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        /* Çıkış aygıtı. */
+        /* Output device. */
         var cards = Audio.cards ();
         var device = new Gtk.ComboBoxText ();
         foreach (unowned Audio.Card card in cards) {
@@ -22,7 +22,7 @@ namespace Kavis.Settings.Pages {
             _("Applies to newly started applications"), device),
             false, false, 0);
 
-        /* Ana ses. */
+        /* Master volume. */
         var volume = new Gtk.Scale.with_range (
             Gtk.Orientation.HORIZONTAL, 0, 100, 1);
         volume.set_size_request (200, -1);
@@ -33,7 +33,7 @@ namespace Kavis.Settings.Pages {
         body.pack_start (row (_("Master volume"), null, volume),
                          false, false, 0);
 
-        /* Sistem sesleri (kavis.conf [sounds] — panel canlı okur). */
+        /* System sounds (kavis.conf [sounds] — the panel reads it live). */
         var sounds = new Gtk.Switch ();
         sounds.active = conf_get_bool ("sounds", "enabled", true);
         sounds.notify["active"].connect (() => {

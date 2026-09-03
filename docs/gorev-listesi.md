@@ -25,7 +25,7 @@ ISO'su üretilir ama kod baştan çok mimarili yazılır; hedef ileride arm64
   paketler `all`, derlenenler `any`. Scriptlerde `$(dpkg
   --print-architecture)`; "amd64" dizesi elle yazılmaz.
 - Derleme hattı (live-build, CI) mimariyi DEĞİŞKENDEN alır
-  (`KAVIS_MIMARI`, varsayılan amd64); arm64 ISO'su tek satır değişiklikle
+  (`KAVIS_ARCH`, varsayılan amd64); arm64 ISO'su tek satır değişiklikle
   üretilebilmeli. arm64 derlemesi ayrıca istenene kadar CI'a EKLENMEZ.
 - x86'ya özgü her şey mimari kontrolüyle sarılır ve diğer mimarilerde
   SESSİZCE devre dışı kalır, hata vermez:

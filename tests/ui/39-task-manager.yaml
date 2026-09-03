@@ -1,7 +1,7 @@
-# Görev Yöneticisi (madde 39/7): açılış, sekmeler, kapanış
-name: 39-gorev-yoneticisi
-title: Görev Yöneticisi
-madde: 39
+# Task Manager (items 39/7): open, tabs, close
+name: 39-task-manager
+title: Task Manager
+item: 39
 allowed: [kavis-tools]
 steps:
   - do: launch kavis-tools tasks
@@ -15,7 +15,7 @@ steps:
     expect: process kavis-tools running
   - do: key ctrl+f
     expect: ok
-    note: arama kutusu (varsa) — beklenti yok, yalnız anormallik taraması
+    note: search box (if any) — no expectation, only the anomaly scan
   - do: close window kavis-tools
     expect: window kavis-tools absent
     timeout: 8000

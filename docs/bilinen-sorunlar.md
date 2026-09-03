@@ -115,7 +115,7 @@ indirme yöneticisiyle tembel kuruluma almak (madde 23).
 ## 12. Emoji seçicide arama yok → ÇÖZÜLDÜ (Grup D düzeltmesi 4)
 
 (2 Eyl 2026: küratörlü setin İngilizce adları Python unicodedata ile
-bir kez üretilip depoya işlendi — tools/gen-emoji-adlari.py →
+bir kez üretilip depoya işlendi — tools/gen-emoji-names.py →
 emoji_names.vala, 764 glif; arama + Tümü + son kullanılanlar geldi.
 TR adlar istenirse üretilen tabloya sözcük eklenerek. Kayıt tarihçe
 için duruyor.)
@@ -137,7 +137,7 @@ penceresi tıklanmışken konuğa geçer. Alternatif kanıt: VM içinde
 Metin kutusundan çıkınca I-beam kalması VirtualBox'ın konuk imleç
 şekli senkronunda (guest additions yokken) bilinen bir belirti.
 Kavis tarafında alınan önlemler: XCURSOR_THEME/SIZE ortamı
-(Xsession.d/55kavis-imlec), kök imlecin nemo-desktop sonrası yeniden
+(Xsession.d/55kavis-cursor), kök imlecin nemo-desktop sonrası yeniden
 ayarlanması, GTK settings.ini imleç adı. Gerçek donanımda yeniden
 görülürse konu Kavis'te demektir — kararlar.md 6 (guest-utils) da
 bu belirtiyi kapatabilir.

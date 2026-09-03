@@ -1,6 +1,7 @@
 /* Power plans (business logic — no widget code here).
  *
- * KANONİK KOPYA BURASI — build-packages.sh panel ve Ayarlar'a kopyalar.
+ * THIS IS THE CANONICAL COPY — build-packages.sh copies it into the
+ * panel and Settings.
  *
  * One plan per power source (plugged in / on battery). Madde 51: four
  * modes — Efficiency / Normal / Performance / Game (Game maps to the
@@ -65,7 +66,7 @@ namespace Kavis.PowerPlan {
     }
 
     /* now_plugged: is the machine on AC right now — the caller knows
-     * (panel: Battery.on_ac; Ayarlar: sysfs). */
+     * (panel: Battery.on_ac; Settings: sysfs). */
     public void set_plan (bool plugged, Plan plan, bool now_plugged) {
         var file = Config.load ();
         file.set_string ("power", plugged ? "plugged" : "battery",
@@ -95,7 +96,7 @@ namespace Kavis.PowerPlan {
                 SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
                 null, null);
         } catch (SpawnError e) {
-            warning ("kavis-panel: powerprofilesctl calistirilamadi: %s",
+            warning ("kavis-panel: could not run powerprofilesctl: %s",
                      e.message);
         }
     }

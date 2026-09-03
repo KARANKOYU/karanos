@@ -1,13 +1,14 @@
 /* Common startup for every kavis-* GTK application (madde 61).
  *
- * KANONİK KOPYA BURASI. tools/build-packages.sh (prepare_sources) bu
- * dosyayı derleme sırasında her GTK paketinin src/ ağacına kopyalar;
- * kopyalar .gitignore'dadır. YALNIZ bu dosyayı düzenle — assets/logo
- * kopyalarıyla aynı "depoda tek yerde dur" düzeni.
+ * THIS IS THE CANONICAL COPY. tools/build-packages.sh (prepare_sources)
+ * copies this file into every GTK package's src/ tree at build time;
+ * the copies are in .gitignore. Edit ONLY this file — the same "one
+ * place in the repo" scheme as the assets/logo copies.
  *
- * Neden var: GTK'ya dokunan her kavis uygulaması aynı başlangıç
- * ayarlarına muhtaç; ilk uygulamada (panel) bulunan tuzaklar burada
- * birikir ki sonrakiler (Ayarlar, Mağaza, araçlar) baştan korunsun.
+ * Why it exists: every kavis app that touches GTK needs the same
+ * startup settings; the pitfalls found in the first app (the panel)
+ * accumulate here so the later ones (Settings, Store, tools) are
+ * protected from the start.
  */
 
 namespace Kavis.AppInit {
@@ -18,9 +19,10 @@ namespace Kavis.AppInit {
          * its UI texts from the "kavis" domain (msgids are English —
          * the product default language; tr.po carries Turkish). The
          * .mo files ship in kavis-panel. */
-        /* Kullanıcının seçtiği dil (B6): Ayarlar ~/.config/kavis/locale
-         * yazar; oturum ortamı eski kalsa bile her Kavis süreci bunu
-         * okur — panel yeniden başlayınca hemen yeni dilde açılır. */
+        /* The user's chosen language (B6): Settings writes
+         * ~/.config/kavis/locale; every Kavis process reads it even if
+         * the session environment is stale — the panel opens in the
+         * new language as soon as it restarts. */
         apply_user_locale ();
         Intl.setlocale (LocaleCategory.ALL, "");
         Intl.bindtextdomain ("kavis", "/usr/share/locale");

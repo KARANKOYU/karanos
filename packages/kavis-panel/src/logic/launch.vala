@@ -14,7 +14,7 @@ namespace Kavis.Launch {
                 | SpawnFlags.STDOUT_TO_DEV_NULL
                 | SpawnFlags.STDERR_TO_DEV_NULL, null, null);
         } catch (Error e) {
-            warning ("kavis-panel: %s baslatilamadi: %s",
+            warning ("kavis-panel: could not start %s: %s",
                      argv[0], e.message);
         }
     }

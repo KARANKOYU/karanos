@@ -194,7 +194,7 @@ namespace Kavis.Ui {
             box.pack_start (label, true, true, 0);
             button.add (box);
             button.clicked.connect (() => on_app_chosen (app));
-            /* Sağ tık (sonraki-isler 2): sabitle / masaüstüne kısayol. */
+            /* Right click (sonraki-isler 2): pin / desktop shortcut. */
             button.button_press_event.connect ((event) => {
                 if (event.button == 3) {
                     show_app_menu (app, event);
@@ -232,9 +232,9 @@ namespace Kavis.Ui {
             });
             menu.append (shortcut_item);
 
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+            /* Leak guard: the menu is destroyed on close (via Idle,
 
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+             * because activation runs AFTER deactivate). */
 
             menu.deactivate.connect (() => {
 
@@ -253,13 +253,13 @@ namespace Kavis.Ui {
             menu.popup_at_pointer (event);
         }
 
-        /* Sabitleme değişince görev çubuğu yeniden kurulmalı; menü
-         * paneli tanımaz, sinyalle duyurur. */
+        /* When pinning changes the taskbar must be rebuilt; the menu
+         * does not know the panel, so it announces via a signal. */
         public signal void taskbar_changed ();
 
-        /* Masaüstüne kısayol: .desktop dosyasını kullanıcının masaüstü
-         * dizinine kopyala (çalıştırılabilir işaret nemo-desktop'ın
-         * güven denetimi için). */
+        /* Desktop shortcut: copy the .desktop file into the user's
+         * desktop directory (the executable bit is for nemo-desktop's
+         * trust check). */
         private void copy_to_desktop (string id) {
             var info = new DesktopAppInfo (id);
             if (info == null || info.get_filename () == null) {
@@ -279,7 +279,7 @@ namespace Kavis.Ui {
                     FileCopyFlags.OVERWRITE);
                 FileUtils.chmod (target, 0755);
             } catch (Error e) {
-                warning ("kavis-panel: kisayol kopyalanamadi: %s",
+                warning ("kavis-panel: could not copy shortcut: %s",
                          e.message);
             }
         }
@@ -302,7 +302,7 @@ namespace Kavis.Ui {
             try {
                 app.launch ();
             } catch (Error e) {
-                warning ("kavis-panel: %s baslatilamadi: %s",
+                warning ("kavis-panel: could not launch %s: %s",
                          app.name, e.message);
             }
         }
@@ -338,8 +338,8 @@ namespace Kavis.Ui {
             return false;
         }
 
-        /* xcape yoksa (Xvfb, başka kurulum) Super bırakılınca da kapansın:
-         * 200 ms içinde XF86Launch5 gelmezse kapat. */
+        /* Without xcape (Xvfb, another setup) close on Super release
+         * too: close if no XF86Launch5 arrives within 200 ms. */
         private uint super_release_source = 0;
 
         private bool on_key_release (Gdk.EventKey event) {
@@ -360,14 +360,15 @@ namespace Kavis.Ui {
         }
 
         private bool on_key_press (Gdk.EventKey event) {
-            /* C2 (v0.4-test2): menü açıkken klavye bizde (seat grab) —
-             * Esc / Ctrl+Esc ve xcape'in Super bırakılınca ürettiği
-             * XF86Launch5 openbox'a ulaşmaz; toggle'ın kapanış yarısı
-             * burada. Super'in BASILIŞINDA kapatmak yanlıştı (debug
-             * turu): grab kalkınca xcape'in XF86Launch5'i openbox'a
-             * gidip menüyü yeniden açıyordu. Bırakılış on_key_release. */
+            /* C2 (v0.4-test2): while the menu is open the keyboard is
+             * ours (seat grab) — Esc / Ctrl+Esc and the XF86Launch5 that
+             * xcape emits on Super release never reach openbox; the
+             * closing half of the toggle lives here. Closing on Super
+             * PRESS was wrong (debug pass): once the grab lifted,
+             * xcape's XF86Launch5 went to openbox and reopened the
+             * menu. Release is handled in on_key_release. */
             if (event.keyval == Gdk.Key.Escape
-                || event.keyval == 0x1008FF45  /* XF86Launch5 — gdk vapi'de yok */) {
+                || event.keyval == 0x1008FF45  /* XF86Launch5 — not in the gdk vapi */) {
                 if (super_release_source != 0) {
                     Source.remove (super_release_source);
                     super_release_source = 0;

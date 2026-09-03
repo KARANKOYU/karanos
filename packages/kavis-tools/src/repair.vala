@@ -46,8 +46,8 @@ namespace Kavis.Tools {
             head.pack_start (intro, true, true, 0);
             box.pack_start (head, false, false, 0);
 
-            /* Zorunlu uyarı (madde 64): onarım veri kaybettirebilir;
-             * mümkünse önce salt-okunur bağlayıp kopyala. */
+            /* Mandatory warning (madde 64): repair can lose data; if
+             * possible mount read-only and copy first. */
             var warn = new Gtk.Label (
                 _("Repair can cause data loss. If the files matter, first try mounting read-only and copy them somewhere safe."));
             warn.set_line_wrap (true);
@@ -188,7 +188,7 @@ namespace Kavis.Tools {
                 } catch (Error e) {
                     stderr_text = e.message;
                 }
-                /* fsck çıkış kodu bit alanı: 1 = düzeltildi. */
+                /* fsck exit code is a bit field: 1 = corrected. */
                 bool ok = (exit_status == 0 || exit_status == 1);
                 string raw = (stdout_text + "\n" + stderr_text).strip ();
                 Idle.add (() => {

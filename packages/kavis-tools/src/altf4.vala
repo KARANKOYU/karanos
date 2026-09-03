@@ -12,7 +12,7 @@ namespace Kavis.Tools {
 
     namespace AltF4 {
 
-        /* true → pencere kapatıldı, diyaloğa gerek yok. */
+        /* true → a window was closed, no dialog needed. */
         public bool close_focused_window () {
             var screen = Wnck.Screen.get_default ();
             screen.force_update ();
@@ -33,8 +33,8 @@ namespace Kavis.Tools {
      * closes; the 180 ms open animation is picom's appear preset.
      * SHARED component: Alt+F4 (desktop) and the Ctrl+Alt+Del screen's
      * power button both open exactly this window (no second code).
-     * app_paintable penceresi kendi CSS zeminini ÇİZMEZ (bilinen
-     * tuzak) — sınıf İÇ kutuda. */
+     * An app_paintable window does NOT draw its own CSS background
+     * (known pitfall) — the class goes on the INNER box. */
     public class ShutdownDialog : Gtk.Window {
 
         private const string CSS = """
@@ -65,10 +65,10 @@ namespace Kavis.Tools {
 
         public ShutdownDialog () {
             set_title (_("Shut down"));
-            /* 2C: kendi WM_CLASS'ı — yoksa görev çubuğu ikonu, aynı
-             * ikiliyi paylaşan emoji seçicinin .desktop'ına düşüyordu
-             * (gülen yüz). kavis-power.desktop StartupWMClass'la
-             * eşleşir, güç simgesini verir. */
+            /* 2C: its own WM_CLASS — otherwise the taskbar icon fell
+             * back to the .desktop of the emoji picker sharing the same
+             * binary (smiley face). kavis-power.desktop matches via
+             * StartupWMClass and provides the power icon. */
             set_wmclass ("kavis-power", "kavis-power");
             icon_name = "system-shutdown";
             set_resizable (false);
@@ -76,8 +76,8 @@ namespace Kavis.Tools {
             set_position (Gtk.WindowPosition.CENTER);
             set_keep_above (true);
 
-            /* Yuvarlak köşe: RGBA görsel + saydam pencere, zemin iç
-             * kutuda. */
+            /* Rounded corners: RGBA visual + transparent window, the
+             * background on the inner box. */
             set_app_paintable (true);
             var visual = get_screen ().get_rgba_visual ();
             if (visual != null) {
@@ -115,9 +115,9 @@ namespace Kavis.Tools {
             card.pack_start (power_button (
                 "window-close-symbolic", _("Cancel"), () => { }),
                 false, false, 0);
-            /* I (v0.4-test1): kaydedilmemiş belge diyalogları kapatmayı
-             * durdurabilir — Shift basılı tıklama ya da bu düğme önce
-             * tüm pencereleri kill eder, sonra kapatır. */
+            /* I (v0.4-test1): unsaved-document dialogs can stop the
+             * shutdown — a Shift-click or this button first kills every
+             * window, then shuts down. */
             card.pack_start (power_button (
                 "process-stop-symbolic", _("Force shut down"), () => {
                     kill_all_windows ();
@@ -135,9 +135,10 @@ namespace Kavis.Tools {
 
         private delegate void PowerAction ();
 
-        /* Normal/diyalog pencerelerin sahibi süreçlere SIGKILL: panel,
-         * masaüstü katmanı ve bu diyalog hariç. Kapatma zaten
-         * geliyor; nazik kapanışı beklememek kullanıcının tercihi. */
+        /* SIGKILL to the processes owning normal/dialog windows: except
+         * the panel, the desktop layer and this dialog. Shutdown is
+         * coming anyway; not waiting for a graceful exit is the user's
+         * choice. */
         private void kill_all_windows () {
             unowned Wnck.Screen screen = Wnck.Screen.get_default ();
             screen.force_update ();
@@ -170,8 +171,8 @@ namespace Kavis.Tools {
             column.set_size_request (96, -1);
             button.add (column);
             button.clicked.connect (() => {
-                /* Shift basılıyken: önce her pencereyi öldür, sonra
-                 * eylem — soru soran uygulama kalmaz. */
+                /* With Shift held: kill every window first, then the
+                 * action — no app is left asking questions. */
                 Gdk.ModifierType state;
                 if (Gtk.get_current_event_state (out state)
                     && (state & Gdk.ModifierType.SHIFT_MASK) != 0) {

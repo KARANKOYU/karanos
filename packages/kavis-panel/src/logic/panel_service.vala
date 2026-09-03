@@ -14,17 +14,17 @@ namespace Kavis {
 
         [DBus (visible = false)]
         public signal void overview_requested ();
-        /* C4: Win / Win+R — baslat menusu (search=true: arama odakli). */
+        /* C4: Win / Win+R — start menu (search=true: search focused). */
         public signal void start_menu_requested (bool search);
         [DBus (visible = false)]
         public signal void clipboard_requested ();
-        /* Win+sayı (sonraki-isler 2): soldan N. görev çubuğu yuvası. */
+        /* Win+digit (sonraki-isler 2): the N-th taskbar slot from the left. */
         [DBus (visible = false)]
         public signal void slot_requested (int number, bool new_window);
-        /* Win+Z (sonraki-isler 4): snap yerleşim menüsü. */
+        /* Win+Z (sonraki-isler 4): snap layout menu. */
         [DBus (visible = false)]
         public signal void snap_menu_requested ();
-        /* Win+. (sonraki-isler 5): birleşik panel, istenen sekmede. */
+        /* Win+. (sonraki-isler 5): the combined panel, on the requested tab. */
         [DBus (visible = false)]
         public signal void picker_requested (string page);
 
@@ -53,8 +53,8 @@ namespace Kavis {
             clipboard_requested ();
         }
 
-        /* Ses tuşları kavis-osd'ye taşındı (sonraki-isler 6a) —
-         * OSD paneli değil ayrı süreci. */
+        /* Volume keys moved to kavis-osd (sonraki-isler 6a) — the OSD
+         * is a separate process, not the panel. */
     }
 
     namespace PanelBus {
@@ -70,13 +70,13 @@ namespace Kavis {
                         connection.register_object ("/org/kavis/Panel",
                                                     service);
                     } catch (IOError e) {
-                        warning ("kavis-panel: panel servisi disari verilemedi: %s",
+                        warning ("kavis-panel: could not export the panel service: %s",
                                  e.message);
                     }
                 },
                 null,
                 () => {
-                    warning ("kavis-panel: org.kavis.Panel alinamadi — ikinci panel mi calisiyor?");
+                    warning ("kavis-panel: could not acquire org.kavis.Panel — is a second panel running?");
                 });
         }
     }

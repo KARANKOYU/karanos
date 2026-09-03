@@ -1,25 +1,25 @@
-# Açılış (madde 0/2/30 — GRUB gizli, splash, ses, autologin, /users/karan)
-name: 01-acilis
-title: Açılış
-madde: 0
+# Boot (items 0/2/30 — GRUB hidden, splash, sound, autologin, /users/karan)
+name: 01-boot
+title: Boot
+item: 0
 steps:
   - do: none
     expect: shell test "$(id -un)" = karan
-    note: otomatik giriş canlı kullanıcıya
+    note: autologin into the live user
   - do: none
     expect: shell test -n "$DISPLAY"
   - do: none
     expect: shell test "$(ls -d /users/karan/*/ | wc -l)" -ge 6
-    note: 6 kullanıcı klasörü (USERS-OK ile aynı)
+    note: 6 user folders (same as USERS-OK)
   - do: none
     expect: shell grep -q "timeout_style=hidden" /run/live/medium/boot/grub/config.cfg
-    note: B1 — GRUB menüsü gizli
+    note: B1 — GRUB menu hidden
   - do: none
     expect: shell grep -q "^Theme=kavis" /etc/plymouth/plymouthd.conf
-    note: splash teması (plymouth-set-default-theme kullanıcı olarak çalışmıyor)
+    note: splash theme (plymouth-set-default-theme does not work as a regular user)
   - do: none
     expect: shell grep -q DESKTOP-READY /run/kavis/boot-check.log
-    note: boot-check DESKTOP-READY yazdı (journal kullanıcıya kapalı; boot-check /run/kavis/boot-check.log'a da yazar — test2 ISO'sunda bu dosya yok, düşer)
+    note: boot-check wrote DESKTOP-READY (journal is closed to the user; boot-check also writes /run/kavis/boot-check.log — the test2 ISO lacks this file, so it fails there)
   - do: none
     expect: process kavis-panel running
   - do: none

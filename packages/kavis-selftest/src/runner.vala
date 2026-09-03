@@ -27,7 +27,7 @@ namespace Kavis.Selftest {
                 rep.line ("[%s] SCENARIO-ERROR %s".printf (sc.name, sc.parse_error));
                 return;
             }
-            rep.line ("[%s] BEGIN %s (madde %s, %d adım)".printf (sc.name, sc.title, sc.madde, sc.get_steps ().length));
+            rep.line ("[%s] BEGIN %s (item %s, %d steps)".printf (sc.name, sc.title, sc.item, sc.get_steps ().length));
             string[] known = xw.window_classes ();
             foreach (string a in sc.allowed) {
                 known += a.down ();
@@ -59,7 +59,7 @@ namespace Kavis.Selftest {
             string detail = "";
             bool ok = act_ok;
             if (!act_ok) {
-                detail = "eylem: " + err;
+                detail = "action: " + err;
             } else {
                 ok = wait_expect (st.expect, st.timeout_ms, out detail);
             }
@@ -68,7 +68,7 @@ namespace Kavis.Selftest {
             r.detail = detail;
             r.ram_delta_mb = SysMon.mem_used_mb () - mem0;
 
-            /* --- kare + fark --- */
+            /* --- frame + diff --- */
             Gdk.Pixbuf? after = capture ();
             r.diff_percent = diff (before, after);
             string stem = "%03d".printf (step_no);
@@ -81,16 +81,16 @@ namespace Kavis.Selftest {
                     save (after, r.shot, true);
                 }
             }
-            /* --- pencere listesi, süreçler, journal --- */
+            /* --- window list, processes, journal --- */
             string wins = xw.list_windows ();
             rep.write_aux ("windows-" + stem + ".txt", wins);
             rep.write_aux ("processes-" + stem + ".txt", SysMon.process_table ());
             string jl = SysMon.journal_since (t0);
             rep.journal_lines (tag, jl);
-            /* --- anormallikler (beklentiden bağımsız) --- */
+            /* --- anomalies (independent of the expectation) --- */
             int cd = SysMon.coredump_count ();
             if (cd > coredumps) {
-                r.anomaly ("yeni coredump (%d)".printf (cd - coredumps));
+                r.anomaly ("new coredump (%d)".printf (cd - coredumps));
                 coredumps = cd;
             }
             foreach (string line in jl.split ("\n")) {
@@ -102,15 +102,15 @@ namespace Kavis.Selftest {
             }
             int sync = xw.sync_ms ();
             if (sync > 2000) {
-                r.anomaly ("donma: X yanıtı %d ms".printf (sync));
+                r.anomaly ("freeze: X answered in %d ms".printf (sync));
             }
             foreach (string p in pillars) {
                 if (!SysMon.running (p)) {
-                    r.anomaly ("süreç öldü: " + p);
+                    r.anomaly ("process died: " + p);
                 }
             }
             if (r.ram_delta_mb > 100) {
-                r.anomaly ("RAM sıçraması %+d MB".printf (r.ram_delta_mb));
+                r.anomaly ("RAM jump %+d MB".printf (r.ram_delta_mb));
             }
             foreach (string c in xw.window_classes ()) {
                 bool seen = false;
@@ -120,7 +120,7 @@ namespace Kavis.Selftest {
                     }
                 }
                 if (!seen) {
-                    r.anomaly ("bilinmeyen pencere: " + c);
+                    r.anomaly ("unknown window: " + c);
                     string[] grown = known;
                     grown += c;
                     known = grown;
@@ -129,11 +129,11 @@ namespace Kavis.Selftest {
             if (!ok) {
                 rep.write_aux ("fail-" + stem + "-xprop.txt", xprop_dump ());
             }
-            rep.line ("%s ACTION %s | EXPECT %s | RESULT %s%s | %.2fs | RAM %+d MB | fark %.1f%% | shot=%s%s".printf (
+            rep.line ("%s ACTION %s | EXPECT %s | RESULT %s%s | %.2fs | RAM %+d MB | diff %.1f%% | shot=%s%s".printf (
                 tag, st.action, st.expect, r.result,
                 detail == "" ? "" : " " + detail, r.seconds, r.ram_delta_mb,
                 r.diff_percent, r.shot,
-                r.anomalies.length == 0 ? "" : " | ANOMALI " + string.joinv ("; ", r.anomalies)));
+                r.anomalies.length == 0 ? "" : " | ANOMALY " + string.joinv ("; ", r.anomalies)));
             rep.add (r);
         }
 
@@ -205,21 +205,21 @@ namespace Kavis.Selftest {
             case "drag":
                 return do_drag (w, out err);
             case "close": {
-                if (w.length < 3) { err = "close window <sınıf>"; return false; }
+                if (w.length < 3) { err = "close window <class>"; return false; }
                 unowned Wnck.Window? win = xw.find (w[2]);
-                if (win == null) { err = "pencere yok: " + w[2]; return false; }
+                if (win == null) { err = "no window: " + w[2]; return false; }
                 win.close (Gdk.CURRENT_TIME);
                 return true;
             }
             default:
-                err = "bilinmeyen eylem: " + w[0];
+                err = "unknown action: " + w[0];
                 return false;
             }
         }
 
         private bool conf_set (string[] w, out string err) {
             err = "";
-            if (w.length < 4) { err = "conf <bölüm> <anahtar> <değer>"; return false; }
+            if (w.length < 4) { err = "conf <section> <key> <value>"; return false; }
             string path = Path.build_filename (Environment.get_user_config_dir (), "kavis", "kavis.conf");
             var kf = new KeyFile ();
             try {
@@ -241,7 +241,7 @@ namespace Kavis.Selftest {
             int x, y;
             if (w.length >= 3 && w[1] == "window") {
                 unowned Wnck.Window? win = xw.find (w[2]);
-                if (win == null) { err = "pencere yok: " + w[2]; return false; }
+                if (win == null) { err = "no window: " + w[2]; return false; }
                 int fx, fy, fw, fh;
                 if (!xw.frame_geometry (win, out fx, out fy, out fw, out fh)) {
                     win.get_geometry (out fx, out fy, out fw, out fh);
@@ -257,7 +257,7 @@ namespace Kavis.Selftest {
             } else if (w.length >= 3) {
                 x = int.parse (w[1]); y = int.parse (w[2]);
             } else {
-                err = "click <x> <y> | click window <sınıf> [dx dy] | click taskbar start|clock";
+                err = "click <x> <y> | click window <class> [dx dy] | click taskbar start|clock";
                 return false;
             }
             string btn = "1";
@@ -272,7 +272,7 @@ namespace Kavis.Selftest {
         private bool taskbar_point (string what, out int x, out int y, out string err) {
             x = 0; y = 0; err = "";
             unowned Wnck.Window? p = xw.panel ();
-            if (p == null) { err = "panel penceresi yok"; return false; }
+            if (p == null) { err = "no panel window"; return false; }
             int px, py, pw, ph;
             p.get_geometry (out px, out py, out pw, out ph);
             bool vertical = ph > pw;
@@ -294,9 +294,9 @@ namespace Kavis.Selftest {
         /* drag window <class> to left|right|top|tl|tr|bl|br|<x> <y> */
         private bool do_drag (string[] w, out string err) {
             err = "";
-            if (w.length < 5 || w[1] != "window") { err = "drag window <sınıf> to <kenar|x y>"; return false; }
+            if (w.length < 5 || w[1] != "window") { err = "drag window <class> to <edge|x y>"; return false; }
             unowned Wnck.Window? win = xw.find (w[2]);
-            if (win == null) { err = "pencere yok: " + w[2]; return false; }
+            if (win == null) { err = "no window: " + w[2]; return false; }
             int fx, fy, fw, fh;
             if (!xw.frame_geometry (win, out fx, out fy, out fw, out fh)) {
                 win.get_geometry (out fx, out fy, out fw, out fh);
@@ -313,7 +313,7 @@ namespace Kavis.Selftest {
             case "bl":    tx = wa.x + 1; ty = wa.y + wa.height - 40; break;
             case "br":    tx = wa.x + wa.width - 2; ty = wa.y + wa.height - 40; break;
             default:
-                if (w.length < 6) { err = "drag hedefi"; return false; }
+                if (w.length < 6) { err = "drag target"; return false; }
                 tx = int.parse (w[4]); ty = int.parse (w[5]);
                 break;
             }
@@ -358,52 +358,52 @@ namespace Kavis.Selftest {
             string rest = w.length > 1 ? expect.strip ().substring (w[0].length + 1) : "";
             switch (w[0]) {
             case "window": {
-                if (w.length < 3) { detail = "window <sınıf> visible|hidden|focused|absent"; return false; }
+                if (w.length < 3) { detail = "window <class> visible|hidden|focused|absent"; return false; }
                 unowned Wnck.Window? win = xw.find (w[1]);
                 switch (w[2]) {
                 case "absent":
-                    detail = win == null ? "" : "pencere hâlâ var"; return win == null;
+                    detail = win == null ? "" : "window still present"; return win == null;
                 case "visible":
-                    if (win == null) { detail = "pencere yok: " + w[1]; return false; }
-                    detail = win.is_minimized () ? "küçültülmüş" : ""; return !win.is_minimized ();
+                    if (win == null) { detail = "no window: " + w[1]; return false; }
+                    detail = win.is_minimized () ? "minimized" : ""; return !win.is_minimized ();
                 case "hidden":
-                    detail = (win == null || win.is_minimized ()) ? "" : "görünür"; return win == null || win.is_minimized ();
+                    detail = (win == null || win.is_minimized ()) ? "" : "visible"; return win == null || win.is_minimized ();
                 case "focused":
-                    if (win == null) { detail = "pencere yok: " + w[1]; return false; }
-                    detail = xw.is_focused (win) ? "" : "odak başka pencerede"; return xw.is_focused (win);
+                    if (win == null) { detail = "no window: " + w[1]; return false; }
+                    detail = xw.is_focused (win) ? "" : "focus is on another window"; return xw.is_focused (win);
                 default:
-                    detail = "window durumu: " + w[2]; return false;
+                    detail = "window state: " + w[2]; return false;
                 }
             }
             case "popup": {
-                if (w.length < 3) { detail = "popup <sınıf> visible|hidden"; return false; }
+                if (w.length < 3) { detail = "popup <class> visible|hidden"; return false; }
                 int n = xw.popup_count (w[1]);
                 bool want = w[2] == "visible";
-                detail = "popup sayısı %d".printf (n);
+                detail = "popup count %d".printf (n);
                 return want ? n > 0 : n == 0;
             }
             case "geometry":
                 return check_geometry (w, out detail);
             case "process": {
-                if (w.length < 3) { detail = "process <ad> running|absent"; return false; }
+                if (w.length < 3) { detail = "process <name> running|absent"; return false; }
                 bool run = SysMon.running (w[1]);
-                detail = run ? "çalışıyor" : "yok";
+                detail = run ? "running" : "absent";
                 return (w[2] == "running") == run;
             }
             case "file": {
-                if (w.length < 3) { detail = "file <yol> exists|absent"; return false; }
+                if (w.length < 3) { detail = "file <path> exists|absent"; return false; }
                 bool ex = FileUtils.test (expand (w[1]), FileTest.EXISTS);
-                detail = ex ? "var" : "yok";
+                detail = ex ? "exists" : "absent";
                 return (w[2] == "exists") == ex;
             }
             case "count": {
-                if (w.length < 3) { detail = "count <dizin> <n>"; return false; }
+                if (w.length < 3) { detail = "count <dir> <n>"; return false; }
                 int n = 0;
                 try {
                     var d = Dir.open (expand (w[1]));
                     while (d.read_name () != null) { n++; }
                 } catch (Error e) { detail = e.message; return false; }
-                detail = "%d girdi".printf (n);
+                detail = "%d entries".printf (n);
                 return n == int.parse (w[2]);
             }
             case "shell": {
@@ -414,19 +414,19 @@ namespace Kavis.Selftest {
                 return rc == 0;
             }
             case "conf": {
-                if (w.length < 4) { detail = "conf <bölüm> <anahtar> <değer>"; return false; }
+                if (w.length < 4) { detail = "conf <section> <key> <value>"; return false; }
                 var kf = new KeyFile ();
                 try {
                     kf.load_from_file (Path.build_filename (Environment.get_user_config_dir (), "kavis", "kavis.conf"), KeyFileFlags.NONE);
                     string v = kf.get_string (w[1], w[2]);
-                    detail = "değer " + v;
+                    detail = "value " + v;
                     return v == w[3];
                 } catch (Error e) { detail = e.message; return false; }
             }
             case "screen":
                 return check_screen (w, out detail);
             default:
-                detail = "bilinmeyen beklenti: " + w[0];
+                detail = "unknown expectation: " + w[0];
                 return false;
             }
         }
@@ -437,11 +437,11 @@ namespace Kavis.Selftest {
 
         private bool check_geometry (string[] w, out string detail) {
             detail = "";
-            if (w.length < 3) { detail = "geometry <sınıf> <bölge>"; return false; }
+            if (w.length < 3) { detail = "geometry <class> <region>"; return false; }
             unowned Wnck.Window? win = xw.find (w[1]);
-            if (win == null) { detail = "pencere yok: " + w[1]; return false; }
+            if (win == null) { detail = "no window: " + w[1]; return false; }
             if (w[2] == "maximized") {
-                detail = win.is_maximized () ? "" : "büyütülmemiş";
+                detail = win.is_maximized () ? "" : "not maximized";
                 return win.is_maximized ();
             }
             int fx, fy, fw, fh;
@@ -460,15 +460,15 @@ namespace Kavis.Selftest {
             case "bottom-right": ex = wa.x + hw; ey = wa.y + hh; ew = wa.width - hw; eh = wa.height - hh; break;
             case "on-screen":
                 bool inside = fx + 80 <= wa.x + wa.width && fx + fw >= wa.x + 80 && fy >= wa.y && fy + 20 <= wa.y + wa.height;
-                detail = "çerçeve %d,%d %dx%d".printf (fx, fy, fw, fh);
+                detail = "frame %d,%d %dx%d".printf (fx, fy, fw, fh);
                 return inside;
             default:
-                detail = "bölge: " + w[2]; return false;
+                detail = "region: " + w[2]; return false;
             }
-            /* boyut toleransı 20 (size hints yuvarlaması), konum 4 */
+            /* size tolerance 20 (size-hint rounding), position 4 */
             bool ok = (fx - ex).abs () <= 4 && (fy - ey).abs () <= 4
                 && (fw - ew).abs () <= 20 && (fh - eh).abs () <= 20;
-            detail = ok ? "" : "çerçeve %d,%d %dx%d — beklenen %d,%d %dx%d".printf (fx, fy, fw, fh, ex, ey, ew, eh);
+            detail = ok ? "" : "frame %d,%d %dx%d — expected %d,%d %dx%d".printf (fx, fy, fw, fh, ex, ey, ew, eh);
             return ok;
         }
 
@@ -477,17 +477,17 @@ namespace Kavis.Selftest {
             detail = "";
             if (w.length < 3) { detail = "screen panel|full bright|dark"; return false; }
             Gdk.Pixbuf? pb = capture ();
-            if (pb == null) { detail = "kare alınamadı"; return false; }
+            if (pb == null) { detail = "could not capture a frame"; return false; }
             int x0 = 0, y0 = 0, x1 = pb.width, y1 = pb.height;
             if (w[1] == "panel") {
                 unowned Wnck.Window? p = xw.panel ();
-                if (p == null) { detail = "panel yok"; return false; }
+                if (p == null) { detail = "no panel"; return false; }
                 int px, py, pw, ph;
                 p.get_geometry (out px, out py, out pw, out ph);
                 x0 = px; y0 = py; x1 = px + pw; y1 = py + ph;
             }
             double lum = luminance (pb, x0, y0, x1, y1);
-            detail = "parlaklık %.0f".printf (lum);
+            detail = "luminance %.0f".printf (lum);
             return w[2] == "bright" ? lum >= 128 : lum < 128;
         }
 

@@ -1,0 +1,6 @@
+# shellcheck shell=sh
+# Kavis (3A): /etc/kavis goes FIRST on the XDG data path — the .desktop
+# overrides there (NoDisplay, renaming) shadow the upstream files WITHOUT
+# MODIFYING them; no conflict on package upgrades.
+XDG_DATA_DIRS="/etc/kavis:${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
+export XDG_DATA_DIRS

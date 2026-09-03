@@ -1,17 +1,17 @@
 #!/bin/sh
-# X'in varsayılan imleç temasını Debian'da update-alternatives seçiyor
-# (/usr/share/icons/default/index.theme). Dosyayı doğrudan yazmak yerine
-# alternatifler sistemine kaydoluyoruz ki kullanıcı isterse
-# `update-alternatives --config x-cursor-theme` ile değiştirebilsin.
+# On Debian, update-alternatives picks X's default cursor theme
+# (/usr/share/icons/default/index.theme). Instead of writing the file
+# directly we register with the alternatives system so the user can
+# change it with `update-alternatives --config x-cursor-theme`.
 set -e
 
 case "$1" in
 configure)
 	update-alternatives --install /usr/share/icons/default/index.theme \
 		x-cursor-theme /usr/share/icons/Kavis-Cursors/cursor.theme 100
-	# gsettings override'ı (nemo varsayılanları) derlenmeden etkisiz;
-	# glib trigger'ı normalde halleder, tetiklenmediği kurulum
-	# sıralarına karşı emniyet.
+	# The gsettings override (nemo defaults) is inert until compiled;
+	# the glib trigger normally handles it, this is a safeguard against
+	# install orderings where it is not triggered.
 	if command -v glib-compile-schemas >/dev/null 2>&1; then
 		glib-compile-schemas /usr/share/glib-2.0/schemas || true
 	fi

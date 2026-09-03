@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Kavis — packages/ altındaki .deb'leri derler
+# Kavis — build the .deb packages under packages/
 #
-# Kullanım:
-#   tools/build-packages.sh            # hepsini derle
+# Usage:
+#   tools/build-packages.sh            # build all
 #   tools/build-packages.sh kavis-theme [...]
 #
-# Çıktı: out/packages/*.deb
+# Output: out/packages/*.deb
 #
-# 13. aşamada aptly ile gerçek bir APT deposu kurulacak. O zamana kadar
-# ISO iş akışı bu .deb'leri yapıt olarak indirip live-build'in
-# config/packages.chroot/ dizinine koyuyor.
+# Stage 13 will set up a real APT repository with aptly. Until then the
+# ISO workflow downloads these .deb files as an artifact and drops them
+# into live-build's config/packages.chroot/ directory.
 
 set -euo pipefail
 
@@ -29,16 +29,16 @@ else
 fi
 
 if [[ ${#targets[@]} -eq 0 ]]; then
-	echo "packages/ altında derlenecek paket yok." >&2
+	echo "Nothing to build under packages/." >&2
 	exit 1
 fi
 
-# Kaynak dosyalar depoda tek yerde (assets/) duruyor; paket ağacına
-# kopyalanıyorlar. Kopya .gitignore'da — iki yerde durup birbirinden
-# ayrı düşmesinler.
+# Asset files live in one place in the repo (assets/) and are copied into
+# the package tree. The copy is in .gitignore — so two copies never
+# drift apart.
 prepare_sources() {
-	# Selftest senaryoları (madde 72): kanonik yer tests/ui/, paket
-	# ağacındaki kopya gitignore'da.
+	# Selftest scenarios (item 72): canonical location tests/ui/, the
+	# copy in the package tree is gitignored.
 	mkdir -p packages/kavis-selftest/scenarios
 	install -m644 tests/ui/*.yaml packages/kavis-selftest/scenarios/
 	case "$1" in
@@ -50,13 +50,13 @@ prepare_sources() {
 			packages/kavis-theme/src/logo/acik-k-logo.svg
 		;;
 	kavis-panel)
-		# Ortak GTK başlangıcı (madde 61) + ortak metin tablosu:
-		# kanonik kopyalar packages/kavis-common/; her GTK paketi
-		# derlemede kendi src ağacına alır (kopyalar .gitignore'da).
+		# Shared GTK startup (item 61) + shared string table: canonical
+		# copies in packages/kavis-common/; every GTK package pulls them
+		# into its own src tree at build time (copies are gitignored).
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-panel/src/logic/appinit.vala
-		# Emoji/kaomoji/sembol verisi + üretilen adlar (bölüm 5):
-		# kanonik kopya kavis-common'da, paneli birleşik panel kullanır.
+		# Emoji/kaomoji/symbol data + generated names (section 5):
+		# canonical copy in kavis-common, used by the unified picker.
 		install -m644 packages/kavis-common/picker_data.vala \
 			packages/kavis-panel/src/logic/picker_data.vala
 		install -m644 packages/kavis-common/emoji_names.vala \
@@ -71,8 +71,8 @@ prepare_sources() {
 			packages/kavis-panel/src/logic/brightness.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-panel/src/logic/theme.vala
-		# Çeviriler (Grup D işi c): po/ kanonik, panel derlemede
-		# msgfmt ile .mo üretir ve kavis.mo'yu paket olarak taşır.
+		# Translations (Group D task c): po/ is canonical; the panel
+		# build runs msgfmt and ships kavis.mo in the package.
 		rm -rf packages/kavis-panel/po
 		cp -r po packages/kavis-panel/po
 		;;
@@ -90,7 +90,7 @@ prepare_sources() {
 			packages/kavis-settings/src/logic/brightness.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-settings/src/logic/theme.vala
-		# H4: donanım/sistem okuyucusu Ayarlar ve Görev Yöneticisi'nde ortak.
+		# H4: the hardware/system reader is shared by Settings and Task Manager.
 		install -m644 packages/kavis-common/sysinfo.vala \
 			packages/kavis-settings/src/logic/sysinfo.vala
 		;;
@@ -100,30 +100,30 @@ prepare_sources() {
 			packages/kavis-tools/src/appinit.vala
 		install -m644 packages/kavis-common/headerbar.vala \
 			packages/kavis-tools/src/headerbar.vala
-		# Palet (B2): tema kavis.conf'tan okunur — config.vala da gerek.
+		# Palette (B2): the theme is read from kavis.conf — config.vala needed too.
 		install -m644 packages/kavis-common/config.vala \
 			packages/kavis-tools/src/config.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-tools/src/theme.vala
 		install -m644 packages/kavis-common/sysinfo.vala \
 			packages/kavis-tools/src/sysinfo.vala
-		# fastfetch DE satırı (madde 71): ürün adı os-release'ten.
+		# fastfetch DE line (item 71): product name from os-release.
 		install -m644 packages/kavis-theme/src/os-release \
 			packages/kavis-tools/fastfetch/os-release
-		# Güç eylemleri (6d): Ctrl+Alt+Del ekranı panelin güç
-		# menüsüyle aynı logind komutlarını kullanır.
+		# Power actions (6d): the Ctrl+Alt+Del screen uses the same
+		# logind commands as the panel's power menu.
 		install -m644 packages/kavis-common/power.vala \
 			packages/kavis-tools/src/power.vala
 		;;
 	kavis-boot)
 		install -d packages/kavis-boot/src/boot
-		# Madde 30: splash'te fotoğraf yok, HER ZAMAN koyu logo.
-		# boot-image.png artık kullanılmıyor (assets/'te duruyor).
+		# Item 30: no photo in the splash, ALWAYS the dark logo.
+		# boot-image.png is no longer used (still kept in assets/).
 		install -m644 assets/logo/koyu-k-logo.svg \
 			packages/kavis-boot/src/boot/koyu-k-logo.svg
 		install -m644 assets/boot/boot-sound.mp3 \
 			packages/kavis-boot/src/boot/boot-sound.mp3
-		# Ürün adı tek kaynaktan: tema paketindeki os-release.
+		# Product name from a single source: the theme package's os-release.
 		install -m644 packages/kavis-theme/src/os-release \
 			packages/kavis-boot/src/boot/os-release
 		;;
@@ -133,18 +133,18 @@ prepare_sources() {
 for pkg in "${targets[@]}"; do
 	dir="packages/$pkg"
 	[[ -f "$dir/debian/control" ]] || {
-		echo "HATA: $dir/debian/control yok" >&2
+		echo "ERROR: $dir/debian/control missing" >&2
 		exit 1
 	}
-	echo "==> $pkg derleniyor"
+	echo "==> building $pkg"
 	prepare_sources "$pkg"
 	( cd "$dir" && dpkg-buildpackage -us -uc -b --no-sign )
-	# dpkg-buildpackage .deb'i üst dizine (packages/) bırakır
+	# dpkg-buildpackage drops the .deb in the parent directory (packages/)
 	mv -f packages/"$pkg"_*.deb "$OUT"/ 2>/dev/null || \
 		mv -f packages/*.deb "$OUT"/
 	rm -f packages/"$pkg"_*.{buildinfo,changes}
 done
 
 echo
-echo "==> Hazır:"
+echo "==> Ready:"
 ls -lh "$OUT"

@@ -20,11 +20,11 @@ Depends:
  network-manager,
  pkexec,
  locales,
-Description: Kavis Ayarlar — sistem ayarları uygulaması (madde 9)
- Windows 11 Ayarlar düzeninde tek pencere: solda aranabilir bölüm
- listesi, sağda içerik. Görünüm, ekran, ses, klavye/dil, güç, ağ,
- görev çubuğu ve sistem bölümleri.
+Description: Kavis Settings — system settings application (madde 9)
+ A single window in the Windows 11 Settings layout: a searchable
+ section list on the left, content on the right. Appearance, display,
+ sound, keyboard/language, power, network, taskbar and system sections.
  .
- Tek yapılandırma dosyası ~/.config/kavis/kavis.conf; panel ve tema
- aynı dosyayı okur. Çeviriler kavis-panel'in taşıdığı "kavis"
- alanından gelir.
+ Single configuration file ~/.config/kavis/kavis.conf; the panel and
+ the theme read the same file. Translations come from the "kavis"
+ domain shipped by kavis-panel.

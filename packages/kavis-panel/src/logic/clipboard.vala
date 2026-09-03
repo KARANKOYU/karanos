@@ -1,33 +1,34 @@
-/* Clipboard history (business logic) — madde 7, sonraki-isler 5 ile
- * kalıcı depoya dönüştü.
+/* Clipboard history (business logic) — madde 7, turned into a
+ * persistent store with sonraki-isler 5.
  *
- * X11 pano tuzakları madde 59 taramasından tasarım kuralı oldu
- * (docs/referans/grup-d-taramasi.md):
- *   - içerik owner-change ANINDA kendi belleğimize kopyalanır (X'te
- *     panonun sahibi kopyalayan uygulamadır; uygulama kapanınca pano
- *     boşalır — geçmiş bizim kopyamızdan yaşar);
- *   - yalnız CLIPBOARD izlenir, PRIMARY (fare seçimi) asla;
- *   - şifre yöneticisi ipucu (x-kde-passwordManagerHint) taşıyan
- *     içerik geçmişe ALINMAZ;
- *   - kendi set ettiğimiz içerik geri yakalanıp döngü olmasın diye
- *     işaretlenir.
+ * The X11 clipboard pitfalls became design rules through the madde 59
+ * scan (docs/referans/grup-d-taramasi.md):
+ *   - content is copied into our own memory the INSTANT owner-change
+ *     fires (on X the clipboard owner is the copying app; when the app
+ *     quits the clipboard empties — history lives on from our copy);
+ *   - only CLIPBOARD is watched, never PRIMARY (mouse selection);
+ *   - content carrying the password manager hint
+ *     (x-kde-passwordManagerHint) is NOT taken into history;
+ *   - content we set ourselves is marked so it is not captured back
+ *     and does not loop.
  *
- * Kalıcılık (bölüm 5): her öğe ~/.cache/kavis/clipboard/ altında bir
- * dosya (<mikrosaniye>.txt ya da .png, 0600). GÖRSELLER de girer —
- * ekran görüntüsü kopyalanınca geçmişin başına düşer; bilinen-sorun
- * 10'un (60 sn pano ömrü) kalıcı cevabı bu. Saklama: 7 gün ve toplam
- * 200 MB — pinliler hariç en eskiden silinir. Pin kaydı aynı dizinde
- * pinned.list.
+ * Persistence (section 5): every item is a file under
+ * ~/.cache/kavis/clipboard/ (<microseconds>.txt or .png, 0600). IMAGES
+ * go in too — copying a screenshot puts it at the head of the history;
+ * this is the permanent answer to known-issue 10 (60 s clipboard
+ * lifetime). Retention: 7 days and 200 MB total — the oldest are
+ * deleted first, pinned items exempt. The pin record is pinned.list
+ * in the same directory.
  */
 
 namespace Kavis {
 
     public class ClipEntry {
-        public string id;          /* dosya adı gövdesi */
+        public string id;          /* file name stem */
         public bool is_image;
-        public string text = "";   /* metin öğesinde içerik */
-        public string path = "";   /* diskteki dosya */
-        public int64 timestamp;    /* unix saniye */
+        public string text = "";   /* content for a text item */
+        public string path = "";   /* file on disk */
+        public int64 timestamp;    /* unix seconds */
         public bool pinned;
     }
 
@@ -43,9 +44,9 @@ namespace Kavis {
 
         private Gtk.Clipboard clipboard;
         private string? last_set_text = null;
-        /* Görselde içerik karşılaştırması pahalı: kendi set ettiğimiz
-         * görselin geri yakalanmasını kısa bir bastırma penceresi
-         * çözer. */
+        /* Comparing image content is expensive: a short suppression
+         * window handles the image we set ourselves being captured
+         * back. */
         private int64 suppress_image_until = 0;
 
         public ClipboardHistory () {
@@ -64,7 +65,7 @@ namespace Kavis {
             return Path.build_filename (store_dir (), "pinned.list");
         }
 
-        /* --- diskten yükleme ----------------------------------------- */
+        /* --- loading from disk --------------------------------------- */
 
         private void load () {
             var pinned_ids = new GenericArray<string> ();
@@ -108,7 +109,7 @@ namespace Kavis {
                     items.add (entry);
                 }
             } catch (Error e) {
-                /* ilk çalıştırma */
+                /* first run */
             }
             items.sort ((a, b) => {
                 int64 diff = int64.parse (b.id) - int64.parse (a.id);
@@ -129,12 +130,12 @@ namespace Kavis {
                 FileUtils.set_contents (pinned_path (), builder.str);
                 FileUtils.chmod (pinned_path (), 0600);
             } catch (Error e) {
-                warning ("kavis-panel: pinned.list yazilamadi: %s",
+                warning ("kavis-panel: could not write pinned.list: %s",
                          e.message);
             }
         }
 
-        /* 7 gün + 200 MB (pinliler bağışık, en eski önce gider). */
+        /* 7 days + 200 MB (pinned items immune, oldest goes first). */
         private void prune () {
             int64 now = new DateTime.now_utc ().to_unix ();
             int64 cutoff = now - RETENTION_DAYS * 24 * 3600;
@@ -169,7 +170,7 @@ namespace Kavis {
             }
         }
 
-        /* --- pano dinleme -------------------------------------------- */
+        /* --- clipboard listening ------------------------------------- */
 
         private void on_owner_change () {
             clipboard.request_targets ((clip, atoms) => {
@@ -177,7 +178,7 @@ namespace Kavis {
                 foreach (var atom in atoms) {
                     string name = atom.name ();
                     if (name == "x-kde-passwordManagerHint") {
-                        return;   /* şifre — geçmişe girmez */
+                        return;   /* password — stays out of history */
                     }
                     if (name.has_prefix ("image/")) {
                         has_image = true;
@@ -205,9 +206,9 @@ namespace Kavis {
 
         private void store_text (string text) {
             if (last_set_text != null && text == last_set_text) {
-                return;   /* bizim yazdığımız geri geldi */
+                return;   /* what we wrote came back */
             }
-            /* Aynı içerik tekrar kopyalandıysa üste taşı. */
+            /* If the same content was copied again, move it to the top. */
             for (int i = 0; i < items.length; i++) {
                 if (!items[i].is_image && items[i].text == text) {
                     var existing = items[i];
@@ -229,7 +230,7 @@ namespace Kavis {
                 FileUtils.set_contents (entry.path, text);
                 FileUtils.chmod (entry.path, 0600);
             } catch (Error e) {
-                warning ("kavis-panel: pano ogesi yazilamadi: %s",
+                warning ("kavis-panel: could not write clipboard item: %s",
                          e.message);
             }
             items.insert (0, entry);
@@ -240,7 +241,7 @@ namespace Kavis {
         private void store_image (Gdk.Pixbuf pixbuf) {
             int64 now_us = get_real_time ();
             if (now_us < suppress_image_until) {
-                return;   /* kendi koyduğumuz görsel */
+                return;   /* the image we put there ourselves */
             }
             var entry = new ClipEntry ();
             entry.id = fresh_id ();
@@ -253,7 +254,7 @@ namespace Kavis {
                 pixbuf.save (entry.path, "png");
                 FileUtils.chmod (entry.path, 0600);
             } catch (Error e) {
-                warning ("kavis-panel: pano gorseli yazilamadi: %s",
+                warning ("kavis-panel: could not write clipboard image: %s",
                          e.message);
                 return;
             }
@@ -262,16 +263,17 @@ namespace Kavis {
             changed ();
         }
 
-        /* --- kullanım ------------------------------------------------- */
+        /* --- usage ---------------------------------------------------- */
 
-        /* Picker'ın emoji/snippet yerleştirmesi: panoya yaz, kendi
-         * yazdığımızı geri yakalama. */
+        /* The picker's emoji/snippet insertion: write to the clipboard,
+         * do not capture back what we wrote ourselves. */
         public void set_clipboard_text (string text) {
             last_set_text = text;
             clipboard.set_text (text, -1);
         }
 
-        /* Öğeyi panoya koy (picker üstüne xdotool ile Ctrl+V basar). */
+        /* Put the item on the clipboard (the picker then presses
+         * Ctrl+V through xdotool on top). */
         public void activate_entry (ClipEntry entry) {
             if (entry.is_image) {
                 try {
@@ -279,7 +281,7 @@ namespace Kavis {
                     suppress_image_until = get_real_time () + 2000000;
                     clipboard.set_image (pixbuf);
                 } catch (Error e) {
-                    warning ("kavis-panel: gorsel yuklenemedi: %s",
+                    warning ("kavis-panel: could not load image: %s",
                              e.message);
                 }
             } else {
@@ -304,7 +306,7 @@ namespace Kavis {
             }
         }
 
-        /* Tümünü temizle: pinliler kalır (bölüm 5 kuralı). */
+        /* Clear all: pinned items stay (section 5 rule). */
         public void clear () {
             for (int i = (int) items.length - 1; i >= 0; i--) {
                 if (!items[i].pinned) {

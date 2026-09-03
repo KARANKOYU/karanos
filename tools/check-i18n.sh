@@ -1,50 +1,51 @@
 #!/usr/bin/env bash
-# Kavis — çeviri denetimi (Grup D işi c; --metin-denetimi'nin yerine).
+# Kavis — translation check (Group D task c; replaces --metin-denetimi).
 #
-# 1. kavis.pot kaynaktan taze üretilir; po/kavis.pot ile msgid kümesi
-#    karşılaştırılır (kodda yeni/az metin varsa pot bayat demektir).
-# 2. msgcmp: tr.po her msgid'i çevirmiş mi (eksik anahtar taraması).
-# 3. msgfmt --check: tüm po dosyaları sözdizimi + biçim dizgeleri.
-# 4. xx.po pot'la senkron mu (üretici yeniden koşulmuş mu).
+# 1. kavis.pot is regenerated from the sources and its msgid set is
+#    compared with po/kavis.pot (new/removed strings in code mean the
+#    committed pot is stale).
+# 2. msgcmp: has tr.po translated every msgid (missing-key scan).
+# 3. msgfmt --check: syntax + format strings of every po file.
+# 4. Is xx.po in sync with the pot (was the generator re-run).
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-hata=0
-taze=$(mktemp -d)
-trap 'rm -rf "$taze"' EXIT
+fail=0
+fresh=$(mktemp -d)
+trap 'rm -rf "$fresh"' EXIT
 
-cp po/kavis.pot "$taze/eski.pot"
+cp po/kavis.pot "$fresh/old.pot"
 tools/gen-pot.sh >/dev/null
-if ! diff <(grep '^msgid ' "$taze/eski.pot" | sort) \
+if ! diff <(grep '^msgid ' "$fresh/old.pot" | sort) \
           <(grep '^msgid ' po/kavis.pot | sort) >/dev/null; then
-	echo "HATA: po/kavis.pot bayattı — tools/gen-pot.sh çıktısı commit edilmeli" >&2
-	hata=1
+	echo "ERROR: po/kavis.pot was stale — commit the output of tools/gen-pot.sh" >&2
+	fail=1
 else
-	# msgid kümesi aynıysa yalnız üretim zamanı değişmiştir —
-	# çalışma ağacını kirletme.
-	cp "$taze/eski.pot" po/kavis.pot
+	# Same msgid set: only the generation timestamp changed — do not
+	# dirty the working tree.
+	cp "$fresh/old.pot" po/kavis.pot
 fi
 
 if ! msgcmp po/tr.po po/kavis.pot; then
-	echo "HATA: tr.po eksik/uyumsuz — her msgid çevrilmeli" >&2
-	hata=1
+	echo "ERROR: tr.po incomplete/mismatched — every msgid must be translated" >&2
+	fail=1
 fi
 
 for po in po/*.po; do
 	if ! msgfmt --check -o /dev/null "$po"; then
-		echo "HATA: $po msgfmt denetiminden geçmedi" >&2
-		hata=1
+		echo "ERROR: $po failed the msgfmt check" >&2
+		fail=1
 	fi
 done
 
-cp po/xx.po "$taze/eski-xx.po"
+cp po/xx.po "$fresh/old-xx.po"
 python3 tools/gen-xx-po.py >/dev/null
-if ! diff -q "$taze/eski-xx.po" po/xx.po >/dev/null; then
-	echo "HATA: xx.po bayattı — tools/gen-xx-po.py çıktısı commit edilmeli" >&2
-	hata=1
+if ! diff -q "$fresh/old-xx.po" po/xx.po >/dev/null; then
+	echo "ERROR: xx.po was stale — commit the output of tools/gen-xx-po.py" >&2
+	fail=1
 fi
 
-if [ "$hata" -eq 0 ]; then
-	echo "çeviri denetimi: $(grep -c '^msgid ' po/kavis.pot) msgid, sorun yok"
+if [ "$fail" -eq 0 ]; then
+	echo "translation check: $(grep -c '^msgid ' po/kavis.pot) msgids, no problems"
 fi
-exit $hata
+exit $fail

@@ -140,7 +140,7 @@ namespace Kavis.Selftest {
                     || attrs.width < 40 || attrs.height < 40) {
                     continue;
                 }
-                /* WM_CLASS = "instance\0class\0" — iki adı da ara */
+                /* WM_CLASS = "instance\0class\0" — search both names */
                 X.Atom at; int af; ulong cnt, ba; void* prop;
                 if (xd.get_window_property (c, X.XA_WM_CLASS, 0, 64, false,
                         X.XA_STRING, out at, out af, out cnt, out ba, out prop) == 0

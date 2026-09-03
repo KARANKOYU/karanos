@@ -1,13 +1,13 @@
-# Panel (madde 3/60): Başlat aç/kapa (tık + Win + Ctrl+Esc), takvim, dış tıklama
+# Panel (items 3/60): Start open/close (click + Win + Ctrl+Esc), calendar, outside click
 name: 03-panel
-title: Görev çubuğu ve Başlat
-madde: 3
+title: Taskbar and Start
+item: 3
 allowed: [nemo, tilix, firefox]
 steps:
   - do: click taskbar start
     expect: popup kavis-panel visible
     timeout: 8000
-    note: Başlat düğmesi menüyü açar
+    note: Start button opens the menu
     shot: true
   - do: key Escape
     expect: popup kavis-panel hidden
@@ -15,22 +15,22 @@ steps:
   - do: key super
     expect: popup kavis-panel visible
     timeout: 8000
-    note: Win tuşu (xcape → XF86Launch5)
+    note: Win key (xcape → XF86Launch5)
   - do: key super
     expect: popup kavis-panel hidden
     timeout: 4000
-    note: ikinci Win kapatır (C2 toggle)
+    note: second Win closes it (C2 toggle)
   - do: key ctrl+Escape
     expect: popup kavis-panel visible
     timeout: 8000
   - do: click 640 300
     expect: popup kavis-panel hidden
     timeout: 4000
-    note: dışarı tıklama kapatır (madde 60)
+    note: clicking outside closes it (item 60)
   - do: click taskbar clock
     expect: popup kavis-panel visible
     timeout: 8000
-    note: saat → takvim
+    note: clock → calendar
     shot: true
   - do: key Escape
     expect: popup kavis-panel hidden

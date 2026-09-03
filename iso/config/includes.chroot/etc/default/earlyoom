@@ -1,20 +1,20 @@
-# Kavis — earlyoom ayarları (madde 8)
+# Kavis — earlyoom settings (item 8)
 #
-# earlyoom, RAM tükenmeden ÖNCE en obur süreci öldürüp sistemin
-# kilitlenmesini önler (çekirdeğin kendi OOM'u çok geç davranır).
+# earlyoom kills the hungriest process BEFORE RAM runs out and prevents
+# the system from locking up (the kernel's own OOM acts far too late).
 #
-# --avoid ŞART (madde 59 taraması: "yanlış süreci öldürüyor" earlyoom'un
-# en bilinen açık şikâyeti): oturumu ayakta tutan süreçler öldürülürse
-# kullanıcı siyah ekranda kalır — Kavis'in "masaüstüne güvenli dönüş"
-# ilkesine aykırı. Tarayıcı süreçleri gibi obur ama zararsız kurbanlar
-# --prefer ile öne alınıyor.
+# --avoid is REQUIRED (item 59 scan: "kills the wrong process" is
+# earlyoom's best-known open complaint): if the processes that keep the
+# session up are killed, the user is left on a black screen — contrary
+# to Kavis's "safe return to the desktop" principle. Hungry but harmless
+# victims such as browser processes are moved to the front with --prefer.
 #
-# DİKKAT — TIRNAK VE BOŞLUK YOK: servis dosyası $EARLYOOM_ARGS'ı kabuk
-# OLMADAN, systemd'nin kendi boşluk bölmesiyle açıyor; systemd tırnak
-# tanımaz. Bu yüzden regex'ler tek kelime olmalı — süreç adındaki
-# boşluk [[:space:]] ile yazılıyor ("Isolated Web Co" = Firefox'un
-# 15 karaktere kırpılmış comm adı).
+# NOTE — NO QUOTES AND NO SPACES: the service file expands $EARLYOOM_ARGS
+# WITHOUT a shell, with systemd's own whitespace splitting; systemd does
+# not understand quotes. So the regexes must be single words — a space in
+# a process name is written as [[:space:]] ("Isolated Web Co" = Firefox's
+# comm name truncated to 15 characters).
 #
-# -r 3600: saatte bir bellek raporu (günlük dolmasın); bellek/takas
-# eşikleri varsayılan (%10/%5).
+# -r 3600: a memory report once an hour (so the log does not fill up);
+# memory/swap thresholds are the defaults (10%/5%).
 EARLYOOM_ARGS=-r 3600 --avoid (^|/)(systemd|systemd-logind|dbus-daemon|Xorg|lightdm|openbox|picom|kavis-panel)$ --prefer (^|/)(firefox|firefox-esr|chromium|Web[[:space:]]Content|Isolated[[:space:]]Web[[:space:]]Co)$

@@ -1,157 +1,159 @@
 #!/bin/sh
-# Kavis — açılış müziğini çalar ve splash'i müzik bitene kadar tutar
+# Kavis — plays the boot music and holds the splash until the music ends
 #
-# NEDEN AYRI SERVİS: Plymouth'un ses desteği yok (madde 30).
+# WHY A SEPARATE SERVICE: Plymouth has no audio support (madde 30).
 #
-# NEDEN SPLASH'İ BU TUTUYOR: servis Type=oneshot ve unit dosyasında
-# `Before=plymouth-quit.service`. Müzik bitene kadar servis "başlıyor"
-# sayılıyor, dolayısıyla plymouth-quit bekliyor ve splash açık kalıyor.
-# Sistem müzikten önce hazır olsa bile splash bekliyor — madde 30'un
-# istediği bu. TEK İSTİSNA: boşluk tuşu — basılırsa müzik kesilir ve
-# splash hemen sönmeye başlar (plymouth watch-keystroke ile dinleniyor).
+# WHY THIS HOLDS THE SPLASH: the service is Type=oneshot and the unit
+# file has `Before=plymouth-quit.service`. Until the music ends the
+# service counts as "starting", so plymouth-quit waits and the splash
+# stays open. Even if the system is ready before the music, the splash
+# waits — that is what madde 30 asks for. THE SINGLE EXCEPTION: the
+# space key — when pressed the music stops and the splash starts fading
+# at once (listened for with plymouth watch-keystroke).
 #
-# AYARLAR (/etc/kavis/boot.conf, ileride Ayarlar uygulaması yazacak):
-#   MUZIK_CAL=0    → müzik hiç çalınmaz, splash beklemez
-#   MUZIGI_BEKLE=0 → müzik arka planda başlar, splash beklemez
+# SETTINGS (/etc/kavis/boot.conf, the Settings app will write it later):
+#   PLAY_MUSIC=0    → the music is never played, the splash does not wait
+#   WAIT_FOR_MUSIC=0 → the music starts in the background, the splash does not wait
 #
-# SES AYGITINI BURADA BEKLİYORUZ, systemd'de DEĞİL:
-# Unit `After=sound.target` ile beklerse gerçek donanımda açılışın çok
-# ilerisine kayıyor ve splash'i tutamıyor (VirtualBox testinde müzik
-# masaüstüne kadar taştı). Servis erken başlıyor, ses aygıtının
-# gelmesini kısa ve sınırlı bir döngüyle burada bekliyoruz.
+# WE WAIT FOR THE AUDIO DEVICE HERE, NOT IN systemd:
+# If the unit waited with `After=sound.target`, on real hardware it slid
+# far into the boot and could not hold the splash (in the VirtualBox
+# test the music spilled into the desktop). The service starts early
+# and we wait for the audio device here with a short, bounded loop.
 #
-# GÜVENLİK AĞI: ses aygıtı hiç gelmezse ya da çalma takılırsa toplam
-# bekleme ${AYGIT_BEKLEME} + ${AZAMI_CALMA} saniyeyi geçmiyor. Müzik
-# bir kez çalar, döngüye alınmaz.
+# SAFETY NET: if the audio device never appears or playback hangs, the
+# total wait does not exceed ${DEVICE_WAIT} + ${MAX_PLAY} seconds. The
+# music plays once, never loops.
 
 set -u
 
-SES=/usr/share/kavis/boot/boot-sound.wav
-AYARLAR=/etc/kavis/boot.conf
-# Ses aygıtı için en fazla bu kadar bekle. Yoklama 0,2 saniyede bir:
-# saniyede bir yoklamak, aygıt hazır olduktan sonra ortalama yarım
-# saniye daha bekletiyordu ve müzik splash'e geç yetişiyordu.
-AYGIT_BEKLEME=8
-YOKLAMA=0.2
-AZAMI_CALMA=10    # çalma en fazla bu kadar sürsün
+SOUND=/usr/share/kavis/boot/boot-sound.wav
+SETTINGS=/etc/kavis/boot.conf
+# Wait at most this long for the audio device. Polling every 0.2 s:
+# polling once a second kept waiting half a second on average after the
+# device was ready and the music reached the splash late.
+DEVICE_WAIT=8
+POLL=0.2
+MAX_PLAY=10    # playback lasts at most this long
 
 log() { echo "kavis-boot-sound: $*"; }
 
-# --- ayarları oku ----------------------------------------------------
-# Değerler dosyada yoksa varsayılan davranış: çal ve bekle.
-MUZIK_CAL=1
-MUZIGI_BEKLE=1
-if [ -r "$AYARLAR" ]; then
+# --- read the settings -----------------------------------------------
+# Default behavior when the values are missing from the file: play and wait.
+PLAY_MUSIC=1
+WAIT_FOR_MUSIC=1
+if [ -r "$SETTINGS" ]; then
 	# shellcheck disable=SC1090
-	. "$AYARLAR"
+	. "$SETTINGS"
 fi
 
-if [ "$MUZIK_CAL" != "1" ]; then
-	log "muzik ayardan kapali (MUZIK_CAL=$MUZIK_CAL), atlandi"
+if [ "$PLAY_MUSIC" != "1" ]; then
+	log "music disabled in settings (PLAY_MUSIC=$PLAY_MUSIC), skipped"
 	exit 0
 fi
 
-plymouth_var=0
+plymouth_up=0
 if command -v plymouth >/dev/null 2>&1 && plymouth --ping >/dev/null 2>&1; then
-	plymouth_var=1
+	plymouth_up=1
 fi
-log "plymouth: $plymouth_var"
+log "plymouth: $plymouth_up"
 
-# --- ses aygıtını bekle ---------------------------------------------
-# /dev/snd/pcmC*D*p = çalma (playback) aygıtı. Yalnızca /dev/snd
-# dizininin varlığına bakmak yetmiyor; controlC0 varken bile playback
-# aygıtı henüz oluşmamış olabiliyor.
-aygit=0
-adim=0
-azami_adim=$(( AYGIT_BEKLEME * 5 ))   # 0,2 saniyelik adımlar
-while [ "$adim" -lt "$azami_adim" ]; do
+# --- wait for the audio device ---------------------------------------
+# /dev/snd/pcmC*D*p = playback device. Checking only for the /dev/snd
+# directory is not enough; the playback device may not exist yet even
+# when controlC0 does.
+device=0
+step=0
+max_steps=$(( DEVICE_WAIT * 5 ))   # 0.2-second steps
+while [ "$step" -lt "$max_steps" ]; do
 	for d in /dev/snd/pcmC*D*p; do
 		if [ -e "$d" ]; then
-			aygit=1
+			device=1
 			break
 		fi
 	done
-	[ "$aygit" -eq 1 ] && break
-	adim=$((adim + 1))
-	sleep "$YOKLAMA"
+	[ "$device" -eq 1 ] && break
+	step=$((step + 1))
+	sleep "$POLL"
 done
 
-# Ölçüyü günlüğe yazıyoruz: müzik splash'e göre ne kadar geç başlıyor
-# sorusunun cevabı bu satır.
-bekleme_ds=$(( adim * 2 ))   # 0,1 saniye biriminde
-if [ "$aygit" -eq 1 ]; then
-	log "ses aygiti $((bekleme_ds / 10)).$((bekleme_ds % 10)) saniyede hazir"
+# The measurement goes to the log: this line answers how late the music
+# starts relative to the splash.
+wait_ds=$(( step * 2 ))   # in 0.1-second units
+if [ "$device" -eq 1 ]; then
+	log "sound device ready in $((wait_ds / 10)).$((wait_ds % 10)) seconds"
 else
-	log "ses aygiti ${AYGIT_BEKLEME} saniyede gelmedi, muzik atlanacak"
+	log "sound device did not appear in ${DEVICE_WAIT} seconds, music will be skipped"
 fi
 
-calinabilir=0
-if [ "$aygit" -eq 1 ] && [ -r "$SES" ] && command -v aplay >/dev/null 2>&1; then
-	calinabilir=1
+playable=0
+if [ "$device" -eq 1 ] && [ -r "$SOUND" ] && command -v aplay >/dev/null 2>&1; then
+	playable=1
 fi
 
-# --- "bekleme" kapalıysa: arka planda çal, splash'i tutma -------------
-if [ "$MUZIGI_BEKLE" != "1" ]; then
-	if [ "$calinabilir" -eq 1 ]; then
-		timeout "$AZAMI_CALMA" aplay -q "$SES" >/dev/null 2>&1 &
-		log "muzik arka planda basladi (MUZIGI_BEKLE=$MUZIGI_BEKLE), splash tutulmuyor"
+# --- if "wait" is off: play in the background, do not hold the splash --
+if [ "$WAIT_FOR_MUSIC" != "1" ]; then
+	if [ "$playable" -eq 1 ]; then
+		timeout "$MAX_PLAY" aplay -q "$SOUND" >/dev/null 2>&1 &
+		log "music started in the background (WAIT_FOR_MUSIC=$WAIT_FOR_MUSIC), splash not held"
 	fi
 	exit 0
 fi
 
-# --- çal; boşluk tuşu müziği keser (madde 30 tek istisnası) -----------
-atlandi=0
-if [ "$calinabilir" -eq 1 ]; then
-	# `timeout` olmazsa bozuk bir ses aygıtı açılışı süresiz kilitler.
-	timeout "$AZAMI_CALMA" aplay -q "$SES" >/dev/null 2>&1 &
+# --- play; the space key stops the music (madde 30's single exception) -
+skipped=0
+if [ "$playable" -eq 1 ]; then
+	# Without `timeout` a broken audio device locks the boot forever.
+	timeout "$MAX_PLAY" aplay -q "$SOUND" >/dev/null 2>&1 &
 	aplay_pid=$!
 
-	tus_pid=0
-	if [ "$plymouth_var" -eq 1 ]; then
-		# watch-keystroke boşluğa basılınca çıkar; basılmazsa aşağıda
-		# öldürülür. Tuş dinleme Plymouth'ta — X yok, tty yönetimi onda.
+	key_pid=0
+	if [ "$plymouth_up" -eq 1 ]; then
+		# watch-keystroke exits when space is pressed; if not pressed it
+		# is killed below. Key listening is in Plymouth — no X, it owns
+		# the tty.
 		plymouth watch-keystroke --keys=" " >/dev/null 2>&1 &
-		tus_pid=$!
+		key_pid=$!
 	fi
 
-	# İki olaydan biri: müzik bitti YA DA boşluğa basıldı.
+	# One of two events: the music ended OR space was pressed.
 	while kill -0 "$aplay_pid" 2>/dev/null; do
-		if [ "$tus_pid" -ne 0 ] && ! kill -0 "$tus_pid" 2>/dev/null; then
-			atlandi=1
+		if [ "$key_pid" -ne 0 ] && ! kill -0 "$key_pid" 2>/dev/null; then
+			skipped=1
 			kill "$aplay_pid" 2>/dev/null
 			break
 		fi
 		sleep 0.1
 	done
 	wait "$aplay_pid" 2>/dev/null
-	if [ "$tus_pid" -ne 0 ]; then
-		kill "$tus_pid" 2>/dev/null
-		wait "$tus_pid" 2>/dev/null
+	if [ "$key_pid" -ne 0 ]; then
+		kill "$key_pid" 2>/dev/null
+		wait "$key_pid" 2>/dev/null
 	fi
 
-	if [ "$atlandi" -eq 1 ]; then
-		log "bosluk tusuyla atlandi, muzik kesildi"
+	if [ "$skipped" -eq 1 ]; then
+		log "skipped with the space key, music stopped"
 	else
-		log "muzik bitti"
+		log "music finished"
 	fi
 else
-	log "ses dosyasi, aygit ya da aplay yok — muzik atlandi"
+	log "no sound file, device or aplay — music skipped"
 fi
 
-# --- splash'e haber ver ----------------------------------------------
-# Müzik kendiliğinden bittiyse: "sönmeye başla" (görsel ile ses birlikte
-# söner), kısa fade-out'u bekle. Boşlukla ATLANDIYSA (madde 6
-# düzeltmesi): splash erken sönmez — yalnız ipucu satırı "Başlatılıyor…"
-# olur; fade, plymouth-quit geldiğinde script'in Cikis'iyle çalışır ve
-# retain karesi o yazıyla kalır.
-if [ "$plymouth_var" -eq 1 ]; then
-	if [ "$atlandi" -eq 1 ]; then
-		plymouth update --status=kavis-atlandi >/dev/null 2>&1 || true
+# --- notify the splash -----------------------------------------------
+# If the music ended by itself: "start fading" (image and sound fade
+# together), wait for the short fade-out. If SKIPPED with space (madde 6
+# fix): the splash does not fade early — only the hint line becomes
+# "Starting…"; the fade runs with the script's Quit when plymouth-quit
+# arrives and the retained frame keeps that text.
+if [ "$plymouth_up" -eq 1 ]; then
+	if [ "$skipped" -eq 1 ]; then
+		plymouth update --status=kavis-skipped >/dev/null 2>&1 || true
 	else
-		# Fade kalktı (test8 H3b) — bekleme payı da gereksiz.
-		plymouth update --status=kavis-sonlaniyor >/dev/null 2>&1 || true
+		# The fade is gone (test8 H3b) — the wait margin is unnecessary too.
+		plymouth update --status=kavis-finishing >/dev/null 2>&1 || true
 	fi
 fi
 
-log "tamam"
+log "done"
 exit 0

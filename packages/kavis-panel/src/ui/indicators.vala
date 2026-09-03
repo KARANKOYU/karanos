@@ -42,9 +42,9 @@ namespace Kavis.Ui {
 
         private void refresh () {
             var now = new DateTime.now_local ();
-            /* 4B: biçim locale'den (EN 3:04 PM + 09/02/2026, TR 15:04
-             * + 02.09.2026). Dikey panelde (test8 A1) yıl sığmıyor:
-             * kısa tarih. */
+            /* 4B: format from the locale (EN 3:04 PM + 09/02/2026, TR
+             * 15:04 + 02.09.2026). On a vertical panel (test8 A1) the
+             * year does not fit: short date. */
             text_label.set_markup ("<small>%s\n%s</small>".printf (
                 Markup.escape_text (now.format (TimeFmt.time_format ())),
                 Markup.escape_text (now.format (vertical
@@ -71,10 +71,10 @@ namespace Kavis.Ui {
             clicked.connect (() => popup.toggle_at (this));
 
             refresh ();
-            /* Optimizasyon turu: 2 sn'de bir setxkbmap doğurmak yerine
-             * olay tabanlı — X klavye eşlemi değişince (2F: aygıt
-             * yeniden takılması) GDK keys_changed verir; 30 sn'lik
-             * yoklama yalnız emniyet ağı. 60 süreç/dk → ~0. */
+            /* Optimization pass: event-driven instead of spawning
+             * setxkbmap every 2 s — when the X keymap changes (2F:
+             * device re-plug) GDK emits keys_changed; the 30 s poll is
+             * only a safety net. 60 processes/min → ~0. */
             var keymap = Gdk.Keymap.get_for_display (Gdk.Display.get_default ());
             keymap.keys_changed.connect (() => refresh ());
             Timeout.add_seconds (30, () => {
@@ -84,8 +84,8 @@ namespace Kavis.Ui {
         }
 
         private void refresh () {
-            /* 2F: X düzeni sapmışsa (aygıt yeniden takılması) önce
-             * yapılandırılana geri çek, sonra göster. */
+            /* 2F: if the X layout has drifted (device re-plug), pull it
+             * back to the configured one first, then display. */
             Keyboard.enforce ();
             text_label.set_text (Keyboard.current_layout ().up ());
         }
@@ -120,7 +120,7 @@ namespace Kavis.Ui {
                 return;
             }
 
-            /* Dikey panelde öğeler alt alta (test8 A1). */
+            /* On a vertical panel the items stack vertically (test8 A1). */
             var row = new Gtk.Box (vertical
                 ? Gtk.Orientation.VERTICAL
                 : Gtk.Orientation.HORIZONTAL, 8);
@@ -132,8 +132,8 @@ namespace Kavis.Ui {
                 row.set_margin_end (6);
             }
             if (has_wifi) {
-                /* 4E: ikon gerçek durumu gösterir (refresh_fast) —
-                 * görünürlüğü de oradan yönetilir, show_all karışmasın. */
+                /* 4E: the icon shows the real state (refresh_fast) —
+                 * its visibility is managed there too; keep show_all out. */
                 wifi_icon = new Gtk.Image.from_icon_name (
                     "network-wireless-symbolic", Gtk.IconSize.BUTTON);
                 wifi_icon.set_no_show_all (true);
@@ -174,8 +174,9 @@ namespace Kavis.Ui {
             });
         }
 
-        /* Ses + ağ ikonu (10 sn). Araç ipucu grubu anlatır (test8 B5)
-         * — SSID değil: küme tek düğme, adı da bütünü söylemeli. */
+        /* Sound + network icon (10 s). The tooltip describes the group
+         * (test8 B5) — not the SSID: the cluster is one button, so its
+         * name must describe the whole. */
         private void refresh_fast () {
             if (volume_icon != null) {
                 var state = Volume.read ();
@@ -184,8 +185,9 @@ namespace Kavis.Ui {
                     Gtk.IconSize.BUTTON);
             }
             if (wifi_icon != null) {
-                /* 4E: donanım yoksa ikon YOK; kablolu varsa kablolu
-                 * ikonu; bağlı değilse üstü çizili (offline) sürüm. */
+                /* 4E: no hardware → NO icon; wired present → wired
+                 * icon; not connected → the struck-through (offline)
+                 * version. */
                 var net = Quick.net_status ();
                 if (net.kind == Quick.NetKind.NONE) {
                     wifi_icon.hide ();
@@ -207,7 +209,7 @@ namespace Kavis.Ui {
             }
         }
 
-        /* Pil yüzdesi (30 sn). */
+        /* Battery percentage (30 s). */
         private void refresh_slow () {
             if (battery_label == null) {
                 return;
@@ -218,8 +220,8 @@ namespace Kavis.Ui {
                 return;
             }
             unowned string mark = Battery.charging () ? "⚡" : "";
-            /* Yüzde biçimi dile göre değişir (TR: %93, EN: 93%) —
-             * biçim dizgesinin kendisi çevrilir. */
+            /* The percent format depends on the language (TR: %93,
+             * EN: 93%) — the format string itself is translated. */
             battery_label.set_text (mark + _("%d%%").printf (percent));
         }
 
@@ -278,8 +280,8 @@ namespace Kavis.Ui {
                 }
                 append_plan_menus (menu);
             }
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+            /* Leak guard: the menu is destroyed on close (via Idle,
+             * because activation runs AFTER deactivate). */
             menu.deactivate.connect (() => {
                 Idle.add (() => {
                     menu.destroy ();
@@ -324,8 +326,8 @@ namespace Kavis.Ui {
             }
         }
 
-        /* Anahtar birleştirme gettext'e çevrilemez (msgid sabit metin
-         * olmalı) — plan adı açık eşlemeyle. */
+        /* Key concatenation cannot go through gettext (the msgid must
+         * be a literal) — plan name via an explicit mapping. */
         private static unowned string plan_label (PowerPlan.Plan plan) {
             switch (plan) {
             case PowerPlan.Plan.PERFORMANCE:
@@ -338,7 +340,7 @@ namespace Kavis.Ui {
         }
     }
 
-    /* Virtual-desktop switcher (3E: sayı SABİT DEĞİL): one button per
+    /* Virtual-desktop switcher (3E: the count is NOT FIXED): one button per
      * workspace, the active one carries a teal underline; a trailing
      * "+" adds a desktop (5, 6, 7…); hovering an EMPTY desktop shows a
      * ✕ that closes it — windows on later desktops shift one left so
@@ -362,7 +364,7 @@ namespace Kavis.Ui {
             screen.active_workspace_changed.connect (() => mark_active ());
         }
 
-        /* Kayıtlı sayıyı aç: rc.xml 4 der, kullanıcı 6 yaptıysa 6. */
+        /* Apply the saved count: rc.xml says 4; if the user set 6, then 6. */
         private void apply_saved_count () {
             int wanted = 4;
             try {
@@ -380,8 +382,8 @@ namespace Kavis.Ui {
             Config.save (file);
         }
 
-        /* Bu masaüstünde normal pencere var mı (masaüstü/dock hariç;
-         * her yerde görünen yapışkanlar saymaz). */
+        /* Is there a normal window on this desktop (excluding
+         * desktop/dock; sticky windows visible everywhere do not count). */
         private bool workspace_empty (int number) {
             foreach (unowned Wnck.Window window in
                      screen.get_windows ()) {
@@ -400,8 +402,8 @@ namespace Kavis.Ui {
             return true;
         }
 
-        /* C1 (v0.4-test2): ✕ her zaman EN SAĞDAKİ masaüstünü kapatır;
-         * içindeki pencereler bir öncekine taşınır (tooltip söyler). */
+        /* C1 (v0.4-test2): ✕ always closes the RIGHTMOST desktop; its
+         * windows move to the previous one (the tooltip says so). */
         private void close_last_workspace () {
             int count = screen.get_workspace_count ();
             if (count <= 1) {
@@ -450,7 +452,7 @@ namespace Kavis.Ui {
                 pack_start (button, false, false, 0);
             }
 
-            /* "+" — yeni masaüstü (3E), hemen yanında sabit "✕" (C1). */
+            /* "+" — new desktop (3E), with a fixed "✕" right next to it (C1). */
             var add_button = new Gtk.Button.with_label ("+");
             add_button.set_relief (Gtk.ReliefStyle.NONE);
             add_button.set_tooltip_text (_("New desktop"));
@@ -467,8 +469,8 @@ namespace Kavis.Ui {
             close_button.set_relief (Gtk.ReliefStyle.NONE);
             bool single = screen.get_workspace_count () <= 1;
             close_button.set_sensitive (!single);
-            /* Metin her gösterimde hesaplanır: pencere taşınınca
-             * yeniden kurulum olmadan da doğru kalsın. */
+            /* The text is computed on every display so it stays
+             * correct after a window moves even without a rebuild. */
             close_button.set_has_tooltip (true);
             close_button.query_tooltip.connect ((x, y, kb, tip) => {
                 tip.set_text (screen.get_workspace_count () <= 1

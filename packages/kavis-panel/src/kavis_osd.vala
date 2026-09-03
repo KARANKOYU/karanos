@@ -1,21 +1,23 @@
-/* kavis-osd — ses / parlaklık / kilit tuşu / medya OSD daemon'u
- * (sonraki-isler 6a). PANELDEN AYRI süreç: panel çökse bile ses
- * tuşları çalışır ve ekranda karşılık görünür.
+/* kavis-osd — volume / brightness / lock key / media OSD daemon
+ * (sonraki-isler 6a). A SEPARATE process from the panel: even if the
+ * panel crashes the volume keys keep working and feedback shows on
+ * screen.
  *
- * Openbox tuş bağları org.kavis.Osd'ye gdbus ile seslenir; ses/
- * parlaklık değişimini bu süreç yapar (amixer / brightnessctl,
- * logic/volume.vala + logic/quick.vala paylaşımlı derlenir), OSD
- * yalnız gösterir. Caps/Num Lock için tuş bağı YOK: Gdk.Keymap
- * state-changed sinyali dinlenir (tuşu grab'lamak kilidin kendisiyle
- * yarışırdı). Medya tuşları MPRIS üzerinden çalan oynatıcıya gider.
+ * Openbox keybindings call org.kavis.Osd through gdbus; this process
+ * performs the volume/brightness change itself (amixer / brightnessctl,
+ * logic/volume.vala + logic/quick.vala are compiled in shared), the
+ * OSD only displays. NO keybinding for Caps/Num Lock: the Gdk.Keymap
+ * state-changed signal is listened to (grabbing the key would race the
+ * lock itself). Media keys go to the playing player through MPRIS.
  *
- * Görsel: ekranın üst ortasında küçük yuvarlak köşeli kutu (@kavis_surface
- * ~%90), ikon + turkuaz dolgu çubuğu + yüzde; 1 sn sonra kapanır
- * (150 ms solma picom'un genel pencere animasyonundan). Arka arkaya
- * basışta sayaç sıfırlanır, kutu yerinde kalır.
+ * Visual: a small rounded box at the top center of the screen
+ * (@kavis_surface ~90%), icon + teal fill bar + percentage; closes
+ * after 1 s (the 150 ms fade comes from picom's general window
+ * animation). On repeated presses the counter resets and the box stays
+ * in place.
  *
- * ~/.config/kavis/kavis.conf [osd] enabled=false hepsini susturur
- * (Ayarlar Grup F'de düzenleyecek).
+ * ~/.config/kavis/kavis.conf [osd] enabled=false silences all of it
+ * (Settings will edit it in Grup F).
  */
 
 namespace Kavis.Osd {
@@ -51,8 +53,8 @@ namespace Kavis.Osd {
             adjust_brightness (-5);
         }
 
-        /* 3C: hızlı ayarlar kaydırıcısı değeri kendisi yazar, OSD
-         * yalnız gösterir. */
+        /* 3C: the quick settings slider writes the value itself, the
+         * OSD only displays it. */
         public void brightness_show () throws Error {
             brightness_shown ();
         }
@@ -68,15 +70,15 @@ namespace Kavis.Osd {
         }
 
         private void adjust_brightness (int delta) {
-            /* 3C: donanım yoksa xrandr yazılım kipi devrede — OSD
-             * artık her makinede çalışır. */
+            /* 3C: without hardware the xrandr software mode kicks in —
+             * the OSD now works on every machine. */
             int current = Quick.brightness_percent ();
             Quick.brightness_set ((current + delta).clamp (10, 100));
             settle (() => { brightness_shown (); return Source.REMOVE; });
         }
 
-        /* amixer/brightnessctl asenkron; gerçek değeri kısa bekleyip
-         * oku. */
+        /* amixer/brightnessctl are asynchronous; wait briefly, then
+         * read the real value. */
         private void settle (owned SourceFunc after) {
             Timeout.add (120, () => {
                 after ();
@@ -152,8 +154,8 @@ namespace Kavis.Osd {
             row.pack_start (text_label, false, false, 0);
         }
 
-        /* percent < 0: çubuk gizli, yalnız ikon + metin (kilit
-         * tuşları, medya). dim: sessizde çubuk soluk. */
+        /* percent < 0: bar hidden, only icon + text (lock keys,
+         * media). dim: bar faded while muted. */
         public void present_osd (string icon_name, int percent,
                                  string text, bool dim = false) {
             icon.set_from_icon_name (icon_name, Gtk.IconSize.DND);
@@ -180,17 +182,17 @@ namespace Kavis.Osd {
             Gdk.Rectangle area = monitor.get_workarea ();
             Gtk.Requisition natural;
             get_preferred_size (null, out natural);
-            /* Üst orta (6a): ses OSD'si artık alt değil üstte. */
+            /* Top center (6a): the volume OSD is now at the top, not bottom. */
             move (area.x + (area.width - natural.width) / 2,
                   area.y + 48);
 
-            /* Arka arkaya basışta sayaç sıfırlanır, kutu kalır. */
+            /* On repeated presses the counter resets, the box stays. */
             if (hide_timer != 0) {
                 Source.remove (hide_timer);
             }
             hide_timer = Timeout.add (HIDE_MS, () => {
                 hide_timer = 0;
-                hide ();   /* 150 ms solma picom'dan */
+                hide ();   /* the 150 ms fade comes from picom */
                 return Source.REMOVE;
             });
         }
@@ -206,13 +208,13 @@ namespace Kavis.Osd {
         private FileMonitor? config_monitor = null;
 
         public Daemon () {
-            /* Kapatma anahtarı (Ayarlar Grup F): kavis.conf [osd]. */
+            /* Kill switch (Settings Grup F): kavis.conf [osd]. */
             var file = Kavis.Config.load ();
             try {
                 enabled = file.get_boolean ("osd", "enabled");
             } catch (Error e) { }
-            /* Canlı ayar (1A-2): Ayarlar anahtarı değiştirince süreç
-             * yeniden başlatılmadan geçerli olsun. */
+            /* Live setting (1A-2): when Settings flips the key it takes
+             * effect without restarting the process. */
             config_monitor = Kavis.Config.watch (() => {
                 var fresh = Kavis.Config.load ();
                 try {
@@ -230,20 +232,20 @@ namespace Kavis.Osd {
                         connection.register_object ("/org/kavis/Osd",
                                                     service);
                     } catch (IOError e) {
-                        warning ("kavis-osd: nesne verilemedi: %s",
+                        warning ("kavis-osd: could not register object: %s",
                                  e.message);
                     }
                 },
                 null,
                 () => {
-                    warning ("kavis-osd: org.kavis.Osd alinamadi — ikinci kopya mi?");
+                    warning ("kavis-osd: could not acquire org.kavis.Osd — second instance?");
                 });
 
             service.volume_shown.connect (show_volume);
             service.brightness_shown.connect (show_brightness);
             service.media_shown.connect (handle_media);
 
-            /* Caps/Num: tuş bağı yerine durum takibi. */
+            /* Caps/Num: state tracking instead of a keybinding. */
             var keymap = Gdk.Keymap.get_for_display (
                 Gdk.Display.get_default ());
             caps_state = keymap.get_caps_lock_state ();
@@ -295,8 +297,8 @@ namespace Kavis.Osd {
             window.present_osd ("input-keyboard-symbolic", -1, text);
         }
 
-        /* Medya tuşları → MPRIS: ilk kayıtlı oynatıcıya komut; OSD'de
-         * ikon + parça adı (varsa). */
+        /* Media keys → MPRIS: the command goes to the first registered
+         * player; the OSD shows icon + track title (if any). */
         private void handle_media (string op) {
             try {
                 var bus = Bus.get_sync (BusType.SESSION);
@@ -314,7 +316,7 @@ namespace Kavis.Osd {
                     }
                 }
                 if (player == null) {
-                    return;   /* çalan oynatıcı yok */
+                    return;   /* no player running */
                 }
                 string method = (op == "next") ? "Next"
                     : (op == "prev") ? "Previous" : "PlayPause";
@@ -349,7 +351,7 @@ namespace Kavis.Osd {
                     window.present_osd (icon_name, -1, title);
                 }
             } catch (Error e) {
-                warning ("kavis-osd: MPRIS erisimi: %s", e.message);
+                warning ("kavis-osd: MPRIS access: %s", e.message);
             }
         }
     }
@@ -358,10 +360,10 @@ namespace Kavis.Osd {
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
-    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    /* Palette (B2): component CSS gets the @kavis_* names from here. */
     Kavis.Theme.install ();
     var daemon = new Kavis.Osd.Daemon ();
-    daemon.ref ();   /* yaşam boyu — sinyaller kopmasın */
+    daemon.ref ();   /* for life — keep the signals connected */
     Gtk.main ();
     return 0;
 }

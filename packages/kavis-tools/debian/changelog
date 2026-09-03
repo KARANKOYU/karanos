@@ -1,9 +1,9 @@
 kavis-tools (1.0) unstable; urgency=medium
 
-  * İlk sürüm (madde 7): görev yöneticisi (işlem listesi, CPU/RAM/disk,
-    sonlandırma), hesap makinesi (kendi ifade çözümleyicisi) ve emoji
-    seçici tek ikilide. Bluetooth ayar arayüzü bilerek yok: blueman
-    Python yığınını geri getirirdi; kalıcı arayüz Ayarlar'ın Bluetooth
-    bölümüyle (Grup F) gelecek, aç/kapa anahtarı şimdiden panelde.
+  * Initial release (madde 7): task manager (process list, CPU/RAM/disk,
+    termination), calculator (own expression parser) and emoji picker in
+    one binary. No Bluetooth settings UI on purpose: blueman would bring
+    the Python stack back; the permanent UI will come with the Settings
+    Bluetooth section (Grup F), the on/off switch is already in the panel.
 
  -- Karan <farukyildiz3207@gmail.com>  Wed, 02 Sep 2026 12:00:00 +0300

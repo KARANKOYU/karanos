@@ -1,4 +1,4 @@
-/* Kavis tray tools (UI layer) — madde 3 düzeltmesi.
+/* Kavis tray tools (UI layer) — madde 3 fix.
  *
  * A small icon strip left of the indicators, holding KAVIS' OWN tools
  * only (third-party XEmbed/SNI trays are item 37's separate task).
@@ -36,8 +36,8 @@ namespace Kavis.Ui {
 
             set_no_show_all (true);
             refresh ();
-            /* Takıp çıkarma anlık yakalanmak zorunda değil; 5 sn'lik
-             * yoklama udev izleme bağımlılığından ucuz. */
+            /* Plug/unplug need not be caught instantly; a 5 s poll is
+             * cheaper than a udev monitoring dependency. */
             Timeout.add_seconds (5, () => {
                 refresh ();
                 return Source.CONTINUE;
@@ -49,8 +49,9 @@ namespace Kavis.Ui {
             new GenericSet<string> (str_hash, str_equal);
 
         private void refresh () {
-            /* Tak/çıkar sesi (6b): udev olayını ayrıca dinlemek yerine
-             * zaten dönen 5 sn'lik yoklamanın gördüğü değişim yeter. */
+            /* Plug/unplug sound (6b): instead of listening for the udev
+             * event separately, the change seen by the already running
+             * 5 s poll is enough. */
             int count = Usb.devices ().length;
             if (known_count >= 0 && count != known_count) {
                 Sounds.play (count > known_count
@@ -60,8 +61,8 @@ namespace Kavis.Ui {
             automount_new ();
             update_writing_state ();
             if (count > 0) {
-                /* show_all, no_show_all işaretli widget'ın KENDİSİNDE
-                 * de işlemez — bayrağı önce kaldır. */
+                /* show_all does not work on the no_show_all widget
+                 * ITSELF either — clear the flag first. */
                 set_no_show_all (false);
                 show_all ();
             } else {
@@ -73,9 +74,10 @@ namespace Kavis.Ui {
             }
         }
 
-        /* Gerçek yazma göstergesi (madde 63): çekirdek hâlâ diske
-         * yazıyorken simge turuncuya döner ve araç ipucu uyarır —
-         * kopyalama diyaloğu kapansa bile buffer boşalana dek. */
+        /* Real write indicator (madde 63): while the kernel is still
+         * writing to the disk the icon turns orange and the tooltip
+         * warns — even after the copy dialog closes, until the buffer
+         * drains. */
         private void update_writing_state () {
             bool writing = false;
             foreach (unowned Usb.Device device in Usb.devices ()) {
@@ -95,11 +97,12 @@ namespace Kavis.Ui {
             }
         }
 
-        /* Otomatik bağlama + bildirim (madde 42): yeni görülen ve
-         * bağlı olmayan bölümler udisks'le bağlanır, ilkinin yolu
-         * tıklanınca açılan bir bildirim düşer. Kullanıcının elle
-         * ayırdığı bölüm "görülmüş" kaldığı için yeniden BAĞLANMAZ;
-         * çıkarılan çubuk kümeden düşer ki tekrar takılınca bağlansın. */
+        /* Automount + notification (madde 42): newly seen, unmounted
+         * partitions are mounted with udisks, and a notification drops
+         * in that opens the first one's path when clicked. A partition
+         * the user unmounted by hand stays "seen", so it is NOT
+         * remounted; a removed stick drops out of the set so it mounts
+         * again when plugged back in. */
         private void automount_new () {
             var current = new GenericSet<string> (str_hash, str_equal);
             string[] todo = {};
@@ -147,9 +150,10 @@ namespace Kavis.Ui {
             });
         }
 
-        /* Bağlanamayan bölüm (madde 64): bildirimde "Onarmayı dene"
-         * düğmesi — tık kavis-tools repair-drive'ı açar (zorunlu
-         * uyarı ve onay orada). */
+        /* Partition that could not be mounted (madde 64): a "Try to
+         * repair" button in the notification — the click opens
+         * kavis-tools repair-drive (the mandatory warning and
+         * confirmation live there). */
         private void offer_repair (string node) {
             if (Notifications.server == null) {
                 return;
@@ -183,11 +187,12 @@ namespace Kavis.Ui {
                             "kavis-tools", "repair-drive", node
                         }, null, SpawnFlags.SEARCH_PATH, null, null);
                     } catch (Error e) {
-                        warning ("kavis-panel: onarim acilamadi: %s",
+                        warning ("kavis-panel: could not open repair: %s",
                                  e.message);
                     }
                 });
-            /* Bildirim kaybolduktan sonra bağ askıda kalmasın. */
+            /* Do not leave the handler dangling after the notification
+             * is gone. */
             Timeout.add_seconds (120, () => {
                 if (handler != 0) {
                     SignalHandler.disconnect (
@@ -204,7 +209,7 @@ namespace Kavis.Ui {
             }
             var hints = new HashTable<string, Variant> (
                 str_hash, str_equal);
-            /* Tık → dosya yöneticisinde aç (toast x-kavis-path yolu). */
+            /* Click → open in the file manager (toast x-kavis-path route). */
             hints.insert ("x-kavis-path",
                           new Variant.string (mountpoint));
             try {
@@ -226,8 +231,8 @@ namespace Kavis.Ui {
                 });
                 menu.append (item);
             }
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+            /* Leak guard: the menu is destroyed on close (through Idle,
+             * because activation runs AFTER deactivate). */
             menu.deactivate.connect (() => {
                 Idle.add (() => {
                     menu.destroy ();
@@ -257,8 +262,8 @@ namespace Kavis.Ui {
             list = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
             content.pack_start (list, false, false, 0);
 
-            /* Madde 63 "güvenli mod": sync bağlama. Varsayılan KAPALI;
-             * ne yaptığı düğmenin altında tek cümleyle yazıyor. */
+            /* Madde 63 "safe mode": sync mount. Default OFF; what it
+             * does is written in one sentence under the button. */
             content.pack_start (
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 4);
@@ -285,9 +290,9 @@ namespace Kavis.Ui {
          * result comes back as a notification. */
         public static void eject_in_background (string node) {
             new Thread<void*> ("kavis-eject", () => {
-                /* Meşgul süreçleri AYIRMADAN önce topla — başarısız
-                 * ayırmadan sonra fuser aynı sonucu verir, başarılı
-                 * ayırmada zaten gerek kalmaz (madde 63). */
+                /* Collect busy processes BEFORE unmounting — after a
+                 * failed unmount fuser gives the same result, after a
+                 * successful one it is no longer needed (madde 63). */
                 string[] users = Usb.busy_processes (node);
                 bool ok = Usb.eject_sync (node);
                 Idle.add (() => {

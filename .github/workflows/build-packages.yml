@@ -1,29 +1,30 @@
-name: Paketleri derle
+name: Build packages
 
-# packages/ altındaki kavis-* .deb'lerini derler ve yapıt olarak yükler.
-# ISO iş akışı bu iş akışını `uses:` ile çağırıp yapıtı doğrudan
-# live-build'in config/packages.chroot/ dizinine koyuyor — böylece ISO'ya
-# giren .deb ile burada test edilen .deb aynı koşunun ürünü oluyor.
+# Builds the kavis-* .deb files under packages/ and uploads them as an
+# artifact. The ISO workflow calls this workflow with `uses:` and drops
+# the artifact straight into live-build's config/packages.chroot/ — so
+# the .deb that goes into the ISO and the .deb tested here come from the
+# same run.
 #
-# 13. aşamada bunların yerini aptly ile üretilen gerçek APT deposu alacak.
+# Stage 13 will replace these with a real APT repository built with aptly.
 
-# TETİKLEYİCİLER (madde 22): push tetiklemesi kaldırıldı — kota. Paketler
-# zaten her ISO derlemesinde bu iş akışı üzerinden derlenip doğrulanıyor;
-# tek başına denemek için Actions sekmesinden elle çalıştırılabilir.
-# Push'ta koşan tek şey hızlı kontroller (lint.yml).
+# TRIGGERS (item 22): the push trigger was removed — quota. The packages
+# are built and verified through this workflow on every ISO build anyway;
+# to try them alone, run manually from the Actions tab.
+# The only thing that runs on push is the quick checks (lint.yml).
 on:
   workflow_call:
   workflow_dispatch:
 
 jobs:
   build:
-    name: .deb üret
+    name: Build .deb
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
       image: debian:trixie
     steps:
-      - name: Derleme bağımlılıkları
+      - name: Build dependencies
         run: |
           set -eux
           export DEBIAN_FRONTEND=noninteractive
@@ -34,104 +35,104 @@ jobs:
             ffmpeg fonts-dejavu-core gettext locales \
             valac libgtk-3-dev libwnck-3-dev libx11-dev \
             libgstreamer1.0-dev
-          # gettext: rules'taki msgfmt + check-i18n (Grup D işi c).
-          # locales/en_US: xx ekran görüntüsü adımı gerçek bir locale
-          # ister (C altında gettext devre dışı — Codespace'te yaşandı).
+          # gettext: msgfmt in rules + check-i18n (Group D task c).
+          # locales/en_US: the xx screenshot step needs a real locale
+          # (gettext is disabled under C — seen in the Codespace).
           echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
           locale-gen
 
       - uses: actions/checkout@v7
 
-      - name: Derle
+      - name: Build
         run: |
           set -eux
           chmod +x tools/build-packages.sh
           tools/build-packages.sh
 
-      # Paketin içine gerçekten girmesi gerekenler girdi mi? Boş bir imleç
-      # dizini ya da eksik duvar kağıdı derlemeyi durdurmaz, sessizce
-      # eksik bir tema üretir — burada yakalanır.
-      - name: Paket içeriği doğrulaması
+      # Did the things that really must be in the package get in? An empty
+      # cursor directory or a missing wallpaper does not stop the build,
+      # it silently produces an incomplete theme — caught here.
+      - name: Package content verification
         run: |
           set -eu
           deb=out/packages/kavis-theme_*_all.deb
-          liste=$(dpkg-deb -c $deb)
-          hata=0
-          gerek() {
-            adet=$(printf '%s\n' "$liste" | grep -c -- "$1" || true)
-            if [ "$adet" -lt "$2" ]; then
-              echo "::error::kavis-theme içinde '$1' $2 bekleniyordu, $adet var"
-              hata=1
+          list=$(dpkg-deb -c $deb)
+          fail=0
+          need() {
+            count=$(printf '%s\n' "$list" | grep -c -- "$1" || true)
+            if [ "$count" -lt "$2" ]; then
+              echo "::error::expected $2 of '$1' in kavis-theme, found $count"
+              fail=1
             else
-              echo "✓ $1 — $adet"
+              echo "✓ $1 — $count"
             fi
           }
-          gerek "usr/share/themes/Kavis/gtk-3.0/gtk.css"          1
-          gerek "usr/share/themes/Kavis/openbox-3/themerc"        1
-          gerek "usr/share/icons/Kavis-Cursors/cursors/left_ptr"  1
-          gerek "usr/share/icons/Kavis-Cursors/cursors/"          80
-          gerek "usr/share/icons/Kavis/48x48/apps/kavis.png"    1
-          gerek "usr/share/backgrounds/kavis/kavis.png"         1
-          gerek "usr/share/kavis/logo/koyu-k-logo.svg"          1
-          gerek "usr/share/kavis/logo/acik-k-logo.svg"          1
-          gerek "usr/share/kavis/logo/grub-arkaplan.png"        1
-          gerek "usr/lib/os-release"                              1
+          need "usr/share/themes/Kavis/gtk-3.0/gtk.css"          1
+          need "usr/share/themes/Kavis/openbox-3/themerc"        1
+          need "usr/share/icons/Kavis-Cursors/cursors/left_ptr"  1
+          need "usr/share/icons/Kavis-Cursors/cursors/"          80
+          need "usr/share/icons/Kavis/48x48/apps/kavis.png"    1
+          need "usr/share/backgrounds/kavis/kavis.png"         1
+          need "usr/share/kavis/logo/koyu-k-logo.svg"          1
+          need "usr/share/kavis/logo/acik-k-logo.svg"          1
+          need "usr/share/kavis/logo/grub-background.png"      1
+          need "usr/lib/os-release"                              1
 
           deb=out/packages/kavis-boot_*_all.deb
-          liste=$(dpkg-deb -c $deb)
-          gerek "usr/share/plymouth/themes/kavis/kavis.script"     1
-          gerek "usr/share/plymouth/themes/kavis/logo.png"           1
-          gerek "usr/share/plymouth/themes/kavis/urun-adi.png"       1
-          gerek "usr/share/plymouth/themes/kavis/acilis-ipuclari.png" 1
-          gerek "usr/share/plymouth/themes/kavis/made-by-karan.png"  1
-          gerek "usr/share/kavis/boot/boot-sound.wav"                1
-          gerek "etc/kavis/boot.conf"                                1
-          gerek "lib/systemd/system/kavis-boot-sound.service"        1
-          gerek "plymouth-quit.service.d/kavis.conf"                 1
+          list=$(dpkg-deb -c $deb)
+          need "usr/share/plymouth/themes/kavis/kavis.script"     1
+          need "usr/share/plymouth/themes/kavis/logo.png"           1
+          need "usr/share/plymouth/themes/kavis/product-name.png"   1
+          need "usr/share/plymouth/themes/kavis/boot-hints.png"     1
+          need "usr/share/plymouth/themes/kavis/made-by-karan.png"  1
+          need "usr/share/kavis/boot/boot-sound.wav"                1
+          need "etc/kavis/boot.conf"                                1
+          need "lib/systemd/system/kavis-boot-sound.service"        1
+          need "plymouth-quit.service.d/kavis.conf"                 1
 
-          # Muzik gercekten cozulup fade uygulanmis mi? Bozuk bir WAV
-          # acilista sessiz kalir ve sebebi ISO acilmadan anlasilmaz.
+          # Was the music really decoded and faded? A broken WAV stays
+          # silent at boot and the cause is invisible until the ISO boots.
           rm -rf kb && mkdir kb && dpkg-deb -x $deb kb
-          sure=$(ffprobe -v error -show_entries format=duration \
+          duration=$(ffprobe -v error -show_entries format=duration \
             -of default=noprint_wrappers=1:nokey=1 \
             kb/usr/share/kavis/boot/boot-sound.wav 2>/dev/null || echo 0)
-          echo "acilis muzigi: ${sure}s"
-          if awk -v s="$sure" 'BEGIN{exit !(s > 1 && s < 30)}'; then
-            echo "✓ muzik suresi makul"
+          echo "boot music: ${duration}s"
+          if awk -v s="$duration" 'BEGIN{exit !(s > 1 && s < 30)}'; then
+            echo "✓ music duration plausible"
           else
-            echo "::error::boot-sound.wav suresi ${sure}s — cozulme basarisiz olmus olabilir"
-            hata=1
+            echo "::error::boot-sound.wav duration ${duration}s — decoding may have failed"
+            fail=1
           fi
 
-          # Ornek orani da denetlenir (boot-sound isi, Grup D): rules
-          # 44100'e cevirir; farkli bir deger donusum adiminin
-          # degistigini/atlandigini gosterir.
-          oran=$(ffprobe -v error -select_streams a:0 \
+          # The sample rate is checked too (boot-sound work, Group D):
+          # rules converts to 44100; a different value means the
+          # conversion step changed or was skipped.
+          rate=$(ffprobe -v error -select_streams a:0 \
             -show_entries stream=sample_rate \
             -of default=noprint_wrappers=1:nokey=1 \
             kb/usr/share/kavis/boot/boot-sound.wav 2>/dev/null || echo 0)
-          echo "ornek orani: ${oran} Hz"
-          if [ "$oran" = "44100" ]; then
-            echo "✓ ornek orani 44100"
+          echo "sample rate: ${rate} Hz"
+          if [ "$rate" = "44100" ]; then
+            echo "✓ sample rate 44100"
           else
-            echo "::error::boot-sound.wav ornek orani ${oran} — beklenen 44100"
-            hata=1
+            echo "::error::boot-sound.wav sample rate ${rate} — expected 44100"
+            fail=1
           fi
 
-          exit $hata
+          exit $fail
 
-      # Panel artık derlenmiş Vala ikilisi (madde 3): derleme hataları
-      # zaten .deb aşamasında yakalanıyor. Metin tablosunun yerini
-      # gettext aldı (Grup D işi c): denetim po/ üzerinde —
-      # tools/check-i18n.sh (pot tazeliği, tr.po eksiksizliği,
-      # msgfmt --check, xx.po senkronu).
-      - name: kavis-panel ikilisi ve çeviriler
+      # The panel is now a compiled Vala binary (item 3): build errors are
+      # already caught at the .deb stage. gettext replaced the string
+      # table (Group D task c): the check is on po/ —
+      # tools/check-i18n.sh (pot freshness, tr.po completeness,
+      # msgfmt --check, xx.po sync).
+      - name: kavis-panel binary and translations
         run: |
           set -eu
-          # check-i18n → gen-pot `git ls-files` kullanıyor (kopya
-          # dosyaları dışarıda bırakmanın tek güvenilir yolu). Konteyner
-          # root koşuyor, depo başka kullanıcıya ait → git "dubious
-          # ownership" ile reddediyor (v0.3-test7 kırmızısının sebebi).
+          # check-i18n → gen-pot uses `git ls-files` (the only reliable
+          # way to leave the copied files out). The container runs as
+          # root, the repo belongs to another user → git refuses with
+          # "dubious ownership" (the cause of the v0.3-test7 red).
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           rm -rf kp && mkdir kp
           dpkg-deb -x out/packages/kavis-panel_*.deb kp
@@ -140,25 +141,25 @@ jobs:
           test -f kp/usr/share/locale/tr/LC_MESSAGES/kavis.mo
           test -f kp/usr/share/locale/xx/LC_MESSAGES/kavis.mo
           tools/check-i18n.sh
-          echo "kavis-panel ikilisi calisiyor, ceviriler tutarli"
+          echo "kavis-panel binary works, translations consistent"
 
-      # Sahte uzun dil (xx) ekran görüntüsü: çevrilmemiş metin düz
-      # İngilizce, taşan yerleşim kırpılmış ⟪…⟫ olarak GÖRÜNÜR. Yapıt
-      # olarak yüklenir; elle inceleme için (otomatik piksel iddiası
-      # yok — yerleşim değişimleri testi kırmasın).
-      - name: xx sahte dil panel ekran görüntüsü
+      # Pseudo-long language (xx) screenshot: untranslated text SHOWS as
+      # plain English, overflowing layouts as clipped ⟪…⟫. Uploaded as an
+      # artifact for manual inspection (no automatic pixel assertion —
+      # layout changes must not break the test).
+      - name: xx pseudo-language panel screenshot
         run: |
           set -eu
-          # Konteyner debian:trixie ve root — sudo yok/gerekmez.
-          # test8 I4 dersi: `dpkg -i || apt -f install` paketi SÖKEREK
-          # de "düzeltebiliyordu". test10 dersi: dpkg -i bağımlılık da
-          # ÇÖZMEZ — panelin Depends'i büyüyünce (kavis-theme,
-          # librsvg2-common, alsa-utils) adım kırıldı. Yerel .deb'ler
-          # apt'a verilir: bağımlılıkları arşivden kendisi çözer,
-          # çözemezse adım KIRMIZI olur, sökme riski yok.
+          # Container is debian:trixie and root — no sudo, none needed.
+          # test8 I4 lesson: `dpkg -i || apt -f install` could "fix" things
+          # by REMOVING the package. test10 lesson: dpkg -i does not
+          # resolve dependencies either — the step broke when the panel's
+          # Depends grew (kavis-theme, librsvg2-common, alsa-utils). Local
+          # .deb files are handed to apt: it resolves dependencies from
+          # the archive itself, the step goes RED if it cannot, no removal risk.
           export DEBIAN_FRONTEND=noninteractive
-          # x11-utils = xprop (KEYBIND adımı da bunlara güvenir; hepsi
-          # burada, ISO paket listesine GİRMEZ — yalnız CI aracı).
+          # x11-utils = xprop (the KEYBIND step relies on these too; all
+          # here, NOT in the ISO package list — CI tooling only).
           apt-get install -y -qq --no-install-recommends \
             xvfb openbox dbus dbus-x11 x11-xserver-utils x11-utils \
             xdotool xterm > /dev/null
@@ -170,13 +171,13 @@ jobs:
           sleep 1
           openbox & sleep 1
           xsetroot -solid '#3a6b8a'
-          # 4A: önce EN koşusu — Start ETİKETİ genişliğini stderr'e
-          # yazar (start-genislik=NN); xx koşusuyla karşılaştırılır.
+          # 4A: EN run first — writes the Start LABEL width to stderr
+          # (start-width=NN); compared with the xx run.
           dbus-run-session -- sh -c '
             LANG=en_US.UTF-8 LANGUAGE=en kavis-panel 2> panel-en.log &
             sleep 4
             pgrep -x kavis-panel > /dev/null || {
-              echo "::error::kavis-panel (EN) ayakta degil"
+              echo "::error::kavis-panel (EN) is not running"
               cat panel-en.log; exit 1
             }
           '
@@ -186,64 +187,66 @@ jobs:
             LANG=en_US.UTF-8 LANGUAGE=xx kavis-panel 2> panel-xx.log &
             sleep 4
             pgrep -x kavis-panel > /dev/null || {
-              echo "::error::kavis-panel ayakta degil"; cat panel-xx.log
+              echo "::error::kavis-panel is not running"; cat panel-xx.log
               exit 1
             }
             ffmpeg -loglevel quiet -f x11grab -video_size 1280x800 \
               -i :99 -frames:v 1 -y panel-xx.ppm
           '
-          # 4A denetimi: xx sahte dili metni ~2 kat uzatır — düğme EN'e
-          # göre en az %30 büyümediyse metin bir yerde kırpılıyor
-          # demektir. Yerleşim ayarı testi kırmasın: WARN, FAIL değil.
-          en_w=$(grep -o 'start-genislik=[0-9]*' panel-en.log \
+          # 4A check: the xx pseudo-language lengthens text ~2x — if the
+          # button did not grow at least 30% over EN, text is being
+          # clipped somewhere. A layout tweak must not break the test:
+          # WARN, not FAIL.
+          en_w=$(grep -o 'start-width=[0-9]*' panel-en.log \
                  | tail -1 | cut -d= -f2)
-          xx_w=$(grep -o 'start-genislik=[0-9]*' panel-xx.log \
+          xx_w=$(grep -o 'start-width=[0-9]*' panel-xx.log \
                  | tail -1 | cut -d= -f2)
-          xx_cut=$(grep -o 'start-kirpik=[0-9]' panel-xx.log | tail -1 | cut -d= -f2)
-          echo "Start etiket genisligi: EN=${en_w:-?}px xx=${xx_w:-?}px kirpik=${xx_cut:-?}"
-          # J: '··' xx dolgusudur, tasma degil — olcu Pango'nun gercek
-          # '…' kirpmasi (start-kirpik). Genislik yalniz bilgi.
+          xx_cut=$(grep -o 'start-clipped=[0-9]' panel-xx.log | tail -1 | cut -d= -f2)
+          echo "Start label width: EN=${en_w:-?}px xx=${xx_w:-?}px clipped=${xx_cut:-?}"
+          # J: '··' is xx padding, not overflow — the measure is Pango's
+          # real '…' ellipsizing (start-clipped). Width is info only.
           if [ -z "${xx_cut:-}" ]; then
-            echo "::warning::I18N-WIDTH-WARN: start-kirpik logu eksik"
+            echo "::warning::I18N-WIDTH-WARN: start-clipped log line missing"
           elif [ "$xx_cut" = "1" ]; then
-            echo "::warning::I18N-WIDTH-WARN: xx Start etiketi '…' ile kirpildi (${xx_w}px, EN ${en_w}px)"
+            echo "::warning::I18N-WIDTH-WARN: xx Start label clipped with '…' (${xx_w}px, EN ${en_w}px)"
           fi
           python3 tools/screen-not-blank.py panel-xx.ppm || {
-            echo "::error::panel-xx karesi bos/simsiyah"
+            echo "::error::panel-xx frame is blank/pitch black"
             cat panel-xx.log || true
             exit 1
           }
           ffmpeg -loglevel quiet -i panel-xx.ppm -y panel-xx.png
           test -s panel-xx.png
-      # C4 (v0.4-test1): her Kavis kısayolu gerçek rc.xml + 0210 hook'u
-      # ile Xvfb'de basılır; beklenen eylem 2 sn içinde olmadıysa
-      # KEYBIND-FAIL ve adım kırmızı. Tablo job summary'de.
-      - name: KEYBIND — kısayol denetimi
+      # C4 (v0.4-test1): every Kavis shortcut is pressed in Xvfb with the
+      # real rc.xml + 0210 hook; if the expected action does not happen
+      # within 2 s → KEYBIND-FAIL and the step goes red. Table in the job summary.
+      - name: KEYBIND — shortcut check
         run: |
           set -eu
-          # Araçlar bir önceki adımda kuruldu (xvfb, openbox, xdotool,
-          # x11-utils, xterm); betik eksik olanı tek satırda söyler.
+          # Tools were installed in the previous step (xvfb, openbox,
+          # xdotool, x11-utils, xterm); the script names any missing one on one line.
           DISPLAY_NO=77 tools/check-keybinds.sh /etc/xdg/openbox/rc.xml
 
-      # Debug turu (3 Eyl): snap iki kez "Xvfb'de çalışıyor" sanılıp
-      # gerçek sürüklemede çalışmadı. Bu adım pencereyi xdotool ile
-      # taşımaz, başlığa basıp fareyi sürükler — taşımayı openbox yapar.
-      - name: SNAP — kenara yapıştırma denetimi
+      # Debug round (3 Sep): twice snap was believed to "work in Xvfb" and
+      # did not work in a real drag. This step does not move the window
+      # with xdotool; it presses the title bar and drags the mouse — openbox
+      # does the move.
+      - name: SNAP — edge snapping check
         run: DISPLAY_NO=78 tools/check-snap.sh
 
-      - name: xx ekran görüntüsünü yükle
+      - name: Upload xx screenshot
         uses: actions/upload-artifact@v7
         with:
-          name: panel-xx-ekran
+          name: panel-xx-screen
           path: panel-xx.png
 
-      - name: Boyut özeti
+      - name: Size summary
         run: |
           set -eu
           {
-            echo "### Paketler"
+            echo "### Packages"
             echo ""
-            echo "| Paket | Boyut |"
+            echo "| Package | Size |"
             echo "|---|---|"
             for f in out/packages/*.deb; do
               echo "| \`$(basename "$f")\` | $(du -h "$f" | cut -f1) |"

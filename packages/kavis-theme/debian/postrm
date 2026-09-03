@@ -1,7 +1,7 @@
 #!/bin/sh
-# os-release yönlendirmesini geri al. Bunu postrm'de yapıyoruz çünkü
-# dosyamızın önce silinmiş olması gerekiyor — aksi hâlde base-files'ın
-# aslı geri taşınamaz.
+# Undo the os-release diversion. We do this in postrm because our file
+# must be deleted first — otherwise base-files' original cannot be
+# moved back.
 set -e
 
 DIVERTED=/usr/lib/os-release

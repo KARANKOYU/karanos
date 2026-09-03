@@ -1,57 +1,59 @@
 #!/bin/sh
-# Kavis — live-build yapılandırması
+# Kavis — live-build configuration
 #
-# Bu dosya `lb config` çalıştığında otomatik yürütülür.
-# ELLE `lb config` PARAMETRESİ VERME — her şey burada dursun ki
-# GitHub Actions ile yerel çalıştırma aynı sonucu üretsin.
+# This file runs automatically when `lb config` is invoked.
+# NEVER PASS `lb config` PARAMETERS BY HAND — keep everything here so that
+# GitHub Actions and a local run produce the same result.
 
 set -e
 
-# Ürün kimliği TEK kaynaktan: tema paketindeki os-release. Görünen ad
-# (NAME) ve kimlik (ID) buraya elle yazılmıyor — isim değişirse yalnızca
-# o dosya güncellenir. Bu script iso/ dizininden çalışır (lb config).
+# Product identity from a SINGLE source: the os-release in the theme
+# package. The display name (NAME) and identifier (ID) are not written
+# here by hand — if the name changes, only that file is updated. This
+# script runs from the iso/ directory (lb config).
 OS_RELEASE="../packages/kavis-theme/src/os-release"
 if [ ! -f "$OS_RELEASE" ]; then
-	echo "HATA: $OS_RELEASE yok — ürün kimliği okunamadı." >&2
+	echo "ERROR: $OS_RELEASE missing — product identity could not be read." >&2
 	exit 1
 fi
 # shellcheck disable=SC1090
 . "$OS_RELEASE"
 
-# Sürüm: CI ortam değişkeninden gelir, yoksa geliştirme sürümü
+# Version: comes from the CI environment variable, otherwise a dev version
 KAVIS_VERSION="${KAVIS_VERSION:-${VERSION_ID}-dev}"
 
-# Mimari TEK değişkenden (çok-mimarili hazırlık kuralı). Bugün yalnızca
-# amd64 ISO'su üretiliyor; arm64 istendiğinde KAVIS_MIMARI=arm64 vermek
-# yetmeli, bu dosyada başka değişiklik gerekmemeli. amd64 dizesi aşağıda
-# yalnızca bu case bloğunda geçer.
-KAVIS_MIMARI="${KAVIS_MIMARI:-amd64}"
-case "$KAVIS_MIMARI" in
+# Architecture from a SINGLE variable (multi-arch readiness rule). Only the
+# amd64 ISO is produced today; when arm64 is wanted, KAVIS_ARCH=arm64 must
+# be enough and nothing else in this file should need to change. The
+# string amd64 appears below only in this case block.
+KAVIS_ARCH="${KAVIS_ARCH:-amd64}"
+case "$KAVIS_ARCH" in
 amd64)
-	# BIOS (grub-pc) + UEFI; Debian'ın imzalı shim/grub'u ile Secure Boot.
-	ONYUKLEYICILER="grub-pc,grub-efi"
+	# BIOS (grub-pc) + UEFI; Secure Boot with Debian's signed shim/grub.
+	BOOTLOADERS="grub-pc,grub-efi"
 	;;
 arm64)
-	# BIOS kavramı yok; yalnız UEFI. Debian arm64 için de imzalı
-	# shim/grub dağıtıyor. NOT: arm64 derlemesi HENÜZ CI'da yok ve hiç
-	# denenmedi — bu dal "o gün geldiğinde tek satır yeter" hazırlığı.
-	ONYUKLEYICILER="grub-efi"
+	# No BIOS concept; UEFI only. Debian ships signed shim/grub for arm64
+	# too. NOTE: the arm64 build is NOT in CI yet and has never been
+	# tried — this branch is "one line is enough when the day comes"
+	# preparation.
+	BOOTLOADERS="grub-efi"
 	;;
 *)
-	echo "HATA: desteklenmeyen mimari: $KAVIS_MIMARI (amd64|arm64)" >&2
+	echo "ERROR: unsupported architecture: $KAVIS_ARCH (amd64|arm64)" >&2
 	exit 1
 	;;
 esac
 
-# Açılış satırı.
-# Varsayılan dil EN (2 Eyl 2026 kararı — global paylaşım):
-# locales=en_US.UTF-8; KLAVYE TR Q KALIR (keyboard-layouts=tr).
-# GRUB/splash/F3 metinleri de İngilizce (9600/9601 hook'ları ve
-# kavis-boot SVG'leri). TR'ye dönüş Ayarlar > Dil ile (Grup F).
-# NOT: `quiet splash` şu an KAPALI — 1. aşamada boot mesajlarını görmek
-# istiyoruz. 3. aşamada (Plymouth teması) açılacak.
-# console=ttyS0 CI'daki QEMU testinin boot günlüğünü okuyabilmesi için;
-# seri portu olmayan gerçek donanımda hiçbir etkisi yok.
+# Boot line.
+# Default language EN (decision of 2 Sep 2026 — global release):
+# locales=en_US.UTF-8; the KEYBOARD STAYS TR Q (keyboard-layouts=tr).
+# GRUB/splash/F3 texts are English too (9600/9601 hooks and the
+# kavis-boot SVGs). Switching back to TR via Settings > Language (Group F).
+# NOTE: `quiet splash` is currently OFF — we want to see the boot messages
+# in stage 1. Turned on in stage 3 (Plymouth theme).
+# console=ttyS0 lets the QEMU test in CI read the boot log; it has no
+# effect on real hardware without a serial port.
 BOOTAPPEND="boot=live components \
 username=karan \
 hostname=${ID} \
@@ -63,48 +65,48 @@ quiet loglevel=3 vt.global_cursor_default=0 rd.udev.log_level=3 \
 splash plymouth.ignore-serial-consoles \
 console=tty0 console=ttyS0,115200n8"
 
-# `quiet splash` 3. aşamada eklendi: `splash` Plymouth açılış ekranını
-# başlatıyor, `quiet` de çekirdek mesajlarının splash'in üstüne
-# taşmasını engelliyor.
+# `quiet splash` was added in stage 3: `splash` starts the Plymouth boot
+# screen and `quiet` keeps kernel messages from spilling over the splash.
 #
-# `loglevel=3` quiet'in sakladığından fazlasını saklar: KERN_ERR (3) dahil
-# hiçbir çekirdek mesajı konsola düşmez, yalnız crit/alert/emerg (0-2)
-# görünür. VirtualBox'ın varsayılan VMSVGA denetleyicisinde vmwgfx
-# "*ERROR* ... unsupported hypervisor" satırları GRUB-splash arasında ve
-# splash-masaüstü arasında kırmızı kırmızı akıyordu; zararsızlar (sürücü
-# simpledrm'e düşüyor, açılış sürüyor) ama kullanıcının gördüğü ilk şey
-# olmamalılar. Mesajlar journald'de durur (`journalctl -k` tam günlük),
-# yalnız KONSOL kısılıyor — gerçek bir sorun CI'daki tani yapıtından ve
-# journalctl'den hâlâ okunur.
+# `loglevel=3` hides more than quiet does: no kernel message up to and
+# including KERN_ERR (3) reaches the console, only crit/alert/emerg (0-2)
+# show. On VirtualBox's default VMSVGA controller, vmwgfx "*ERROR* ...
+# unsupported hypervisor" lines were scrolling in red between GRUB and
+# the splash and between the splash and the desktop; they are harmless
+# (the driver falls back to simpledrm, boot continues) but must not be the
+# first thing the user sees. The messages stay in journald (`journalctl
+# -k` has the full log); only the CONSOLE is muted — a real problem is
+# still readable from the CI diagnostics artifact and journalctl.
 #
-# `vt.global_cursor_default=0` sanal konsolun yanıp sönen imlecini
-# kapatır (splash'ten önce/sonra köşede beliren beyaz çizgi).
-# `rd.udev.log_level=3` initramfs içindeki systemd-udevd'yi kısar
-# (rd. öneki "initrd'de geçerli" demek; udevd her iki biçimi de tanır).
+# `vt.global_cursor_default=0` turns off the virtual console's blinking
+# cursor (the white line that appears in the corner before/after the
+# splash).
+# `rd.udev.log_level=3` quiets systemd-udevd inside the initramfs (the
+# rd. prefix means "applies in the initrd"; udevd accepts both forms).
 #
-# `plymouth.ignore-serial-consoles` ŞART: çekirdek satırında
-# `console=ttyS0` varken Plymouth seri konsolu birincil sayıyor ve
-# grafik splash'i hiç çizmiyor — VGA ekranında yalnızca systemd'nin
-# metin çıktısı akıyor. CI seri konsolu bırakamayacağımız için (duman
-# testinin tek çıktı kanalı o) splash'i açık tutmanın yolu bu bayrak.
+# `plymouth.ignore-serial-consoles` is REQUIRED: with `console=ttyS0` on
+# the kernel line Plymouth treats the serial console as primary and never
+# draws the graphical splash — only systemd's text output flows on the
+# VGA screen. Since we cannot drop the serial console in CI (it is the
+# smoke test's only output channel), this flag is how the splash stays on.
 #
-# DİKKAT: `quiet` seri konsola giden çekirdek mesajlarını da kısıyor.
-# Duman testi eskiden "Linux version" satırına bakarak çekirdeğin
-# başladığını anlıyordu; o satır artık görünmediği için
-# tools/qemu-smoke-test.sh daha geniş bir desene bakıyor. Boot-check'in
-# kendi çıktısı systemd üzerinden geldiği için etkilenmiyor.
+# NOTE: `quiet` also mutes the kernel messages going to the serial
+# console. The smoke test used to detect kernel start by the "Linux
+# version" line; since that line no longer shows,
+# tools/qemu-smoke-test.sh looks for a broader pattern. Boot-check's own
+# output comes through systemd and is unaffected.
 
 lb config noauto \
 	--mode debian \
 	--distribution trixie \
 	--parent-distribution trixie \
-	--architecture "$KAVIS_MIMARI" \
+	--architecture "$KAVIS_ARCH" \
 	--archive-areas "main contrib non-free non-free-firmware" \
 	--parent-archive-areas "main contrib non-free non-free-firmware" \
 	--binary-images iso-hybrid \
-	--bootloaders "$ONYUKLEYICILER" \
+	--bootloaders "$BOOTLOADERS" \
 	--uefi-secure-boot enable \
-	--linux-flavours "$KAVIS_MIMARI" \
+	--linux-flavours "$KAVIS_ARCH" \
 	--debian-installer none \
 	--memtest none \
 	--win32-loader false \
@@ -123,19 +125,20 @@ lb config noauto \
 	"${@}"
 
 # --------------------------------------------------------------------------
-# Seçimlerin gerekçeleri (silme, ileride "bu neden böyle" diye sorulacak):
+# Rationale for the choices (do not delete; "why is this so" will be asked):
 #
-# --apt-recommends false   : Hafiflik (prompt 20). Bunun bedeli, gereken her
-#                            paketi listelerde AÇIKÇA yazmak zorunda olmamız.
-#                            Kurulu sistemde tavsiye paketleri yeniden açılır
+# --apt-recommends false   : Lightness (prompt 20). The price is that every
+#                            needed package must be written EXPLICITLY in
+#                            the lists. Recommends are re-enabled on the
+#                            installed system
 #                            (hooks/normal/9990-apt-recommends.hook.chroot).
-# --firmware-chroot false  : live-build'in tüm firmware-* paketlerini
-#                            gelişigüzel eklemesini istemiyoruz; prompt 16'daki
-#                            listeyi elle veriyoruz (03-firmware listesi).
-# --uefi-secure-boot enable: Debian'ın imzalı shim/grub'unu kullanır.
-#                            Prompt 2 + 18: Secure Boot açıkken boot etmeli.
-# --debian-installer none  : Kurulum Calamares ile olacak (prompt 14),
-#                            d-i ISO'ya gömülmeyecek.
+# --firmware-chroot false  : We do not want live-build to add every
+#                            firmware-* package indiscriminately; the list
+#                            from prompt 16 is given by hand (03-firmware).
+# --uefi-secure-boot enable: Uses Debian's signed shim/grub.
+#                            Prompt 2 + 18: must boot with Secure Boot on.
+# --debian-installer none  : Installation will be done with Calamares
+#                            (prompt 14); d-i is not embedded in the ISO.
 # --memtest none,
-# --apt-indices false      : ISO boyutu (1.5 GB hedefi).
+# --apt-indices false      : ISO size (1.5 GB target).
 # --------------------------------------------------------------------------

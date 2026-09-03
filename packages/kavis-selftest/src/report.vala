@@ -99,11 +99,11 @@ namespace Kavis.Selftest {
             foreach (var r in _results) {
                 if (r.result == "OK") ok++; else if (r.result == "FAIL") fail++; else skip++;
             }
-            line ("SUMMARY toplam=%d gecti=%d kaldi=%d atlandi=%d senaryo-hatasi=%d".printf (
+            line ("SUMMARY total=%d passed=%d failed=%d skipped=%d scenario-errors=%d".printf (
                 _results.length, ok, fail, skip, scenario_errors.length));
             StepResult[] sorted = {};
             foreach (var r0 in _results) { sorted += r0; }
-            /* en yavaş 5 — küçük dizi, seçme sıralaması yeter */
+            /* slowest 5 — small array, selection sort is enough */
             for (int i = 0; i < sorted.length; i++) {
                 for (int j = i + 1; j < sorted.length; j++) {
                     if (sorted[j].seconds > sorted[i].seconds) {
@@ -115,9 +115,9 @@ namespace Kavis.Selftest {
                 line ("SLOWEST %d [%s/%d] %.2fs %s".printf (i + 1, sorted[i].scenario,
                     sorted[i].index, sorted[i].seconds, sorted[i].action));
             }
-            line ("RAM baslangic=%d MB bitis=%d MB fark=%+d MB".printf (
+            line ("RAM start=%d MB end=%d MB delta=%+d MB".printf (
                 mem_start, mem_end, mem_end - mem_start));
-            line ("JOURNAL yeni-hata=%d".printf (journal_errors));
+            line ("JOURNAL new-errors=%d".printf (journal_errors));
             foreach (string e in scenario_errors) {
                 line ("SCENARIO-ERROR " + e);
             }
@@ -162,12 +162,12 @@ namespace Kavis.Selftest {
             var sb = new StringBuilder ();
             sb.append ("<!doctype html><meta charset=utf-8><title>Kavis selftest " + stamp + "</title>");
             sb.append ("<style>body{font:14px sans-serif;background:#0D141B;color:#E6EDF3;margin:20px}table{border-collapse:collapse}td,th{border:1px solid #233A45;padding:4px 8px;vertical-align:top}.OK{color:#22C55E}.FAIL{color:#EF4444}.SKIP{color:#8B9BA8}img{max-width:320px}</style>");
-            sb.append_printf ("<h1>Kavis selftest — %s</h1><p>hata: %d · RAM %d → %d MB · journal yeni hata: %d</p>",
+            sb.append_printf ("<h1>Kavis selftest — %s</h1><p>failures: %d · RAM %d → %d MB · new journal errors: %d</p>",
                               stamp, failures (), mem_start, mem_end, journal_errors);
             foreach (string e in scenario_errors) {
-                sb.append ("<p class=FAIL>senaryo hatası: " + h (e) + "</p>");
+                sb.append ("<p class=FAIL>scenario error: " + h (e) + "</p>");
             }
-            sb.append ("<table><tr><th>#</th><th>senaryo</th><th>eylem</th><th>beklenti</th><th>sonuç</th><th>süre</th><th>RAM</th><th>fark %</th><th>anormallik</th><th>kare</th></tr>");
+            sb.append ("<table><tr><th>#</th><th>scenario</th><th>action</th><th>expect</th><th>result</th><th>time</th><th>RAM</th><th>diff %</th><th>anomalies</th><th>frame</th></tr>");
             foreach (var r in _results) {
                 sb.append_printf ("<tr><td>%d</td><td>%s</td><td>%s<br><small>%s</small></td><td>%s</td><td class=%s>%s<br><small>%s</small></td><td>%.2fs</td><td>%+d MB</td><td>%.1f</td><td>%s</td><td>%s</td></tr>",
                     r.index, h (r.scenario), h (r.action), h (r.note), h (r.expect), r.result, r.result,
@@ -193,7 +193,7 @@ namespace Kavis.Selftest {
             } catch (Error e) {
                 return;
             }
-            /* isimler tarih damgası: sözlük sırası = zaman sırası */
+            /* names are timestamps: lexical order = time order */
             for (int i = 0; i < names.length; i++) {
                 for (int j = i + 1; j < names.length; j++) {
                     if (strcmp (names[j], names[i]) > 0) {

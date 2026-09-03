@@ -71,7 +71,7 @@ XTranslateCoordinates ile her yoklamada sunucudan okumak.
 
 ## Selftest ilk koşu (3 Eyl, QEMU, test2 ISO'su + yeni paketler)
 
-`kavis-selftest --scenario 01-acilis`: 10 adım, 8 geçti, 2 kaldı —
+`kavis-selftest --scenario 01-boot`: 10 adım, 8 geçti, 2 kaldı —
 ikisi de ISO sürümüne bağlı (test2'de B1 GRUB gizli ve boot-check'in
 /run/kavis/boot-check.log'u yok; v0.4-test3 ISO'sunda geçmeli). Koşu
 ~20 sn, RAM +25 MB (kare alma), journal yeni hata 0. Yerel Xvfb
@@ -134,7 +134,7 @@ sebep bulundu:
    "not replacing it" deyip retain'siz öldürüp X'i VT7'de açıyordu
    (siyah ekran + VT değişimi buydu).
 Düzeltme dosyaları:
-- `iso/config/includes.chroot/etc/lightdm/lightdm.conf.d/50-kavis-splash-devir.conf`:
+- `iso/config/includes.chroot/etc/lightdm/lightdm.conf.d/50-kavis-splash-handoff.conf`:
   `[LightDM] minimum-vt=1` + `[Seat:*] xserver-command=X -background
   none` (ikincisi `f9d0813`'te eklendi — X kökü siyaha boyamasın,
   framebuffer'daki retain karesi masaüstü çizilene kadar kalsın).
@@ -152,7 +152,7 @@ Düzeltme dosyaları:
 **İş 3 — GRUB geri sayımı (`f7f1280`).**
 - live-build temasının gri `progress_bar { id="__timeout__" }` kutusu
   (İngilizce metinli) kaldırıldı; GRUB'da bu id'yi taşıyan HERHANGİ
-  bileşen varsayılan kutuyu kapatır → `9600-grub-marka.hook.binary`
+  bileşen varsayılan kutuyu kapatır → `9600-grub-branding.hook.binary`
   artık temaya ortalanmış #8B9BA8 bir `label` basıyor, metin
   `%d saniye içinde otomatik başlıyor` (önce tabloya eklendi:
   `boot.autoboot_countdown`). Yazı tipi Unifont (TR glifleri menü
@@ -321,7 +321,7 @@ ayarlar.** Yeni dosyalar:
   içinde).
 
 **Madde 6 (`75edbdb`) — pencere yönetimi.**
-- `0210-openbox-kisayollar.hook.chroot` (yeni): Debian rc.xml'e
+- `0210-openbox-keybinds.hook.chroot` (yeni): Debian rc.xml'e
   `</keyboard>` öncesi "Kavis kisayollari" bloğu enjekte (idempotent,
   grep guard; python3 varsa XML doğrulaması — chroot'ta python yok,
   atlanır; yerelde doğrulandı). W-Left/Right yarım (Unmaximize +
@@ -599,7 +599,7 @@ almak (indirme yöneticisi madde 23 gelince).
 >   /usr/share/kavis/i18n-stats.json (kavis-panel rules; msgmerge ile
 >   pot kesişimi — yoksa tr %101 çıkıyordu), Grup F dil seçici
 >   kuralları docs/referans/dil-secici.md, README "Çeviri durumu"
->   tablosu tools/gen-ceviri-tablosu.py + lint.yml adımı (yalnız
+>   tablosu tools/gen-translation-table.py + lint.yml adımı (yalnız
 >   main push, [skip ci] commit). tr.po'daki 3 kullanılmayan girdi
 >   temizlendi (commit 9fb045a). Etiket v0.3-test9 bu commit'e
 >   taşındı (önce 4adeaf0'daydı; push edilmemişti — edildiyse
@@ -920,7 +920,7 @@ sn, gerçek donanımda birkaç sn). Bu KABUL edildi: siyah ekran/konsol
 görmektense splash'in beklemesi doğru davranış.
 
 İkinci parça: lightdm X'i `-background none` ile başlatıyor
-(lightdm.conf.d/50-kavis-splash-devir.conf). Bu olmadan X başladığı
+(lightdm.conf.d/50-kavis-splash-handoff.conf). Bu olmadan X başladığı
 anda kök pencereyi siyaha boyuyor ve openbox ilk kareyi çizene kadar
 (v0.3-test2'de ~4 sn, gerçek donanımda 1-2 sn) siyahlık kalıyordu;
 `-background none` framebuffer'daki son splash karesini korur → GRUB →
@@ -1205,7 +1205,7 @@ bu yüzden animasyonsuz ama sorunsuz çizildi.
   --keys=" "` (komutsuz kullanımda tuşta çıkıyor; trixie plymouth
   kaynağından doğrulandı) ile dinliyor; basılınca aplay öldürülüp fade
   başlatılıyor.
-- `/etc/kavis/boot.conf` (conffile): MUZIK_CAL / MUZIGI_BEKLE —
+- `/etc/kavis/boot.conf` (conffile): PLAY_MUSIC / WAIT_FOR_MUSIC —
   Ayarlar'ın madde 38'de yöneteceği ilk ayar dosyası.
 - F3: GRUB 2.12 `submenu --hotkey=f3` destekliyor (kaynaktan
   doğrulandı). 9601 hook'u güvenli modu alt menüye taşıyor, detaylı
@@ -1223,7 +1223,7 @@ bu yüzden animasyonsuz ama sorunsuz çizildi.
 
 ### Madde 0 — /users/karan
 
-live-config bileşeni `0031-kavis-dizinler` (user-setup'tan hemen sonra):
+live-config bileşeni `0031-kavis-dirs` (user-setup'tan hemen sonra):
 evi `usermod -d -m` ile /users/karan'a taşıyor, 6 klasörü kuruyor,
 `user-dirs.dirs` yazıyor. `/etc/xdg/user-dirs.conf enabled=False` —
 yoksa ilk oturumda xdg-user-dirs-update klasör adlarını Türkçeleştirip
@@ -1266,17 +1266,17 @@ işlendi (MİMARİ ilkesi + madde 59) ve CLAUDE.md'ye özetlendi.
 
 Mevcut kodda yapılan mimari temizliği:
 
-- `iso/auto/config`: mimari `KAVIS_MIMARI` değişkeninden (varsayılan
+- `iso/auto/config`: mimari `KAVIS_ARCH` değişkeninden (varsayılan
   amd64); önyükleyici seçimi case ile — amd64'te grub-pc+grub-efi,
   arm64'te yalnız grub-efi (BIOS x86'ya özgü).
 - `01-base.list.chroot`: çekirdek ve GRUB paketleri live-build'in
   `#if ARCHITECTURES` koşullarına alındı; arm64 karşılıkları yazıldı
   (denenmedi, ilk arm64 derlemesinde doğrulanacak).
-- `tools/check-packages.sh`: hedef mimari `KAVIS_MIMARI`'den, indeks
+- `tools/check-packages.sh`: hedef mimari `KAVIS_ARCH`'den, indeks
   `binary-$MIMARI`, `#if ARCHITECTURES` blokları live-build gibi
   yorumlanıyor. İki mimari de yerelde doğrulandı: amd64 79/79,
   arm64 78/78 paket arşivde var (arm64 grub-pc-bin içermiyor).
-- `build-iso.yml`: workflow düzeyinde `env: KAVIS_MIMARI: amd64` (tek
+- `build-iso.yml`: workflow düzeyinde `env: KAVIS_ARCH: amd64` (tek
   satır değişiklik noktası); ISO adı, derleme bağımlılıkları ve duman
   testi kapısı bu değişkenden. Duman testi yalnız amd64'te koşuyor
   (qemu-system-x86 + OVMF); arm64 CI'a bilinçli olarak EKLENMEDİ (kota).
@@ -1347,7 +1347,7 @@ Grup A'nın kararları:
 Tek kaynak `packages/kavis-theme/src/os-release` (kurulu sistemde
 `/etc/os-release`). Okuyanlar: `iso/auto/config` (`. os-release` ile
 NAME/ID/HOME_URL), iş akışının "Sürüm bilgisi" adımı (ISO adı ID'den),
-`9600-grub-marka.hook.binary` (menü adları chroot'un os-release'inden),
+`9600-grub-branding.hook.binary` (menü adları chroot'un os-release'inden),
 `kavis_panel/marka.py` (panel/hakkında; tek fallback sabiti orada).
 Adı denetleyen kontroller de ada değil "Debian kimliği kalmış mı"ya
 bakıyor (`ID=debian` görürsek devralma başarısız).
@@ -1534,7 +1534,7 @@ journal dökümü seri konsola yazılıyor.
 
 ### GRUB menüsü Karan OS markasına çevrildi
 
-`9600-grub-marka.hook.binary`: menü girdisi adları ("Live system
+`9600-grub-branding.hook.binary`: menü girdisi adları ("Live system
 (amd64)" → "Karan OS (amd64)"), turkuaz vurgulu renkler ve arka plan
 olarak `karan-gece.png`. Debian logosu/arka planı kalıntıları siliniyor.
 
@@ -1639,7 +1639,7 @@ Nasıl uygulandı:
   yerine kayıt olarak bırakmak, ileride birinin "bu metinler nerede
   kaldı" sorusunu cevaplıyor.
 - Ekran görüntüsü script'lerindeki `VARYANT=acik` seçeneği kaldırıldı.
-- `tools/ornek-pencere.py` içindeki "Tema: Açık/Koyu" açılır listesi
+- `tools/sample-window.py` içindeki "Tema: Açık/Koyu" açılır listesi
   duvar kağıdı seçicisiyle değiştirildi — artık var olmayan bir ayarı
   gösteriyordu ve ekran görüntüsünde "sistem açık temada" izlenimi
   veriyordu.
@@ -1689,11 +1689,11 @@ gelecek.
 
 **Geçici tema önizlemesi kaldırıldı.** 2. ve 3. aşamada ISO'ya giren
 `/usr/lib/karanos/theme-preview` panel geldiği için silindi;
-`tools/ornek-pencere.py` olarak geliştirme araçlarının arasına taşındı
+`tools/sample-window.py` olarak geliştirme araçlarının arasına taşındı
 (ekran görüntüsü script'leri onu açıyor).
 
 **Doğrulama:** `tools/panel-screenshot.sh` paneli Xvfb + Openbox'ta
-çalıştırıp PNG veriyor, `MENU=1` ile başlat menüsü açık hâlde. Bu turda
+çalıştırıp PNG veriyor, `START_MENU=1` ile başlat menüsü açık hâlde. Bu turda
 üç hatayı ISO derlemeden yakaladı: CSS bloğu Türkçe yorum içerdiği için
 `bytes` literal olamıyordu, `Gdk.property_change` yoktu, dil seçimi iki
 yerde ayrıydı. `boot-check` de artık `PANEL-OK` arıyor — panel

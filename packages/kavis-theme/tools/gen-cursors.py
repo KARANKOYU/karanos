@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Kavis XCursor teması üreteci.
+"""Kavis XCursor theme generator.
 
-NEDEN SCRIPT: 4 boyut x 14 şekil, ikisi 12 kareli animasyon — 400'ün
-üstünde PNG eder. Bunları depoya ikili dosya olarak koymak yerine tek
-kaynaktan (buradaki SVG çizimleri) derleme sırasında üretiyoruz. Renk
-değiştirmek istediğimizde tek satır değiştirip yeniden derliyoruz.
+WHY A SCRIPT: 4 sizes x 14 shapes, two of them 12-frame animations —
+over 400 PNGs. Instead of putting them in the repo as binary files we
+generate them at build time from a single source (the SVG drawings
+here). When we want to change a color we change one line and rebuild.
 
-Gereksinimler: rsvg-convert (librsvg2-bin), xcursorgen (x11-apps)
-Kullanım:      gen-cursors.py <cursors-dizini>
+Requirements: rsvg-convert (librsvg2-bin), xcursorgen (x11-apps)
+Usage:        gen-cursors.py <cursors-dir>
 """
 
 import math
@@ -16,26 +16,26 @@ import subprocess
 import sys
 import tempfile
 
-# Bölüm 4'teki kimlik renkleri
-# Dış çizgi neredeyse siyah: imleç hem koyu masaüstünde hem beyaz bir
-# belgenin üstünde aynı netlikte görünmeli.
+# Identity colors from section 4
+# The outline is nearly black: the cursor must be equally crisp on the
+# dark desktop and on top of a white document.
 OUTLINE = "#0D141B"
 FILL = "#FFFFFF"
 ACCENT = "#2DD4BF"
 ACCENT2 = "#4F92F7"
-# "Yasak" imleci turkuaz olursa uyarı gibi okunmuyor; işlevi renginden
-# anlaşılsın diye tek istisna olarak kırmızı.
+# A teal "forbidden" cursor does not read as a warning; red as the single
+# exception so its function is clear from its color.
 DANGER = "#EF4444"
 
 SIZES = (24, 32, 48, 64)
-GRID = 24.0  # bütün çizimler 24x24 ızgarada, boyutlara buradan ölçeklenir
+GRID = 24.0  # all drawings on a 24x24 grid, scaled to the sizes from here
 
 ANIM_FRAMES = 12
 ANIM_DELAY = 60  # ms
 
 
 # --------------------------------------------------------------------
-# SVG yardımcıları
+# SVG helpers
 # --------------------------------------------------------------------
 def svg(body):
 	return (
@@ -67,8 +67,8 @@ def arc(cx, cy, r, deg0, deg1, color, width, cap="round"):
 
 
 def stroked(d, fill=FILL, width=1.1):
-	"""Dolgulu şekil + koyu dış çizgi. Dış çizgi olmadan imleç açık
-	arka planda kayboluyor."""
+	"""Filled shape + dark outline. Without the outline the cursor
+	vanishes on a light background."""
 	return (
 		f'<path d="{d}" fill="{fill}" stroke="{OUTLINE}" stroke-width="{width:g}" '
 		'stroke-linejoin="round" stroke-linecap="round"/>'
@@ -76,10 +76,10 @@ def stroked(d, fill=FILL, width=1.1):
 
 
 # --------------------------------------------------------------------
-# Şekiller
+# Shapes
 # --------------------------------------------------------------------
 ARROW = "M3,2 L3,18.6 L7.3,14.7 L10,20.6 L12.9,19.2 L10.2,13.5 L16,13.3 Z"
-# Okun içine oturan, aynı biçimin küçültülmüş hâli — turuncu vurgu buradan.
+# A shrunken copy of the same shape that sits inside the arrow — the accent comes from here.
 ARROW_INNER = "M4.7,5.3 L4.7,15 L7.6,12.3 L9.4,16.3 L10.7,15.7 L8.9,11.8 L12.4,11.7 Z"
 
 
@@ -94,7 +94,7 @@ def arrow(extra=""):
 
 
 def badge(cx, cy, inner):
-	"""Okun yanına küçük turuncu rozet (kopyala/bağla/yardım için)."""
+	"""Small accent badge next to the arrow (for copy/link/help)."""
 	return (
 		f'<g filter="url(#sh)">'
 		f'<circle cx="{cx:g}" cy="{cy:g}" r="5" fill="url(#k)" '
@@ -135,7 +135,7 @@ def crosshair():
 
 
 def _double_arrow(angle):
-	"""Verilen açıda çift yönlü ok — yeniden boyutlandırma imleçleri."""
+	"""Double-headed arrow at the given angle — the resize cursors."""
 	d = ("M2.2,12 L6.4,7.8 V10.4 H17.6 V7.8 L21.8,12 L17.6,16.2 V13.6 "
 	     "H6.4 V16.2 Z")
 	body = ('<g filter="url(#sh)">' + stroked(d, FILL, 1.1)
@@ -211,7 +211,7 @@ def link_cur():
 	return arrow(badge(17.6, 15.2, inner))
 
 
-# şekil adı -> (hotspot, kare listesi, kare gecikmesi)
+# shape name -> (hotspot, frame list, frame delay)
 SHAPES = {
 	"left_ptr":        ((3, 2),   [arrow()],       0),
 	"text":            ((12, 12), [ibeam()],       0),
@@ -231,9 +231,10 @@ SHAPES = {
 	"left_ptr_watch":  ((3, 2),   [progress_frame(i) for i in range(ANIM_FRAMES)], ANIM_DELAY),
 }
 
-# Uygulamalar aynı imleci onlarca farklı adla ister. Buradaki uzun onaltılık
-# adlar GTK/Firefox'un tema adı yerine kullandığı eski karma değerleri —
-# olmazsa sürükle-bırak sırasında sistem imleci geri geliyor.
+# Applications ask for the same cursor under dozens of names. The long
+# hex names here are the legacy hash values GTK/Firefox use instead of
+# theme names — without them the system cursor comes back during
+# drag-and-drop.
 ALIASES = {
 	"left_ptr": ["default", "arrow", "top_left_arrow", "left_arrow"],
 	"text": ["xterm", "ibeam"],
@@ -284,7 +285,7 @@ ALIASES = {
 
 def main():
 	if len(sys.argv) != 2:
-		sys.exit("kullanim: gen-cursors.py <cursors-dizini>")
+		sys.exit("usage: gen-cursors.py <cursors-dir>")
 	outdir = os.path.abspath(sys.argv[1])
 	os.makedirs(outdir, exist_ok=True)
 
@@ -324,7 +325,7 @@ def main():
 			os.symlink(target, path)
 
 	total = len(os.listdir(outdir))
-	print(f"imleç teması hazır: {len(SHAPES)} şekil, {total} ad ({outdir})")
+	print(f"cursor theme ready: {len(SHAPES)} shapes, {total} names ({outdir})")
 
 
 if __name__ == "__main__":

@@ -71,8 +71,9 @@ namespace Kavis.Ui {
             }
             load_css ();
 
-            /* Karartma sınıfı pencereye değil kutuya: app_paintable
-             * pencere CSS arka planını çizmez (PanelPopup deseni). */
+            /* The backdrop class goes on the box, not the window: an
+             * app_paintable window does not draw the CSS background
+             * (PanelPopup pattern). */
             var outer = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             outer.get_style_context ().add_class ("kavis-overview");
             add (outer);
@@ -109,7 +110,7 @@ namespace Kavis.Ui {
                     Gdk.Screen.get_default (), provider,
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             } catch (Error e) {
-                warning ("kavis-panel: overview CSS yuklenemedi: %s",
+                warning ("kavis-panel: could not load overview CSS: %s",
                          e.message);
             }
         }
@@ -200,14 +201,14 @@ namespace Kavis.Ui {
                 card.pack_start (empty, false, false, 12);
             }
 
-            /* Kart, pencere satırlarının bırakma hedefi: sürüklenen
-             * pencere bu masaüstüne taşınır. */
+            /* The card is the drop target for window rows: the dragged
+             * window moves to this desktop. */
             Gtk.drag_dest_set (card, Gtk.DestDefaults.ALL, DND_TARGETS,
                                Gdk.DragAction.MOVE);
             card.drag_data_received.connect (
                 (ctx, x, y, data, info, time) => {
-                    /* Yük NUL ile bitirilerek gönderiliyor (aşağıda);
-                     * string'e çevirmek bu yüzden güvenli. */
+                    /* The payload is sent NUL-terminated (below), so
+                     * casting it to a string is safe. */
                     ulong xid = (ulong) uint64.parse (
                         (string) data.get_data ());
                     foreach (unowned Wnck.Window window in
@@ -218,8 +219,8 @@ namespace Kavis.Ui {
                         }
                     }
                     Gtk.drag_finish (ctx, true, false, time);
-                    /* Kaynak satır hâlâ sürükleme içinde; listeyi
-                     * olay bitince yeniden kur. */
+                    /* The source row is still inside the drag; rebuild
+                     * the list once the event is over. */
                     Idle.add (() => {
                         if (get_visible ()) {
                             rebuild ();
@@ -259,7 +260,7 @@ namespace Kavis.Ui {
                 dismiss ();
             });
 
-            /* Satır sürükleme kaynağı: yük = pencerenin XID'i. */
+            /* Row drag source: payload = the window's XID. */
             Gtk.drag_source_set (button, Gdk.ModifierType.BUTTON1_MASK,
                                  DND_TARGETS, Gdk.DragAction.MOVE);
             button.drag_data_get.connect ((ctx, data, info, time) => {

@@ -1,11 +1,11 @@
-# Kavis — firmware ve grafik sürücüleri
+# Kavis — firmware and graphics drivers
 #
-# Prompt 16: "Bunlar olmazsa kurulumdan sonra Wi-Fi veya ekran kartı
-# çalışmayabilir ve kullanıcı internetsiz kalır — bu yüzden 'küçük ISO'
-# hedefinin istisnasıdır." (~200 MB)
+# Prompt 16: "Without these, Wi-Fi or the graphics card may not work
+# after installation and the user is left without internet — hence the
+# exception to the 'small ISO' target." (~200 MB)
 #
-# Tescilli Nvidia/AMD sürücüleri BURAYA GİRMEZ — Ayarlar > Ek sürücüler'den
-# sonradan kurulur.
+# Proprietary Nvidia/AMD drivers DO NOT GO HERE — installed later from
+# Settings > Additional drivers.
 
 firmware-linux
 firmware-linux-nonfree
@@ -14,11 +14,11 @@ firmware-realtek
 firmware-atheros
 firmware-misc-nonfree
 
-# Modern Intel/AMD dizüstülerde ses donanımı bu olmadan çalışmaz.
-# Açılış müziği (prompt 5) için kritik.
+# Audio hardware on modern Intel/AMD laptops does not work without this.
+# Critical for the boot music (prompt 5).
 firmware-sof-signed
 
-# Mesa — açık kaynak 3B/2B hızlandırma
+# Mesa — open source 3D/2D acceleration
 libgl1-mesa-dri
 libglx-mesa0
 mesa-va-drivers

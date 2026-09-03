@@ -1,25 +1,25 @@
-/* Kavis — GTK3 KOYU tema (VARSAYILAN)
+/* Kavis — GTK3 DARK theme (DEFAULT)
  *
- * NEDEN BÖYLE: sıfırdan GTK teması yazmak binlerce satır ve her GTK
- * güncellemesinde bozulan bir bakım yükü. Bunun yerine GTK'nın kendi
- * Adwaita'sını içe aktarıp yalnızca renkleri ve birkaç bileşeni
- * değiştiriyoruz. Yeni bir GTK sürümü geldiğinde tema kendiliğinden
- * onunla uyumlu kalıyor.
+ * WHY THIS WAY: writing a GTK theme from scratch is thousands of lines
+ * and a maintenance burden that breaks on every GTK update. Instead we
+ * import GTK's own Adwaita and change only the colors and a few
+ * components. When a new GTK version arrives the theme stays
+ * compatible by itself.
  *
- * Bu dosya varsayılan görünüm. GTK, `gtk-application-prefer-dark-theme`
- * açıkken tema dizinindeki gtk-dark.css'i yüklüyor; ayar
- * /etc/gtk-3.0/settings.ini içinde açık geliyor. Açık tema ikinci
- * seçenek olarak gtk.css'te duruyor.
+ * This file is the default look. GTK loads gtk-dark.css from the theme
+ * directory when `gtk-application-prefer-dark-theme` is on; the setting
+ * ships enabled in /etc/gtk-3.0/settings.ini. The light theme sits in
+ * gtk.css as the second option.
  *
- * Palet (bölüm 4):
- *   turkuaz #2DD4BF · mavi #4F92F7 · zemin #0D141B · panel #121C26
- *   yüzey #17222C · üzerine gelince #1D2C38 · kenarlık #233A45
- *   metin #E6EDF3 · ikincil metin #8B9BA8
+ * Palette (section 4):
+ *   teal #2DD4BF · blue #4F92F7 · ground #0D141B · panel #121C26
+ *   surface #17222C · hover #1D2C38 · border #233A45
+ *   text #E6EDF3 · secondary text #8B9BA8
  */
 
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
 
-/* --- kimlik renkleri ------------------------------------------------ */
+/* --- identity colors ------------------------------------------------ */
 @define-color kavis_teal    #2DD4BF;
 @define-color kavis_blue    #4F92F7;
 @define-color kavis_ground  #0D141B;
@@ -30,9 +30,9 @@
 @define-color kavis_text    #E6EDF3;
 @define-color kavis_text2   #8B9BA8;
 
-/* --- Adwaita'nın renk değişkenlerini ez ----------------------------- */
-/* Turkuaz açık bir renk; üstündeki yazı beyaz değil KOYU olmalı, yoksa
- * seçili satırlar okunmuyor. */
+/* --- override Adwaita's color variables ----------------------------- */
+/* Teal is a light color; the text on it must be DARK, not white,
+ * otherwise selected rows are unreadable. */
 @define-color theme_selected_bg_color @kavis_teal;
 @define-color theme_selected_fg_color @kavis_ground;
 @define-color selected_bg_color       @kavis_teal;
@@ -55,10 +55,10 @@
 @define-color error_color             #EF4444;
 @define-color success_color           #22C55E;
 
-/* --- vurgu alan bileşenler ------------------------------------------ */
-/* Turkuaz-mavi degrade yalnızca "bu şey aktif" diyen yerlerde: seçim
- * çubuğu, ilerleme çubuğu, açık anahtar. Her yerde kullanılınca göz
- * yoruyor. */
+/* --- accented components -------------------------------------------- */
+/* The teal-blue gradient only where something says "this is active":
+ * selection bar, progress bar, switch on. Used everywhere it tires
+ * the eye. */
 progressbar > trough > progress,
 levelbar block.filled,
 scale highlight {
@@ -110,27 +110,27 @@ row:hover {
 	background-color: @kavis_hover;
 }
 
-/* Odak halkası turkuaz — klavyeyle gezerken nerede olduğun belli olsun */
+/* Teal focus ring — so you can tell where you are when navigating by keyboard */
 *:focus-visible {
 	outline-color: alpha(@kavis_teal, 0.8);
 }
 
-/* Etkin sekme ve seçili kenar çubuğu satırı altında ince turkuaz şerit */
+/* Thin teal stripe under the active tab and the selected sidebar row */
 notebook > header > tabs > tab:checked {
 	box-shadow: inset 0 -3px @kavis_teal;
 }
 
-/* Başlık çubuğu (geri bildirim A): W11 görünümü — düz yüzey, solda
- * ikon+ad, sağda 46×32 düğmeler, kapat hover'ı W11 kırmızısı. Tilix
- * dahil TÜM CSD pencereler buradan aynı görünümü alır; SSD pencereler
- * (nemo, gparted...) openbox themerc'nin aynı ölçülü kopyasını. */
+/* Title bar (feedback A): W11 look — flat surface, icon+name on the
+ * left, 46×32 buttons on the right, close hover in W11 red. ALL CSD
+ * windows including Tilix get the same look from here; SSD windows
+ * (nemo, gparted...) get the same-sized copy from the openbox themerc. */
 headerbar {
 	background-image: none;
 	background-color: @kavis_surface;
 	border-bottom: 1px solid @kavis_border;
 	color: @kavis_text;
-	/* E2 (test2): 46 px — Tilix'in çubuğuyla ve openbox başlığıyla
-	   (themerc padding.height 16) aynı boy; düğmeler 46×32 ortalı. */
+	/* E2 (test2): 46 px — same height as Tilix's bar and the openbox
+	   title (themerc padding.height 16); buttons 46×32 centered. */
 	min-height: 46px;
 	padding: 0 0 0 8px;
 }
@@ -165,22 +165,22 @@ headerbar button.titlebutton.close:active {
 	background-color: #A02316;
 	color: #FFFFFF;
 }
-/* CSD çerçevesi: openbox kenarlığıyla aynı çizgi + hafif gölge. */
+/* CSD frame: the same line as the openbox border + a slight shadow. */
 decoration {
 	border-radius: 0;
 	box-shadow: 0 0 0 1px @kavis_border, 0 8px 24px rgba(0, 0, 0, 0.45);
 	margin: 12px;
 }
 
-/* Panel rengi menülerde de kullanılıyor — görev çubuğuyla aynı yüzey */
+/* The panel color is used in menus too — the same surface as the taskbar */
 menu,
 popover > contents {
 	background-color: @kavis_panel;
 	border: 1px solid @kavis_border;
 }
 
-/* Adwaita `list row:selected` rengi derlenmiş CSS'te sabit mavi —
- * özgüllüğü genel :selected kuralını eziyor; açıkça turkuaz. */
+/* Adwaita's `list row:selected` color is a fixed blue in the compiled
+ * CSS — its specificity beats the general :selected rule; explicitly teal. */
 list row:selected,
 list row:selected:hover,
 stacksidebar row:selected,
@@ -195,9 +195,9 @@ selection,
 	color: @kavis_ground;
 }
 
-/* Nemo (madde 39, test8 F): Gezgin gibi ince araç çubuğu. Değerler
- * tasarim-dili.md dışında bilinçli — araç çubuğu popup değil,
- * yükseklik kazanmak için sıkıştırılıyor. */
+/* Nemo (madde 39, test8 F): a thin toolbar like Explorer. The values
+ * are deliberately outside tasarim-dili.md — the toolbar is not a
+ * popup, it is squeezed to gain height. */
 .nemo-window toolbar {
 	padding: 1px 6px;
 	min-height: 0;

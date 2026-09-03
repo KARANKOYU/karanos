@@ -1,11 +1,12 @@
-# Kavis — GTK2 uyumu
+# Kavis — GTK2 compatibility
 #
-# Hâlâ GTK2 kullanan birkaç uygulama var (bazı eski araçlar, wine
-# yapılandırıcıları). Tam bir GTK2 teması yazmıyoruz; amaç bu
-# pencerelerin sistemin geri kalanından tamamen kopuk görünmemesi.
+# A few applications still use GTK2 (some old tools, wine
+# configurators). We do not write a full GTK2 theme; the goal is that
+# these windows do not look completely detached from the rest of the
+# system.
 #
-# GTK2'nin tek bir renk şeması var, açık/koyu diye ikiye ayrılmıyor.
-# Varsayılan tema koyu olduğu için buradaki değerler koyu palete göre.
+# GTK2 has a single color scheme, no light/dark split. Since the default
+# theme is dark, the values here follow the dark palette.
 
 gtk-color-scheme = "fg_color:#E6EDF3\nbg_color:#17222C\nbase_color:#0D141B\ntext_color:#E6EDF3\nselected_bg_color:#2DD4BF\nselected_fg_color:#0D141B\ntooltip_bg_color:#121C26\ntooltip_fg_color:#E6EDF3"
 

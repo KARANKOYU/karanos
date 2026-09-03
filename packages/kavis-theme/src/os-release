@@ -1,9 +1,10 @@
-# ÜRÜN KİMLİĞİNİN TEK KAYNAĞI.
-# Görünen ad (NAME), kimlik (ID), sürüm ve adresler yalnızca burada
-# tanımlı. Kod içinde "Kavis" yazılmaz; çalışan sistemde /etc/os-release,
-# derleme sırasında da bu dosya okunur (iso/auto/config, hook'lar,
-# kavis-panel/src/logic/brand.vala). İsim bir gün yine değişirse iş bu dosyayla
-# assets/logo/ altındaki görsellerden ibaret kalsın.
+# THE SINGLE SOURCE OF THE PRODUCT IDENTITY.
+# The display name (NAME), identity (ID), version and addresses are
+# defined only here. "Kavis" is never written in code; the running
+# system reads /etc/os-release, the build reads this file
+# (iso/auto/config, hooks, kavis-panel/src/logic/brand.vala). If the
+# name changes again one day, the work should be limited to this file
+# and the images under assets/logo/.
 PRETTY_NAME="Kavis 1.0"
 NAME="Kavis"
 VERSION_ID="1.0"

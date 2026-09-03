@@ -167,8 +167,8 @@ namespace Kavis.Tools {
         /* ---- images ---------------------------------------------- */
 
         private Gtk.Widget build_image (string path, string ctype) {
-            /* Gdk.Screen.get_width/height 3.22'den beri eski; birincil
-             * monitörün geometrisi (çok monitörde de doğru). */
+            /* Gdk.Screen.get_width/height is deprecated since 3.22; use
+             * the primary monitor's geometry (correct on multi-monitor too). */
             var display = Gdk.Display.get_default ();
             var monitor = display.get_primary_monitor () ?? display.get_monitor (0);
             var geo = monitor.get_geometry ();
@@ -567,7 +567,7 @@ namespace Kavis.Tools {
                             "/org/nemo/Preview",
                             new PreviewService (app));
                     } catch (IOError e) {
-                        warning ("kavis-tools: preview kaydi: %s",
+                        warning ("kavis-tools: preview registration: %s",
                                  e.message);
                     }
                 },
@@ -587,7 +587,7 @@ namespace Kavis.Tools {
                                 new Variant ("(sib)", uri, 0, false),
                                 null, DBusCallFlags.NONE, -1);
                         } catch (Error e) {
-                            warning ("kavis-tools: preview iletimi: %s",
+                            warning ("kavis-tools: preview forwarding: %s",
                                      e.message);
                         }
                     }

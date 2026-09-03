@@ -1,12 +1,12 @@
 #!/bin/sh
-# Plymouth'un varsayılan temasını Kavis yap.
+# Make Kavis the default Plymouth theme.
 #
-# `plymouth-set-default-theme -R` initramfs'i de yeniden üretiyor ama
-# burada -R KULLANMIYORUZ: live-build chroot'unda her paket kurulumunda
-# initramfs üretmek derlemeyi dakikalarca uzatıyor. initramfs'i
-# iso/config/hooks/normal/0300-plymouth.hook.chroot bir kez, en sonda
-# üretiyor. Kurulu sistemde paket elle kurulursa da aşağıdaki
-# update-initramfs devreye giriyor.
+# `plymouth-set-default-theme -R` regenerates the initramfs too, but we
+# DO NOT use -R here: generating the initramfs on every package install
+# in the live-build chroot stretches the build by minutes.
+# iso/config/hooks/normal/0300-plymouth.hook.chroot generates the
+# initramfs once, at the end. If the package is installed by hand on an
+# installed system, the update-initramfs below kicks in.
 set -e
 
 case "$1" in
@@ -14,7 +14,7 @@ configure)
 	if command -v plymouth-set-default-theme >/dev/null 2>&1; then
 		plymouth-set-default-theme kavis
 	fi
-	# live-build chroot'unda değilsek initramfs'i tazele
+	# refresh the initramfs unless we are in the live-build chroot
 	if [ -z "${LIVE_BUILD_CHROOT:-}" ] && [ ! -e /var/lib/live/config ] &&
 		command -v update-initramfs >/dev/null 2>&1; then
 		update-initramfs -u || true

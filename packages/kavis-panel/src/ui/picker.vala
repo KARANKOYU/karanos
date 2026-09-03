@@ -1,4 +1,4 @@
-/* "Emoji and more" panel (UI layer) — sonraki-isler bölüm 5.
+/* "Emoji and more" panel (UI layer) — sonraki-isler section 5.
  *
  * Win+. and Win+V open the same small panel near the pointer: tabs
  * for recent / starred / emoji / kaomoji / symbols / snippets /
@@ -45,7 +45,7 @@ namespace Kavis.Ui {
         .kavis-picker button:active {
           background-color: @kavis_overlay_press;
         }
-        /* Sekmeler: aktifin altında turkuaz çizgi. */
+        /* Tabs: teal line under the active one. */
         .kavis-picker button.picker-tab {
           border-radius: 8px 8px 0 0;
           padding: 6px 10px;
@@ -77,9 +77,9 @@ namespace Kavis.Ui {
         private string last_page = "emoji";
         private bool grabbed = false;
         private bool switching = false;
-        /* G5: üst çubuktan sürükleme (POPUP pencerede begin_move_drag
-         * işlemez — override-redirect; elle taşınır) + son konum
-         * kavis.conf'ta. */
+        /* G5: dragging by the header bar (begin_move_drag does not
+         * work on a POPUP window — override-redirect; moved by hand)
+         * + last position kept in kavis.conf. */
         private bool dragging = false;
         private int drag_dx = 0;
         private int drag_dy = 0;
@@ -112,7 +112,7 @@ namespace Kavis.Ui {
             outer.set_border_width (10);
             add (outer);
 
-            /* --- üst çubuk: başlık + pin + kapat --- */
+            /* --- header bar: title + pin + close --- */
             var header_events = new Gtk.EventBox ();
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
             var title = new Gtk.Label (_("Emoji and more"));
@@ -162,7 +162,7 @@ namespace Kavis.Ui {
             });
             outer.pack_start (header_events, false, false, 0);
 
-            /* --- sekme ikonları --- */
+            /* --- tab icons --- */
             var tabs = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 2);
             add_tab (tabs, "recent", "⏱", _("Recent"));
             add_tab (tabs, "starred", "★", _("Favorites"));
@@ -173,13 +173,13 @@ namespace Kavis.Ui {
             add_tab (tabs, "clipboard", "📋", _("Clipboard history"));
             outer.pack_start (tabs, false, false, 0);
 
-            /* --- arama --- */
+            /* --- search --- */
             search = new Gtk.SearchEntry ();
             search.set_placeholder_text (_("Search"));
             search.search_changed.connect (apply_filters);
             outer.pack_start (search, false, false, 0);
 
-            /* --- sayfalar --- */
+            /* --- pages --- */
             stack = new Gtk.Stack ();
             stack.set_transition_type (
                 Gtk.StackTransitionType.CROSSFADE);
@@ -190,9 +190,9 @@ namespace Kavis.Ui {
             stack.add_named (scrolled (recent_box), "recent");
             starred_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
             stack.add_named (scrolled (starred_box), "starred");
-            /* Glif sayfaları TEMBEL kurulur (debug turu): ~1000
-             * düğmeyi panel açılışında yaratmak +MB'lardı; ilk
-             * gösterimde kurulup sonra yaşarlar. */
+            /* Glyph pages are built LAZILY (debug pass): creating
+             * ~1000 buttons at panel start-up cost extra MBs; they are
+             * built on first show and live on afterwards. */
             stack.add_named (new Gtk.Box (Gtk.Orientation.VERTICAL, 0),
                              "emoji");
             stack.add_named (new Gtk.Box (Gtk.Orientation.VERTICAL, 0),
@@ -266,8 +266,8 @@ namespace Kavis.Ui {
             return scroll;
         }
 
-        /* Emoji / kaomoji / sembol sayfası: kategori başlıkları +
-         * FlowBox'lar, tek kaydırılabilir liste. */
+        /* Emoji / kaomoji / symbol page: category captions +
+         * FlowBoxes, one scrollable list. */
         private Gtk.Widget glyph_page (PickerData.Category[] categories) {
             var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 4);
             foreach (unowned PickerData.Category category in categories) {
@@ -321,8 +321,8 @@ namespace Kavis.Ui {
                 rebuild_starred ();
             });
             menu.append (star);
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+            /* Leak guard: the menu is destroyed on close (via Idle,
+             * because activation runs AFTER deactivate). */
             menu.deactivate.connect (() => {
                 Idle.add (() => {
                     menu.destroy ();
@@ -351,10 +351,10 @@ namespace Kavis.Ui {
             for (int i = 0; i < filter_flows.length; i++) {
                 filter_flows[i].invalidate_filter ();
             }
-            /* Optimizasyon (debug turu): her tuşta DÖRT sayfayı değil
-             * yalnız görünen liste sayfasını yeniden kur — pano
-             * sekmesi görsel küçük resimleri diskten okuyor, arama
-             * yazarken hepsini kurmak boşa IO'ydu. */
+            /* Optimisation (debug pass): on every keystroke rebuild
+             * only the visible list page, not all FOUR — the clipboard
+             * tab reads image thumbnails from disk, so rebuilding them
+             * all while typing a search was wasted IO. */
             switch (stack.get_visible_child_name ()) {
             case "recent":
                 rebuild_recent ();
@@ -371,11 +371,11 @@ namespace Kavis.Ui {
             }
         }
 
-        /* --- metin yerleştirme ---------------------------------------- */
+        /* --- text insertion ------------------------------------------- */
 
-        /* Panoya koy + odaklı pencereye bas. Panel POPUP olduğundan
-         * odak hedef pencerede kaldı; panel açık kalır (W11 emoji
-         * davranışı). */
+        /* Put on the clipboard + paste into the focused window. The
+         * panel is a POPUP, so focus stayed in the target window; the
+         * panel stays open (W11 emoji behaviour). */
         private void insert_text (string item, bool remember) {
             history.set_clipboard_text (item);
             if (remember) {
@@ -384,7 +384,7 @@ namespace Kavis.Ui {
             Launch.paste_keystroke ();
         }
 
-        /* --- dinamik sayfalar ----------------------------------------- */
+        /* --- dynamic pages -------------------------------------------- */
 
         private void clear_children (Gtk.Box box) {
             foreach (var child in box.get_children ()) {
@@ -488,8 +488,8 @@ namespace Kavis.Ui {
                 rebuild_snippets ();
             });
             menu.append (remove);
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+            /* Leak guard: the menu is destroyed on close (via Idle,
+             * because activation runs AFTER deactivate). */
             menu.deactivate.connect (() => {
                 Idle.add (() => {
                     menu.destroy ();
@@ -500,9 +500,9 @@ namespace Kavis.Ui {
             menu.popup_at_pointer (event);
         }
 
-        /* Ekle/düzenle: küçük diyalog, çok satırlı metin. Diyalog
-         * gerçek pencere — yazabilmek için odak alması gerek; picker
-         * o sırada pinliymiş gibi açık kalır. */
+        /* Add/edit: a small dialog with multi-line text. The dialog
+         * is a real window — it must take focus to be typed into; the
+         * picker meanwhile stays open as if pinned. */
         private void edit_snippet (string? id) {
             string initial = "";
             if (id != null) {
@@ -529,7 +529,7 @@ namespace Kavis.Ui {
 
             bool was_pinned = pin_toggle.get_active ();
             if (!was_pinned) {
-                release_grab ();   /* diyalog yazılabilsin */
+                release_grab ();   /* so the dialog can be typed into */
             }
             string? snippet_id = id;
             dialog.response.connect ((response) => {
@@ -594,7 +594,7 @@ namespace Kavis.Ui {
                     if (!pin_toggle.get_active ()) {
                         dismiss ();
                     }
-                    /* Kapanış + odak geri dönüşü için küçük pay. */
+                    /* Small allowance for the close + focus return. */
                     Timeout.add (200, () => {
                         Launch.paste_keystroke ();
                         return Source.REMOVE;
@@ -633,7 +633,7 @@ namespace Kavis.Ui {
             clipboard_box.show_all ();
         }
 
-        /* --- açma / kapama -------------------------------------------- */
+        /* --- open / close --------------------------------------------- */
 
         private bool[] glyph_built = { false, false, false };
 
@@ -676,7 +676,7 @@ namespace Kavis.Ui {
             switching = false;
         }
 
-        /* page: sekme adı; "last" = son kullanılan (ilk sefer emoji). */
+        /* page: tab name; "last" = last used (emoji the first time). */
         public void open (string page) {
             if (get_visible ()) {
                 dismiss ();
@@ -691,10 +691,10 @@ namespace Kavis.Ui {
             rebuild_clipboard ();
 
             show_all ();
-            /* set_visible_child görünmeyen çocukta İŞLEMEZ — sayfa
-             * seçimi show_all'dan SONRA (Xvfb'de yakalandı). */
+            /* set_visible_child does NOT work on an unshown child —
+             * pick the page AFTER show_all (caught on Xvfb). */
             show_page (target);
-            /* İmlecin yakınında, workarea içine kıstırılmış. */
+            /* Near the pointer, clamped into the workarea. */
             var display = Gdk.Display.get_default ();
             int px, py;
             display.get_default_seat ().get_pointer ()
@@ -736,8 +736,9 @@ namespace Kavis.Ui {
                 return;
             }
             if (pin_toggle.get_active ()) {
-                /* Pin: grab bırakılır — diğer pencereler kullanılır,
-                 * panel üstte kalır, dışarı tıklama kapatmaz. */
+                /* Pin: the grab is released — other windows can be
+                 * used, the panel stays on top, clicking outside does
+                 * not close it. */
                 release_grab ();
                 set_keep_above (true);
             } else {

@@ -1,8 +1,8 @@
 #!/bin/bash
-# DİKKAT: bash şart — `pipefail` olmadan `| tee` lb'nin çıkış kodunu yutar
-# ve başarısız bir derleme CI'da BAŞARILI görünür. Bir kez oldu:
-# hook hata verip derleme durdu, adım yeşil kaldı, ISO'nun yokluğu ancak
-# bir sonraki adımda anlaşıldı.
+# NOTE: bash is required — without `pipefail`, `| tee` swallows lb's exit
+# code and a failed build looks SUCCESSFUL in CI. It happened once: a hook
+# errored and the build stopped, the step stayed green, and the missing
+# ISO was only noticed in the next step.
 set -eo pipefail
 
 lb build noauto "$@" 2>&1 | tee build.log

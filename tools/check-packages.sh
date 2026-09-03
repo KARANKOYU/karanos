@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-# Kavis — paket listelerini Debian trixie arşivine karşı doğrula
+# Kavis — validate the package lists against the Debian trixie archive
 #
-# ISO'yu yerelde derlemiyoruz, ama paket adı yazım hatası yüzünden
-# 40 dakikalık CI derlemesini çöpe atmak da istemiyoruz.
-# Bu script Debian'ın paket indeksini indirip iso/config/package-lists/
-# altındaki her adın gerçekten var olduğunu kontrol eder.
+# We do not build the ISO locally, but we also do not want to throw away a
+# 40-minute CI build because of a typo in a package name.
+# This script downloads Debian's package index and checks that every name
+# under iso/config/package-lists/ really exists.
 #
-# Kullanım:  tools/check-packages.sh
-#            KAVIS_MIMARI=arm64 tools/check-packages.sh   # başka mimari için
+# Usage:  tools/check-packages.sh
+#         KAVIS_ARCH=arm64 tools/check-packages.sh   # for another architecture
 #
-# Paket listelerindeki `#if ARCHITECTURES <mimariler>` ... `#endif` blokları
-# live-build'deki gibi yorumlanır: hedef mimari blokta yoksa satırlar atlanır.
+# `#if ARCHITECTURES <archs>` ... `#endif` blocks in the package lists are
+# interpreted as live-build does: lines are skipped if the target
+# architecture is not in the block.
 
 set -euo pipefail
 
@@ -20,23 +21,23 @@ CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kavis-pkgcheck"
 SUITE="trixie"
 MIRROR="https://deb.debian.org/debian"
 AREAS=(main contrib non-free non-free-firmware)
-# Hedef mimari değişkenden; "amd64" dizesi koda gömülmez (çok-mimarili
-# hazırlık kuralı). auto/config ile aynı varsayılan.
-MIMARI="${KAVIS_MIMARI:-amd64}"
+# Target architecture from the variable; the string "amd64" is not
+# hard-coded (multi-arch rule). Same default as auto/config.
+ARCH="${KAVIS_ARCH:-amd64}"
 
 mkdir -p "$CACHE_DIR"
 
-echo "==> Debian $SUITE/$MIMARI paket indeksleri (önbellek: $CACHE_DIR)"
-INDEX="$CACHE_DIR/paketler-$MIMARI.txt"
+echo "==> Debian $SUITE/$ARCH package indexes (cache: $CACHE_DIR)"
+INDEX="$CACHE_DIR/packages-$ARCH.txt"
 
 if [[ ! -s "$INDEX" || -n "${REFRESH:-}" ]]; then
 	: > "$INDEX"
 	for area in "${AREAS[@]}"; do
-		url="$MIRROR/dists/$SUITE/$area/binary-$MIMARI/Packages.xz"
-		echo "    indiriliyor: $area"
+		url="$MIRROR/dists/$SUITE/$area/binary-$ARCH/Packages.xz"
+		echo "    downloading: $area"
 		curl -fsSL "$url" | xz -d | grep -E '^(Package|Provides): ' >> "$INDEX"
 	done
-	# "Provides" satırlarındaki sanal paketleri de ayıkla
+	# Also extract the virtual packages from the "Provides" lines
 	{
 		grep '^Package: ' "$INDEX" | cut -d' ' -f2
 		grep '^Provides: ' "$INDEX" | cut -d' ' -f2- | tr ',' '\n' \
@@ -45,7 +46,7 @@ if [[ ! -s "$INDEX" || -n "${REFRESH:-}" ]]; then
 	mv "$INDEX.tmp" "$INDEX"
 fi
 
-echo "    $(wc -l < "$INDEX") paket adı yüklendi"
+echo "    $(wc -l < "$INDEX") package names loaded"
 echo
 
 fail=0
@@ -53,22 +54,22 @@ total=0
 
 for list in "$LIST_DIR"/*.list.chroot; do
 	echo "==> $(basename "$list")"
-	# live-build koşul durumu: 1 = satırlar hedef mimari için geçerli
-	blok_gecerli=1
+	# live-build conditional state: 1 = lines apply to the target architecture
+	block_active=1
 	while IFS= read -r line; do
-		# #if ARCHITECTURES a b ... / #endif bloklarını live-build gibi yorumla
+		# Interpret #if ARCHITECTURES a b ... / #endif blocks like live-build
 		if [[ "$line" =~ ^#if[[:space:]]+ARCHITECTURES[[:space:]]+(.+)$ ]]; then
-			blok_gecerli=0
+			block_active=0
 			for m in ${BASH_REMATCH[1]}; do
-				[[ "$m" == "$MIMARI" ]] && blok_gecerli=1
+				[[ "$m" == "$ARCH" ]] && block_active=1
 			done
 			continue
 		fi
 		if [[ "$line" =~ ^#endif ]]; then
-			blok_gecerli=1
+			block_active=1
 			continue
 		fi
-		(( blok_gecerli )) || continue
+		(( block_active )) || continue
 		pkg="${line%%#*}"
 		pkg="$(echo "$pkg" | tr -d '[:space:]')"
 		[[ -z "$pkg" ]] && continue
@@ -76,21 +77,21 @@ for list in "$LIST_DIR"/*.list.chroot; do
 		if grep -qxF "$pkg" "$INDEX"; then
 			printf '    \033[32m✓\033[0m %s\n' "$pkg"
 		else
-			printf '    \033[31m✗ %s — trixie/%s arşivinde YOK\033[0m\n' "$pkg" "$MIMARI"
+			printf '    \033[31m✗ %s — NOT in the trixie/%s archive\033[0m\n' "$pkg" "$ARCH"
 			fail=$((fail + 1))
 		fi
 	done < "$list"
 	echo
 done
 
-# packages/*/debian/control içindeki Build-Depends ve Depends adları da
-# aynı arşivden geliyor. Oradaki bir yazım hatası .deb derlemesini
-# CI'da düşürüyor; burada 1 saniyede yakalanıyor.
+# The Build-Depends and Depends names in packages/*/debian/control come
+# from the same archive. A typo there breaks the .deb build in CI; here
+# it is caught in a second.
 for ctrl in "$REPO_ROOT"/packages/*/debian/control; do
 	[[ -f "$ctrl" ]] || continue
 	echo "==> $(basename "$(dirname "$(dirname "$ctrl")")")/debian/control"
-	# Alan gövdelerini topla, virgülle ayır, sürüm/mimari kısıtlarını at.
-	# "${misc:Depends}" gibi dpkg değişkenleri arşivde aranmaz.
+	# Collect the field bodies, split on commas, drop version/arch constraints.
+	# dpkg variables such as "${misc:Depends}" are not looked up.
 	awk '
 		/^(Build-Depends|Build-Depends-Indep|Depends|Recommends|Pre-Depends):/ { al=1; sub(/^[^:]*:/, ""); }
 		/^[ \t]/ { if (al) print; next }
@@ -99,39 +100,39 @@ for ctrl in "$REPO_ROOT"/packages/*/debian/control; do
 	' "$ctrl" | tr ',|' '\n\n' | sed -e 's/(.*)//' -e 's/\[.*\]//' \
 		-e 's/<.*>//' -e 's/[[:space:]]//g' | grep -v '^\${' | grep -v '^$' \
 		| sort -u | while IFS= read -r pkg; do
-		# Kendi paketlerimiz Debian arşivinde yok, packages/ altında
-		# derleniyorlar. Aranırsa hep "bulunamadı" derdi.
+		# Our own packages are not in the Debian archive; they are built
+		# under packages/. Looking them up would always say "not found".
 		if [[ "$pkg" == kavis-* ]]; then
 			if [[ -d "$REPO_ROOT/packages/$pkg" ]]; then
-				printf '    \033[32m✓\033[0m %s (kendi paketimiz)\n' "$pkg"
+				printf '    \033[32m✓\033[0m %s (our own package)\n' "$pkg"
 			else
-				printf '    \033[31m✗ %s — packages/ altinda boyle bir paket yok\033[0m\n' "$pkg"
-				echo "$pkg" >> "$CACHE_DIR/eksik"
+				printf '    \033[31m✗ %s — no such package under packages/\033[0m\n' "$pkg"
+				echo "$pkg" >> "$CACHE_DIR/missing"
 			fi
 			continue
 		fi
 		if grep -qxF "$pkg" "$INDEX"; then
 			printf '    \033[32m✓\033[0m %s\n' "$pkg"
 		else
-			printf '    \033[31m✗ %s — trixie/%s arşivinde YOK\033[0m\n' "$pkg" "$MIMARI"
-			echo "$pkg" >> "$CACHE_DIR/eksik"
+			printf '    \033[31m✗ %s — NOT in the trixie/%s archive\033[0m\n' "$pkg" "$ARCH"
+			echo "$pkg" >> "$CACHE_DIR/missing"
 		fi
 	done
 	echo
 done
 
-if [[ -s "$CACHE_DIR/eksik" ]]; then
-	fail=$((fail + $(wc -l < "$CACHE_DIR/eksik")))
-	total=$((total + $(wc -l < "$CACHE_DIR/eksik")))
-	rm -f "$CACHE_DIR/eksik"
+if [[ -s "$CACHE_DIR/missing" ]]; then
+	fail=$((fail + $(wc -l < "$CACHE_DIR/missing")))
+	total=$((total + $(wc -l < "$CACHE_DIR/missing")))
+	rm -f "$CACHE_DIR/missing"
 fi
 
 echo "==================================================="
 if (( fail == 0 )); then
-	echo "TAMAM: $total paketin hepsi Debian $SUITE arşivinde var."
+	echo "OK: all $total packages exist in the Debian $SUITE archive."
 	exit 0
 else
-	echo "HATA: $total paketten $fail tanesi bulunamadı."
-	echo "Adı düzelt veya paketi listeden çıkar, sonra tekrar çalıştır."
+	echo "ERROR: $fail of $total packages not found."
+	echo "Fix the name or drop the package from the list, then run again."
 	exit 1
 fi

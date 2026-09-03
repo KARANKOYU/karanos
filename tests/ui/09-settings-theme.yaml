@@ -1,18 +1,18 @@
-# Ayarlar (madde 9): tema koyu/açık kavis.conf üzerinden, panel canlı uyar
-name: 09-ayarlar-tema
-title: Ayarlar — tema
-madde: 9
+# Settings (item 9): dark/light theme via kavis.conf, panel follows live
+name: 09-settings-theme
+title: Settings — theme
+item: 9
 allowed: [kavis-settings]
 steps:
   - do: none
     expect: screen panel dark
-    note: başlangıç koyu tema
+    note: dark theme at start
   - do: conf appearance theme light
     expect: conf appearance theme light
   - do: wait 2000
     expect: screen panel bright
     timeout: 8000
-    note: panel açık temaya geçti (Config.watch)
+    note: panel switched to the light theme (Config.watch)
     shot: true
   - do: conf appearance theme dark
     expect: conf appearance theme dark
@@ -22,7 +22,7 @@ steps:
   - do: launch kavis-settings
     expect: window kavis-settings visible
     timeout: 40000
-    note: Ayarlar açılıyor (CSD başlık)
+    note: Settings opens (CSD title bar)
     shot: true
   - do: close window kavis-settings
     expect: window kavis-settings absent

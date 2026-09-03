@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Kavis — push etmeden önce çalıştırılacak hızlı kontroller
+# Kavis — quick checks to run before pushing
 #
-# ISO derlemesi CI'da 40 dakika sürüyor. Yazım hatası yüzünden o süreyi
-# harcamamak için sözdizimi ve dosya bütünlüğü burada kontrol edilir.
+# The ISO build takes 40 minutes in CI. So that a typo does not burn that
+# time, syntax and file integrity are checked here first.
 
 set -uo pipefail
 
@@ -14,21 +14,20 @@ ok()   { printf '  \033[32m✓\033[0m %s\n' "$*"; }
 bad()  { printf '  \033[31m✗ %s\033[0m\n' "$*"; fail=1; }
 warn() { printf '  \033[33m!\033[0m %s\n' "$*"; }
 
-# Hangi yorumlayıcıyla kontrol edileceğine dosyanın kendi shebang'ine
-# bakarak karar veriyoruz. includes.chroot altında hem sh hem Python
-# script'leri var; hepsini `sh -n` ile denemek Python dosyalarında
-# yanlış hata veriyordu.
-sozdizimi() {
-	local f="$1" satir
-	satir=$(head -1 "$f")
-	case "$satir" in
+# Which interpreter to check with is decided from the file's own shebang.
+# includes.chroot holds both sh and Python scripts; trying `sh -n` on all
+# of them produced false errors on the Python files.
+check_syntax() {
+	local f="$1" line
+	line=$(head -1 "$f")
+	case "$line" in
 	*python*) python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$f" 2>/dev/null ;;
 	*bash*) bash -n "$f" 2>/dev/null ;;
 	*) sh -n "$f" 2>/dev/null ;;
 	esac
 }
 
-echo "==> Script sözdizimi"
+echo "==> Script syntax"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
          iso/config/hooks/normal/*.hook.* \
          iso/config/includes.chroot/usr/lib/kavis/* \
@@ -36,18 +35,18 @@ for f in iso/auto/config iso/auto/build iso/auto/clean \
          packages/*/debian/pre* packages/*/debian/post* \
          tools/*.sh; do
 	[[ -f "$f" ]] || continue
-	if sozdizimi "$f"; then ok "$f"; else bad "$f — sözdizimi hatası"; fi
+	if check_syntax "$f"; then ok "$f"; else bad "$f — syntax error"; fi
 done
 
 echo
-echo "==> Çalıştırma izinleri"
+echo "==> Execute permissions"
 for f in iso/auto/config iso/auto/build iso/auto/clean \
          iso/config/hooks/normal/*.hook.* \
          iso/config/includes.chroot/usr/lib/kavis/* \
          packages/*/debian/rules packages/*/tools/*.py \
          tools/*.sh; do
 	[[ -f "$f" ]] || continue
-	if [[ -x "$f" ]]; then ok "$f"; else bad "$f — çalıştırma izni yok (chmod +x)"; fi
+	if [[ -x "$f" ]]; then ok "$f"; else bad "$f — not executable (chmod +x)"; fi
 done
 
 echo
@@ -56,28 +55,28 @@ for f in .github/workflows/*.yml; do
 	if python3 -c "import yaml,sys; yaml.safe_load(open('$f'))" 2>/dev/null; then
 		ok "$f"
 	else
-		bad "$f — geçersiz YAML"
+		bad "$f — invalid YAML"
 	fi
 done
 
 echo
-echo "==> Elle konulacak kaynak dosyalar"
+echo "==> Hand-placed asset files"
 [[ -f assets/logo/koyu-k-logo.svg ]] && ok "assets/logo/koyu-k-logo.svg" \
-	|| bad "assets/logo/koyu-k-logo.svg eksik"
+	|| bad "assets/logo/koyu-k-logo.svg missing"
 [[ -f assets/logo/acik-k-logo.svg ]] && ok "assets/logo/acik-k-logo.svg" \
-	|| bad "assets/logo/acik-k-logo.svg eksik"
+	|| bad "assets/logo/acik-k-logo.svg missing"
 [[ -f assets/boot/boot-image.png ]] && ok "assets/boot/boot-image.png" \
-	|| warn "assets/boot/boot-image.png henüz konulmadı (3. aşamada lazım)"
+	|| warn "assets/boot/boot-image.png not placed yet (needed in stage 3)"
 [[ -f assets/boot/boot-sound.mp3 ]] && ok "assets/boot/boot-sound.mp3" \
-	|| warn "assets/boot/boot-sound.mp3 henüz konulmadı (3. aşamada lazım)"
+	|| warn "assets/boot/boot-sound.mp3 not placed yet (needed in stage 3)"
 
 echo
 echo "==================================================="
 if (( fail == 0 )); then
-	echo "TAMAM — push edebilirsin."
-	echo "Paket adlarını da doğrulamak için: tools/check-packages.sh"
+	echo "OK — safe to push."
+	echo "To verify package names as well: tools/check-packages.sh"
 	exit 0
 else
-	echo "HATA — yukarıdaki ✗ satırlarını düzelt."
+	echo "ERROR — fix the ✗ lines above."
 	exit 1
 fi

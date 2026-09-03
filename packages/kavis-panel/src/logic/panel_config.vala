@@ -94,12 +94,12 @@ namespace Kavis {
         /* Notification-center calendar collapsed state (Grup D fix:
          * remembered across sessions, [clock] group). */
         public bool calendar_collapsed = false;
-        /* "Emoji and more" panelinin son konumu (test8 G5); -1 = hiç
-         * taşınmadı, imlecin yakınında açılır. [picker] grubu. */
+        /* Last position of the "Emoji and more" panel (test8 G5); -1 =
+         * never moved, opens near the cursor. [picker] group. */
         public int picker_x = -1;
         public int picker_y = -1;
-        /* Madde 63 "güvenli mod": USB'yi -o sync bağla. Varsayılan
-         * KAPALI — hız bedeli var, açıklaması USB popup'ında. */
+        /* Madde 63 "safe mode": mount USB with -o sync. Default OFF —
+         * it costs speed; the explanation is in the USB popup. */
         public bool usb_sync = false;
 
         /* One shared instance: the popups save settings too, and a
@@ -122,8 +122,8 @@ namespace Kavis {
 
         public static PanelConfig load () {
             var config = new PanelConfig ();
-            /* Tek dosya (1A-2): kavis.conf; eski panel.conf ilk
-             * yüklemede içe alınır ([panel] → [taskbar]). */
+            /* Single file (1A-2): kavis.conf; the old panel.conf is
+             * imported on first load ([panel] → [taskbar]). */
             Config.migrate ();
             var file = new KeyFile ();
             try {
@@ -164,9 +164,9 @@ namespace Kavis {
         }
 
         public void save () {
-            /* kavis.conf başka grupları da taşıyor ([clipboard],
-             * [appearance]...); sıfırdan KeyFile onları sessizce
-             * düşürürdü — önce yükle. */
+            /* kavis.conf carries other groups too ([clipboard],
+             * [appearance]...); a fresh KeyFile would silently drop
+             * them — load first. */
             var file = Config.load ();
             file.set_string ("taskbar", "position", position.id ());
             file.set_string ("taskbar", "align", alignment.id ());
@@ -181,8 +181,8 @@ namespace Kavis {
             Config.save (file);
         }
 
-        /* Ayarlar'dan gelen değişikliği diske yeni yazılmış hâliyle
-         * yeniden okumak için: tekil örneği tazeler. */
+        /* To re-read a change coming from Settings as freshly written to
+         * disk: refreshes the singleton instance. */
         public static void reload () {
             instance = load ();
         }

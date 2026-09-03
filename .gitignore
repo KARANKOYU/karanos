@@ -1,4 +1,4 @@
-# live-build derleme çıktıları — bunlar CI'da üretilir, depoya girmez
+# live-build outputs — produced in CI, never committed
 iso/chroot/
 iso/binary/
 iso/cache/
@@ -17,20 +17,20 @@ iso/config/bootstrap
 iso/config/chroot
 iso/config/common
 iso/config/source
-# ISO'ya girecek kavis-*.deb'ler CI'da buraya indirilir, depoda durmaz
+# kavis-*.deb files destined for the ISO are downloaded here in CI, not kept in the repo
 iso/config/packages.chroot/
 
-# Paket ağacına derleme sırasında kopyalanan kaynaklar — aslı assets/ altında
+# Assets copied into the package trees at build time — the originals live under assets/
 packages/*/src/logo/
 packages/*/src/boot/
 
-# Derlenmiş paketler
+# Built packages
 *.deb
 *.buildinfo
 *.changes
-# dpkg-buildpackage'in paket ağacında bıraktıkları. Desenler
-# packages/*/debian/ altını da tutmalı — başında `debian/` yazınca git
-# bunu yalnızca depo kökünde arıyor ve derleme ağacı depoya giriyordu.
+# Leftovers dpkg-buildpackage drops in the package tree. The patterns must
+# also cover packages/*/debian/ — with a leading `debian/` git only looked
+# at the repo root and the build tree ended up committed.
 **/debian/.debhelper/
 **/debian/files
 **/debian/*.substvars
@@ -46,20 +46,20 @@ __pycache__/
 *.egg-info/
 .venv/
 
-# Çeviri derleme çıktısı (.po kaynak, .mo üretilir)
+# Compiled translations (.po is the source, .mo is generated)
 *.mo
 
-# Test çıktıları
+# Test outputs
 out/
 serial-*.log
 
-# Editör / araç ayarları (kişiye özel, depoya girmez)
+# Editor / tool settings (personal, not committed)
 .vscode/
 .claude/
 *.swp
 .DS_Store
 
-# Vala derleme ara ürünü (dh_auto_clean siler ama derleme sonrası kalır)
+# Vala build intermediates (dh_auto_clean removes them, but they linger after a build)
 packages/kavis-panel/kavis-panel
 packages/kavis-panel/kavis-snap
 packages/kavis-panel/kavis-osd
@@ -67,8 +67,8 @@ packages/kavis-settings/kavis-settings
 packages/kavis-tools/kavis-tools
 *.ddeb
 
-# Ortak kaynakların derleme kopyaları (madde 61) — kanonik dosyalar
-# packages/kavis-common/, kopyaları build-packages.sh koyar
+# Build-time copies of shared sources (item 61) — canonical files live in
+# packages/kavis-common/, the copies are placed by build-packages.sh
 packages/*/src/logic/appinit.vala
 packages/*/src/headerbar.vala
 packages/*/src/theme.vala

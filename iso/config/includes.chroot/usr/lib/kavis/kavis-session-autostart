@@ -1,51 +1,53 @@
 #!/bin/sh
-# Kavis oturumu — XDG autostart başlatıcısı (v0.4-test1 H2).
+# Kavis session — XDG autostart launcher (v0.4-test1 H2).
 #
-# Görev Yöneticisi > Başlangıç ile AYNI kural: /etc/xdg/autostart ve
-# ~/.config/autostart, aynı ad kullanıcıda ise o kazanır; Hidden=true
-# atlanır; OnlyShowIn/NotShowIn XDG_CURRENT_DESKTOP (Kavis) ile
-# karşılaştırılır; TryExec yoksa atlanır; Exec'teki %-kodları düşer.
-# Başka autostart mekanizması YOK (openbox-xdg-autostart python3-xdg
-# ister, kurulu değil) — liste burada ne diyorsa o başlar.
+# SAME rule as Task Manager > Startup: /etc/xdg/autostart and
+# ~/.config/autostart, the user's entry wins on the same name;
+# Hidden=true is skipped; OnlyShowIn/NotShowIn are compared with
+# XDG_CURRENT_DESKTOP (Kavis); skipped if TryExec is missing; %-codes in
+# Exec are dropped. There is NO other autostart mechanism
+# (openbox-xdg-autostart wants python3-xdg, not installed) — whatever the
+# list says starts.
 set -u
 LOG="${XDG_RUNTIME_DIR:-/tmp}/kavis-session.log"
 : > "$LOG"
 desktop="${XDG_CURRENT_DESKTOP:-Kavis}"
 userdir="${XDG_CONFIG_HOME:-$HOME/.config}/autostart"
 
-value() { # value <dosya> <anahtar>
+value() { # value <file> <key>
 	sed -n "s/^$2=//p" "$1" | head -1
 }
 
 for f in /etc/xdg/autostart/*.desktop "$userdir"/*.desktop; do
 	[ -f "$f" ] || continue
 	base=$(basename "$f")
-	# sistem girdisi, kullanıcıda aynı ad varsa onu kullan
+	# system entry: if the user has the same name, use that one
 	case "$f" in
 		/etc/xdg/autostart/*) [ -f "$userdir/$base" ] && continue ;;
 	esac
-	[ "$(value "$f" Hidden)" = "true" ] && { echo "atla (Hidden): $base" >>"$LOG"; continue; }
+	[ "$(value "$f" Hidden)" = "true" ] && { echo "skip (Hidden): $base" >>"$LOG"; continue; }
 	only=$(value "$f" OnlyShowIn)
 	if [ -n "$only" ] && ! printf '%s' "$only" | grep -q "\(^\|;\)$desktop\(;\|$\)"; then
-		echo "atla (OnlyShowIn=$only): $base" >>"$LOG"; continue
+		echo "skip (OnlyShowIn=$only): $base" >>"$LOG"; continue
 	fi
 	notin=$(value "$f" NotShowIn)
 	if [ -n "$notin" ] && printf '%s' "$notin" | grep -q "\(^\|;\)$desktop\(;\|$\)"; then
-		echo "atla (NotShowIn): $base" >>"$LOG"; continue
+		echo "skip (NotShowIn): $base" >>"$LOG"; continue
 	fi
 	tryexec=$(value "$f" TryExec)
 	if [ -n "$tryexec" ] && ! command -v "$tryexec" >/dev/null 2>&1; then
-		echo "atla (TryExec yok): $base" >>"$LOG"; continue
+		echo "skip (TryExec missing): $base" >>"$LOG"; continue
 	fi
 	exec_line=$(value "$f" Exec | sed 's/ %[a-zA-Z]//g')
 	[ -n "$exec_line" ] || continue
-	# Oturum betiğinin zaten başlattığı şey (picom, nemo-desktop...)
-	# ikinci kez başlatılmaz — QEMU'da her süreç pahalı, picom ikincisi
-	# zaten "başka kompozitör var" deyip çıkıyordu.
+	# Whatever the session script already started (picom,
+	# nemo-desktop...) is not started a second time — in QEMU every
+	# process is expensive, and a second picom was already exiting with
+	# "another compositor is running".
 	cmd_base=$(basename "${exec_line%% *}")
 	if pgrep -x "$cmd_base" >/dev/null 2>&1; then
-		echo "atla (zaten calisiyor): $base" >>"$LOG"; continue
+		echo "skip (already running): $base" >>"$LOG"; continue
 	fi
-	echo "baslat: $base -> $exec_line" >>"$LOG"
+	echo "start: $base -> $exec_line" >>"$LOG"
 	sh -c "$exec_line" >>"$LOG" 2>&1 &
 done

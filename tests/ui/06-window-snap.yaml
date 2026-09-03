@@ -1,25 +1,25 @@
-# Pencere yönetimi (madde 6): sürükle-kenar snap, Win+ok, büyütme, ekran dışına çıkamama
-name: 06-pencere-snap
-title: Pencere ve snap
-madde: 6
+# Window management (item 6): drag-to-edge snap, Win+arrow, maximize, cannot leave the screen
+name: 06-window-snap
+title: Window and snap
+item: 6
 allowed: [nemo]
 steps:
   - do: launch nemo --no-desktop /users/karan
     expect: window nemo visible
     timeout: 30000
-    note: test penceresi
+    note: test window
   - do: wait 1500
     expect: window nemo focused
     timeout: 5000
   - do: drag window nemo to left
     expect: geometry nemo left-half
     timeout: 4000
-    note: sol kenara sürükle → sol yarı (E1)
+    note: drag to the left edge → left half (E1)
     shot: true
   - do: drag window nemo to 700 300
     expect: geometry nemo on-screen
     timeout: 4000
-    note: geri çekince serbest
+    note: free again after dragging back
   - do: key super+Right
     expect: geometry nemo right-half
     timeout: 4000

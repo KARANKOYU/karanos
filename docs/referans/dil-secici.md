@@ -42,5 +42,5 @@ appear in English").
   (`po/` standart gettext düzeni). Katkıcı yeni `<dil>.po` ekleyince
   başka hiçbir şey gerekmez: LINGUAS'ta dil zaten var, istatistik ve
   README tablosu sonraki derlemede kendiliğinden güncellenir.
-- README'deki "Çeviri durumu" tablosu tools/gen-ceviri-tablosu.py ile
+- README'deki "Çeviri durumu" tablosu tools/gen-translation-table.py ile
   CI'da güncellenir; dil seçiciyle aynı sıralama kuralını kullanır.

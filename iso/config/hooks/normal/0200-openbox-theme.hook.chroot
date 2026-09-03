@@ -1,25 +1,25 @@
 #!/bin/sh
-# Kavis — Openbox'ı Kavis temasına geçir
+# Kavis — switch Openbox to the Kavis theme
 #
-# NEDEN HOOK, NEDEN DOSYAYI KOMPLE DEĞİŞTİRMİYORUZ:
-# Openbox'ın pencere teması GTK temasından bağımsız; /etc/xdg/openbox/rc.xml
-# içindeki <theme><name> belirliyor. Bu dosyayı kendi sürümümüzle
-# değiştirmek kolay görünüyor ama rc.xml aynı zamanda BÜTÜN fare ve klavye
-# kısayollarını taşıyor — <mouse> bölümü olmayan bir rc.xml'de pencere
-# başlığından tutup sürükleyemiyor, düğmelere tıklayamıyorsun. Bu yüzden
-# Debian'ın tam dosyasını bırakıp yalnızca iki alanı değiştiriyoruz.
+# WHY A HOOK, WHY NOT REPLACE THE WHOLE FILE:
+# Openbox's window theme is independent of the GTK theme; <theme><name>
+# in /etc/xdg/openbox/rc.xml sets it. Replacing that file with our own
+# looks easy, but rc.xml also carries ALL mouse and keyboard bindings —
+# in an rc.xml without a <mouse> section you cannot drag a window by its
+# title bar or click its buttons. So we keep Debian's full file and
+# change only two fields.
 
 set -e
 
 RC=/etc/xdg/openbox/rc.xml
 
 if [ ! -f "$RC" ]; then
-	echo "E: $RC yok — openbox kurulu mu?" >&2
+	echo "E: $RC missing — is openbox installed?" >&2
 	exit 1
 fi
 
-# <theme> bloğundaki İLK <name> tema adı; sonrakiler yazı tipi adları.
-# Bu yüzden düz sed yerine "ilk eşleşme" mantığı gerekiyor.
+# The FIRST <name> in the <theme> block is the theme name; the following
+# ones are font names. Hence "first match" logic instead of plain sed.
 awk '
 	/<theme>/            { intheme = 1 }
 	intheme && !done && /<name>/ {
@@ -27,15 +27,15 @@ awk '
 		done = 1
 	}
 	{ print }
-' "$RC" > "$RC.yeni"
-mv "$RC.yeni" "$RC"
+' "$RC" > "$RC.new"
+mv "$RC.new" "$RC"
 
-# Windows benzeri başlık çubuğu: simge, başlık, sonra küçült/büyüt/kapat
+# Windows-like title bar: icon, title, then minimize/maximize/close
 sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$RC"
 
 if grep -q '<name>Kavis</name>' "$RC"; then
-	echo "I: Openbox teması Kavis olarak ayarlandi"
+	echo "I: Openbox theme set to Kavis"
 else
-	echo "E: rc.xml'e tema adi yazilamadi" >&2
+	echo "E: could not write the theme name into rc.xml" >&2
 	exit 1
 fi

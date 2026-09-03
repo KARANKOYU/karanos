@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Product name — the "KAVİS" text below the logo on the boot splash
+  (madde 30).
+
+  The @NAME@ placeholder is replaced at build time with the os-release
+  NAME value in Turkish upper case (debian/rules). The name is not
+  embedded in code: if the name changes this file needs no manual edit.
+
+  WHY SVG: Plymouth uses bitmap fonts; the text is converted to PNG at
+  build time, no font dependency at boot.
+
+  Color #E6EDF3 = the dark palette's primary text color; wide letter
+  spacing — so it sits under the logo like a wordmark.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="160" viewBox="0 0 800 160">
+  <text x="400" y="110"
+        text-anchor="middle"
+        font-family="DejaVu Sans"
+        font-weight="bold"
+        font-size="96"
+        letter-spacing="28"
+        fill="#E6EDF3">@NAME@</text>
+</svg>

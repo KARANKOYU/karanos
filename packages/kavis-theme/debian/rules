@@ -1,20 +1,21 @@
 #!/usr/bin/make -f
-# Kavis görünüm paketi
+# Kavis look-and-feel package
 #
-# Simgeler, imleçler ve duvar kağıtları depoda ikili dosya olarak
-# durmuyor; hepsi burada, logolar ve tools/ altındaki üreteçlerden
-# derleme sırasında üretiliyor.
+# Icons, cursors and wallpapers are not kept in the repo as binary
+# files; they are all generated here at build time from the logos and
+# the generators under tools/.
 
 export DH_VERBOSE = 1
 
-# İki logo var: koyu tema için koyu-k-logo, açık tema için acik-k-logo.
-# İkisi de kuruluyor; hangi bağlamda hangisinin kullanılacağı kural:
-#   - açılış ekranı ve GRUB: HER ZAMAN koyu logo
-#   - başlat düğmesi / hakkında: etkin temaya göre (bkz. kavis-panel)
-# Sistem bugün tek temalı (koyu) olduğu için simge teması koyu logodan
-# üretiliyor.
-LOGO_KOYU := src/logo/koyu-k-logo.svg
-LOGO_ACIK := src/logo/acik-k-logo.svg
+# There are two logos: koyu-k-logo for the dark theme, acik-k-logo for
+# the light theme. Both are installed; the rule for which one is used
+# in which context:
+#   - boot splash and GRUB: ALWAYS the dark logo
+#   - start button / about: by the active theme (see kavis-panel)
+# Since the system is single-themed (dark) today, the icon theme is
+# generated from the dark logo.
+LOGO_DARK  := src/logo/koyu-k-logo.svg
+LOGO_LIGHT := src/logo/acik-k-logo.svg
 DEST    := debian/kavis-theme
 THEME   := $(DEST)/usr/share/themes/Kavis
 ICONS   := $(DEST)/usr/share/icons/Kavis
@@ -22,40 +23,42 @@ CURSORS := $(DEST)/usr/share/icons/Kavis-Cursors
 WALL    := $(DEST)/usr/share/backgrounds/kavis
 SHARE   := $(DEST)/usr/share/kavis
 
-# Simgenin gerçekten üretileceği boyutlar. Aradaki boyutları GTK
-# kendisi ölçekliyor, hepsini üretmeye gerek yok.
+# The sizes the icon is actually rendered at. GTK scales the sizes in
+# between itself, no need to render them all.
 ICON_SIZES := 16 22 24 32 48 64 128 256
 
-# Aynı görsel bu adlarla da isteniyor: başlat menüsü "start-here",
-# hakkında pencereleri "distributor-logo" arıyor.
+# The same image is requested under these names too: the start menu
+# looks for "start-here", about windows for "distributor-logo".
 ICON_ALIASES := start-here distributor-logo
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	@for f in $(LOGO_KOYU) $(LOGO_ACIK); do \
+	@for f in $(LOGO_DARK) $(LOGO_LIGHT); do \
 		if [ ! -f "$$f" ]; then \
-			echo "HATA: $$f yok."; \
-			echo "Logolar depo kökünde assets/logo/ altında duruyor ve paket"; \
-			echo "ağacına derleme sırasında kopyalanıyor. Derlemek için:"; \
+			echo "ERROR: $$f is missing."; \
+			echo "The logos live under assets/logo/ at the repo root and are"; \
+			echo "copied into the package tree at build time. To build:"; \
 			echo "    tools/build-packages.sh kavis-theme"; \
 			exit 1; \
 		fi; \
 	done
 
 override_dh_auto_install:
-	# --- GTK3 / GTK2 / Openbox teması --------------------------------
+	# --- GTK3 / GTK2 / Openbox theme ------------------------------------
 	install -d $(THEME)/gtk-3.0 $(THEME)/gtk-2.0 $(THEME)/openbox-3
-	# Şimdilik yalnız koyu tema kurulu (plan iki tema — 2 Eyl kararı;
-	# açık tema Ayarlar'la, Grup F). Aynı dosya hem gtk.css hem
-	# gtk-dark.css olarak kuruluyor; gtk-light.css o güne dek
-	# KURULMUYOR (kaynak olarak depoda).
+	# Only the dark theme is installed for now (the plan is two themes
+	# — 2 Sep decision; the light theme comes with Settings, Grup F).
+	# The same file is installed as both gtk.css and gtk-dark.css;
+	# gtk-light.css is NOT installed until then (kept in the repo as
+	# source).
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk.css
 	install -m644 src/gtk-3.0/gtk-dark.css $(THEME)/gtk-3.0/gtk-dark.css
-	# Açık tema (madde 38): Ayarlar > Görünüm xsettingsd üzerinden
-	# Net/ThemeName=Kavis-Light'a geçirir. gtk-dark.css bilerek YOK —
-	# açık temayı seçen kullanıcıya koyu varyant sızmasın.
+	# Light theme (madde 38): Settings > Appearance switches to
+	# Net/ThemeName=Kavis-Light through xsettingsd. gtk-dark.css is
+	# deliberately ABSENT — the dark variant must not leak to a user
+	# who chose the light theme.
 	install -d $(DEST)/usr/share/themes/Kavis-Light/gtk-3.0
 	install -m644 src/gtk-3.0/gtk-light.css \
 		$(DEST)/usr/share/themes/Kavis-Light/gtk-3.0/gtk.css
@@ -63,9 +66,9 @@ override_dh_auto_install:
 		> $(DEST)/usr/share/themes/Kavis-Light/index.theme
 	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
 	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc
-	# Açık openbox teması (B2): aynı themerc, renkler açık palete
-	# eşlenmiş (tasarim-dili.md tablosu); Ayarlar rc.xml'de tema adını
-	# değiştirip openbox --reconfigure çağırır.
+	# Light openbox theme (B2): the same themerc with the colors mapped
+	# to the light palette (tasarim-dili.md table); Settings changes the
+	# theme name in rc.xml and calls openbox --reconfigure.
 	install -d $(DEST)/usr/share/themes/Kavis-Light/openbox-3
 	sed -e 's/#17222C/#FFFFFF/g' -e 's/#121C26/#E9EDF1/g' \
 	    -e 's/#233A45/#D5DBE1/g' -e 's/#E6EDF3/#1A2430/g' \
@@ -78,51 +81,52 @@ override_dh_auto_install:
 	    > $(DEST)/usr/share/themes/Kavis-Light/openbox-3/themerc
 	install -m644 src/openbox-3/*.xbm \
 	    $(DEST)/usr/share/themes/Kavis-Light/openbox-3/
-	# İnce başlık düğmesi ikonları (sonraki-isler 3): — ☐ ✕ ve geri
-	# yükleme; openbox bunları tema dizininden adla bulur.
+	# Thin title-button icons (sonraki-isler 3): — ☐ ✕ and restore;
+	# openbox finds them by name in the theme directory.
 	install -m644 src/openbox-3/*.xbm      $(THEME)/openbox-3/
 	install -m644 src/index.theme          $(THEME)/index.theme
 
-	# --- Sistem geneli varsayılanlar ---------------------------------
+	# --- System-wide defaults -------------------------------------------
 	install -d $(DEST)/etc/gtk-3.0 $(DEST)/etc/gtk-2.0
 	install -m644 src/settings.ini $(DEST)/etc/gtk-3.0/settings.ini
-	# Nemo varsayılanları (madde 39): gsettings override — kod yaması
-	# yok. glib'in dpkg trigger'ı şemaları kendisi derler; postinst'te
-	# emniyet kemeri de var.
+	# Nemo defaults (madde 39): gsettings override — no code patch.
+	# glib's dpkg trigger compiles the schemas itself; postinst has a
+	# safeguard too.
 	install -d $(DEST)/usr/share/glib-2.0/schemas
 	install -m644 src/glib-2.0/zz-kavis.gschema.override \
 		$(DEST)/usr/share/glib-2.0/schemas/zz-kavis.gschema.override
 
-	# Sistem sesleri (sonraki-isler 6b): depoya blob girmez — betik
-	# derlemede sentezler (saf stdlib sinüs, lisanssız). freedesktop
-	# ses teması adları: GTK uygulamaları da kendiliğinden kullanır.
+	# System sounds (sonraki-isler 6b): no blob enters the repo — the
+	# script synthesizes them at build (pure stdlib sine, no license).
+	# freedesktop sound theme names: GTK apps use them by themselves.
 	install -d $(DEST)/usr/share/sounds/kavis/stereo
-	python3 ../../tools/gen-sistem-sesleri.py \
+	python3 ../../tools/gen-system-sounds.py \
 		$(DEST)/usr/share/sounds/kavis/stereo
 	printf '[Sound Theme]\nName=Kavis\nDirectories=stereo\n\n[stereo]\nOutputProfile=stereo\n' \
 		> $(DEST)/usr/share/sounds/kavis/index.theme
 	printf 'gtk-theme-name="Kavis"\ngtk-icon-theme-name="Kavis"\ngtk-font-name="DejaVu Sans 10"\n' \
 		> $(DEST)/etc/gtk-2.0/gtkrc
 
-	# --- Logolar ------------------------------------------------------
-	# Uygulamalar (panel, hakkında) logoyu sabit yoldan, temaya göre
-	# seçerek okuyor. Dosya adları assets/ altındakilerle birebir aynı.
+	# --- Logos ------------------------------------------------------------
+	# Applications (panel, about) read the logo from a fixed path,
+	# choosing by theme. The file names are identical to those under
+	# assets/.
 	install -d $(SHARE)/logo
-	install -m644 $(LOGO_KOYU) $(SHARE)/logo/koyu-k-logo.svg
-	install -m644 $(LOGO_ACIK) $(SHARE)/logo/acik-k-logo.svg
-	# GRUB arka planı: her zaman koyu logo, düz zemin (madde 1).
-	# 9600-grub-marka.hook.binary bunu ISO'daki GRUB'a kopyalıyor.
-	python3 tools/gen-wallpapers.py --grub $(SHARE)/logo/grub-arkaplan.png
-	# GRUB gfxmenu tema varlıkları (test8 H1): seçili girdinin turkuaz
-	# yuvarlak kutusu (9 dilim) + sınıf ikonları; 9600 hook'u kopyalar.
-	python3 tools/gen-grub-tema.py $(SHARE)/logo/grub-tema
+	install -m644 $(LOGO_DARK) $(SHARE)/logo/koyu-k-logo.svg
+	install -m644 $(LOGO_LIGHT) $(SHARE)/logo/acik-k-logo.svg
+	# GRUB background: always the dark logo, flat ground (madde 1).
+	# 9600-grub-branding.hook.binary copies it into the ISO's GRUB.
+	python3 tools/gen-wallpapers.py --grub $(SHARE)/logo/grub-background.png
+	# GRUB gfxmenu theme assets (test8 H1): the teal rounded box of the
+	# selected entry (9 slices) + class icons; the 9600 hook copies them.
+	python3 tools/gen-grub-theme.py $(SHARE)/logo/grub-theme
 
-	# --- Simge teması --------------------------------------------------
+	# --- Icon theme -------------------------------------------------------
 	install -d $(ICONS)/scalable/apps
-	install -m644 $(LOGO_KOYU) $(ICONS)/scalable/apps/kavis.svg
+	install -m644 $(LOGO_DARK) $(ICONS)/scalable/apps/kavis.svg
 	set -e; for s in $(ICON_SIZES); do \
 		install -d $(ICONS)/$${s}x$${s}/apps; \
-		rsvg-convert -w $$s -h $$s -o $(ICONS)/$${s}x$${s}/apps/kavis.png $(LOGO_KOYU); \
+		rsvg-convert -w $$s -h $$s -o $(ICONS)/$${s}x$${s}/apps/kavis.png $(LOGO_DARK); \
 	done
 	set -e; for a in $(ICON_ALIASES); do \
 		ln -sf kavis.svg $(ICONS)/scalable/apps/$$a.svg; \
@@ -133,7 +137,7 @@ override_dh_auto_install:
 	{ \
 		echo "[Icon Theme]"; \
 		echo "Name=Kavis"; \
-		echo "Comment=Kavis simgeleri"; \
+		echo "Comment=Kavis icons"; \
 		echo "Inherits=Papirus-Dark,Adwaita,hicolor"; \
 		printf "Directories=scalable/apps"; \
 		for s in $(ICON_SIZES); do printf ",%sx%s/apps" $$s $$s; done; \
@@ -149,19 +153,19 @@ override_dh_auto_install:
 		done; \
 	} > $(ICONS)/index.theme
 
-	# --- İmleç teması ---------------------------------------------------
+	# --- Cursor theme -----------------------------------------------------
 	install -d $(CURSORS)/cursors
 	python3 tools/gen-cursors.py $(CURSORS)/cursors
-	printf '[Icon Theme]\nName=Kavis\nComment=Kavis imleçleri\nInherits=Adwaita\n' \
+	printf '[Icon Theme]\nName=Kavis\nComment=Kavis cursors\nInherits=Adwaita\n' \
 		> $(CURSORS)/index.theme
 	cp $(CURSORS)/index.theme $(CURSORS)/cursor.theme
 
-	# --- Duvar kağıtları -------------------------------------------------
+	# --- Wallpapers -------------------------------------------------------
 	install -d $(WALL)
 	python3 tools/gen-wallpapers.py $(WALL)
 
-	# --- Dağıtım kimliği -------------------------------------------------
-	# /etc/os-release, /usr/lib/os-release'e bağ. Dosyayı base-files'tan
-	# dpkg-divert ile devralıyoruz (bkz. debian/preinst).
+	# --- Distribution identity --------------------------------------------
+	# /etc/os-release is a link to /usr/lib/os-release. We take the file
+	# over from base-files with dpkg-divert (see debian/preinst).
 	install -d $(DEST)/usr/lib
 	install -m644 src/os-release $(DEST)/usr/lib/os-release

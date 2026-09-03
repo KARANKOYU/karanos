@@ -24,8 +24,9 @@ namespace Kavis.Ui {
         private const int GAP = 8;
 
         private const string CSS = """
-        /* Tasarım dili (test8 J): popup 12px köşe, iç kenar 16px,
-           öğe arası 8px; düğme köşesi 8px (docs/tasarim-dili.md). */
+        /* Design language (test8 J): popup 12px corners, 16px inner
+           padding, 8px between items; button corners 8px
+           (docs/tasarim-dili.md). */
         .kavis-popup {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
@@ -42,8 +43,8 @@ namespace Kavis.Ui {
         .kavis-popup label.dim {
           color: @kavis_text2;
         }
-        /* Hover kuralı (sonraki-isler 1): panelle AYNI — beyaz %9,
-           basılıyken %14, 140 ms; dinlenmede kenarlık yok. */
+        /* Hover rule (sonraki-isler 1): SAME as the panel — white 9%,
+           14% while pressed, 140 ms; no border at rest. */
         .kavis-popup button {
           background-image: none;
           background-color: transparent;
@@ -59,7 +60,7 @@ namespace Kavis.Ui {
         .kavis-popup button:active {
           background-color: @kavis_overlay_press;
         }
-        /* Takvim (saat popup'ı): koyu zemin, bugünün günü turkuaz. */
+        /* Calendar (clock popup): dark background, today's day in teal. */
         .kavis-popup calendar {
           background-color: @kavis_surface;
           color: @kavis_text;
@@ -74,10 +75,10 @@ namespace Kavis.Ui {
         .kavis-popup calendar:indeterminate {
           color: @kavis_text3;
         }
-        /* Hızlı ayar kutucukları (test8 B4): 1px kenarlık, 10px köşe,
-           ~56px yükseklik, etiket kutucuğun ALTINDA; açıkken turkuaz
-           DOLGU ve koyu ikon (marka kuralı). Bölünmüş kutucukta ince
-           dikey çizgi, iki parça ayrı hover. */
+        /* Quick-setting tiles (test8 B4): 1px border, 10px corners,
+           ~56px height, label BELOW the tile; when on, teal FILL and a
+           dark icon (brand rule). A split tile has a thin vertical
+           line, the two halves hover separately. */
         .kavis-popup .setting-tile {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
@@ -92,7 +93,7 @@ namespace Kavis.Ui {
           border-left: 1px solid @kavis_border;
           border-radius: 0 9px 9px 0;
         }
-        /* Kaydırıcılar (B4): 6px turkuaz dolgu, 14px yuvarlak tutamaç. */
+        /* Sliders (B4): 6px teal fill, 14px round knob. */
         .kavis-popup scale trough {
           min-height: 6px;
           background-color: @kavis_border;
@@ -112,7 +113,7 @@ namespace Kavis.Ui {
           border: none;
           box-shadow: none;
         }
-        /* Alt panellerde belirgin geri düğmesi (B2). */
+        /* Prominent back button in sub-panels (B2). */
         .kavis-popup button.back-button {
           font-weight: bold;
           padding: 8px 14px;
@@ -124,8 +125,9 @@ namespace Kavis.Ui {
         .kavis-popup .setting-tile.on button {
           color: @kavis_on_teal;
         }
-        /* ".kavis-popup label" kuralı etikete doğrudan uygulanır ve
-           kalıtımı ezer — ok işareti koyu kalsın diye açık seçici. */
+        /* The ".kavis-popup label" rule applies directly to the label
+           and overrides inheritance — explicit selector so the arrow
+           stays dark. */
         .kavis-popup .setting-tile.on button label {
           color: @kavis_on_teal;
         }
@@ -137,9 +139,10 @@ namespace Kavis.Ui {
         }
         """;
 
-        /* Panelin konumu (madde 5): popup panelin karşı yanına açılır —
-         * alttaysa üstüne, üstteyse altına, soldaysa sağına... Panel
-         * kurulurken bir kez yazar. */
+        /* Panel position (madde 5): the popup opens on the panel's far
+         * side — above when at the bottom, below when at the top, to
+         * the right when on the left... Written once while the panel
+         * is being set up. */
         public static PanelConfig.Position panel_position =
             PanelConfig.Position.BOTTOM;
 
@@ -154,9 +157,10 @@ namespace Kavis.Ui {
         private static bool css_loaded = false;
 
         protected Gtk.Box content;
-        /* W11 davranışı (Grup D): bildirim merkezi ve hızlı ayarlar
-         * göstergeye değil monitörün sağ kenarına hizalanır. Yatay
-         * panelde geçerli; dikey panelde göstergeye hizalı kalır. */
+        /* W11 behavior (Grup D): the notification center and quick
+         * settings align to the monitor's right edge, not to the
+         * indicator. Applies on a horizontal panel; on a vertical panel
+         * they stay aligned to the indicator. */
         protected bool edge_aligned = false;
         private bool composited;
         private int shadow_margin;
@@ -188,7 +192,7 @@ namespace Kavis.Ui {
             if (!composited) {
                 content.get_style_context ().add_class ("plain");
             }
-            /* J3: iç kenar 16px, öğe arası 8px. */
+            /* J3: 16px inner padding, 8px between items. */
             content.set_border_width (16);
             outer.pack_start (content, true, true, 0);
 
@@ -208,7 +212,7 @@ namespace Kavis.Ui {
                     Gdk.Screen.get_default (), provider,
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             } catch (Error e) {
-                warning ("kavis-panel: popup CSS yuklenemedi: %s", e.message);
+                warning ("kavis-panel: could not load popup CSS: %s", e.message);
             }
         }
 
@@ -291,8 +295,8 @@ namespace Kavis.Ui {
             }
 
             anchor_widget = anchor;
-            /* Popup açıkken çapa göstergenin hover kutusu KALIR —
-             * hangisinin açık olduğu belli olsun (sonraki-isler 1). */
+            /* While the popup is open the anchor indicator's hover box
+             * STAYS — so it is clear which one is open (sonraki-isler 1). */
             anchor.get_style_context ().add_class ("popup-open");
             refresh_content ();
             show_all ();
@@ -353,13 +357,13 @@ namespace Kavis.Ui {
 
             switch (panel_position) {
             case PanelConfig.Position.TOP:
-                /* Altına, göstergeye yatay ortalı. */
+                /* Below, horizontally centered on the indicator. */
                 x = origin_x + alloc.width / 2 - box_width / 2
                     - shadow_margin;
                 y = origin_y + alloc.height + GAP - shadow_margin;
                 break;
             case PanelConfig.Position.LEFT:
-                /* Sağına, göstergeye dikey ortalı. */
+                /* To the right, vertically centered on the indicator. */
                 x = origin_x + alloc.width + GAP - shadow_margin;
                 y = origin_y + alloc.height / 2 - box_height / 2
                     - shadow_margin;
@@ -369,7 +373,7 @@ namespace Kavis.Ui {
                 y = origin_y + alloc.height / 2 - box_height / 2
                     - shadow_margin;
                 break;
-            default:   /* BOTTOM: üstüne, yatay ortalı (ilk davranış). */
+            default:   /* BOTTOM: above, centered horizontally (original). */
                 x = origin_x + alloc.width / 2 - box_width / 2
                     - shadow_margin;
                 y = origin_y - GAP - natural.height + shadow_margin;
@@ -382,7 +386,7 @@ namespace Kavis.Ui {
                 x = area.x + area.width - box_width - GAP - shadow_margin;
             }
 
-            /* Monitör içine kıstır. */
+            /* Clamp inside the monitor. */
             x = int.max (area.x + GAP - shadow_margin,
                          int.min (x, area.x + area.width - box_width
                                   - GAP - shadow_margin));

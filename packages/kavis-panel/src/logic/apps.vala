@@ -8,7 +8,7 @@
 
 namespace Kavis.Apps {
 
-    /* Start-menu groups (3B sadeleşme): only three — everyday apps,
+    /* Start-menu groups (3B simplification): only three — everyday apps,
      * system tools, and our own utilities. The nine-way XDG split
      * scattered a dozen apps into near-empty groups. */
     public const string[] CATEGORY_ORDER = {
@@ -16,7 +16,7 @@ namespace Kavis.Apps {
     };
 
     /* Group display name. "Kavis" carries the product name — which is
-     * NEVER hard-coded (marka kuralı) — so this is a function, not a
+     * NEVER hard-coded (brand rule) — so this is a function, not a
      * const table. */
     public string category_display (string key) {
         switch (key) {
@@ -71,8 +71,8 @@ namespace Kavis.Apps {
         if (id.has_prefix ("kavis-")) {
             return "Kavis";
         }
-        /* F2: araç niteliğinde ama kategorisi Utility olanlar Sistem'e
-         * (Disk Kullanım Çözümleyici, Belge Tarayıcı). */
+        /* F2: tool-like apps whose category is Utility go to System
+         * (Disk Usage Analyzer, Document Scanner). */
         if (id == "org.gnome.baobab.desktop"
             || id == "simple-scan.desktop"
             || id == "org.gnome.SimpleScan.desktop") {
@@ -134,7 +134,7 @@ namespace Kavis.Apps {
     }
 
     /* Group by category, in CATEGORY_ORDER order. Empty categories
-     * are omitted ("Other" kalktı — üç grup her şeyi kapsar). */
+     * are omitted ("Other" is gone — the three groups cover everything). */
     public CategoryGroup[] by_category (GenericArray<App> list) {
         var buckets = new HashTable<string, GenericArray<App>> (
             str_hash, str_equal);

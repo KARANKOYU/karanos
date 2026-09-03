@@ -1,7 +1,7 @@
 /* Appearance page (madde 38). Theme switch is LIVE via xsettingsd;
  * corner radius / animation speed rewrite the user picom config and
  * restart picom; transparency is read by the panel (acrylic class);
- * accent is fixed teal (renk kimliği) — display only.
+ * accent is fixed teal (color identity) — display only.
  */
 
 namespace Kavis.Settings.Pages {
@@ -10,9 +10,9 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        /* Tema: koyu (varsayılan) / açık. "Sistemle uyumlu" KALKTI
-         * (B1): sistem zaten biziz, üçüncü bir kaynak yok. Eski
-         * conf'taki "system" koyuya düşer. */
+        /* Theme: dark (default) / light. "Follow system" was REMOVED
+         * (B1): we are the system, there is no third source. A legacy
+         * "system" in the conf falls back to dark. */
         var theme = new Gtk.ComboBoxText ();
         theme.append ("dark", _("Dark"));
         theme.append ("light", _("Light"));
@@ -25,7 +25,7 @@ namespace Kavis.Settings.Pages {
         body.pack_start (row (_("Theme"),
             _("Dark is the default"), theme), false, false, 0);
 
-        /* Köşe yuvarlaklığı (pencere köşeleri, picom). */
+        /* Corner rounding (window corners, picom). */
         var radius = new Gtk.Scale.with_range (
             Gtk.Orientation.HORIZONTAL, 0, 16, 1);
         radius.set_size_request (180, -1);
@@ -39,9 +39,9 @@ namespace Kavis.Settings.Pages {
         anim.active_id = conf_get_int ("appearance", "animation", 100)
                              .to_string ();
 
-        /* Popup animasyonu (test2 C6): panelin kendi popup'ları
-         * (başlat, hızlı ayarlar, bildirimler, takvim). Süre yukarıdaki
-         * hızdan gelir; picom'daki pencere kuralı Apply.picom yazar. */
+        /* Popup animation (test2 C6): the panel's own popups (start,
+         * quick settings, notifications, calendar). The duration comes
+         * from the speed above; Apply.picom writes the picom window rule. */
         var popup = new Gtk.ComboBoxText ();
         popup.append ("slide", _("Slide up"));
         popup.append ("grow", _("Grow"));
@@ -50,8 +50,8 @@ namespace Kavis.Settings.Pages {
         popup.active_id = conf_get ("appearance", "popup_animation",
                                     "slide");
 
-        /* Üç kontrol tek uygulayıcıyı besler: değerler kavis.conf'a
-         * yazılır, picom kullanıcı kopyasıyla yeniden başlar. */
+        /* Three controls feed one applier: the values are written to
+         * kavis.conf and picom restarts with the user copy. */
         radius.button_release_event.connect (() => {
             apply_picom ((int) radius.get_value (),
                          int.parse (anim.active_id ?? "100"),
@@ -77,7 +77,7 @@ namespace Kavis.Settings.Pages {
             _("Start menu, quick settings and notifications"), popup),
             false, false, 0);
 
-        /* Saydamlık (panel akriliği; canlı — panel kavis.conf izler). */
+        /* Transparency (panel acrylic; live — the panel watches kavis.conf). */
         var transparency = new Gtk.Switch ();
         transparency.active =
             conf_get_bool ("appearance", "transparency", true);
@@ -89,10 +89,10 @@ namespace Kavis.Settings.Pages {
             _("Taskbar and popup translucency (blur needs a GPU backend — design limit)"),
             transparency), false, false, 0);
 
-        /* Duvar kâğıdı (B5): çerçevesiz 8px köşeli küçük resimler,
-         * seçilide 2px turkuaz dış çizgi + sağ üstte onay. B8: küçük
-         * resimler 200px'e ölçeklenir ve pencere çizildikten sonra
-         * boşta yüklenir — açılış RSS'ine girmez. */
+        /* Wallpaper (B5): frameless thumbnails with 8px corners, the
+         * selected one gets a 2px teal outline + a check at top right.
+         * B8: thumbnails are scaled to 200px and loaded on idle after
+         * the window is drawn — they do not enter the startup RSS. */
         body.pack_start (group (_("Wallpaper")), false, false, 0);
         var flow = new Gtk.FlowBox ();
         flow.max_children_per_line = 4;
@@ -105,7 +105,7 @@ namespace Kavis.Settings.Pages {
             return Source.REMOVE;
         });
 
-        /* Vurgu rengi: sabit turkuaz — yalnız gösterim (madde 38). */
+        /* Accent color: fixed teal — display only (madde 38). */
         var swatch = new Gtk.Label ("   ");
         swatch.get_style_context ().add_class ("kavis-accent-swatch");
         body.pack_start (row (_("Accent color"),
@@ -122,10 +122,10 @@ namespace Kavis.Settings.Pages {
             var dir = Dir.open ("/usr/share/backgrounds/kavis");
             string? name;
             while ((name = dir.read_name ()) != null) {
-                /* -onizleme.png: tema paketinin kendi küçük kopyası
-                 * (menü/GRUB önizlemesi) — listede ikinci kez çıkmasın. */
+                /* -preview.png: the theme package's own thumbnail
+                 * (menu/GRUB preview) — must not appear twice in the list. */
                 if ((!name.has_suffix (".png") && !name.has_suffix (".jpg"))
-                    || name.contains ("-onizleme")) {
+                    || name.contains ("-preview")) {
                     continue;
                 }
                 string path = "/usr/share/backgrounds/kavis/" + name;
@@ -199,7 +199,7 @@ namespace Kavis.Settings.Pages {
                 cr.set_source_rgb (0x2D / 255.0, 0xD4 / 255.0,
                                    0xBF / 255.0);
                 cr.stroke ();
-                /* Onay rozeti: sağ üst, turkuaz daire + koyu tik. */
+                /* Check badge: top right, teal circle + dark tick. */
                 double cx = x + W - 14, cy = y + 14;
                 cr.arc (cx, cy, 9, 0, 2 * Math.PI);
                 cr.fill ();

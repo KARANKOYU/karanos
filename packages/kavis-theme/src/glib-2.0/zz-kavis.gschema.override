@@ -1,47 +1,48 @@
-# Kavis — nemo varsayılanları (madde 39 + test8 F notları).
-# Kod yaması yok: davranış tamamen gsettings override'ıyla veriliyor.
-# zz- öneki: alfabetik sırada en son okunup dağıtım varsayılanlarını
-# ezmesi için.
+# Kavis — nemo defaults (madde 39 + test8 F notes).
+# No code patch: the behavior is given entirely through a gsettings
+# override. The zz- prefix: read last in alphabetical order so it
+# overrides the distribution defaults.
 
 [org.nemo.preferences]
-# Gezgin gibi ayrıntı görünümü varsayılan (F notu).
+# Details view by default, like Explorer (note F).
 default-folder-viewer='list-view'
-# Windows boyutları base-2 (1 KB = 1024 B) gösterir.
+# Windows shows sizes in base-2 (1 KB = 1024 B).
 size-prefixes='base-2'
-# İki ayrı yavaş tıkla yeniden adlandırma — Gezgin davranışı.
+# Rename with two separate slow clicks — Explorer behavior.
 quick-renames-with-pause-in-between=true
-# F2 çoklu seçimde toplu yeniden adlandırma aracı (madde 39; Mint'in
-# bulky'si trixie'de yok, gprename var — bkz. docs/referans/nemo.md).
+# F2 on a multi-selection: bulk rename tool (madde 39; Mint's bulky is
+# not in trixie, gprename is — see docs/referans/nemo.md).
 bulk-rename-tool=b'gprename'
-# 4B: tarih sütunu locale biçiminde — nemo 6.0'ın varsayılanı da bu;
-# panel saatiyle aynı dili konuşması ürün gereği olduğundan üst sürüm
-# değiştirmesin diye açıkça sabitleniyor.
+# 4B: the date column in locale format — nemo 6.0's default too; since
+# speaking the same language as the panel clock is a product
+# requirement, it is pinned explicitly so a later version cannot change it.
 date-format='locale'
 
-# E (v0.4-test1): kenar çubuğundaki "Network" bölümü. nemo'da bölümü
-# gizleyen ayar YOK (nemo-places-sidebar.c add_heading koşulsuz) —
-# yalnız daraltılmış tutulabiliyor; tamamen kaldırmak kaynak yaması
-# ister (ONAY BEKLEYEN).
+# E (v0.4-test1): the "Network" section in the sidebar. nemo has NO
+# setting to hide the section (nemo-places-sidebar.c add_heading is
+# unconditional) — it can only be kept collapsed; removing it entirely
+# needs a source patch (PENDING APPROVAL).
 [org.nemo.window-state]
 network-expanded=false
 
 [org.nemo.list-view]
-# Sütunlar ve sırası: Name / Modified / Type / Size (test8 F).
+# Columns and their order: Name / Modified / Type / Size (test8 F).
 default-visible-columns=['name','date_modified','type','size']
 default-column-order=['name','date_modified','type','size']
 
-# Nemo "terminalde aç" komutunu bu şemadan okuyor (cinnamon-desktop-data
-# nemo'nun bağımlılığı, şema ISO'da var). Varsayılan gnome-terminal
-# kurulu değil; ISO'daki terminal tilix (madde 40).
+# Nemo reads the "open in terminal" command from this schema
+# (cinnamon-desktop-data is a nemo dependency, the schema is on the
+# ISO). The default gnome-terminal is not installed; the terminal on
+# the ISO is tilix (madde 40).
 [org.cinnamon.desktop.default-applications.terminal]
 exec='tilix'
 
-# Tilix varsayılan profili (sabit UUID, tilix kaynağı
-# GSETTINGS_DEFAULT_UUID): Kavis renk kimliği. Ctrl+Shift+C/V zaten
-# tilix varsayılanı. Yazı tipi ayarı arayüzden.
-# 2E: "Configuration Issue Detected" penceresi hiç çıkmasın —
-# vte-2.91.sh kaynağı 0240 hook'uyla /etc/bash.bashrc'e giriyor,
-# uyarı da kapatılıyor (ikisi birden: kemer + pantolon askısı).
+# Tilix default profile (fixed UUID, tilix source
+# GSETTINGS_DEFAULT_UUID): Kavis color identity. Ctrl+Shift+C/V is
+# already the tilix default. Font setting from the UI.
+# 2E: the "Configuration Issue Detected" window must never appear —
+# the vte-2.91.sh source goes into /etc/bash.bashrc via the 0240 hook,
+# and the warning is disabled too (both: belt and suspenders).
 [com.gexperts.Tilix.Settings]
 warn-vte-config-issue=false
 
@@ -51,8 +52,8 @@ background-color='#0D141B'
 foreground-color='#E6EDF3'
 palette=['#121C26','#EF4444','#22C55E','#F59E0B','#4F92F7','#C678DD','#2DD4BF','#E6EDF3','#233A45','#F87171','#4ADE80','#FBBF24','#7EB1F9','#D19BE8','#5EEAD4','#FFFFFF']
 
-# Mousepad (madde 40 metin editörü): koyu renklendirme + satır no.
-# 'oblivion' GtkSourceView'un hazır koyu şeması.
+# Mousepad (madde 40 text editor): dark coloring + line numbers.
+# 'oblivion' is GtkSourceView's ready-made dark scheme.
 [org.xfce.mousepad.preferences.view]
 color-scheme='oblivion'
 show-line-numbers=true

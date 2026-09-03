@@ -43,7 +43,7 @@ namespace Kavis.Settings.Apply {
         try {
             FileUtils.set_contents (path, lines.str);
         } catch (Error e) {
-            warning ("kavis-settings: xsettingsd.conf yazilamadi: %s",
+            warning ("kavis-settings: could not write xsettingsd.conf: %s",
                      e.message);
             return;
         }
@@ -56,8 +56,8 @@ namespace Kavis.Settings.Apply {
         string name = (theme_id == "light") ? "Kavis-Light" : "Kavis";
         xsettings_set ("Net/ThemeName", "\"%s\"".printf (name));
         openbox_theme (name);
-        /* Panel/OSD/menüler kavis.conf'u izler (Theme.install) —
-         * burada ek iş yok; sayfa conf'u zaten yazdı. */
+        /* Panel/OSD/menus watch kavis.conf (Theme.install) — nothing
+         * more to do here; the page already wrote the conf. */
     }
 
     /* Openbox reads only rc.xml: ensure a user copy exists (system
@@ -74,13 +74,13 @@ namespace Kavis.Settings.Apply {
                 FileUtils.get_contents ("/etc/xdg/openbox/rc.xml",
                                         out contents);
             } catch (Error e2) {
-                warning ("kavis-settings: rc.xml yok: %s", e2.message);
+                warning ("kavis-settings: rc.xml missing: %s", e2.message);
                 return;
             }
         }
         try {
-            /* <theme> bloğundaki ilk <name> tema adıdır (0200 hook'u
-             * ile aynı varsayım). */
+            /* The first <name> in the <theme> block is the theme name
+             * (same assumption as the 0200 hook). */
             var re = new Regex ("(<theme>\\s*<name>)[^<]*(</name>)",
                                 RegexCompileFlags.DOTALL);
             contents = re.replace (contents, -1, 0,
@@ -92,7 +92,7 @@ namespace Kavis.Settings.Apply {
         try {
             FileUtils.set_contents (user_rc, contents);
         } catch (Error e) {
-            warning ("kavis-settings: rc.xml yazilamadi: %s", e.message);
+            warning ("kavis-settings: could not write rc.xml: %s", e.message);
             return;
         }
         Run.fire ({ "openbox", "--reconfigure" });
@@ -111,18 +111,18 @@ namespace Kavis.Settings.Apply {
         try {
             FileUtils.set_contents (Path.build_filename (dir, "locale"),
                 "LANG=%s\nLANGUAGE=%s\n".printf (locale, code));
-            /* Debian Xsession ~/.xsessionrc'yi kaynaklar: bir sonraki
-             * oturumda X altındaki HER süreç aynı dili görür. */
+            /* Debian's Xsession sources ~/.xsessionrc: in the next
+             * session EVERY process under X sees the same language. */
             FileUtils.set_contents (
                 Path.build_filename (Environment.get_home_dir (),
                                      ".xsessionrc"),
-                "# Kavis Ayarlar > Dil yazdı.\nexport LANG=%s\nexport LANGUAGE=%s\n"
+                "# Written by Kavis Settings > Language.\nexport LANG=%s\nexport LANGUAGE=%s\n"
                     .printf (locale, code));
         } catch (Error e) {
-            warning ("kavis-settings: dil dosyalari yazilamadi: %s",
+            warning ("kavis-settings: could not write language files: %s",
                      e.message);
         }
-        /* Root kısmı arka planda; bitince bildirim. */
+        /* The root part runs in the background; notification when done. */
         Run.fire ({ "sh", "-c",
             "pkexec /usr/lib/kavis/set-locale '" + locale + "'; "
             + "gdbus call --session --dest org.freedesktop.Notifications "
@@ -132,7 +132,7 @@ namespace Kavis.Settings.Apply {
             + "\"" + _("Language changed") + "\" "
             + "\"" + _("Sign out and back in for the change to take full effect.") + "\" "
             + "'[]' '{}' 8000 >/dev/null 2>&1" });
-        /* Kendini yeni dille yeniden aç (klavye bölümünde). */
+        /* Re-open itself in the new language (on the keyboard section). */
         Environment.set_variable ("LANG", locale, true);
         Environment.set_variable ("LANGUAGE", code, true);
         Posix.execvp ("kavis-settings", { "kavis-settings", "keyboard" });
@@ -159,7 +159,7 @@ namespace Kavis.Settings.Apply {
      * copy). anim_factor: 0 = off, else duration multiplier ×100.
      * popup (C6): "slide" | "grow" | "fade" | "none" — animation of
      * the panel's own popups, written as a picom window rule between
-     * the popup-animasyon-basi/-sonu markers; the slide direction
+     * the popup-animation-begin/-sonu markers; the slide direction
      * follows the taskbar position ("bottom" → slides up). */
     public void picom (int radius, int anim_factor, string popup,
                        string position) {
@@ -168,7 +168,7 @@ namespace Kavis.Settings.Apply {
             FileUtils.get_contents ("/etc/xdg/picom-kavis.conf",
                                     out template);
         } catch (Error e) {
-            warning ("kavis-settings: picom sablonu yok: %s", e.message);
+            warning ("kavis-settings: picom template missing: %s", e.message);
             return;
         }
         try {
@@ -176,17 +176,18 @@ namespace Kavis.Settings.Apply {
             template = re.replace (template, -1, 0,
                 "corner-radius = %d;".printf (radius));
         } catch (RegexError e) { }
-        /* Popup kuralı önce yazılır ki süre çarpanı ona da uygulansın. */
-        int rb = template.index_of ("# popup-animasyon-basi");
-        int re_ = template.index_of ("# popup-animasyon-sonu");
+        /* The popup rule is written first so the duration multiplier
+         * applies to it as well. */
+        int rb = template.index_of ("# popup-animation-begin");
+        int re_ = template.index_of ("# popup-animation-end");
         if (rb >= 0 && re_ > rb) {
             template = template.substring (0, rb)
-                + "# popup-animasyon-basi\n"
+                + "# popup-animation-begin\n"
                 + popup_rule (anim_factor == 0 ? "none" : popup, position)
                 + "  " + template.substring (re_);
         }
         if (anim_factor == 0) {
-            /* Animasyon kapalı: bloğu boş listeyle değiştir. */
+            /* Animations off: replace the block with an empty list. */
             int start = template.index_of ("animations = (");
             if (start >= 0) {
                 int end = template.index_of (");", start);
@@ -197,8 +198,8 @@ namespace Kavis.Settings.Apply {
                 }
             }
         } else {
-            /* tasarim-dili.md taban süreleri: açılış 0.18, kapanış
-             * 0.12 — çarpanla ölçeklenir. */
+            /* tasarim-dili.md base durations: open 0.18, close 0.12 —
+             * scaled by the multiplier. */
             try {
                 var re = new Regex ("duration = 0\\.18;");
                 template = re.replace (template, -1, 0,
@@ -215,23 +216,23 @@ namespace Kavis.Settings.Apply {
         try {
             FileUtils.set_contents (user_conf, template);
         } catch (Error e) {
-            warning ("kavis-settings: picom.conf yazilamadi: %s",
+            warning ("kavis-settings: could not write picom.conf: %s",
                      e.message);
             return;
         }
-        /* B3: canlı uygulama. D-Bus opts_set corner_radius'u
-         * KAPSAMIYOR (picom dbus.c: yalnız fade/vsync/unredir), o yüzden
-         * belgeli yol SIGUSR1: picom kendini yeniden başlatır, aynı
-         * süreç conf'u tekrar okur — süreç ölmediği için 300 ms'lik
-         * siyah kare yok. Yalnız kaydırıcı bırakılınca çağrılır. picom
-         * hiç çalışmıyorsa (VM'de kapatılmış) kullanıcı kopyasıyla
-         * başlatılır. */
-        /* Debug turu (3 Eyl): SIGUSR1 picom'un BAŞLADIĞI dosyayı yeniden
-         * okutur. Oturum kullanıcı kopyası olmadan açıldıysa picom
-         * /etc/xdg şablonuyla çalışıyordur ve sinyal hiçbir şeyi
-         * değiştirmez (VM'de görüldü). O durumda bir kez kullanıcı
-         * kopyasıyla yeniden başlatılır (~300 ms siyah kare, oturumda
-         * tek sefer); sonraki değişiklikler yine sinyalle. */
+        /* B3: live apply. D-Bus opts_set does NOT cover corner_radius
+         * (picom dbus.c: only fade/vsync/unredir), so the documented
+         * path is SIGUSR1: picom restarts itself, the same process
+         * re-reads the conf — no 300 ms black frame since the process
+         * never dies. Called only when the slider is released. If picom
+         * is not running at all (disabled in a VM) it is started with
+         * the user copy. */
+        /* Debug round (3 Sep): SIGUSR1 re-reads the file picom was
+         * STARTED with. If the session began without a user copy, picom
+         * is running with the /etc/xdg template and the signal changes
+         * nothing (seen in a VM). In that case it is restarted once with
+         * the user copy (~300 ms black frame, once per session); later
+         * changes go through the signal again. */
         Run.fire ({ "sh", "-c",
             "pid=$(pgrep -x picom | head -1); "
             + "if [ -n \"$pid\" ] && tr '\\0' ' ' < /proc/$pid/cmdline | grep -qF '"
@@ -281,8 +282,8 @@ namespace Kavis.Settings.Apply {
             + "  }\n";
     }
 
-    /* Keyboard layout: one GLOBAL layout, no per-window groups (2F
-     * kararı, ayarlar.md taraması). */
+    /* Keyboard layout: one GLOBAL layout, no per-window groups (decision
+     * 2F, ayarlar.md survey). */
     public void keyboard_layout (string layout) {
         Run.fire ({ "setxkbmap", layout });
     }

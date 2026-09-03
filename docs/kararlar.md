@@ -230,8 +230,8 @@ panoya.
 
 **Sıra (3 Eyl güncellemesi: selftest hemen başladı, Grup F sonu
 beklenmedi).** CI'ın küçük denetimleri girdi; kavis-selftest çekirdeği
-+ ilk 5 senaryo (tests/ui: 01-acilis, 03-panel, 06-pencere-snap,
-09-ayarlar-tema, 39-gorev-yoneticisi) + run.log/report.json/html
++ ilk 5 senaryo (tests/ui: 01-boot, 03-panel, 06-window-snap,
+09-settings-theme, 39-task-manager) + run.log/report.json/html
 yazıldı; boot-check DESKTOP-READY sonrası `kavis-selftest --all`
 koşturur (SELFTEST-OK/FAIL). Henüz yok: Ayarlar > Sistem "Sistemi test
 et" düğmesi, kayıt modu, docs/test-kapsami.md üretimi, rapor

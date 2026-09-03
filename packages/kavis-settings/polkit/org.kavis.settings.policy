@@ -2,9 +2,9 @@
 <!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
-  <!-- Kavis Ayarlar: sistem dili (B6). Oturumdaki etkin kullanıcı
-       parola girmeden değiştirir — tek kullanıcılı ürün, işlem geri
-       alınabilir ve veri kaybettirmez. -->
+  <!-- Kavis Settings: system language (B6). The active session user
+       changes it without a password — single-user product, the action
+       is reversible and loses no data. -->
   <action id="org.kavis.settings.set-locale">
     <description>Change the system language</description>
     <message>Authentication is required to change the system language</message>

@@ -1,7 +1,7 @@
 /* Display page (madde 10): real modes from xrandr, scale via
  * xsettingsd Xft/DPI, night light via xsct. A resolution change asks
  * for confirmation with a 15 s countdown and reverts on timeout —
- * yanlış mod siyah ekran bırakır (ayarlar.md taraması).
+ * a wrong mode leaves a black screen (ayarlar.md survey).
  */
 
 namespace Kavis.Settings.Pages {
@@ -28,7 +28,7 @@ namespace Kavis.Settings.Pages {
             if (active_index >= 0) {
                 combo.active_id = active_index.to_string ();
             }
-            /* Kopya al: closure döngü değişkenini tutamaz (tuzak). */
+            /* Take copies: a closure cannot hold the loop variable (pitfall). */
             string output_name = output.name;
             XrandrInfo.Mode[] modes = output.modes;
             int previous = active_index;
@@ -55,7 +55,7 @@ namespace Kavis.Settings.Pages {
                 false, false, 0);
         }
 
-        /* Ölçek: Xft/DPI (xsettingsd) — GTK uygulamaları canlı alır. */
+        /* Scale: Xft/DPI (xsettingsd) — GTK apps pick it up live. */
         var scale = new Gtk.ComboBoxText ();
         scale.append ("100", "%100");
         scale.append ("125", "%125");
@@ -71,9 +71,9 @@ namespace Kavis.Settings.Pages {
         body.pack_start (row (_("Scale"),
             _("Text and interface size"), scale), false, false, 0);
 
-        /* Parlaklık (3C): hızlı ayarlar kaydırıcısıyla AYNI veri —
-         * ortak Brightness backend'i kavis.conf [display] brightness
-         * yazar; donanım yoksa xrandr yazılım kipi. */
+        /* Brightness (3C): the SAME data as the quick-settings slider —
+         * the shared Brightness backend writes kavis.conf [display]
+         * brightness; without hardware, xrandr software mode. */
         var bright = new Gtk.Scale.with_range (
             Gtk.Orientation.HORIZONTAL, 10, 100, 5);
         bright.set_size_request (200, -1);
@@ -87,7 +87,7 @@ namespace Kavis.Settings.Pages {
             : _("Brightness (software — no backlight hardware)"),
             bright), false, false, 0);
 
-        /* Gece ışığı (xsct). */
+        /* Night light (xsct). */
         var night = new Gtk.Switch ();
         night.active = conf_get_bool ("display", "nightlight", false);
         night.notify["active"].connect (() => {
@@ -116,8 +116,8 @@ namespace Kavis.Settings.Pages {
         timer = Timeout.add_seconds (1, () => {
             remaining--;
             if (remaining <= 0) {
-                /* Kaynak kendini kaldırıyor: aşağıdaki remove geçersiz
-                 * id'ye koşup GLib uyarısı basmasın. */
+                /* The source removes itself: keep the remove below from
+                 * running on a stale id and printing a GLib warning. */
                 timer = 0;
                 dialog.response (Gtk.ResponseType.CANCEL);
                 return Source.REMOVE;

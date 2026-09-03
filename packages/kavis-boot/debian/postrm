@@ -1,7 +1,7 @@
 #!/bin/sh
-# Tema kaldırılınca Plymouth'u Debian'ın varsayılanına döndür; aksi hâlde
-# olmayan bir temaya işaret eden bir yapılandırma kalıyor ve açılışta
-# splash hiç görünmüyor.
+# Return Plymouth to Debian's default when the theme is removed; otherwise
+# a configuration pointing at a nonexistent theme remains and the splash
+# never shows at boot.
 set -e
 
 case "$1" in

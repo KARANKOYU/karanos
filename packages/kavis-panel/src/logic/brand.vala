@@ -44,7 +44,7 @@ namespace Kavis.Brand {
             }
         }
         if (content == null) {
-            warning ("kavis-panel: os-release okunamadi, varsayilan ad kullaniliyor");
+            warning ("kavis-panel: could not read os-release, using the default name");
             return info;
         }
         foreach (unowned string raw_line in content.split ("\n")) {
@@ -82,8 +82,8 @@ namespace Kavis.Brand {
      * a light theme ever becomes selectable. True when in doubt — dark
      * is the product default. */
     private bool is_dark_theme () {
-        /* B2: tek kaynak kavis.conf (Theme.is_light). Eski GTK ayarı
-         * sorgusu prefer-dark hep açık olduğundan hiç açık demiyordu. */
+        /* B2: single source is kavis.conf (Theme.is_light). The old GTK
+         * setting query never said light because prefer-dark was always on. */
         return !Theme.is_light ();
     }
 
@@ -104,7 +104,7 @@ namespace Kavis.Brand {
      * about dialogs — this helper — follow the theme). */
     public string logo_path () {
         unowned string dir =
-            Environment.get_variable ("KAVIS_LOGO_DIZIN") ?? LOGO_DIR;
+            Environment.get_variable ("KAVIS_LOGO_DIR") ?? LOGO_DIR;
         unowned string file = is_dark_theme () ? LOGO_DARK : LOGO_LIGHT;
         return Path.build_filename (dir, file);
     }
@@ -119,7 +119,7 @@ namespace Kavis.Brand {
             var pixbuf = new Gdk.Pixbuf.from_file_at_size (path, size, size);
             return new Gtk.Image.from_pixbuf (pixbuf);
         } catch (Error e) {
-            warning ("kavis-panel: logo yuklenemedi (%s): %s", path, e.message);
+            warning ("kavis-panel: could not load the logo (%s): %s", path, e.message);
             return new Gtk.Image.from_icon_name ("kavis",
                                                  Gtk.IconSize.LARGE_TOOLBAR);
         }

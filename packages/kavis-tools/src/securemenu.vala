@@ -58,9 +58,9 @@ namespace Kavis.Tools {
             set_default_size (area.width, area.height);
             move (area.x, area.y);
 
-            /* Karartma zemini ana çocukta; overlay ÇOCUKLARI o
-             * kutunun altından inmediği için düğme kuralları sınıfı
-             * ayrıca alır (Xvfb'de görüldü). */
+            /* The dimming background is on the main child; since the
+             * overlay CHILDREN do not descend from that box, the button
+             * rules get the class separately (seen on Xvfb). */
             var overlay = new Gtk.Overlay ();
             var backdrop = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             backdrop.get_style_context ().add_class ("kavis-secure");
@@ -68,7 +68,7 @@ namespace Kavis.Tools {
             overlay.add (backdrop);
             add (overlay);
 
-            /* Ortada dikey liste. */
+            /* Vertical list in the center. */
             var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
             column.get_style_context ().add_class ("kavis-secure");
             column.set_halign (Gtk.Align.CENTER);
@@ -81,8 +81,8 @@ namespace Kavis.Tools {
                 "system-log-out-symbolic", _("Sign out"), () => {
                     Power.log_out ();
                 }), false, false, 0);
-            /* "Kullanıcı değiştir": çoklu kullanıcı sistemi (2.0)
-             * gelene kadar çizilmiyor. */
+            /* "Switch user": not drawn until the multi-user system
+             * (2.0) lands. */
             column.pack_start (action_button (
                 "utilities-system-monitor-symbolic", _("Task Manager"),
                 () => {
@@ -94,7 +94,7 @@ namespace Kavis.Tools {
                 }), false, false, 0);
             overlay.add_overlay (column);
 
-            /* Sağ altta güç düğmesi. */
+            /* Power button at the bottom right. */
             var power_button = new Gtk.Button.from_icon_name (
                 "system-shutdown-symbolic", Gtk.IconSize.DIALOG);
             power_button.set_relief (Gtk.ReliefStyle.NONE);
@@ -104,10 +104,10 @@ namespace Kavis.Tools {
             power_button.set_margin_end (32);
             power_button.set_margin_bottom (32);
             power_button.clicked.connect (() => {
-                /* 2D: güç eylemleri TEK bileşen — Alt+F4'ün açtığı
-                 * diyaloğun aynısı ayrı süreçte açılır (bu pencerenin
-                 * yok oluşu ana döngüyü kapattığı için içeriden
-                 * açılamaz). */
+                /* 2D: power actions are ONE component — the same dialog
+                 * Alt+F4 opens is started in a separate process (it
+                 * cannot be opened from inside because this window's
+                 * destruction quits the main loop). */
                 close_menu ();
                 try {
                     Process.spawn_async (null,
@@ -124,7 +124,7 @@ namespace Kavis.Tools {
                 }
                 return false;
             });
-            /* Boş alana tıklamak da kapatır (W11 davranışı). */
+            /* Clicking empty space closes too (W11 behavior). */
             button_press_event.connect (() => {
                 close_menu ();
                 return true;

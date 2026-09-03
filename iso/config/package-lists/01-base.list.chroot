@@ -1,11 +1,12 @@
-# Kavis — sistem temeli
+# Kavis — system base
 #
-# DİKKAT: --apt-recommends false açık. Tavsiye edilen (Recommends) paketler
-# kendiliğinden gelmez. Bir şey eksik kalıyorsa buraya açıkça yazılacak.
+# NOTE: --apt-recommends false is on. Recommended packages do not come by
+# themselves. If something is missing, write it here explicitly.
 
-# --- çekirdek ve canlı sistem ---
-# Çekirdek paketi mimariye göre: live-build'in #if ARCHITECTURES koşulu
-# `lb config --architecture` değerine bakar (çok-mimarili hazırlık kuralı).
+# --- kernel and live system ---
+# The kernel package by architecture: live-build's #if ARCHITECTURES
+# condition looks at the `lb config --architecture` value (multi-arch
+# readiness rule).
 #if ARCHITECTURES amd64
 linux-image-amd64
 #endif
@@ -17,17 +18,17 @@ live-config
 live-config-systemd
 live-tools
 
-# user-setup OLMAZSA CANLI OTURUM AÇILMAZ.
-# live-config canlı kullanıcıyı (karan) /usr/lib/user-setup/user-setup-apply
-# ile oluşturuyor ve bu dosya user-setup paketinden geliyor. live-config onu
-# yalnızca Recommends ile istiyor; Recommends kapalı olduğu için paket
-# gelmiyor, kullanıcı hiç oluşmuyor, lightdm var olmayan kullanıcıya
-# otomatik giriş yapmaya çalışıp boş bir X ekranında kalıyordu — QEMU
-# görüntüsü simsiyah çıkıyordu. 1. ve 2. aşamada fark edilmedi çünkü
-# duman testi bunu yalnızca uyarı sayıyordu.
+# WITHOUT user-setup THE LIVE SESSION DOES NOT OPEN.
+# live-config creates the live user (karan) with
+# /usr/lib/user-setup/user-setup-apply, and that file comes from the
+# user-setup package. live-config wants it only through Recommends; with
+# Recommends off the package did not come, the user was never created,
+# lightdm tried to autologin a non-existent user and sat on an empty X
+# screen — the QEMU frame came out pitch black. Not noticed in stages 1
+# and 2 because the smoke test counted this only as a warning.
 user-setup
 
-# --- init ve oturum altyapısı ---
+# --- init and session infrastructure ---
 systemd-sysv
 systemd-timesyncd
 libpam-systemd
@@ -37,37 +38,38 @@ polkitd
 pkexec
 sudo
 
-# --- önyükleyici (ISO'nun imzalı EFI dosyalarını buradan alır) ---
+# --- bootloader (the ISO takes its signed EFI files from here) ---
 grub-common
 shim-signed
 mtools
 #if ARCHITECTURES amd64
-# BIOS açılışı yalnız x86'da var (grub-pc-bin).
+# BIOS boot exists only on x86 (grub-pc-bin).
 grub-pc-bin
 grub-efi-amd64-bin
 grub-efi-amd64-signed
 #endif
 #if ARCHITECTURES arm64
-# Denenmedi: arm64 ISO'su ilk kez üretilirken doğrulanacak.
+# Untested: to be verified when the arm64 ISO is first produced.
 grub-efi-arm64-bin
 grub-efi-arm64-signed
 #endif
 
-# --- RAM testi (madde 30 F3 + madde 50) ---
-# memtest86+ x86'ya özgü (MİMARİ kuralı): arm64'te paket de menü
-# girdisi de yok. GRUB girdilerini 9601 hook'u yazar; lb'nin kendi
-# --memtest entegrasyonu kullanılmıyor (auto/config'de none).
+# --- RAM test (item 30 F3 + item 50) ---
+# memtest86+ is x86-specific (ARCHITECTURE rule): on arm64 there is
+# neither the package nor the menu entry. The 9601 hook writes the GRUB
+# entries; lb's own --memtest integration is not used (none in
+# auto/config).
 #if ARCHITECTURES amd64
 memtest86+
 #endif
 
-# --- yerelleştirme ---
+# --- localization ---
 locales
 console-setup
 keyboard-configuration
 tzdata
 
-# --- ağ ---
+# --- network ---
 network-manager
 wpasupplicant
 wireless-regdb
@@ -75,7 +77,7 @@ iw
 iproute2
 ca-certificates
 
-# --- dosya sistemleri (btrfs kök + FAT32 EFI + NTFS okuma/yazma) ---
+# --- file systems (btrfs root + FAT32 EFI + NTFS read/write) ---
 btrfs-progs
 dosfstools
 e2fsprogs
@@ -84,17 +86,18 @@ util-linux
 parted
 gdisk
 
-# --- donanım bilgisi (Ayarlar > Sistem ve kurulum ön kontrolü kullanacak) ---
+# --- hardware information (Settings > System and the install pre-check will use these) ---
 pciutils
 usbutils
 dmidecode
 
-# --- güvenlik ve dayanıklılık (madde 8) ---
-# RAM tükenmeden en obur süreci öldürür; ayarları /etc/default/earlyoom.
-# Debian paketi servisi kurulumda kendiliğinden etkinleştirir.
+# --- security and resilience (item 8) ---
+# Kills the hungriest process before RAM runs out; settings in
+# /etc/default/earlyoom. The Debian package enables the service by
+# itself on installation.
 earlyoom
 
-# --- temel komut satırı ---
+# --- basic command line ---
 procps
 bash-completion
 less

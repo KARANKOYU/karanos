@@ -5,13 +5,13 @@ Source: https://github.com/KARANKOYU/karanos
 Files: *
 Copyright: 2026 Karan
 License: GPL-3.0+
- Bu program özgür yazılımdır; Free Software Foundation tarafından
- yayımlanan GNU Genel Kamu Lisansı'nın 3. sürümü ya da (tercihinize
- bağlı olarak) daha sonraki bir sürümü koşulları altında yeniden
- dağıtabilir ve/veya değiştirebilirsiniz.
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or (at
+ your option) any later version.
  .
- Bu program faydalı olacağı umuduyla dağıtılmaktadır, ancak HİÇBİR
- GARANTİ VERİLMEZ.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY.
  .
- GNU Genel Kamu Lisansı'nın tam metni Debian sistemlerinde
- /usr/share/common-licenses/GPL-3 dosyasındadır.
+ The full text of the GNU General Public License is in
+ /usr/share/common-licenses/GPL-3 on Debian systems.

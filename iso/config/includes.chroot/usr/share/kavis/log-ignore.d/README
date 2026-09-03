@@ -1,15 +1,16 @@
-# Kavis — günlük tarama istisnaları (madde 62)
+# Kavis — log scan exceptions (item 62)
 #
-# Bu dizindeki *.list dosyaları, sistem günlüğünü tarayan araçların
-# (sistem sağlığı — madde 49, sorun giderici — madde 32) HATA SAYMAMASI
-# gereken satır desenlerini tutar. Amaç: hypervisor/donanım taklidi
-# kaynaklı, zararsız olduğu DOĞRULANMIŞ gürültünün kullanıcıya "sistem
-# hatası" diye gösterilmemesi.
+# The *.list files in this directory hold the line patterns that the
+# tools scanning the system log (system health — item 49, troubleshooter
+# — item 32) must NOT count as errors. Purpose: noise caused by the
+# hypervisor/hardware emulation, VERIFIED harmless, is not shown to the
+# user as a "system error".
 #
-# Biçim: satır başına bir POSIX genişletilmiş düzenli ifade (grep -E).
-# '#' ile başlayan satırlar ve boş satırlar yok sayılır. Desen, günlük
-# satırının HERHANGİ bir yerinde eşleşirse satır bilinen-uyarı sayılır.
+# Format: one POSIX extended regular expression per line (grep -E). Lines
+# starting with '#' and empty lines are ignored. If the pattern matches
+# ANYWHERE in the log line, the line counts as a known warning.
 #
-# KURAL: Buraya desen eklemek için uyarının zararsızlığı gözlemle
-# doğrulanmış ve gerekçesi yazılmış olmalı — "gürültü çok" diye toptan
-# eklenmez. Her desenin yanına neden zararsız olduğu yazılır.
+# RULE: to add a pattern here, the warning's harmlessness must be
+# verified by observation and the reason written down — nothing is added
+# wholesale because "there is too much noise". Next to every pattern,
+# write why it is harmless.

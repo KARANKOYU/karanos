@@ -12,9 +12,10 @@ namespace Kavis.Ui {
 
     public class Panel : Gtk.Window {
 
-        /* Historical default (madde 5 öncesi tek değer). Dış araçlar
-         * (CI saat denetimi) varsayılan alt/44 düzenine göre bakar;
-         * gerçek kalınlık artık config.thickness'ten gelir. */
+        /* Historical default (the single value before madde 5).
+         * External tools (the CI clock check) look at the default
+         * bottom/44 layout; the real thickness now comes from
+         * config.thickness. */
         public const int HEIGHT = 44;
         /* Window buttons shrink between these bounds before the list
          * starts scrolling (stage 2 rule: the right region is never
@@ -34,11 +35,12 @@ namespace Kavis.Ui {
         private const int UNDERLINE_HEIGHT = 3;
 
         private const string CSS = """
-        /* Akrilik (madde 4): kompozitör varken panel hafif saydam —
-           duvar kâğıdı alttan sezilir. Blur bilinçli olarak YOK:
-           xrender'da çalışmıyor (Grup B kararı), madde 38 gerçek
-           GPU'da picom blur'unu değerlendirecek; saydamlık o güne
-           kadarki 'akrilik' payı. Kompozitörsüz düz renge dönülür. */
+        /* Acrylic (madde 4): with a compositor the panel is slightly
+           translucent — the wallpaper shows through. Blur is
+           deliberately ABSENT: it does not work on xrender (Grup B
+           decision); madde 38 will evaluate picom blur on a real GPU,
+           translucency is the 'acrylic' share until then. Without a
+           compositor the panel falls back to a solid color. */
         .kavis-panel.acrylic {
           background-color: @kavis_panel_acrylic;
           border-top: 1px solid @kavis_border_acrylic;
@@ -47,14 +49,14 @@ namespace Kavis.Ui {
           background-color: @kavis_panel;
           border-top: 1px solid @kavis_border;
         }
-        /* Hover kuralı (sonraki-isler 1): panelde tıklanabilir her
-           şey aynı kutu — beyaz %9, basılıyken %14, 6px köşe, 140 ms;
-           dinlenmede kenarlık yok. Düğmeler panel yüksekliğinin
-           tamamını kaplamayı sürdürüyor (kenar boşluğu verilmedi):
-           ekranın en alt pikseline tıklama çalışmalı — Fitts. */
+        /* Hover rule (sonraki-isler 1): everything clickable on the
+           panel gets the same box — white 9%, 14% when pressed, 6px
+           corners, 140 ms; no border at rest. Buttons still cover the
+           full panel height (no margin given): clicking the bottom-most
+           pixel of the screen must work — Fitts. */
         .kavis-panel button {
           border: none;
-          border-radius: 8px;   /* J1: düğme köşesi tek değer */
+          border-radius: 8px;   /* J1: single value for button corners */
           background-image: none;
           background-color: transparent;
           color: @kavis_text;
@@ -67,18 +69,18 @@ namespace Kavis.Ui {
         .kavis-panel button:active {
           background-color: @kavis_overlay_press;
         }
-        /* Açık popup'ı olan gösterge: kutu, popup kapanana dek kalır. */
+        /* Indicator with an open popup: the box stays until it closes. */
         .kavis-panel button.popup-open {
           background-color: @kavis_overlay_hover;
         }
-        /* Etkin öğe (sanal masaüstü düğmeleri): altında turkuaz şerit. */
+        /* Active item (virtual desktop buttons): teal strip underneath. */
         .kavis-panel button.active-item {
           background-color: @kavis_overlay_hover;
           box-shadow: inset 0 -3px @kavis_teal;
         }
-        /* Pencere düğmeleri (Windows 11 tarzı): yalnız ikon; etkin
-           pencerenin göstergesi tam genişlik şerit değil, düğmenin
-           ortasında kısa ince bir çizgi (.underline çocuğu). */
+        /* Window buttons (Windows 11 style): icon only; the active
+           window's marker is not a full-width strip but a short thin
+           line centered in the button (the .underline child). */
         .kavis-panel button.window-item {
           padding: 0 4px;
         }
@@ -89,8 +91,8 @@ namespace Kavis.Ui {
           border-radius: 2px;
           transition: background-color 140ms ease;
         }
-        /* Yuva çizgileri (sonraki-isler 2): etkin turkuaz, çalışan
-           ama etkin olmayan soluk; çalışmayan sabitlide çizgi yok. */
+        /* Slot lines (sonraki-isler 2): active is teal, running but
+           inactive is dim; a pinned app that is not running has none. */
         .kavis-panel .underline.on {
           background-color: @kavis_teal;
         }
@@ -100,9 +102,9 @@ namespace Kavis.Ui {
         .kavis-panel button.start {
           padding: 0 12px;
         }
-        /* C4 (v0.4-test2): tıklama geri bildirimi — 150 ms hover'dan
-           bir ton açık parlama + ikonda hafif küçülme (transition ile
-           geri büyür). */
+        /* C4 (v0.4-test2): click feedback — a 150 ms flash one shade
+           lighter than hover + a slight shrink of the icon (grows back
+           through the transition). */
         .kavis-panel button image {
           transition: -gtk-icon-transform 150ms ease;
         }
@@ -112,8 +114,8 @@ namespace Kavis.Ui {
         .kavis-panel button.flash image {
           -gtk-icon-transform: scale(0.88);
         }
-        /* D2: kaydırıcı değer balonu (hızlı ayarlar), turkuaz üstüne
-           koyu yazı — bindirme çocuğu, yerleşim almaz. */
+        /* D2: slider value bubble (quick settings), dark text on
+           teal — an overlay child, takes no layout space. */
         label.kavis-bubble {
           background-color: @kavis_teal;
           color: @kavis_on_teal;
@@ -121,8 +123,8 @@ namespace Kavis.Ui {
           padding: 0 6px;
           font-size: 90%;
         }
-        /* Masaüstünü göster şeridi: köşede 8 px'lik W11 kalıntısı —
-           yuvarlatma ve iç boşluk almaz. */
+        /* Show-desktop strip: the 8 px W11 remnant in the corner —
+           gets no rounding and no padding. */
         .kavis-panel button.edge {
           border-radius: 0;
           padding: 0;
@@ -135,8 +137,8 @@ namespace Kavis.Ui {
           color: @kavis_text2;
           padding: 0 8px;
         }
-        /* Gösterge düğmeleri (Aşama 4): etiketlerin kendi iç boşluğu
-           var, düğme fazladan genişletmesin. */
+        /* Indicator buttons (stage 4): the labels have their own
+           padding, the button must not widen them further. */
         .kavis-panel button.usb-writing image {
             color: #F59E0B;
         }
@@ -147,9 +149,9 @@ namespace Kavis.Ui {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
         }
-        /* F1 (v0.4-test1): adlar soluktu — açık metin, kategori
-           başlığı ayrı ton, hover satırı %10 örtü. Kontrast koyu
-           temada 13:1 / 6:1. */
+        /* F1 (v0.4-test1): names were dim — light text, category
+           header in its own tone, hover row a 10% overlay. Contrast
+           on the dark theme 13:1 / 6:1. */
         .kavis-start-menu label.app-name {
           color: @kavis_text;
           opacity: 1;
@@ -167,10 +169,11 @@ namespace Kavis.Ui {
         private PanelConfig config;
         private FileMonitor? config_monitor = null;
         private int thickness;
-        /* Arka plan sınıfını taşıyan kök kutu: app_paintable pencerede
-         * GTK pencerenin CSS arka planını ÇİZMEZ (PanelPopup/Overview
-         * deseni) — sınıf pencereye verilince panel VM'de tamamen
-         * saydam çıkıyordu ("duvar kağıdına karışıyor" hatası). */
+        /* Root box carrying the background class: on an app_paintable
+         * window GTK does NOT paint the window's CSS background
+         * (PanelPopup/Overview pattern) — with the class on the window
+         * the panel came out fully transparent in the VM (the "blends
+         * into the wallpaper" bug). */
         private Gtk.Box root_box;
         private StartMenu start_menu;
         private int logged_start_width = 0;
@@ -183,16 +186,16 @@ namespace Kavis.Ui {
         /* Auto-hide state (madde 5). */
         private bool panel_hidden = false;
         private uint hide_timer = 0;
-        /* Bildirim toast'ları (madde 37) — referans yaşasın diye alan. */
+        /* Notification toasts (madde 37) — a field to keep the ref alive. */
         private ToastManager toast_manager;
-        /* Genel bakış (madde 55). */
+        /* Overview (madde 55). */
         private Overview overview;
-        /* Pano geçmişi + ses OSD'si (madde 7). */
+        /* Clipboard history + volume OSD (madde 7). */
         private ClipboardHistory clipboard_history;
-        /* Birleşik "Emoji ve daha fazlası" paneli (sonraki-isler 5):
-         * Win+V pano sekmesi, Win+. son kullanılan sekme. */
+        /* Combined "Emoji and more" panel (sonraki-isler 5): Win+V
+         * opens the clipboard tab, Win+. the last used tab. */
         private PickerPanel picker;
-        /* Snap yerleşim menüsü (sonraki-isler 4, Win+Z). */
+        /* Snap layout menu (sonraki-isler 4, Win+Z). */
         private SnapMenu snap_menu = new SnapMenu ();
         private GenericArray<TaskSlot> slots =
             new GenericArray<TaskSlot> ();
@@ -211,10 +214,10 @@ namespace Kavis.Ui {
             set_keep_above (true);
             stick ();
 
-            /* Akrilik (madde 4): kompozitör varken RGBA görsel + yarı
-             * saydam arka plan; picom yoksa (kurtarma, çökme) düz
-             * renge dönülür. picom panelden SONRA başlayabildiği için
-             * composited-changed dinleniyor. */
+            /* Acrylic (madde 4): with a compositor an RGBA visual +
+             * semi-transparent background; without picom (recovery,
+             * crash) fall back to a solid color. picom may start AFTER
+             * the panel, so composited-changed is listened to. */
             set_app_paintable (true);
             var gdk_screen = get_screen ();
             var rgba_visual = gdk_screen.get_rgba_visual ();
@@ -228,15 +231,15 @@ namespace Kavis.Ui {
 
             config = PanelConfig.get_default ();
             thickness = config.thickness.pixels ();
-            /* Popup'lar panelin karşı yanına açılır. */
+            /* Popups open on the side away from the panel. */
             PanelPopup.panel_position = config.position;
 
-            /* Bildirim altyapısı (madde 37) build()'den ÖNCE: saat
-             * popup'ı kurulurken sunucuya bağlanıyor. */
+            /* Notification infrastructure (madde 37) BEFORE build():
+             * the clock popup connects to the server while being built. */
             Notifications.start ();
             toast_manager = new ToastManager (Notifications.server);
-            /* org.kavis.Panel: openbox kısayolları buraya sesleniyor
-             * (W-Tab genel bakış — madde 55, W-v pano — madde 7). */
+            /* org.kavis.Panel: openbox shortcuts call in here
+             * (W-Tab overview — madde 55, W-v clipboard — madde 7). */
             PanelBus.start ();
 
             screen = Wnck.Screen.get_default ();
@@ -252,7 +255,7 @@ namespace Kavis.Ui {
                     picker.open ("clipboard");
                 });
                 PanelBus.service.start_menu_requested.connect ((search) => {
-                    /* Açıksa kapat, kapalıysa aç (Win tuşu W11 gibi). */
+                    /* Close if open, open if closed (Win key, like W11). */
                     on_start_clicked (start_button);
                 });
                 PanelBus.service.picker_requested.connect ((page) => {
@@ -283,8 +286,8 @@ namespace Kavis.Ui {
             /* Panel drifted after resolution changes without this. */
             Gdk.Screen.get_default ().size_changed.connect (() => place ());
 
-            /* Sağ tık menüsü (madde 5). Düğmeler yalnız sol tıkı
-             * tükettiği için sağ tık pencereye kadar kabarır. */
+            /* Right-click menu (madde 5). Buttons consume only the left
+             * click, so the right click bubbles up to the window. */
             button_press_event.connect ((event) => {
                 if (event.button == 3) {
                     show_context_menu (event);
@@ -293,7 +296,7 @@ namespace Kavis.Ui {
                 return false;
             });
 
-            /* Otomatik gizle: kenardan girince görün, çıkınca sakla. */
+            /* Auto-hide: reveal on entering from the edge, hide on leave. */
             add_events (Gdk.EventMask.ENTER_NOTIFY_MASK
                         | Gdk.EventMask.LEAVE_NOTIFY_MASK);
             enter_notify_event.connect ((event) => {
@@ -312,21 +315,21 @@ namespace Kavis.Ui {
                 schedule_hide ();
             }
 
-            /* Canlı ayar (1A-2): Ayarlar kavis.conf'u yazınca görev
-             * çubuğu kendini tazeler. Yerleşim inşa zamanı sabit
-             * (kutu eksenleri, strut) — yerinde yeniden inşa exec'ten
-             * pahalı ve hataya açık, restart_self zaten var. Panelin
-             * KENDİ save()'i de izleyiciyi tetikler; alanlar zaten
-             * eşit olduğundan döngü oluşmaz. */
+            /* Live settings (1A-2): when Settings writes kavis.conf the
+             * taskbar refreshes itself. The layout is fixed at build
+             * time (box axes, strut) — rebuilding in place is costlier
+             * and more error-prone than exec, and restart_self already
+             * exists. The panel's OWN save() also fires the monitor;
+             * the fields are already equal, so no loop forms. */
             try {
                 current_language = Config.load ()
                     .get_string ("keyboard", "language");
             } catch (Error e) { }
             config_monitor = Config.watch (() => {
                 var fresh = PanelConfig.load ();
-                /* B6: dil değişti → gettext yeniden bağlanmalı; en
-                 * ucuz doğru yol yeniden başlamak (AppInit yeni dili
-                 * ~/.config/kavis/locale'den alır). */
+                /* B6: language changed → gettext must be rebound; the
+                 * cheapest correct way is a restart (AppInit reads the
+                 * new language from ~/.config/kavis/locale). */
                 string lang = "";
                 try {
                     lang = Config.load ().get_string ("keyboard", "language");
@@ -348,7 +351,7 @@ namespace Kavis.Ui {
                     config.autohide = fresh.autohide;
                     restart_self ();
                 } else {
-                    /* Ucuz anahtarlar yerinde uygulanır. */
+                    /* Cheap keys are applied in place. */
                     update_acrylic ();
                 }
             });
@@ -358,8 +361,8 @@ namespace Kavis.Ui {
             if (root_box == null) {
                 return;
             }
-            /* Ayarlar > Görünüm "saydamlık" anahtarı (madde 38):
-             * kapalıysa bileşikleme olsa da düz zemin. */
+            /* Settings > Appearance "transparency" key (madde 38):
+             * when off, a solid background even with compositing. */
             bool wanted = true;
             try {
                 wanted = Config.load ().get_boolean (
@@ -381,14 +384,14 @@ namespace Kavis.Ui {
                     Gdk.Screen.get_default (), provider,
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             } catch (Error e) {
-                warning ("kavis-panel: CSS yuklenemedi: %s", e.message);
+                warning ("kavis-panel: could not load CSS: %s", e.message);
             }
         }
 
         private void build () {
-            /* Dikey konumda (sol/sağ, madde 5) tüm eksen döner: küme
-             * üstte toplanır, göstergeler alta iner, pencere listesi
-             * dikey kayar. */
+            /* In a vertical position (left/right, madde 5) the whole
+             * axis turns: the cluster gathers at the top, indicators
+             * move to the bottom, the window list scrolls vertically. */
             var axis = config.vertical
                 ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL;
             var box = new Gtk.Box (axis, 0);
@@ -404,12 +407,13 @@ namespace Kavis.Ui {
             /* Logo follows the active theme (item 1): dark logo on the
              * dark theme, light on light. The choice lives in Brand —
              * one place. Left-aligned (the Windows 10 default) the
-             * logo carries a "Başlat" label; centered (Windows 11
+             * logo carries a "Start" label; centered (Windows 11
              * option) it is icon-only with the label in the tooltip. */
             bool centered =
                 config.alignment == PanelConfig.Alignment.CENTER;
             start_logo = Brand.logo_image (24);
-            /* B2: tema canlı değişince logo da (koyu/açık K) değişir. */
+            /* B2: when the theme changes live, the logo (dark/light K)
+             * changes with it. */
             Theme.events ().changed.connect ((light) => {
                 Brand.refresh_logo (start_logo, 24);
             });
@@ -420,22 +424,22 @@ namespace Kavis.Ui {
                 var start_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
                 start_row.pack_start (start_logo, false, false, 0);
                 var start_label = new Gtk.Label (_("Start"));
-                /* 4A: uzun dillerde metin KIRPILMAZ — düğme metne göre
-                 * büyür, pencere listesi daralır (update_button_widths
-                 * start_extent'i zaten düşüyor). */
+                /* 4A: in long languages the text is NOT clipped — the
+                 * button grows with the text, the window list shrinks
+                 * (update_button_widths already subtracts start_extent). */
                 start_label.set_ellipsize (Pango.EllipsizeMode.NONE);
                 start_row.pack_start (start_label, false, false, 0);
                 start_button.add (start_row);
-                /* 4A CI denetimi: ETİKET genişliği stderr'e yazılır
-                 * (düğme genişliği logo+padding yüzünden büyümeyi
-                 * sulandırır); iş akışı EN/xx koşularını karşılaştırıp
-                 * I18N-WIDTH-WARN üretir. */
+                /* 4A CI check: the LABEL width is written to stderr
+                 * (the button width would dilute the growth because of
+                 * logo+padding); the workflow compares the EN/xx runs
+                 * and emits I18N-WIDTH-WARN. */
                 start_label.size_allocate.connect ((alloc) => {
                     if (alloc.width != logged_start_width) {
                         logged_start_width = alloc.width;
-                        /* J: xx dolgusundaki '··' taşma değil; gerçek
-                         * kırpma Pango'nun '…' koyup koymadığıdır. */
-                        printerr ("kavis-panel: start-genislik=%d start-kirpik=%d\n",
+                        /* J: the '··' padding of xx is not overflow; real
+                         * clipping is whether Pango inserted '…'. */
+                        printerr ("kavis-panel: start-width=%d start-clipped=%d\n",
                                   alloc.width,
                                   start_label.get_layout ().is_ellipsized () ? 1 : 0);
                     }
@@ -468,12 +472,12 @@ namespace Kavis.Ui {
                 queue_button_width_update ();
             });
 
-            /* --- cluster placement (madde 4 + hizalama seçeneği) --- */
-            /* Sol hizalı (varsayılan, W10): Başlat + pencere listesi
-             * soldan başlar. Ortalı (W11 seçeneği): iki genişleyen
-             * boşluk kümeyi ortalar. Her iki düzende de pencere listesi
-             * doğal genişliğini aşınca kaydırma devreye girer — sağ
-             * bölge asla ezilmez (Aşama 2 kuralı geçerli). */
+            /* --- cluster placement (madde 4 + alignment option) --- */
+            /* Left-aligned (default, W10): Start + window list begin at
+             * the left. Centered (W11 option): two expanding spacers
+             * center the cluster. In both layouts scrolling kicks in
+             * once the window list exceeds its natural width — the
+             * right region is never squeezed (stage 2 rule holds). */
             var cluster = new Gtk.Box (axis, 4);
             cluster.pack_start (start_button, false, false, 0);
             cluster.pack_start (window_scroll, false, false, 0);
@@ -491,10 +495,11 @@ namespace Kavis.Ui {
             /* --- right edge --- */
             /* Packed with expand=false: it always gets exactly its
              * natural width, no matter how crowded the window list is. */
-            /* Sağ bölge grupları (sonraki-isler 1 + test8 A1):
-             * [masaüstleri][dil][araçlar][Wi-Fi+ses+pil][saat] —
-             * yatayda 6px, dikeyde 8px arayla; dikeyde küme alt alta
-             * dizilir, saat yılsız kısa tarih kullanır. */
+            /* Right region groups (sonraki-isler 1 + test8 A1):
+             * [desktops][language][tools][Wi-Fi+volume+battery][clock]
+             * — 6px apart horizontally, 8px vertically; in vertical
+             * mode the cluster stacks and the clock uses a short date
+             * without the year. */
             right_box = new Gtk.Box (axis, config.vertical ? 8 : 6);
             right_box.pack_start (new WorkspaceIndicator (screen, axis),
                                   false, false, 0);
@@ -520,8 +525,8 @@ namespace Kavis.Ui {
             right_box.pack_start (show_desktop, false, false, 0);
 
             box.pack_end (right_box, false, false, 0);
-            /* Sağ bölge genişleyince (gösterge eklenince) pencere
-             * düğmelerinin payı da değişir. */
+            /* When the right region widens (an indicator is added) the
+             * window buttons' share changes too. */
             right_box.size_allocate.connect (() => {
                 queue_button_width_update ();
             });
@@ -613,8 +618,8 @@ namespace Kavis.Ui {
              * bottom_start, bottom_end */
             long[] strut_values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-            /* Otomatik gizlide şerit ayrılmaz: pencereler tüm ekranı
-             * kullanır, panel üstlerine kayarak gelir. */
+            /* With auto-hide no strip is reserved: windows use the
+             * whole screen and the panel slides in over them. */
             if (!config.autohide) {
                 switch (config.position) {
                 case PanelConfig.Position.TOP:
@@ -633,9 +638,9 @@ namespace Kavis.Ui {
                     strut_values[6] = area.y;
                     strut_values[7] = area.y + area.height - 1;
                     break;
-                default:   /* BOTTOM — şerit birleşik ekranın en altına
-                            * kadar uzar (alttaki monitör boşluğunu da
-                            * kapatır). */
+                default:   /* BOTTOM — the strip extends to the very
+                            * bottom of the combined screen (also covers
+                            * the gap of a monitor below). */
                     strut_values[3] = screen_height
                         - (area.y + area.height) + thickness;
                     strut_values[10] = area.x;
@@ -674,8 +679,8 @@ namespace Kavis.Ui {
             int bx = root_x + alloc.x;
             int by = root_y + alloc.y;
 
-            /* Menünün SOL-ÜST köşesi panel konumuna göre (madde 5):
-             * open() mutlak köşe bekler. */
+            /* The menu's TOP-LEFT corner depends on the panel position
+             * (madde 5): open() expects an absolute corner. */
             int x, y;
             switch (config.position) {
             case PanelConfig.Position.TOP:
@@ -695,7 +700,7 @@ namespace Kavis.Ui {
                 y = by - StartMenu.HEIGHT;
                 break;
             }
-            /* Monitör içine kıstır. */
+            /* Clamp into the monitor. */
             Gdk.Rectangle area = pick_monitor ().get_geometry ();
             x = int.max (area.x, int.min (x, area.x + area.width
                                           - StartMenu.WIDTH));
@@ -704,12 +709,13 @@ namespace Kavis.Ui {
             start_menu.open (x, y);
         }
 
-        /* --- görev çubuğu yuvaları (sonraki-isler 2) ------------------ */
-        /* Bir yuva = bir uygulama: soldan sabitliler (pinned.conf
-         * sırası), sağa doğru sabitsiz çalışanlar. Sabitli çalışınca
-         * AYNI ikon pencereye dönüşür; aynı uygulamanın pencereleri
-         * tek ikonda toplanır (altında iki kısa çizgi, tık sırayla
-         * gezer). Eşleşmeyen pencere sınıf adıyla sabitsiz yuva olur. */
+        /* --- taskbar slots (sonraki-isler 2) -------------------------- */
+        /* One slot = one application: pinned ones from the left
+         * (pinned.conf order), unpinned running ones toward the right.
+         * When a pinned app runs the SAME icon becomes its window; the
+         * windows of one app gather in a single icon (two short lines
+         * underneath, clicks cycle through them). An unmatched window
+         * becomes an unpinned slot keyed by its class name. */
         private class TaskSlot {
             public string key;
             public string? desktop_id;
@@ -733,8 +739,9 @@ namespace Kavis.Ui {
             foreach (unowned string id in Pinned.load ()) {
                 if (by_key.lookup (id) != null
                     || AppMatch.info_for (id) == null) {
-                    /* Kurulu olmayan sabitli çizilmez ama listede
-                     * kalır — uygulama gelince ikon belirir. */
+                    /* A pinned app that is not installed is not drawn
+                     * but stays in the list — the icon appears once the
+                     * app arrives. */
                     continue;
                 }
                 var slot = new TaskSlot ();
@@ -784,9 +791,9 @@ namespace Kavis.Ui {
             queue_button_width_update ();
         }
 
-        /* Win+sayı (sonraki-isler 2): soldan N. yuva — çalışmıyorsa
-         * başlat, çalışıyorsa odakla; new_window hep yeni örnek açar.
-         * number 0 = onuncu yuva. */
+        /* Win+digit (sonraki-isler 2): the Nth slot from the left —
+         * launch if not running, focus if running; new_window always
+         * opens a new instance. number 0 = the tenth slot. */
         public void activate_slot_number (int number, bool new_window) {
             int index = (number == 0) ? 9 : number - 1;
             if (index < 0 || index >= slots.length) {
@@ -822,18 +829,19 @@ namespace Kavis.Ui {
          * equal widths, clamped to [MIN_BUTTON_WIDTH, MAX_BUTTON_WIDTH].
          * Below the minimum the ScrolledWindow takes over and scrolls.
          *
-         * Ortalanmış küme (madde 4) sonrası kullanılabilir alan
-         * kaydırıcının tahsisinden OKUNAMAZ: propagate_natural_width
-         * yüzünden tahsis içerik genişliğine eşittir ve hesap kendi
-         * kendini beslerdi (32'de başlayan düğme 32'de kalırdı).
-         * Alan panel geometrisinden türetilir: panel − sağ bölge −
-         * Başlat − küme boşlukları. */
+         * Since the centered cluster (madde 4) the available space
+         * CANNOT be read from the scroller's allocation: because of
+         * propagate_natural_width the allocation equals the content
+         * width and the computation would feed itself (a button that
+         * started at 32 would stay at 32). The space is derived from
+         * the panel geometry: panel − right region − Start − cluster
+         * spacing. */
         private void update_button_widths () {
             uint count = slots.length;
             if (count == 0) {
                 return;
             }
-            /* Dikey panelde aynı hesap yükseklik ekseninde döner. */
+            /* On a vertical panel the same math runs on the height axis. */
             int panel_extent = config.vertical
                 ? get_allocated_height () : get_allocated_width ();
             int right_extent = config.vertical
@@ -843,7 +851,7 @@ namespace Kavis.Ui {
                 ? start_button.get_allocated_height ()
                 : start_button.get_allocated_width ();
             int list_space = panel_extent - right_extent - start_extent
-                - 16;   /* küme iç boşluğu + nefes payı */
+                - 16;   /* cluster spacing + breathing room */
             int available = list_space - (int) (count - 1) * BUTTON_SPACING;
             if (available <= 1) {
                 return;
@@ -879,8 +887,9 @@ namespace Kavis.Ui {
             /* Icon centered, underline strip pinned to the bottom.
              * The strip is always in the layout (empty when the app
              * is not running) so state changes never shift the icon. */
-            /* C3 (v0.4-test2): dikey panelde şerit ikonun SOLUNDA dikey
-             * (W10 dikey görev çubuğu gibi), yatayda altında. */
+            /* C3 (v0.4-test2): on a vertical panel the strip is vertical
+             * and to the LEFT of the icon (like the W10 vertical
+             * taskbar); horizontally it sits below. */
             var column = new Gtk.Box (config.vertical
                 ? Gtk.Orientation.HORIZONTAL : Gtk.Orientation.VERTICAL, 0);
             slot.image = new Gtk.Image ();
@@ -915,11 +924,11 @@ namespace Kavis.Ui {
                 return false;
             });
 
-            /* Sürükle-bırak iki iş görür: sabitli sıralama (yalnız
-             * sabitliler, application/x-kavis-pin) ve İKONA DOSYA
-             * BIRAKMA (6f, text/uri-list — uygulama dosyayı açar).
-             * Dosya kabulü yalnız dosya alabilen uygulamalarda;
-             * diğerinde imleç 'yasak' kalır (drag_motion 0 durumu). */
+            /* Drag-and-drop serves two purposes: pin reordering (pinned
+             * only, application/x-kavis-pin) and DROPPING A FILE ON THE
+             * ICON (6f, text/uri-list — the app opens the file). Files
+             * are accepted only by apps that can take files; otherwise
+             * the cursor stays 'forbidden' (drag_motion status 0). */
             if (slot.pinned) {
                 Gtk.TargetEntry[] pin_source = {
                     { "application/x-kavis-pin",
@@ -951,13 +960,13 @@ namespace Kavis.Ui {
                 }
                 if (has_uri) {
                     if (!slot_accepts_files (target)) {
-                        Gdk.drag_status (ctx, 0, time);   /* yasak */
+                        Gdk.drag_status (ctx, 0, time);   /* forbidden */
                         return true;
                     }
                     Gdk.drag_status (ctx, Gdk.DragAction.COPY, time);
                     return true;
                 }
-                /* Pin sıralaması: yalnız sabitli hedefler. */
+                /* Pin reordering: pinned targets only. */
                 Gdk.drag_status (ctx,
                     target.pinned ? Gdk.DragAction.MOVE : 0, time);
                 return true;
@@ -1009,7 +1018,7 @@ namespace Kavis.Ui {
             slot.image.set_pixel_size (size);
         }
 
-        /* 6f: ikona bırakılan dosyayı bu uygulama açabilir mi? */
+        /* 6f: can this app open a file dropped on its icon? */
         private bool slot_accepts_files (TaskSlot slot) {
             if (slot.desktop_id == null) {
                 return false;
@@ -1031,7 +1040,7 @@ namespace Kavis.Ui {
             try {
                 info.launch_uris (list, null);
             } catch (Error e) {
-                warning ("kavis-panel: dosya acilamadi: %s", e.message);
+                warning ("kavis-panel: could not open file: %s", e.message);
             }
         }
 
@@ -1044,20 +1053,20 @@ namespace Kavis.Ui {
                 return;
             }
             try {
-                /* GDesktopAppInfo %U/%f kodlarını kendisi çözer. */
+                /* GDesktopAppInfo expands the %U/%f codes itself. */
                 info.launch (null, null);
             } catch (Error e) {
-                warning ("kavis-panel: %s baslatilamadi: %s",
+                warning ("kavis-panel: could not launch %s: %s",
                          slot.desktop_id, e.message);
             }
         }
 
-        /* C4: 150 ms'lik parlama sınıfı — tık ve Win+sayı için aynı. */
+        /* C4: the 150 ms flash class — same for click and Win+digit. */
         private void flash (Gtk.Widget widget) {
             widget.get_style_context ().add_class ("flash");
-            /* widget closure'da güçlü tutulur: 150 ms içinde yeniden
-             * kurulan bir slot düğmesi yok olsa da serbest bırakılmış
-             * bir StyleContext'e dokunulmaz. */
+            /* widget is held strongly by the closure: even if a slot
+             * button rebuilt within those 150 ms goes away, a freed
+             * StyleContext is never touched. */
             Timeout.add (150, () => {
                 widget.get_style_context ().remove_class ("flash");
                 return Source.REMOVE;
@@ -1076,7 +1085,7 @@ namespace Kavis.Ui {
                 activate_window (slot.windows[0]);
                 return;
             }
-            /* Çok pencere: tık sırayla gezdirir. */
+            /* Multiple windows: clicks cycle through them. */
             slot.cycle = (slot.cycle + 1) % (int) slot.windows.length;
             unowned Wnck.Window next = slot.windows[slot.cycle];
             uint32 timestamp = Gtk.get_current_event_time ();
@@ -1084,9 +1093,9 @@ namespace Kavis.Ui {
             next.activate (timestamp);
         }
 
-        /* Alt çizgi ve araç ipuçlarını duruma göre tazele: çalışmayan
-         * sabitlide çizgi yok; tek pencere tek çizgi; çok pencere iki
-         * kısa çizgi. Etkinse turkuaz, değilse soluk. */
+        /* Refresh underlines and tooltips by state: a pinned app that
+         * is not running has no line; one window one line; several
+         * windows two short lines. Teal when active, dim otherwise. */
         private void sync_slot_states () {
             unowned Wnck.Window? active_window =
                 screen.get_active_window ();
@@ -1137,7 +1146,7 @@ namespace Kavis.Ui {
             }
         }
 
-        /* --- yuva sağ tık menüsü (sonraki-isler 2) -------------------- */
+        /* --- slot right-click menu (sonraki-isler 2) ------------------ */
 
         private void show_slot_menu (TaskSlot slot, Gdk.EventButton event) {
             var menu = new Gtk.Menu ();
@@ -1146,7 +1155,7 @@ namespace Kavis.Ui {
             if (slot.desktop_id != null) {
                 var info = AppMatch.info_for (slot.desktop_id);
                 if (info != null) {
-                    /* Uygulama adı kalın; tıklayınca yeni pencere. */
+                    /* App name in bold; clicking opens a new window. */
                     var title = new Gtk.MenuItem ();
                     var title_label = new Gtk.Label (null);
                     title_label.set_markup ("<b>%s</b>".printf (
@@ -1156,15 +1165,15 @@ namespace Kavis.Ui {
                     title.activate.connect (() => launch_slot (target));
                     menu.append (title);
 
-                    /* .desktop Actions (varsa). */
+                    /* .desktop Actions (if any). */
                     string[] actions = info.list_actions ();
                     if (actions.length > 0) {
                         menu.append (new Gtk.SeparatorMenuItem ());
                     }
                     foreach (unowned string action in actions) {
-                        /* G2: fiil başa — "Trash" değil "Open Trash";
-                         * eylem adı GLib'ten yerelli gelir, kalıp
-                         * çevrilir (.desktop'a dokunulmaz). */
+                        /* G2: verb first — "Open Trash", not "Trash";
+                         * the action name comes localized from GLib, the
+                         * pattern is translated (.desktop untouched). */
                         var item = new Gtk.MenuItem.with_label (
                             _("Open %s").printf (
                                 info.get_action_name (action)));
@@ -1212,8 +1221,8 @@ namespace Kavis.Ui {
             if (menu.get_children ().length () == 0) {
                 return;
             }
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+            /* Leak guard: the menu is destroyed on close (via Idle,
+             * because activation runs AFTER deactivate). */
             menu.deactivate.connect (() => {
                 Idle.add (() => {
                     menu.destroy ();
@@ -1221,8 +1230,8 @@ namespace Kavis.Ui {
                 });
             });
             menu.show_all ();
-            /* G4: menü tıklanan ikonun ÜSTÜNDE ortalı açılır (panel
-             * alttayken; diğer konumlarda GTK kendisi çevirir). */
+            /* G4: the menu opens centered ABOVE the clicked icon (with
+             * the panel at the bottom; elsewhere GTK flips it itself). */
             menu.popup_at_widget (slot.button,
                 Gdk.Gravity.NORTH, Gdk.Gravity.SOUTH, event);
         }
@@ -1288,12 +1297,12 @@ namespace Kavis.Ui {
             }
         }
 
-        /* --- sağ tık menüsü (madde 5) --------------------------------- */
+        /* --- right-click menu (madde 5) ------------------------------- */
 
         private void show_context_menu (Gdk.EventButton event) {
             var menu = new Gtk.Menu ();
 
-            /* Konum */
+            /* Position */
             var position_item = new Gtk.MenuItem.with_label (
                 _("Position"));
             var position_menu = new Gtk.Menu ();
@@ -1323,7 +1332,7 @@ namespace Kavis.Ui {
             position_item.set_submenu (position_menu);
             menu.append (position_item);
 
-            /* Boyut */
+            /* Size */
             var size_item = new Gtk.MenuItem.with_label (
                 _("Size"));
             var size_menu = new Gtk.Menu ();
@@ -1352,9 +1361,9 @@ namespace Kavis.Ui {
             size_item.set_submenu (size_menu);
             menu.append (size_item);
 
-            /* Hizalama (Grup D düzeltmesi): sol varsayılan, ortalı
-             * seçenek. Yerleşimi build() kurduğu için değişim de
-             * konum/boyut gibi restart_self() ister. */
+            /* Alignment (Grup D fix): left is the default, centered is
+             * the option. Since build() sets up the layout, a change
+             * needs restart_self() just like position/size. */
             var align_item = new Gtk.MenuItem.with_label (
                 _("Alignment"));
             var align_menu = new Gtk.Menu ();
@@ -1382,7 +1391,7 @@ namespace Kavis.Ui {
             align_item.set_submenu (align_menu);
             menu.append (align_item);
 
-            /* Ekran — yalnız birden fazla monitör varsa. */
+            /* Monitor — only when there is more than one. */
             var display = Gdk.Display.get_default ();
             if (display.get_n_monitors () > 1) {
                 var monitor_item = new Gtk.MenuItem.with_label (
@@ -1427,14 +1436,14 @@ namespace Kavis.Ui {
                 menu.append (monitor_item);
             }
 
-            /* Otomatik gizle */
+            /* Auto-hide */
             var autohide_item = new Gtk.CheckMenuItem.with_label (
                 _("Auto-hide"));
             autohide_item.set_active (config.autohide);
             autohide_item.toggled.connect (() => {
                 config.autohide = autohide_item.get_active ();
                 config.save ();
-                place ();   /* şeridi geri ver / kaldır */
+                place ();   /* restore / remove the strip */
                 if (config.autohide) {
                     schedule_hide ();
                 }
@@ -1443,17 +1452,17 @@ namespace Kavis.Ui {
 
             menu.append (new Gtk.SeparatorMenuItem ());
 
-            /* Kısayollar. Hedef uygulama henüz kurulu değilse öğe soluk
-             * kalır — kavis-settings Grup F'de, kavis-tools madde 7'de
-             * geliyor. */
+            /* Shortcuts. If the target app is not installed yet the
+             * item stays greyed out — kavis-settings arrives in Grup F,
+             * kavis-tools in madde 7. */
             menu.append (launcher_item (N_("Display settings"),
                 "kavis-settings", { "kavis-settings", "display" }));
             menu.append (launcher_item (N_("Task Manager"),
                 "kavis-tools", { "kavis-tools", "tasks" }));
 
-            /* Sızıntı önlemi: kapanınca menü yok edilir (aktivasyon
+            /* Leak guard: the menu is destroyed on close (via Idle,
 
-             * deactivate'ten SONRA koştuğu için Idle ile). */
+             * because activation runs AFTER deactivate). */
 
             menu.deactivate.connect (() => {
 
@@ -1485,34 +1494,35 @@ namespace Kavis.Ui {
                     Process.spawn_async (null, command, null,
                         SpawnFlags.SEARCH_PATH, null, null);
                 } catch (Error e) {
-                    warning ("kavis-panel: %s baslatilamadi: %s",
+                    warning ("kavis-panel: could not launch %s: %s",
                              program, e.message);
                 }
             });
             return item;
         }
 
-        /* Konum/boyut değişince panel kendini yeniden başlatır: her
-         * widget'ı canlı döndürmek yerine en hafif ve en sağlam yol —
-         * panel durumsuz, açılışı anlık. exec süreç görüntüsünü yerinde
-         * değiştirir; X bağlantısı CLOEXEC olduğundan eski pencereler
-         * sunucudan düşer. */
+        /* On a position/size change the panel restarts itself: the
+         * lightest and most robust way, rather than rotating every
+         * widget live — the panel is stateless and starts instantly.
+         * exec replaces the process image in place; the X connection
+         * is CLOEXEC, so the old windows drop off the server. */
         private void restart_self () {
             config.save ();
             string[] argv = { "kavis-panel" };
-            /* Gerçek yolu çöz: /proc/self/exe ile exec edilince süreç
-             * adı (comm) "exe" oluyor ve pgrep/pkill -x kavis-panel
-             * (CI, tek örnek denetimleri) paneli göremiyor (B6 testi). */
+            /* Resolve the real path: exec'ing via /proc/self/exe makes
+             * the process name (comm) "exe", and pgrep/pkill -x
+             * kavis-panel (CI, single-instance checks) cannot see the
+             * panel (B6 test). */
             string exe = "/proc/self/exe";
             try {
                 exe = FileUtils.read_link ("/proc/self/exe");
             } catch (FileError e) { }
             Posix.execv (exe, argv);
-            /* exec döndüyse başarısızdır — panelsiz kalma. */
-            warning ("kavis-panel: yeniden baslatilamadi, ayar sonraki acilista gecerli");
+            /* If exec returned it failed — do not end up panel-less. */
+            warning ("kavis-panel: could not restart, the setting applies at next start");
         }
 
-        /* --- otomatik gizle (madde 5) --------------------------------- */
+        /* --- auto-hide (madde 5) -------------------------------------- */
 
         private void reveal_panel () {
             if (hide_timer != 0) {
@@ -1533,8 +1543,8 @@ namespace Kavis.Ui {
             }
             hide_timer = Timeout.add (600, () => {
                 hide_timer = 0;
-                /* Açık popup/menü varken saklanmak onları köksüz
-                 * bırakır. */
+                /* Hiding while a popup/menu is open would leave them
+                 * without a root. */
                 if (PanelPopup.any_open () || start_menu.get_visible ()) {
                     schedule_hide ();
                     return Source.REMOVE;
@@ -1544,7 +1554,7 @@ namespace Kavis.Ui {
             });
         }
 
-        /* 2 px'lik algılama şeridi kalacak şekilde kenara kayar. */
+        /* Slides to the edge, leaving a 2 px detection strip. */
         private void slide_away () {
             if (panel_hidden || !config.autohide) {
                 return;

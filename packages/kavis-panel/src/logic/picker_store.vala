@@ -1,5 +1,5 @@
 /* "Emoji and more" panel stores (business logic — no widget code).
- * Sonraki-isler bölüm 5: recent (mixed last 30 across tabs), starred
+ * Sonraki-isler section 5: recent (mixed last 30 across tabs), starred
  * items, and user snippets.
  *
  * recent / starred: one item per line under ~/.config/kavis/
@@ -40,11 +40,11 @@ namespace Kavis.PickerStore {
             FileUtils.set_contents (path,
                 string.joinv ("\n", lines) + "\n");
         } catch (Error e) {
-            warning ("kavis-panel: %s yazilamadi: %s", name, e.message);
+            warning ("kavis-panel: could not write %s: %s", name, e.message);
         }
     }
 
-    /* --- son kullanılanlar (sekmeler arası karışık) ------------------- */
+    /* --- recently used (mixed across tabs) --------------------------- */
 
     public string[] recent () {
         return read_lines ("picker-recent");
@@ -60,7 +60,7 @@ namespace Kavis.PickerStore {
         write_lines ("picker-recent", updated);
     }
 
-    /* --- sık kullanılanlar (yıldızlananlar) --------------------------- */
+    /* --- favorites (starred) ----------------------------------------- */
 
     public string[] starred () {
         return read_lines ("picker-starred");
@@ -91,7 +91,7 @@ namespace Kavis.PickerStore {
         }
     }
 
-    /* --- kısa metinler (snippets) ------------------------------------- */
+    /* --- short texts (snippets) -------------------------------------- */
 
     public struct Snippet {
         public string id;
@@ -130,9 +130,9 @@ namespace Kavis.PickerStore {
         DirUtils.create_with_parents (Path.get_dirname (path), 0755);
         try {
             FileUtils.set_contents (path, file.to_data ());
-            FileUtils.chmod (path, 0600);   /* IBAN vb. hassas olabilir */
+            FileUtils.chmod (path, 0600);   /* may be sensitive, e.g. IBAN */
         } catch (Error e) {
-            warning ("kavis-panel: snippets.conf yazilamadi: %s",
+            warning ("kavis-panel: could not write snippets.conf: %s",
                      e.message);
         }
     }

@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=Kavis
-Description=Kavis açılış ekranı — görsel %15'ten %100'e parlar, altında "made by Karan"
+Description=Kavis boot splash — the image glows from 15% to 100%, "made by Karan" below
 ModuleName=script
 
 [script]

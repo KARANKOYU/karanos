@@ -1,35 +1,37 @@
 #!/usr/bin/env bash
-# Kavis — ISO duman testi (QEMU)
+# Kavis — ISO smoke test (QEMU)
 #
-# Kullanım:  tools/qemu-smoke-test.sh <iso-dosyasi> [bios|uefi|secureboot]
+# Usage:  tools/qemu-smoke-test.sh <iso-file> [bios|uefi|secureboot]
 #
-# ISO'yu QEMU'da açar, seri konsolu dinler ve /usr/lib/kavis/boot-check
-# script'inin yazdığı "KAVIS-CHECK: RESULT=OK" satırını bekler.
+# Boots the ISO in QEMU, watches the serial console and waits for the
+# "KAVIS-CHECK: RESULT=OK" line written by the /usr/lib/kavis/boot-check
+# script.
 #
-# Bu test GitHub Actions'ta çalışır. Yerelde de çalışır ama Codespaces'te
-# KVM olmadığı için yavaştır (yazılım öykünmesi). Amaç her değişiklikte
-# ISO'yu indirip elle açmak zorunda kalmamak; elle test (VirtualBox, USB)
-# bunun yerine değil, üstüne yapılır.
+# This test runs on GitHub Actions. It also runs locally, but Codespaces
+# has no KVM so it is slow (software emulation). The point is not having
+# to download and boot the ISO by hand after every change; manual testing
+# (VirtualBox, USB) comes on top of it, not instead of it.
 
 set -euo pipefail
 
-ISO="${1:?kullanim: $0 <iso-dosyasi> [bios|uefi|secureboot]}"
+ISO="${1:?usage: $0 <iso-file> [bios|uefi|secureboot]}"
 MODE="${2:-bios}"
 TIMEOUT="${TIMEOUT:-900}"
 
-# Çok-mimarili hazırlık: bu test qemu-system-x86_64 + OVMF'e yazıldı.
-# arm64 desteği istendiğinde qemu-system-aarch64 + AAVMF yolu eklenecek;
-# o güne kadar başka mimaride sessizce (hata vermeden) atlanır.
-MIMARI="${KAVIS_MIMARI:-amd64}"
-if [[ "$MIMARI" != "amd64" ]]; then
-	echo "NOT: duman testi yalnız amd64 için var; $MIMARI atlandı."
+# Multi-arch preparation: this test was written for qemu-system-x86_64 +
+# OVMF. When arm64 support is wanted, a qemu-system-aarch64 + AAVMF path
+# will be added; until then other architectures are skipped silently
+# (without an error).
+ARCH="${KAVIS_ARCH:-amd64}"
+if [[ "$ARCH" != "amd64" ]]; then
+	echo "NOTE: the smoke test exists only for amd64; $ARCH skipped."
 	exit 0
 fi
 
-[[ -f "$ISO" ]] || { echo "HATA: ISO bulunamadi: $ISO" >&2; exit 2; }
+[[ -f "$ISO" ]] || { echo "ERROR: ISO not found: $ISO" >&2; exit 2; }
 
-# Donanım profili (madde 46A): CI farklı RAM/çekirdek/ekran kartı
-# bileşimlerini aynı scriptle dener. Varsayılanlar eski davranışla aynı.
+# Hardware profile (item 46A): CI tries different RAM/CPU/GPU combinations
+# with the same script. The defaults equal the old behaviour.
 RAM_MB="${RAM_MB:-2560}"
 CPUS="${CPUS:-2}"
 VGA="${VGA:-std}"
@@ -41,10 +43,10 @@ SERIAL="$WORKDIR/serial.log"
 MONITOR="$WORKDIR/monitor.sock"
 : > "$SERIAL"
 
-# QEMU'nun ekranini PNG olarak disari al.
-# Bir daha GRUB menusunde takilirsak seri gunlukte hicbir sey olmaz ama
-# ekran goruntusunde ne oldugu net gorunur. Ilk CI koşusunda tam olarak bu
-# sorunu yasadik ve gormek icin ISO'yu elle indirmek zorunda kaldik.
+# Export QEMU's screen as a PNG.
+# If we ever get stuck in the GRUB menu again, the serial log shows
+# nothing, but the screenshot shows clearly what happened. We hit exactly
+# this in the first CI run and had to download the ISO by hand to see it.
 snapshot() {
 	local label="$1"
 	local ppm="$WORKDIR/screen-$label.ppm"
@@ -83,14 +85,14 @@ png = (b'\x89PNG\r\n\x1a\n'
        + chunk(b'IDAT', zlib.compress(rows, 6))
        + chunk(b'IEND', b''))
 open(dst, 'wb').write(png)
-print(f"    ekran goruntusu: {dst} ({w}x{h})")
+print(f"    screenshot: {dst} ({w}x{h})")
 PY
 }
 
 OVMF_DIR="/usr/share/OVMF"
 
-# Asagidaki virguller QEMU parametrelerinin parcasi (audiodev=snd0 gibi),
-# dizi ayraci degil.
+# The commas below are part of the QEMU parameters (audiodev=snd0 etc.),
+# not array separators.
 # shellcheck disable=SC2054
 qemu_args=(
 	-name "kavis-smoke-$MODE"
@@ -106,10 +108,9 @@ qemu_args=(
 	-no-reboot
 	-rtc base=utc
 	-net none
-	# Ses karti: 3. asamadaki acilis muzigi gercek bir ALSA aygiti
-	# ariyor. Backend "none" — ses hicbir yere gitmiyor ama aplay
-	# gercek zamanda calisiyor, yani splash'in muzik boyunca acik
-	# kalmasi da test edilmis oluyor.
+	# Sound card: the stage-3 boot music looks for a real ALSA device.
+	# Backend "none" — the audio goes nowhere, but aplay runs in real
+	# time, so the splash staying up for the whole tune is tested too.
 	-audiodev none,id=snd0
 	-device intel-hda
 	-device hda-duplex,audiodev=snd0
@@ -120,7 +121,7 @@ bios)
 	qemu_args+=(-machine q35)
 	;;
 uefi)
-	[[ -f "$OVMF_DIR/OVMF_CODE_4M.fd" ]] || { echo "HATA: ovmf paketi kurulu degil" >&2; exit 2; }
+	[[ -f "$OVMF_DIR/OVMF_CODE_4M.fd" ]] || { echo "ERROR: the ovmf package is not installed" >&2; exit 2; }
 	cp "$OVMF_DIR/OVMF_VARS_4M.fd" "$WORKDIR/vars.fd"
 	qemu_args+=(
 		-machine q35
@@ -129,9 +130,9 @@ uefi)
 	)
 	;;
 secureboot)
-	[[ -f "$OVMF_DIR/OVMF_CODE_4M.secboot.fd" ]] || { echo "HATA: ovmf secboot dosyasi yok" >&2; exit 2; }
+	[[ -f "$OVMF_DIR/OVMF_CODE_4M.secboot.fd" ]] || { echo "ERROR: ovmf secboot file missing" >&2; exit 2; }
 	cp "$OVMF_DIR/OVMF_VARS_4M.ms.fd" "$WORKDIR/vars.fd"
-	# Asagidaki virguller QEMU parametresinin parcasi, dizi ayraci degil.
+	# The commas below are part of the QEMU parameter, not array separators.
 	# shellcheck disable=SC2054
 	qemu_args+=(
 		-machine "q35,smm=on"
@@ -142,20 +143,20 @@ secureboot)
 	)
 	;;
 *)
-	echo "HATA: bilinmeyen mod '$MODE' (bios|uefi|secureboot)" >&2
+	echo "ERROR: unknown mode '$MODE' (bios|uefi|secureboot)" >&2
 	exit 2
 	;;
 esac
 
-# KVM varsa kullan (gercek donanimda hizli), yoksa yazilim oykunmesi
+# Use KVM if available (fast on real hardware), otherwise software emulation
 if [[ -r /dev/kvm && -w /dev/kvm ]]; then
 	qemu_args+=(-enable-kvm)
-	echo ">> KVM kullaniliyor"
+	echo ">> using KVM"
 else
-	echo ">> KVM yok, yazilim oykunmesi (yavas) — timeout ${TIMEOUT}s"
+	echo ">> no KVM, software emulation (slow) — timeout ${TIMEOUT}s"
 fi
 
-echo ">> Mod: $MODE (RAM=${RAM_MB}MB CPU=$CPUS VGA=$VGA)"
+echo ">> Mode: $MODE (RAM=${RAM_MB}MB CPU=$CPUS VGA=$VGA)"
 echo ">> ISO: $ISO ($(du -h "$ISO" | cut -f1))"
 
 qemu-system-x86_64 "${qemu_args[@]}" &
@@ -172,17 +173,17 @@ splash_shot=0
 stuck_reported=0
 while (( elapsed < TIMEOUT )); do
 	if ! kill -0 "$QEMU_PID" 2>/dev/null; then
-		echo ">> QEMU beklenmedik sekilde kapandi (${elapsed}s)"
+		echo ">> QEMU exited unexpectedly (${elapsed}s)"
 		break
 	fi
-	# Masaustu karesi: boot-check panel + nemo-desktop pencerelerinin
-	# GORUNUR oldugunu (DESKTOP-READY) soyleyince +2 sn bekleyip alinir
-	# (v0.4-test2 A: 12 sn'lik sabit bekleme yavas profillerde erkendi).
+	# Desktop frame: taken 2 s after boot-check says the panel +
+	# nemo-desktop windows are VISIBLE (DESKTOP-READY)
+	# (v0.4-test2 A: a fixed 12 s wait was too early on slow profiles).
 	if (( desktop_shot == 0 )) && grep -q "KAVIS-CHECK: DESKTOP-READY" "$SERIAL" 2>/dev/null; then
 		desktop_shot=1
-		echo ">> DESKTOP-READY goruldu (${elapsed}s), 2 sn sonra masaustu karesi"
+		echo ">> DESKTOP-READY seen (${elapsed}s), desktop frame in 2 s"
 		sleep 2
-		snapshot "masaustu"
+		snapshot "desktop"
 	fi
 	if grep -q "KAVIS-CHECK: RESULT=OK" "$SERIAL" 2>/dev/null; then
 		result="OK"
@@ -197,185 +198,186 @@ while (( elapsed < TIMEOUT )); do
 		break
 	fi
 
-	# Cekirdek basladi mi?
-	# 3. asamada `quiet` eklendi ve "Linux version" satiri seri konsolda
-	# gorunmuyor. Bu yuzden cekirdegin ya da systemd'nin herhangi bir
-	# yasam belirtisine bakiyoruz — amac "onyukleyicide mi takildik"
-	# sorusunu ayirt etmek.
+	# Has the kernel started?
+	# `quiet` was added in stage 3 and the "Linux version" line no longer
+	# shows on the serial console. So we look for any sign of life from
+	# the kernel or systemd — the goal is to tell "stuck in the
+	# bootloader" apart from everything else.
 	if (( kernel_seen == 0 )) && grep -qE "Linux version|systemd\[1\]|Welcome to|KAVIS-CHECK|Reached target" "$SERIAL" 2>/dev/null; then
 		kernel_seen=1
 		kernel_seen_at=$elapsed
-		echo ">> cekirdek basladi (${elapsed}s)"
+		echo ">> kernel started (${elapsed}s)"
 	fi
 
-	# Acilis ekrani karesi: Plymouth splash yalnizca acilis sirasinda
-	# ekranda. Duman testinin sonundaki kareler alindiginda splash coktan
-	# kapanmis oluyor, yani 3. asamanin ciktisi hic gorulemiyor.
-	# plymouth-x11 Debian'da olmadigi icin yerelde de cizdiremiyoruz;
-	# splash'i gormenin tek yolu bu erken kare.
-	# Splash'in ekranda oldugu araligi (profil hizina gore ~10-55 sn)
-	# tek kareyle tutturmak sansa kaliyordu (v0.2-test3: bes profilin
-	# hicbirinde kare splash'e denk gelmedi). Uc kare aliyoruz.
+	# Splash frame: the Plymouth splash is on screen only during boot. By
+	# the time the frames at the end of the smoke test are taken the
+	# splash is long gone, so the stage-3 output is never seen.
+	# plymouth-x11 is not in Debian, so it cannot be rendered locally
+	# either; this early frame is the only way to see the splash.
+	# Hitting the window in which the splash is on screen (~10-55 s
+	# depending on profile speed) with a single frame was luck
+	# (v0.2-test3: none of five profiles caught it). We take three.
 	if (( kernel_seen == 1 && splash_shot == 0 && elapsed >= kernel_seen_at + 10 )); then
 		splash_shot=1
-		echo ">> acilis ekrani karesi 1/3 (${elapsed}s)"
-		snapshot "acilis-1"
+		echo ">> splash frame 1/3 (${elapsed}s)"
+		snapshot "splash-1"
 	fi
 	if (( kernel_seen == 1 && splash_shot == 1 && elapsed >= kernel_seen_at + 25 )); then
 		splash_shot=2
-		echo ">> acilis ekrani karesi 2/3 (${elapsed}s)"
-		snapshot "acilis-2"
+		echo ">> splash frame 2/3 (${elapsed}s)"
+		snapshot "splash-2"
 	fi
 	if (( kernel_seen == 1 && splash_shot == 2 && elapsed >= kernel_seen_at + 40 )); then
 		splash_shot=3
-		echo ">> acilis ekrani karesi 3/3 (${elapsed}s)"
-		snapshot "acilis-3"
+		echo ">> splash frame 3/3 (${elapsed}s)"
+		snapshot "splash-3"
 	fi
 
-	# 240 saniyede cekirdek hala baslamadiysa onyukleyicide takiliyiz.
-	# Zaman asimini beklemeden ekran goruntusunu al ve durumu yaz.
+	# If the kernel still has not started after 240 s we are stuck in the
+	# bootloader. Take the screenshot and report without waiting for the
+	# timeout.
 	if (( kernel_seen == 0 && elapsed >= 240 && stuck_reported == 0 )); then
 		stuck_reported=1
-		echo ">> UYARI: ${elapsed}s gecti, cekirdek hic baslamadi."
-		echo ">> Muhtemelen onyukleyici menusunde tus bekleniyor. Ekran:"
-		snapshot "takildi"
+		echo ">> WARNING: ${elapsed}s passed, the kernel never started."
+		echo ">> Probably the bootloader menu is waiting for a key. Screen:"
+		snapshot "stuck"
 	fi
 
 	sleep 5
 	elapsed=$((elapsed + 5))
 	if (( elapsed % 60 == 0 )); then
-		echo ">> ${elapsed}s… (seri gunlugu $(wc -l < "$SERIAL") satir)"
+		echo ">> ${elapsed}s… (serial log $(wc -l < "$SERIAL") lines)"
 	fi
 done
 
-# Masaustu karesi: boot-check "RESULT=OK" derken Xorg ve openbox ayakta
-# ama autostart'taki duvar kagidi ve pencereler henuz cizilmemis olabilir.
-# Birkac saniye bekleyip alinan kare, temanin nasil gorundugunu ISO'yu
-# indirmeden gostermenin en hizli yolu.
+# Desktop frame: when boot-check says "RESULT=OK", Xorg and openbox are
+# up but the wallpaper and windows from autostart may not be drawn yet.
+# A frame taken a few seconds later is the fastest way to see how the
+# theme looks without downloading the ISO.
 if [[ "$result" == "OK" ]]; then
-	# Karar DESKTOP-READY'ye bagli (boot-check icinde: 60 sn'de
-	# haritalanmazsa PANEL-NOT-MAPPED → RESULT=FAIL). Buradaki olcutler
-	# yalniz GUNLUK: ortalama parlaklik, tekil renk sayisi, saat bolgesi.
-	#  - screen-not-blank: <24 renk VE sapma <3 → bos (koyu masaustu
-	#    ~2000 renk, sapma ~11.5)
-	#  - screen-clock-visible: alt 44 satir x sag ceyrekte >=15 parlak
-	#    piksel (cizilmis panel ~440)
-	ppm="$WORKDIR/screen-masaustu.ppm"
+	# The verdict depends on DESKTOP-READY (inside boot-check: not mapped
+	# within 60 s → PANEL-NOT-MAPPED → RESULT=FAIL). The measurements
+	# here are LOG ONLY: mean brightness, distinct color count, clock region.
+	#  - screen-not-blank: <24 colors AND stddev <3 → blank (dark desktop
+	#    ~2000 colors, stddev ~11.5)
+	#  - screen-clock-visible: bottom 44 rows x right quarter >=15 bright
+	#    pixels (drawn panel ~440)
+	ppm="$WORKDIR/screen-desktop.ppm"
 	if [[ ! -s "$ppm" ]]; then
-		echo "!! DESKTOP-READY karesi yok (satir gec geldi?) — simdi aliniyor"
-		snapshot "masaustu"
+		echo "!! no DESKTOP-READY frame (line came late?) — taking one now"
+		snapshot "desktop"
 	fi
 	if [[ -s "$ppm" ]]; then
 		python3 "$REPO_ROOT/tools/screen-not-blank.py" "$ppm" \
-			|| echo "::warning::Masaustu karesi bos olcutune takildi ($MODE) — DESKTOP-READY geldigi icin test dusurulmedi"
+			|| echo "::warning::Desktop frame failed the blank-screen check ($MODE) — test not failed because DESKTOP-READY arrived"
 		python3 "$REPO_ROOT/tools/screen-clock-visible.py" "$ppm" \
-			|| echo "::warning::Saat bolgesi bos olcutune takildi ($MODE) — DESKTOP-READY geldigi icin test dusurulmedi"
+			|| echo "::warning::Clock region failed the blank check ($MODE) — test not failed because DESKTOP-READY arrived"
 	else
-		echo "!! masaustu karesi alinamadi, ekran olcumu atlandi"
+		echo "!! could not take the desktop frame, screen measurement skipped"
 	fi
 fi
 
-# Sonuc ne olursa olsun son ekran goruntusunu al
-snapshot "son"
+# Take the final screenshot whatever the result
+snapshot "final"
 
 kill "$QEMU_PID" 2>/dev/null || true
 wait "$QEMU_PID" 2>/dev/null || true
 
 echo
-echo "===== KAVIS-CHECK satirlari ====="
-grep "KAVIS-CHECK" "$SERIAL" || echo "(hic satir yok)"
+echo "===== KAVIS-CHECK lines ====="
+grep "KAVIS-CHECK" "$SERIAL" || echo "(no lines at all)"
 echo "==================================="
 
-# --- Bosta RAM kullanimi (prompt 20: 1 GB normal, 1.5 GB mutlak sinir) ---
+# --- Idle RAM usage (prompt 20: 1 GB normal, 1.5 GB absolute limit) ---
 #
-# DIKKAT: burada olculen deger CANLI (live) oturumun degeri ve KURULU
-# sistemden YUKSEK cikar — canli modda kok dosya sistemi squashfs + RAM
-# uzerinde overlay olarak durur, yazilan her sey RAM'de birikir. Yani bu
-# rakam kotumser bir ust sinir; kurulu sistemde daha dusuk olacak.
-# Bu yuzden asilirsa uyariyoruz, testi basarisiz saymiyoruz.
+# NOTE: the value measured here is the LIVE session's and comes out
+# HIGHER than an installed system — in live mode the root file system is
+# squashfs + an overlay in RAM, everything written accumulates in RAM. So
+# this figure is a pessimistic upper bound; an installed system is lower.
+# That is why we warn when it is exceeded instead of failing the test.
 mem_line=$(grep -o 'MEM-USED=[0-9]*MB' "$SERIAL" 2>/dev/null | tail -1 || true)
 if [[ -n "$mem_line" ]]; then
 	mem_mb="${mem_line#MEM-USED=}"
 	mem_mb="${mem_mb%MB}"
 	echo
-	echo "===== Bosta RAM (canli oturum) ====="
-	printf '  olculen: %s MB\n' "$mem_mb"
-	printf '  hedef  : 1024 MB normal / 1536 MB mutlak sinir\n'
+	echo "===== Idle RAM (live session) ====="
+	printf '  measured: %s MB\n' "$mem_mb"
+	printf '  target  : 1024 MB normal / 1536 MB absolute limit\n'
 	if (( mem_mb > 1536 )); then
-		mem_verdict="SINIR ASILDI"
-		echo "  ⚠ 1.5 GB mutlak sinir asildi — hafifletme gerekiyor"
-		echo "::warning::Bosta RAM ${mem_mb} MB — 1.5 GB mutlak sinirin ustunde ($MODE)"
+		mem_verdict="LIMIT EXCEEDED"
+		echo "  ⚠ 1.5 GB absolute limit exceeded — needs slimming"
+		echo "::warning::Idle RAM ${mem_mb} MB — above the 1.5 GB absolute limit ($MODE)"
 	elif (( mem_mb > 1024 )); then
-		mem_verdict="normal ustu"
-		echo "  ! 1 GB normal hedefin ustunde, 1.5 GB sinirin altinda"
+		mem_verdict="above normal"
+		echo "  ! above the 1 GB normal target, below the 1.5 GB limit"
 	else
-		mem_verdict="hedefte"
-		echo "  ✓ hedefte"
+		mem_verdict="on target"
+		echo "  ✓ on target"
 	fi
-	echo "  (canli mod olcumu kurulu sistemden yuksektir)"
+	echo "  (the live-mode measurement is higher than an installed system)"
 	echo "===================================="
 
-	# Panelin kendi maliyeti (madde 3: tasima sonrasi RAM olcumu).
+	# The panel's own cost (item 3: RAM measurement after the port).
 	panel_rss=$(grep -o 'PANEL-RSS=[0-9]*MB' "$SERIAL" 2>/dev/null | tail -1 || true)
 	panel_exe=$(grep -o 'PANEL-EXE=[^ ]*' "$SERIAL" 2>/dev/null | tail -1 || true)
 	if [[ -n "$panel_rss" ]]; then
-		printf '  panel  : %s (%s)\n' "${panel_rss#PANEL-RSS=}" "${panel_exe#PANEL-EXE=}"
+		printf '  panel   : %s (%s)\n' "${panel_rss#PANEL-RSS=}" "${panel_exe#PANEL-EXE=}"
 	fi
 
 	if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
 		{
 			echo "### QEMU $MODE"
 			echo ""
-			echo "| Alan | Değer |"
+			echo "| Field | Value |"
 			echo "|---|---|"
-			echo "| Boşta RAM (canlı) | **${mem_mb} MB** — ${mem_verdict} |"
+			echo "| Idle RAM (live) | **${mem_mb} MB** — ${mem_verdict} |"
 			if [[ -n "$panel_rss" ]]; then
 				echo "| Panel RSS | ${panel_rss#PANEL-RSS=} |"
 			fi
-			echo "| Hedef | 1024 MB normal / 1536 MB sınır |"
+			echo "| Target | 1024 MB normal / 1536 MB limit |"
 		} >> "$GITHUB_STEP_SUMMARY"
 	fi
 fi
 echo
-echo "===== seri gunlugunun son 80 satiri ====="
+echo "===== last 80 lines of the serial log ====="
 tail -n 80 "$SERIAL" || true
 echo "========================================="
 
-# Tam gunlugu is akisinin toplayabilmesi icin disari kopyala
+# Copy the full log out so the workflow can collect it
 if [[ -n "${SERIAL_OUT:-}" ]]; then
 	cp "$SERIAL" "$SERIAL_OUT"
 fi
 
 case "$result" in
 OK)
-	echo ">> SONUC: BASARILI ($MODE, ${elapsed}s)"
+	echo ">> RESULT: PASSED ($MODE, ${elapsed}s)"
 	exit 0
 	;;
 FAIL)
-	echo ">> SONUC: BASARISIZ — boot-check FAIL dondu ($MODE)"
+	echo ">> RESULT: FAILED — boot-check returned FAIL ($MODE)"
 	grep "KAVIS-CHECK: FAILED-CHECKS=" "$SERIAL" 2>/dev/null || true
 	exit 1
 	;;
 BLANK)
-	echo ">> SONUC: BASARISIZ — masaustu karesi bos ya da panel bolgesi cizilmemis ($MODE)"
-	echo ">> TESHIS: boot-check gecti ama ekranda hicbir sey cizilmemis."
-	echo ">>         Genellikle pencere yoneticisi ya da duvar kagidi"
-	echo ">>         calismamis demektir. tani-$MODE yapitindaki"
-	echo ">>         screen-$MODE-masaustu.png dosyasina bak."
+	echo ">> RESULT: FAILED — desktop frame blank or panel region not drawn ($MODE)"
+	echo ">> DIAGNOSIS: boot-check passed but nothing was drawn on screen."
+	echo ">>            Usually the window manager or the wallpaper did not"
+	echo ">>            run. Look at screen-$MODE-desktop.png in the"
+	echo ">>            diag-$MODE artifact."
 	exit 1
 	;;
 PANIC)
-	echo ">> SONUC: KERNEL PANIC ($MODE, ${elapsed}s)"
+	echo ">> RESULT: KERNEL PANIC ($MODE, ${elapsed}s)"
 	exit 1
 	;;
 *)
-	echo ">> SONUC: ZAMAN ASIMI — ${TIMEOUT}s icinde grafik arayuze ulasilamadi ($MODE)"
+	echo ">> RESULT: TIMEOUT — no graphical session within ${TIMEOUT}s ($MODE)"
 	if (( kernel_seen == 0 )); then
-		echo ">> TESHIS: cekirdek hic baslamadi — sorun onyukleyicide (GRUB),"
-		echo ">>         isletim sisteminde degil. Ekran goruntusune bak."
+		echo ">> DIAGNOSIS: the kernel never started — the problem is in the"
+		echo ">>            bootloader (GRUB), not the OS. Look at the screenshot."
 	else
-		echo ">> TESHIS: cekirdek basladi ama grafik arayuze ulasilamadi."
-		echo ">>         Seri gunlugundeki son satirlara bak."
+		echo ">> DIAGNOSIS: the kernel started but no graphical session came up."
+		echo ">>            Look at the last lines of the serial log."
 	fi
 	exit 1
 	;;

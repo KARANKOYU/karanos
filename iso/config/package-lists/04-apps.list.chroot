@@ -1,61 +1,61 @@
-# Grup E — temel uygulamalar (madde 39+).
-# DİKKAT: --apt-recommends false (CLAUDE.md tuzağı) — Recommends'ten
-# gelmesi beklenen her şey burada AÇIKÇA yazılır.
+# Group E — basic applications (item 39+).
+# NOTE: --apt-recommends false (CLAUDE.md trap) — everything expected to
+# come from Recommends is written here EXPLICITLY.
 
-# --- Dosya yöneticisi eki (madde 39; nemo 02-x11'de) ---
-# nemo-fileroller: sağ tık sıkıştır/çıkart (file-roller'ı çeker).
-# gvfs-backends/-fuse: SMB/SFTP/FTP/DAV paylaşımları + fuse köprüsü;
-# Recommends kapalıyken gelmiyor, ağ paylaşımı sessizce kaybolurdu.
+# --- File manager add-on (item 39; nemo is in 02-x11) ---
+# nemo-fileroller: right-click compress/extract (pulls in file-roller).
+# gvfs-backends/-fuse: SMB/SFTP/FTP/DAV shares + the fuse bridge; did not
+# come with Recommends off, network shares would silently disappear.
 nemo-fileroller
 gvfs-backends
 gvfs-fuse
 
-# --- Arşiv formatları (madde 39: "arşiv TAM" + en hızlı yöntem) ---
-# p7zip-full: 7z/cab/iso; unrar (non-free, firmware zaten non-free
-# açtı): rar açma; zstd + pigz: çok çekirdekli hızlı sıkıştırma.
+# --- Archive formats (item 39: "archives COMPLETE" + fastest method) ---
+# p7zip-full: 7z/cab/iso; unrar (non-free, firmware already opened
+# non-free): rar extraction; zstd + pigz: fast multi-core compression.
 p7zip-full
 unrar
 zstd
 pigz
 
-# --- Toplu yeniden adlandırma (madde 39) ---
-# Çoklu seçim + F2 → nemo bulk-rename-tool anahtarındaki aracı çağırır
-# (zz-kavis.gschema.override). Mint'in bulky'si trixie'de YOK.
+# --- Bulk rename (item 39) ---
+# Multi-select + F2 → nemo calls the tool in the bulk-rename-tool key
+# (zz-kavis.gschema.override). Mint's bulky is NOT in trixie.
 gprename
 
-# --- Sağ tık "yolu kopyala" (madde 39) ---
-# Pano yazımı için xclip; kavis action'ı kullanır.
+# --- Right-click "copy path" (item 39) ---
+# xclip for writing to the clipboard; the kavis action uses it.
 xclip
 
-# --- Editörler (madde 40) ---
-# mousepad: hızlı, sade metin editörü (not defteri karşılığı).
-# kate: kod/JSON editörü — renklendirme, katlama, parantez eşleme
-# hazır; ayarları /etc/xdg/katerc. KF6/Qt6 yığını çeker; ISO boyutu
-# CI'da izlenir (grup-e-taramasi.md).
+# --- Editors (item 40) ---
+# mousepad: fast, plain text editor (the notepad equivalent).
+# kate: code/JSON editor — highlighting, folding, bracket matching ready;
+# its settings in /etc/xdg/katerc. Pulls in the KF6/Qt6 stack; the ISO
+# size is watched in CI (grup-e-taramasi.md).
 mousepad
 kate
 
-# --- Disk ve USB araçları (madde 42) ---
-# gnome-disk-utility: biçimlendirme (NTFS/FAT/exFAT/ext4/btrfs, kısa
-# açıklamalı), SMART (udisks'in yerleşik atasmart'ı), "Restore Disk
-# Image" = ISO'yu USB'ye yazma (Rufus karşılığı).
-# gparted: bölümleme (madde metni "GParted kurulu").
-# baobab: disk alanı haritası (WinDirStat karşılığı).
-# exfatprogs: exFAT biçimlendirme/onarım desteği.
+# --- Disk and USB tools (item 42) ---
+# gnome-disk-utility: formatting (NTFS/FAT/exFAT/ext4/btrfs, with short
+# descriptions), SMART (udisks' built-in atasmart), "Restore Disk Image"
+# = writing an ISO to USB (the Rufus equivalent).
+# gparted: partitioning (item text "GParted installed").
+# baobab: disk usage map (the WinDirStat equivalent).
+# exfatprogs: exFAT formatting/repair support.
 gnome-disk-utility
 gparted
 baobab
 exfatprogs
 
-# --- Yazıcı ve tarayıcı (madde 43) ---
-# Birinci yol SÜRÜCÜSÜZ (grup-e-taramasi): modern yazıcılar IPP
-# Everywhere konuşur — cups-browsed + avahi ağdakini kendiliğinden
-# gösterir, ipp-usb USB yazıcıyı aynı protokole köprüler; çoğu
-# kullanıcı sürücü ekranı hiç görmez. Sihirbaz system-config-printer
-# (otomatik bulma + sürücü + test sayfası; kendi sihirbazımızı yazmak
-# kur-ayarla kuralına aykırı). Eski aygıtlar için gutenprint yedeği.
-# CUPS web arayüzü (631) varsayılan hâliyle yalnız localhost.
-# Tarayıcı: sane-airscan (sürücüsüz eSCL/WSD) + simple-scan arayüzü.
+# --- Printer and scanner (item 43) ---
+# The first path is DRIVERLESS (grup-e-taramasi): modern printers speak
+# IPP Everywhere — cups-browsed + avahi show the network ones by
+# themselves, ipp-usb bridges a USB printer to the same protocol; most
+# users never see a driver screen. The wizard is system-config-printer
+# (auto discovery + driver + test page; writing our own wizard is
+# against the install-and-configure rule). gutenprint fallback for old
+# devices. The CUPS web interface (631) is localhost-only by default.
+# Scanner: sane-airscan (driverless eSCL/WSD) + the simple-scan UI.
 cups
 cups-browsed
 cups-filters
@@ -66,21 +66,21 @@ printer-driver-gutenprint
 sane-airscan
 simple-scan
 
-# --- Terminal kolaylıkları (madde 44) ---
-# command-not-found + apt-file: bilinmeyen komutta paket önerisi
-# (veritabanı 0240 hook'unda derlemede kurulur). gettext-base:
-# terminal-tips.sh'ın çevirileri (gettext komutu).
+# --- Terminal conveniences (item 44) ---
+# command-not-found + apt-file: package suggestion on an unknown command
+# (the database is built at build time in the 0240 hook). gettext-base:
+# terminal-tips.sh's translations (the gettext command).
 command-not-found
 apt-file
 gettext-base
 
-# --- Web tarayıcısı (4C: varsayılan sabitli Firefox) ---
-# firefox-esr: bakımı Debian'da — güvenlik yamaları apt'tan gelir,
-# sürüm sıçramaları yaşanmaz. l10n-tr: ürünün ilk dili Türkçe.
+# --- Web browser (4C: Firefox as the pinned default) ---
+# firefox-esr: maintained in Debian — security patches come from apt, no
+# version jumps. l10n-tr: the product's first language is Turkish.
 firefox-esr
 firefox-esr-l10n-tr
 
-# --- USB güvenli kullanım (madde 63) ---
-# psmisc: fuser — çıkarılamayan USB'yi hangi uygulamanın tuttuğunu
-# söylemek için.
+# --- Safe USB use (item 63) ---
+# psmisc: fuser — to say which application is holding a USB stick that
+# cannot be removed.
 psmisc

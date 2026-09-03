@@ -2,7 +2,7 @@
  *
  * Only lines matching the "WxH  rate.rr*+" shape are parsed — xrandr's
  * human output shifts between versions, everything unrecognized is
- * skipped (ayarlar.md taraması).
+ * skipped (ayarlar.md survey).
  */
 
 namespace Kavis.Settings.XrandrInfo {
@@ -79,8 +79,8 @@ namespace Kavis.Settings.XrandrInfo {
         return result;
     }
 
-    /* Switch mode. Caller shows the 15 s revert countdown (yanlış mod
-     * siyah ekran bırakabilir — ayarlar.md). */
+    /* Switch mode. Caller shows the 15 s revert countdown (a wrong mode
+     * can leave a black screen — ayarlar.md). */
     public void set_mode (string output, Mode mode) {
         Run.fire ({ "xrandr", "--output", output,
                     "--mode", "%dx%d".printf (mode.width, mode.height),

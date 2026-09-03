@@ -1,12 +1,12 @@
 #!/bin/sh
-# Kavis — kendi systemd servislerimizi etkinleştir
+# Kavis — enable our own systemd services
 set -e
 
 chmod 0755 /usr/lib/kavis/boot-check
-# live-config bileşeni çalıştırılabilir olmalı; includes.chroot izinleri
-# her ortamda korunmayabiliyor, garantiye alıyoruz.
-chmod 0755 /usr/lib/live/config/0031-kavis-dizinler
+# The live-config component must be executable; includes.chroot
+# permissions are not preserved in every environment, so make sure.
+chmod 0755 /usr/lib/live/config/0031-kavis-dirs
 
 systemctl enable kavis-boot-check.service
 
-echo "I: kavis servisleri etkinlestirildi"
+echo "I: kavis services enabled"

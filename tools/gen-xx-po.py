@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate po/xx.po — the pseudo-long test language (Grup D task c).
+"""Generate po/xx.po — the pseudo-long test language (Group D task c).
 
 Every msgstr is the msgid wrapped in guillemets and lengthened ~40%:
 untranslated strings show up as plain English on an xx screenshot, and
@@ -39,8 +39,8 @@ def main() -> int:
         pad = "·" * max(2, int(len(msgid) * 0.4))
         out.append('msgid "%s"' % msgid)
         if msgid.endswith("\\n"):
-            # msgfmt kuralı: iki taraf da \n ile bitmeli — dolgu
-            # satır sonundan ÖNCE.
+            # msgfmt rule: both sides must end in \n — the padding
+            # goes BEFORE the line break.
             body = msgid[:-2]
             out.append('msgstr "⟪%s%s⟫\\n"' % (body, pad))
         else:

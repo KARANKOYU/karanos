@@ -1,6 +1,6 @@
-# Kavis varsayılan uygulamaları (madde 40). Kullanıcı "şununla aç >
-# her zaman" dedikçe ~/.config/mimeapps.list bunları ezer.
-# Düz metin not defterine (mousepad), kod/JSON kate'e.
+# Kavis default applications (item 40). As the user chooses "open with >
+# always", ~/.config/mimeapps.list overrides these.
+# Plain text goes to the notepad (mousepad), code/JSON to kate.
 [Default Applications]
 text/plain=org.xfce.mousepad.desktop
 application/json=org.kde.kate.desktop

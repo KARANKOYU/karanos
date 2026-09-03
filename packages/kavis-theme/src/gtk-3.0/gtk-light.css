@@ -1,25 +1,26 @@
-/* Kavis — GTK3 açık tema  ·  SİSTEME KURULMUYOR
+/* Kavis — GTK3 light theme  ·  NOT INSTALLED ON THE SYSTEM
  *
- * DİKKAT: Bu dosya pakete GİRMİYOR ve hiçbir yerden seçilemiyor.
- * Kavis tek temalı: koyu. Açık tema kimliğe uymadığı için kaldırıldı;
- * Ayarlar > Görünüm'de "Tema: Açık/Koyu" seçeneği de yok.
+ * CAUTION: This file does NOT enter the package and cannot be selected
+ * anywhere. Kavis is single-themed: dark. The light theme was removed
+ * because it did not fit the identity; there is no "Theme: Light/Dark"
+ * option in Settings > Appearance either.
  *
- * Dosya silinmedi, kaynak olarak duruyor: ileride tekrar istenirse
- * paletin açık karşılığı burada hazır. Kurulmasını istersen
- * debian/rules içindeki install satırını geri ekle.
+ * The file was not deleted, it stays as source: if wanted again later
+ * the light counterpart of the palette is ready here. To install it,
+ * add the install line back in debian/rules.
  *
- * Mantık gtk-dark.css ile aynı: Adwaita içe aktarılır, renkler ezilir.
+ * Same logic as gtk-dark.css: Adwaita is imported, the colors overridden.
  *
- * NEDEN RENKLER BİREBİR AYNI DEĞİL: #2DD4BF açık bir turkuaz. Koyu
- * zeminde parlıyor, ama beyaz zeminde üstüne beyaz yazı okunmuyor
- * (kontrast oranı ~1.7). Bu yüzden açık temada turkuaz ve mavi
- * koyulaştırılmış tonlarıyla kullanılıyor: #0D9488 ve #2563EB. Marka
- * degradesinin yönü ve karakteri korunuyor, yalnızca değeri düşüyor.
+ * WHY THE COLORS ARE NOT IDENTICAL: #2DD4BF is a light teal. It shines
+ * on a dark ground, but white text on it is unreadable on a white
+ * ground (contrast ratio ~1.7). So the light theme uses darkened
+ * shades of teal and blue: #0D9488 and #2563EB. The direction and
+ * character of the brand gradient are kept, only its value drops.
  */
 
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
 
-/* --- kimlik renkleri (açık zemine uyarlanmış) ----------------------- */
+/* --- identity colors (adapted to a light ground) -------------------- */
 @define-color kavis_teal    #0D9488;
 @define-color kavis_blue    #2563EB;
 @define-color kavis_ground  #EEF2F6;
@@ -29,7 +30,7 @@
 @define-color kavis_text    #1B2732;
 @define-color kavis_text2   #5C6B78;
 
-/* --- Adwaita'nın renk değişkenlerini ez ----------------------------- */
+/* --- override Adwaita's color variables ----------------------------- */
 @define-color theme_selected_bg_color @kavis_teal;
 @define-color theme_selected_fg_color #FFFFFF;
 @define-color selected_bg_color       @kavis_teal;
@@ -52,7 +53,7 @@
 @define-color error_color             #DC2626;
 @define-color success_color           #16A34A;
 
-/* --- vurgu alan bileşenler ------------------------------------------ */
+/* --- accented components -------------------------------------------- */
 progressbar > trough > progress,
 levelbar block.filled,
 scale highlight {
@@ -106,15 +107,15 @@ notebook > header > tabs > tab:checked {
 	box-shadow: inset 0 -3px @kavis_teal;
 }
 
-/* Başlık çubuğu (geri bildirim A) — koyu temayla aynı ölçüler,
- * açık palet. Kapat hover'ı iki temada da W11 kırmızısı. */
+/* Title bar (feedback A) — same dimensions as the dark theme, light
+ * palette. Close hover is W11 red in both themes. */
 headerbar {
 	background-image: none;
 	background-color: @kavis_surface;
 	border-bottom: 1px solid @kavis_border;
 	color: @kavis_text;
-	/* E2 (test2): 46 px — Tilix'in çubuğuyla ve openbox başlığıyla
-	   (themerc padding.height 16) aynı boy; düğmeler 46×32 ortalı. */
+	/* E2 (test2): 46 px — same height as Tilix's bar and the openbox
+	   title (themerc padding.height 16); buttons 46×32 centered. */
 	min-height: 46px;
 	padding: 0 0 0 8px;
 }
@@ -155,8 +156,8 @@ decoration {
 	margin: 12px;
 }
 
-/* Adwaita `list row:selected` rengi derlenmiş CSS'te sabit mavi —
- * özgüllüğü genel :selected kuralını eziyor; açıkça turkuaz. */
+/* Adwaita's `list row:selected` color is a fixed blue in the compiled
+ * CSS — its specificity beats the general :selected rule; explicitly teal. */
 list row:selected,
 list row:selected:hover,
 stacksidebar row:selected,
@@ -171,7 +172,7 @@ selection,
 	color: #FFFFFF;
 }
 
-/* Nemo (madde 39, test8 F): Gezgin gibi ince araç çubuğu. */
+/* Nemo (madde 39, test8 F): a thin toolbar like Explorer. */
 .nemo-window toolbar {
 	padding: 1px 6px;
 	min-height: 0;
@@ -181,8 +182,8 @@ selection,
 	min-height: 0;
 }
 
-/* Masaüstü ikon yazıları (B2): nemo-desktop varsayılanı beyaz+gölge —
- * açık duvar kâğıdında okunmaz; açık temada koyu metin, açık gölge. */
+/* Desktop icon labels (B2): the nemo-desktop default is white+shadow —
+ * unreadable on a light wallpaper; dark text, light shadow in the light theme. */
 .nemo-desktop.nemo-canvas-item {
 	color: #1A2430;
 	text-shadow: 0 1px 2px rgba(255, 255, 255, 0.75);

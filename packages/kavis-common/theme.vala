@@ -1,7 +1,7 @@
-/* Palette for every Kavis GTK component (B2, v0.4-test1 geri bildirimi).
+/* Palette for every Kavis GTK component (B2, v0.4-test1 feedback).
  *
- * KANONİK KOPYA BURASI — build-packages.sh GTK paketlerinin src
- * ağacına kopyalar; kopyalar .gitignore'da.
+ * THIS IS THE CANONICAL COPY — build-packages.sh copies it into the
+ * GTK packages' src trees; the copies are in .gitignore.
  *
  * Why: the panel, popups, OSD, dialogs and Settings all carried the
  * dark hex codes inline, so "Light" only switched GTK apps. Now every
@@ -12,7 +12,7 @@
  * The GTK theme for third-party apps still goes through xsettingsd
  * (Kavis / Kavis-Light) — same source, two consumers.
  *
- * Color tables mirror docs/tasarim-dili.md (koyu + açık palet).
+ * Color tables mirror docs/tasarim-dili.md (dark + light palette).
  */
 
 namespace Kavis.Theme {
@@ -90,7 +90,7 @@ namespace Kavis.Theme {
     }
 
     /* kavis.conf [appearance] theme == "light". Anything else (dark,
-     * eski "system", eksik) koyudur — ürün varsayılanı. */
+     * legacy "system", missing) is dark — the product default. */
     public bool is_light () {
         try {
             return Config.load ()
@@ -127,7 +127,7 @@ namespace Kavis.Theme {
         try {
             provider.load_from_data (light ? LIGHT : DARK, -1);
         } catch (Error e) {
-            warning ("kavis: palet yuklenemedi: %s", e.message);
+            warning ("kavis: could not load palette: %s", e.message);
         }
     }
 }

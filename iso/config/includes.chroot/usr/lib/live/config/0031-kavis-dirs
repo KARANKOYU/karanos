@@ -1,0 +1,104 @@
+#!/bin/sh
+# Kavis — makes the live user's home /users/karan (item 0)
+#
+# WHY: task list item 0 wants the directory layout under /users/karan and
+# ALL components will use these paths. live-config's 0030-user-setup
+# component creates the user with /home/karan; this component runs right
+# after it (0031), moves the home and creates the standard folders. In a
+# permanent installation /users will be a separate btrfs subvolume (items
+# 16/27); in the live session it is an ordinary directory — no difference
+# for the components.
+#
+# test10 USERS-FAIL lesson: since the 0230 hook (test8 E3) made /home a
+# link to /users, the /home/karan that user-setup writes IS PHYSICALLY
+# /users/karan itself. Forcing usermod -m to "move" it onto itself
+# errored and, with set -e, killed the script BEFORE the mkdirs. Now the
+# real path is compared, the folders are created INDEPENDENTLY of the
+# link and of usermod, and test -d verifies at the end.
+#
+# The user system is POSTPONED (item 0): single user karan, passwordless
+# autologin. Lock screen and adding users are deliberately ABSENT.
+#
+# XDG folder names are English lower-case (exactly the list in item 0);
+# since /etc/xdg/user-dirs.conf has enabled=False, xdg-user-dirs-update
+# does not try to translate them at session start.
+
+set -e
+
+kavis_dirs() {
+	# Only in the live session, and once
+	grep -q 'boot=live' /proc/cmdline || return 0
+	[ -e /var/lib/live/config/kavis-dirs ] && return 0
+
+	LIVE_USER=karan
+	NEW_HOME=/users/$LIVE_USER
+
+	if ! getent passwd "$LIVE_USER" >/dev/null 2>&1; then
+		echo "kavis-dirs: '$LIVE_USER' missing (did user-setup not run?)" >&2
+		return 0
+	fi
+
+	old_home=$(getent passwd "$LIVE_USER" | cut -d: -f6)
+	old_real=$(readlink -f "$old_home" 2>/dev/null || echo "$old_home")
+	if [ "$old_home" = "$NEW_HOME" ]; then
+		: # the record is already right
+	elif [ "$old_real" = "$NEW_HOME" ]; then
+		# Same directory through the /home link: nothing to move, only
+		# the passwd record is switched to /users/karan (NO -m).
+		usermod -d "$NEW_HOME" "$LIVE_USER" \
+			|| echo "kavis-dirs: could not fix the passwd record" >&2
+	else
+		mkdir -p /users
+		# -m moves the home contents; in the live session the home is
+		# nearly empty at this point (skeleton files), it costs nothing.
+		# A failure does NOT kill the script — the folders are created
+		# below in every case.
+		usermod -d "$NEW_HOME" -m "$LIVE_USER" \
+			|| echo "kavis-dirs: could not move the home ($old_home)" >&2
+	fi
+
+	# Folders directly under /users/karan, independent of the link.
+	for d in desktop downloads documents pictures videos music; do
+		mkdir -p "$NEW_HOME/$d"
+	done
+
+	# Components find the folders through XDG; no hand-hacking of paths.
+	mkdir -p "$NEW_HOME/.config"
+	cat > "$NEW_HOME/.config/user-dirs.dirs" <<XDG
+# Kavis item 0: standard folders. xdg-user-dirs-update does not rewrite
+# this file (/etc/xdg/user-dirs.conf enabled=False).
+XDG_DESKTOP_DIR="\$HOME/desktop"
+XDG_DOWNLOAD_DIR="\$HOME/downloads"
+XDG_DOCUMENTS_DIR="\$HOME/documents"
+XDG_PICTURES_DIR="\$HOME/pictures"
+XDG_VIDEOS_DIR="\$HOME/videos"
+XDG_MUSIC_DIR="\$HOME/music"
+XDG_TEMPLATES_DIR="\$HOME/Templates"
+XDG_PUBLICSHARE_DIR="\$HOME"
+XDG
+
+	# Desktop shortcut (item 9): Settings. nemo-desktop does not trust an
+	# unsigned launcher — the execute bit is required.
+	if [ -f /usr/share/applications/kavis-settings.desktop ]; then
+		cp /usr/share/applications/kavis-settings.desktop \
+			"$NEW_HOME/desktop/kavis-settings.desktop"
+		chmod +x "$NEW_HOME/desktop/kavis-settings.desktop"
+	fi
+
+	chown -R "$LIVE_USER:$LIVE_USER" "$NEW_HOME"
+
+	mkdir -p /var/lib/live/config
+	touch /var/lib/live/config/kavis-dirs
+
+	# Verification: a missing folder must show up in the live log at once
+	# — no need to wait for boot-check's USERS-FAIL.
+	for d in desktop downloads documents pictures videos music; do
+		if ! test -d "$NEW_HOME/$d"; then
+			echo "kavis-dirs: ERROR — $NEW_HOME/$d was not created" >&2
+			return 1
+		fi
+	done
+	echo "kavis-dirs: home $NEW_HOME, folders ready (verified)"
+}
+
+kavis_dirs

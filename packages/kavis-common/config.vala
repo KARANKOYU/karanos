@@ -1,7 +1,8 @@
 /* Kavis single configuration file (madde 9, 1A-2).
  *
- * KANONİK KOPYA BURASI — build-packages.sh derlemede kavis-panel ve
- * kavis-settings src ağaçlarına kopyalar (kopyalar .gitignore'da).
+ * THIS IS THE CANONICAL COPY — build-packages.sh copies it into the
+ * kavis-panel and kavis-settings src trees at build time (the copies
+ * are in .gitignore).
  *
  * ~/.config/kavis/kavis.conf is THE settings file: the Settings app
  * writes it, the panel/OSD/sounds read it, later groups (picom, theme)
@@ -45,7 +46,7 @@ namespace Kavis.Config {
             old_file.load_from_file (old_panel_path (),
                                      KeyFileFlags.KEEP_COMMENTS);
         } catch (Error e) {
-            return;   /* bozuk eski dosya: sıfırdan başlanır */
+            return;   /* corrupt old file: start from scratch */
         }
         var fresh = new KeyFile ();
         foreach (unowned string group in old_file.get_groups ()) {
@@ -80,7 +81,7 @@ namespace Kavis.Config {
             FileUtils.set_contents (target, file.to_data ());
             return true;
         } catch (Error e) {
-            warning ("kavis: kavis.conf yazilamadi: %s", e.message);
+            warning ("kavis: could not write kavis.conf: %s", e.message);
             return false;
         }
     }
@@ -102,7 +103,7 @@ namespace Kavis.Config {
             });
             return monitor;
         } catch (Error e) {
-            warning ("kavis: kavis.conf izlenemedi: %s", e.message);
+            warning ("kavis: could not watch kavis.conf: %s", e.message);
             return null;
         }
     }

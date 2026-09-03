@@ -1,15 +1,15 @@
 kavis-boot (1.1) stable; urgency=medium
 
-  * Yeni açılış müziği (4,8 sn, sentezlenmiş, lisans kısıtı yok).
-  * Boşluk tuşuna görsel karşılık: ipucu satırı "Başlatılıyor…" olur,
-    splash erken kapanmaz (retain kuralı sürer).
+  * New boot music (4.8 s, synthesized, no license restriction).
+  * Visual feedback for the space key: the hint line becomes
+    "Starting…", the splash does not close early (the retain rule stays).
 
  -- Karan <farukyildiz3207@gmail.com>  Wed, 02 Sep 2026 12:00:00 +0300
 
 kavis-boot (1.0) stable; urgency=medium
 
-  * İlk sürüm: Plymouth teması (parlayan görsel + "made by Karan"),
-    açılış müziği servisi ve splash'i müzik bitene kadar tutan
-    plymouth-quit drop-in'i.
+  * Initial release: Plymouth theme (glowing image + "made by Karan"),
+    boot music service and the plymouth-quit drop-in that holds the
+    splash until the music ends.
 
  -- Karan <farukyildiz3207@gmail.com>  Thu, 06 Aug 2026 00:00:00 +0300

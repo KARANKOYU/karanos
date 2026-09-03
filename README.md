@@ -5,99 +5,99 @@
 <h1 align="center">Kavis</h1>
 
 <p align="center">
-  Debian tabanlı, Windows benzeri masaüstüne sahip kişisel Linux dağıtımı.<br>
+  A personal Debian-based Linux distribution with a Windows-like desktop.<br>
   <i>made by Karan</i>
 </p>
 
 ---
 
-## Nedir
+## What it is
 
-Debian trixie tabanlı bir masaüstü dağıtımı; bugün amd64 ISO'su üretiliyor, kod çok-mimarili yazılıyor (arm64 hazırlığı — bkz. docs/gorev-listesi.md, MİMARİ ilkesi). Kendi açılış
-ekranı, giriş ekranı, görev çubuğu, ayarlar uygulaması ve uygulama mağazası
-var. Kendi çekirdeğimizi derlemiyoruz — Debian'ın imzalı çekirdeğini
-kullanıyoruz, böylece Secure Boot açık kalabiliyor.
+A desktop distribution based on Debian trixie; an amd64 ISO is produced today, the code is written multi-arch (arm64 preparation — see docs/gorev-listesi.md, ARCHITECTURE principle). It has its own boot
+splash, login screen, taskbar, settings app and app store. We do not build
+our own kernel — we use Debian's signed kernel, so Secure Boot can stay
+enabled.
 
-| Konu | Karar |
+| Topic | Decision |
 |---|---|
-| Taban | Debian stable (trixie), `live-build` |
-| Görüntü sunucusu / WM | X11 + Openbox |
-| Kendi yazılımlarımız | Vala → C/GObject (GTK3 + libwnck), tek ikili |
-| Kök dosya sistemi | btrfs (`@` + `@users`) |
-| Kurulum aracı | Calamares |
-| Hedef ISO boyutu | 1.5 GB altı |
-| Boşta RAM | 1 GB altı hedef, en fazla 1.5 GB |
+| Base | Debian stable (trixie), `live-build` |
+| Display server / WM | X11 + Openbox |
+| Our own software | Vala → C/GObject (GTK3 + libwnck), single binary |
+| Root file system | btrfs (`@` + `@users`) |
+| Installer | Calamares |
+| Target ISO size | under 1.5 GB |
+| Idle RAM | 1 GB target, 1.5 GB at most |
 
-## Depo yapısı
+## Repository layout
 
 ```
 kavis/
-├── assets/       elle konulan kaynak dosyalar (logo, açılış görseli/müziği)
-├── docs/         kurulum ve tasarım notları
-├── iso/          live-build yapılandırması
-├── packages/     kavis-* .deb paketlerinin kaynağı
-├── installer/    Calamares yapılandırması + ön kontrol modülü
-├── tools/        geliştirme yardımcıları (kontroller, QEMU testi)
-└── .github/workflows/   ISO derleme + paket üretimi
+├── assets/       hand-placed source files (logo, boot image/music)
+├── docs/         setup and design notes
+├── iso/          live-build configuration
+├── packages/     sources of the kavis-* .deb packages
+├── installer/    Calamares configuration + pre-check module
+├── tools/        development helpers (checks, QEMU test)
+└── .github/workflows/   ISO build + package builds
 ```
 
-## Derleme
+## Building
 
-**ISO yerelde derlenmez.** Derleme ve QEMU testi GitHub Actions'ta yapılır:
+**The ISO is not built locally.** Building and the QEMU test run on GitHub Actions:
 
-GitHub → **Actions** → **"ISO derle ve test et"** → **Run workflow**
+GitHub → **Actions** → **"Build and test ISO"** → **Run workflow**
 
-Ayrıntılar: [`iso/README.md`](iso/README.md)
+Details: [`iso/README.md`](iso/README.md)
 
-Push etmeden önce:
+Before pushing:
 
 ```bash
-tools/check-config.sh      # sözdizimi, izinler, YAML
-tools/check-packages.sh    # paket adları Debian arşivinde var mı
+tools/check-config.sh      # syntax, permissions, YAML
+tools/check-packages.sh    # do the package names exist in the Debian archive
 ```
 
-Kendi paketlerimiz yerelde derlenebiliyor (ISO'nun aksine hızlı):
+Our own packages can be built locally (fast, unlike the ISO):
 
 ```bash
 tools/build-packages.sh          # packages/* → out/packages/*.deb
-tools/theme-screenshot.sh        # temayı Xvfb'de çizip PNG'ye al
-tools/panel-screenshot.sh        # görev çubuğunu çizip PNG'ye al
+tools/theme-screenshot.sh        # render the theme in Xvfb and save a PNG
+tools/panel-screenshot.sh        # render the taskbar and save a PNG
 ```
 
-## Kurulum (GitHub tarafı)
+## Setup (GitHub side)
 
-Depolar, GitHub Pages, GPG anahtarı ve secret'lar için:
+Repositories, GitHub Pages, GPG key and secrets:
 [`docs/github-kurulumu.md`](docs/github-kurulumu.md)
 
-## Elle konulacak dosyalar
+## Hand-placed files
 
-| Dosya | Durum |
+| File | Status |
 |---|---|
-| `assets/logo/koyu-k-logo.svg` | ✅ hazır |
-| `assets/logo/acik-k-logo.svg` | ✅ hazır |
-| `assets/boot/boot-image.png` | ⏳ [özellikler](assets/boot/README.md) |
-| `assets/boot/boot-sound.mp3` | ⏳ [özellikler](assets/boot/README.md) |
+| `assets/logo/koyu-k-logo.svg` | ✅ ready |
+| `assets/logo/acik-k-logo.svg` | ✅ ready |
+| `assets/boot/boot-image.png` | ⏳ [specification](assets/boot/README.md) |
+| `assets/boot/boot-sound.mp3` | ⏳ [specification](assets/boot/README.md) |
 
-## Geliştirme sırası
+## Development order
 
-Geliştirme, gruplar hâlinde ilerleyen madde listesine göre yürüyor; hangi
-grup bitince hangi sürümün çıkacağı yol haritasında:
+Development follows the item list, which proceeds in groups; which
+release ships when a group is done is in the roadmap:
 [`docs/roadmap.md`](docs/roadmap.md)
 
-Karar günlüğü: [`docs/durum.md`](docs/durum.md) ·
-Eski görev tanımı (Karan OS dönemi): [`docs/kavis-claude-code-prompt.md`](docs/kavis-claude-code-prompt.md) ·
-Arayüz çevirileri (gettext): [`po/`](po/) ·
-GitHub kurulumu: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)
+Decision log: [`docs/durum.md`](docs/durum.md) ·
+Old task definition (Karan OS era): [`docs/kavis-claude-code-prompt.md`](docs/kavis-claude-code-prompt.md) ·
+UI translations (gettext): [`po/`](po/) ·
+GitHub setup: [`docs/github-kurulumu.md`](docs/github-kurulumu.md)
 
-## Çeviri durumu
+## Translation status
 
-Kaynak metinler İngilizce; hedef diller [`po/LINGUAS`](po/LINGUAS).
-Katkı için bir `<dil>.po` açmak yeter (depo public olunca Weblate da
-bağlanacak). Tablo CI tarafından her koşuda güncellenir.
+Source strings are English; target languages are in [`po/LINGUAS`](po/LINGUAS).
+To contribute, opening a `<lang>.po` is enough (Weblate will be connected
+once the repo is public). CI updates the table on every run.
 
-<!-- ceviri-durumu-basla -->
-| Dil | Durum |
+<!-- translation-status-begin -->
+| Language | Status |
 |---|---|
-| `tr` | ▰▰▰▰▰▰▰▰▰▰ %100 (331/331) |
-| _çeviri bekleyenler_ | `af` `am` `ar` `az` `be` `bg` `bn` `bs` `ca` `ckb` `cs` `cy` `da` `de` `el` `en_GB` `es` `es_MX` `et` `eu` `fa` `fi` `fr` `ga` `gl` `gu` `he` `hi` `hr` `hu` `hy` `id` `is` `it` `ja` `ka` `kk` `kn` `ko` `ku` `ky` `lt` `lv` `mk` `ml` `mn` `mr` `ms` `nb` `ne` `nl` `pa` `pl` `pt_BR` `pt_PT` `ro` `ru` `si` `sk` `sl` `sq` `sr` `sv` `sw` `ta` `te` `tg` `th` `tk` `tl` `uk` `ur` `uz` `vi` `zh_CN` `zh_TW` `zu` |
-<!-- ceviri-durumu-bitir -->
+| `tr` | ▰▰▰▰▰▰▰▰▰▰ 100% (331/331) |
+| _awaiting translation_ | `af` `am` `ar` `az` `be` `bg` `bn` `bs` `ca` `ckb` `cs` `cy` `da` `de` `el` `en_GB` `es` `es_MX` `et` `eu` `fa` `fi` `fr` `ga` `gl` `gu` `he` `hi` `hr` `hu` `hy` `id` `is` `it` `ja` `ka` `kk` `kn` `ko` `ku` `ky` `lt` `lv` `mk` `ml` `mn` `mr` `ms` `nb` `ne` `nl` `pa` `pl` `pt_BR` `pt_PT` `ro` `ru` `si` `sk` `sl` `sq` `sr` `sv` `sw` `ta` `te` `tg` `th` `tk` `tl` `uk` `ur` `uz` `vi` `zh_CN` `zh_TW` `zu` |
+<!-- translation-status-end -->

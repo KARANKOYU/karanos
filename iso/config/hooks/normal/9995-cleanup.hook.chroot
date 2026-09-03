@@ -1,26 +1,26 @@
 #!/bin/sh
-# Kavis — ISO boyutunu düşüren son temizlik (hedef: 1.5 GB altı)
+# Kavis — final cleanup that lowers the ISO size (target: under 1.5 GB)
 set -e
 
-# APT önbelleği ve indeksleri
+# APT cache and indexes
 apt-get clean
 rm -rf /var/lib/apt/lists/*
 rm -f  /var/cache/apt/*.bin
 
-# Kullanmadığımız diller — Türkçe ve İngilizce kalır
+# Languages we do not use — Turkish and English stay
 if [ -d /usr/share/locale ]; then
 	find /usr/share/locale -mindepth 1 -maxdepth 1 -type d \
 		! -name 'tr*' ! -name 'en*' ! -name 'locale.alias' \
 		-exec rm -rf {} + 2>/dev/null || true
 fi
 
-# Kılavuz sayfaları dururken, çevrilmiş kılavuzlar gereksiz
+# The manual pages stay; translated manuals are unnecessary
 if [ -d /usr/share/man ]; then
 	find /usr/share/man -mindepth 1 -maxdepth 1 -type d \
 		! -name 'man*' ! -name 'tr' -exec rm -rf {} + 2>/dev/null || true
 fi
 
-# Belgeler: telif dosyaları kalsın (lisans gereği), gerisi gitsin
+# Documentation: copyright files stay (license requirement), the rest goes
 find /usr/share/doc -type f ! -name 'copyright' -delete 2>/dev/null || true
 find /usr/share/doc -type d -empty -delete 2>/dev/null || true
 
@@ -29,4 +29,4 @@ rm -rf /var/cache/debconf/*-old
 rm -rf /var/lib/dpkg/*-old
 rm -rf /tmp/* /var/tmp/*
 
-echo "I: temizlik bitti"
+echo "I: cleanup done"

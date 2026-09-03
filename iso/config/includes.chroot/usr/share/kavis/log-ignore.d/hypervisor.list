@@ -1,11 +1,11 @@
-# Hypervisor (sanal makine) kaynaklı bilinen zararsız uyarılar.
-# Biçim ve kurallar: bu dizindeki README.
+# Known harmless warnings caused by the hypervisor (virtual machine).
+# Format and rules: the README in this directory.
 
-# VirtualBox VMSVGA: vmwgfx, VMware imzasını bulamayınca kendini
-# durdurur; ekran simpledrm ile sürülmeye devam eder. Her açılışta
-# düşer, açılışı ve masaüstünü etkilemez. Doğrulama: v0.3-test1
-# VirtualBox el testi + docs/referans/virtualbox.md.
+# VirtualBox VMSVGA: vmwgfx stops itself when it cannot find the VMware
+# signature; the display keeps being driven by simpledrm. Appears on
+# every boot, affects neither the boot nor the desktop. Verification:
+# v0.3-test1 VirtualBox manual test + docs/referans/virtualbox.md.
 vmwgfx.*unsupported hypervisor
 
-# Aynı olayın devam satırı ("This configuration is likely broken").
+# Continuation line of the same event ("This configuration is likely broken").
 vmwgfx.*configuration is likely broken

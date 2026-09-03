@@ -1,7 +1,7 @@
 /* kavis-selftest — CLI.
- *   kavis-selftest [--all] [--scenario AD ...] [--dir KÖK] [--scenarios DİZİN]
+ *   kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR]
  *                  [--shots] [--quiet]
- * Çıkış kodu: başarısız adım + senaryo hatası sayısı (en çok 125). */
+ * Exit code: number of failed steps + scenario errors (at most 125). */
 int main (string[] args) {
     Gtk.init (ref args);
     string? scen_dir = Environment.get_variable ("KAVIS_SELFTEST_DIR")
@@ -18,7 +18,7 @@ int main (string[] args) {
         case "--shots": shots = true; break;
         case "--quiet": quiet = true; break;
         default:
-            stderr.printf ("kullanım: kavis-selftest [--all] [--scenario AD ...] [--dir KÖK] [--scenarios DİZİN] [--shots] [--quiet]\n");
+            stderr.printf ("usage: kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR] [--shots] [--quiet]\n");
             return 2;
         }
     }
@@ -37,14 +37,14 @@ int main (string[] args) {
             files += Path.build_filename (scen_dir, n);
         }
     } catch (Error e) {
-        stderr.printf ("senaryo dizini okunamadı: %s\n", e.message);
+        stderr.printf ("could not read the scenario directory: %s\n", e.message);
         return 2;
     }
     if (files.length == 0) {
-        stderr.printf ("senaryo bulunamadı (%s)\n", scen_dir);
+        stderr.printf ("no scenario found (%s)\n", scen_dir);
         return 2;
     }
-    /* sözlük sırası: 01-, 03-, ... */
+    /* lexical order: 01-, 03-, ... */
     for (int i = 0; i < files.length; i++) {
         for (int j = i + 1; j < files.length; j++) {
             if (strcmp (files[j], files[i]) < 0) { var t = files[i]; files[i] = files[j]; files[j] = t; }
@@ -53,7 +53,7 @@ int main (string[] args) {
     var rep = new Kavis.Selftest.Report (base_dir);
     rep.echo_stdout = !quiet;
     rep.mem_start = Kavis.Selftest.SysMon.mem_used_mb ();
-    rep.line ("START dizin=%s senaryo=%d".printf (rep.dir, files.length));
+    rep.line ("START dir=%s scenarios=%d".printf (rep.dir, files.length));
     var runner = new Kavis.Selftest.Runner (rep, shots);
     foreach (string f in files) {
         runner.run (Kavis.Selftest.Scenario.load (f));
@@ -61,6 +61,6 @@ int main (string[] args) {
     rep.mem_end = Kavis.Selftest.SysMon.mem_used_mb ();
     rep.finish ();
     int fails = rep.failures ();
-    rep.line (fails == 0 ? "SELFTEST-OK" : "SELFTEST-FAIL %d hata".printf (fails));
+    rep.line (fails == 0 ? "SELFTEST-OK" : "SELFTEST-FAIL %d failures".printf (fails));
     return int.min (fails, 125);
 }

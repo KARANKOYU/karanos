@@ -1,34 +1,36 @@
 kavis-panel (1.2) unstable; urgency=medium
 
-  * Grup C görev çubuğu aşamaları: ezilmeyen sağ bölge, yalnız-ikon
-    pencere düğmeleri (W11), gösterge popup'ları (takvim, pil+güç
-    planı, dil, ses), GDK_GL=disable ile llvmpipe tuzağı kapatıldı.
-  * Madde 60: popup dış-tıklama kuralı tek kökten düzeltildi (kök
-    koordinat testi + GTK grab + seat grab yeniden denemesi).
-  * Grup D: ortalanmış küme + akrilik (madde 4); sağ tık menüsü —
-    konum/boyut/ekran/otomatik gizle (madde 5); bildirim altyapısı
-    org.freedesktop.Notifications + bildirim merkezi + hızlı ayarlar
-    (madde 37); kavis-snap kenara yapıştırma ikilisi (madde 6);
-    Win+Tab genel bakış + odaklanma + org.kavis.Panel köprüsü (madde
-    55); pano geçmişi (Win+V) + ses OSD'si (madde 7). Metin tablosu
-    kavis-common'a taşındı (kavis-tools ile ortak).
+  * Grup C taskbar stages: right region that is never squeezed,
+    icon-only window buttons (W11), indicator popups (calendar,
+    battery+power plan, language, volume), llvmpipe trap closed with
+    GDK_GL=disable.
+  * Madde 60: popup outside-click rule fixed at a single root (root
+    coordinate test + GTK grab + seat grab retry).
+  * Grup D: centered cluster + acrylic (madde 4); right-click menu —
+    position/size/monitor/auto-hide (madde 5); notification
+    infrastructure org.freedesktop.Notifications + notification center
+    + quick settings (madde 37); kavis-snap edge-snapping binary
+    (madde 6); Win+Tab overview + focus + org.kavis.Panel bridge
+    (madde 55); clipboard history (Win+V) + volume OSD (madde 7). The
+    string table moved to kavis-common (shared with kavis-tools).
 
  -- Karan <farukyildiz3207@gmail.com>  Wed, 02 Sep 2026 13:00:00 +0300
 
 kavis-panel (1.1) unstable; urgency=medium
 
-  * Panel Python'dan Vala'ya taşındı (madde 3): 117 MB RAM kabul
-    edilemezdi. Aynı görünüm ve davranış; iş mantığı src/logic/,
-    arayüz src/ui/ altında. Strut için python3-xlib yerine doğrudan
-    libX11. setxkbmap'in paketi (x11-xkb-utils) bağımlılığa eklendi —
-    eskiden eksikti ve klavye göstergesi sessizce "TR"ye düşüyordu.
+  * Panel ported from Python to Vala (madde 3): 117 MB of RAM was
+    unacceptable. Same look and behavior; business logic under
+    src/logic/, UI under src/ui/. Direct libX11 for the strut instead
+    of python3-xlib. setxkbmap's package (x11-xkb-utils) added to the
+    dependencies — it used to be missing and the keyboard indicator
+    silently fell back to "TR".
 
  -- Karan <farukyildiz3207@gmail.com>  Tue, 01 Sep 2026 12:00:00 +0300
 
 kavis-panel (1.0) stable; urgency=medium
 
-  * İlk sürüm: görev çubuğu (başlat düğmesi, pencere listesi, sanal
-    masaüstü göstergesi, klavye dili, pil, saat) ve başlat menüsü
-    (arama, kategoriler, güç düğmeleri).
+  * First release: taskbar (start button, window list, virtual
+    desktop indicator, keyboard language, battery, clock) and start
+    menu (search, categories, power buttons).
 
  -- Karan <farukyildiz3207@gmail.com>  Thu, 06 Aug 2026 00:00:00 +0300

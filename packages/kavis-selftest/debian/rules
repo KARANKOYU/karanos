@@ -1,18 +1,18 @@
 #!/usr/bin/make -f
-# kavis-selftest — Vala, GTK3 + libwnck; senaryolar tests/ui'den
-# (build-packages.sh prepare_sources scenarios/ altına kopyalar).
+# kavis-selftest — Vala, GTK3 + libwnck; scenarios come from tests/ui
+# (build-packages.sh prepare_sources copies them under scenarios/).
 export DH_VERBOSE = 1
 DEST := debian/kavis-selftest
-VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
+VALA_PKGS := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
                  --pkg x11 --pkg posix
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm
-KAYNAKLAR := $(wildcard src/*.vala)
+SOURCES := $(wildcard src/*.vala)
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-selftest $(KAYNAKLAR)
+	valac $(VALA_PKGS) $(VALA_CFLAGS) -o kavis-selftest $(SOURCES)
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin $(DEST)/usr/share/kavis/selftest

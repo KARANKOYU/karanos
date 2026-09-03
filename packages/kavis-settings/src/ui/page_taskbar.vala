@@ -17,8 +17,8 @@ namespace Kavis.Settings.Pages {
         position.active_id = conf_get ("taskbar", "position", "bottom");
         position.changed.connect (() => {
             conf_set ("taskbar", "position", position.active_id);
-            /* C6: popup kayma yönü panel konumuna bağlı — picom
-             * kuralını yeni yönle yeniden yaz. */
+            /* C6: the popup slide direction depends on the panel
+             * position — rewrite the picom rule with the new direction. */
             Apply.picom (conf_get_int ("appearance", "radius", 8),
                          conf_get_int ("appearance", "animation", 100),
                          conf_get ("appearance", "popup_animation",
@@ -57,9 +57,9 @@ namespace Kavis.Settings.Pages {
         body.pack_start (row (_("Automatically hide the taskbar"),
                               null, autohide), false, false, 0);
 
-        /* Sabitli uygulamalar: liste + nasıl düzenleneceği. Düzenleme
-         * görev çubuğunun kendisinde (sürükle / sağ tık) — burada
-         * ikinci bir düzenleyici çift iş olurdu. */
+        /* Pinned apps: the list + how to edit it. Editing happens on
+         * the taskbar itself (drag / right-click) — a second editor
+         * here would be duplicate work. */
         body.pack_start (group (_("Pinned apps")), false, false, 0);
         string pinned_path = Path.build_filename (
             Environment.get_user_config_dir (), "kavis", "pinned.conf");

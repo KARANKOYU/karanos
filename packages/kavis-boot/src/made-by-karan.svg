@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  "made by Karan" — açılış ekranındaki italik yazı.
+  "made by Karan" — the italic text on the boot splash.
 
-  NEDEN SVG: Plymouth bitmap font kullanıyor, italik desteği yok. Bu
-  dosya paket derlenirken rsvg-convert ile PNG'ye çevriliyor; açılışta
-  hiçbir yazı tipi bağımlılığı kalmıyor.
+  WHY SVG: Plymouth uses bitmap fonts, no italic support. This file is
+  converted to PNG with rsvg-convert at package build; no font
+  dependency remains at boot.
 
-  Renk #8B9BA8 = koyu paletin ikincil metin rengi.
+  Color #8B9BA8 = the dark palette's secondary text color.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="150" viewBox="0 0 800 150">
   <text x="400" y="100"

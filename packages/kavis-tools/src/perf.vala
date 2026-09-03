@@ -14,8 +14,8 @@ namespace Kavis.Tools {
         private const int SAMPLES = 60;
         private double[] values = new double[SAMPLES];
         private int head = 0;
-        public double max_value = 100;   /* yüzdeler için 100 */
-        public bool auto_scale = false;  /* bayt/s için */
+        public double max_value = 100;   /* 100 for percentages */
+        public bool auto_scale = false;  /* for bytes/s */
 
         public Graph () {
             set_size_request (-1, 160);
@@ -41,7 +41,7 @@ namespace Kavis.Tools {
             int h = get_allocated_height ();
             unowned Gtk.StyleContext ctx = get_style_context ();
             Gdk.RGBA fg = ctx.get_color (Gtk.StateFlags.NORMAL);
-            /* ızgara: 4 yatay çizgi, %15 opak */
+            /* grid: 4 horizontal lines, 15% opaque */
             cr.set_source_rgba (fg.red, fg.green, fg.blue, 0.15);
             cr.set_line_width (1);
             for (int i = 1; i < 4; i++) {
@@ -50,7 +50,7 @@ namespace Kavis.Tools {
                 cr.line_to (w, y);
             }
             cr.stroke ();
-            /* çizgi + dolgu */
+            /* line + fill */
             cr.set_source_rgba (0x2D / 255.0, 0xD4 / 255.0, 0xBF / 255.0, 1);
             cr.set_line_width (2);
             for (int i = 0; i < SAMPLES; i++) {
@@ -87,7 +87,7 @@ namespace Kavis.Tools {
         private Item[] items = {};
         private uint timer = 0;
 
-        /* örnek geçmişi */
+        /* sample history */
         private uint64 prev_busy = 0;
         private uint64 prev_total = 0;
         private HashTable<string, uint64?> prev_disk_r =
@@ -99,7 +99,7 @@ namespace Kavis.Tools {
         private HashTable<string, uint64?> prev_tx =
             new HashTable<string, uint64?> (str_hash, str_equal);
 
-        /* sayfa başına grafik + ayrıntı etiketleri */
+        /* per-page graph + detail labels */
         private HashTable<string, Graph> graphs =
             new HashTable<string, Graph> (str_hash, str_equal);
         private HashTable<string, Gtk.Label> facts =
@@ -144,7 +144,7 @@ namespace Kavis.Tools {
             pack_start (detail_scroll, true, true, 0);
             list.select_row (list.get_row_at_index (0));
 
-            /* Ölçüm yalnız görünürken. */
+            /* Sampling only while visible. */
             map.connect (() => {
                 sample ();
                 if (timer == 0) {
@@ -179,7 +179,7 @@ namespace Kavis.Tools {
             list.add (it.row);
             items += it;
 
-            /* Ayrıntı sayfası: başlık, grafik, olgular ızgarası. */
+            /* Detail page: heading, graph, facts grid. */
             var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
             page.margin = 16;
             var heading = new Gtk.Label (title);
@@ -336,14 +336,14 @@ namespace Kavis.Tools {
             set_fact ("mem", "swap", (st > 0)
                 ? "%s / %s".printf (SysInfo.format_bytes (su),
                                     SysInfo.format_bytes (st)) : "—");
-            /* dmidecode root ister — durum sayfası için parola sormayız */
+            /* dmidecode needs root — no password prompt for a status page */
             set_fact ("mem", "speed", "—");
 
             /* --- Disks --- */
             foreach (unowned SysInfo.Disk d in SysInfo.disks ()) {
                 string id = "disk:" + d.name;
                 if (graphs.lookup (id) == null) {
-                    continue;   /* sonradan takılan disk: sekme yeniden açılınca */
+                    continue;   /* disk plugged in later: shows when the tab reopens */
                 }
                 uint64? pr = prev_disk_r.lookup (d.name);
                 uint64? pw = prev_disk_w.lookup (d.name);

@@ -1,24 +1,25 @@
 #!/bin/sh
-# Kavis — sistem dilini ayarla (Ayarlar > Klavye ve Dil, B6).
-# pkexec ile root koşar (polkit: org.kavis.settings.set-locale). Tek iş:
-# /etc/default/locale + /etc/locale.gen + locale-gen. Kullanıcı tarafı
-# (kavis.conf, ~/.config/kavis/locale, .xsessionrc) Ayarlar'ın kendisinde.
+# Kavis — set the system language (Settings > Keyboard and Language, B6).
+# Runs as root via pkexec (polkit: org.kavis.settings.set-locale). Single
+# job: /etc/default/locale + /etc/locale.gen + locale-gen. The user side
+# (kavis.conf, ~/.config/kavis/locale, .xsessionrc) is in Settings itself.
 set -eu
 
 locale="${1:-}"
 case "$locale" in
 	[a-z][a-z]_[A-Z][A-Z].UTF-8|[a-z][a-z][a-z]_[A-Z][A-Z].UTF-8) ;;
-	*) echo "set-locale: gecersiz locale: $locale" >&2; exit 2 ;;
+	*) echo "set-locale: invalid locale: $locale" >&2; exit 2 ;;
 esac
 
 printf 'LANG=%s\n' "$locale" > /etc/default/locale
 
-# locale.gen: satır varsa yorumu kaldır, yoksa ekle; locale-gen yalnız
-# listedekileri üretir (ISO'da en_US + tr_TR hazır — tekrar üretim ucuz).
+# locale.gen: uncomment the line if present, else add it; locale-gen only
+# builds the listed ones (en_US + tr_TR are ready on the ISO — rebuilding
+# is cheap).
 if grep -q "^# *$locale UTF-8" /etc/locale.gen 2>/dev/null; then
 	sed -i "s/^# *$locale UTF-8/$locale UTF-8/" /etc/locale.gen
 elif ! grep -q "^$locale UTF-8" /etc/locale.gen 2>/dev/null; then
 	printf '%s UTF-8\n' "$locale" >> /etc/locale.gen
 fi
 locale-gen >/dev/null 2>&1 || locale-gen "$locale"
-echo "set-locale: $locale hazir"
+echo "set-locale: $locale ready"

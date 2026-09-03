@@ -32,11 +32,11 @@ Depends:
  gstreamer1.0-gtk3,
  gstreamer1.0-libav,
  gstreamer1.0-alsa,
-Description: Kavis küçük araçları — görev yöneticisi, hesap makinesi, emoji
- Tek ikili, üç araç (madde 7): `kavis-tools tasks` işlem listesi
- (CPU/RAM/disk, sonlandırma), `kavis-tools calc` hesap makinesi,
- `kavis-tools emoji` emoji seçici.
+Description: Kavis small tools — task manager, calculator, emoji
+ One binary, three tools (madde 7): `kavis-tools tasks` process list
+ (CPU/RAM/disk, termination), `kavis-tools calc` calculator,
+ `kavis-tools emoji` emoji picker.
  .
- Vala ile yazılmıştır; metinler docs/kavis-arayuz-metinleri.md
- tablolarından, ortak başlangıç ve metin tablosu kavis-common'dan
- derleme sırasında alınır.
+ Written in Vala; the texts come from the docs/kavis-arayuz-metinleri.md
+ tables, the shared startup and text table are taken from kavis-common
+ at build time.

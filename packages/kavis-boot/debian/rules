@@ -1,107 +1,109 @@
 #!/usr/bin/make -f
-# Kavis açılış ekranı paketi
+# Kavis boot splash package
 #
-# Dışarıdan gelen kaynaklar (koyu-k-logo.svg, boot-sound.mp3, os-release)
-# paket ağacına tools/build-packages.sh tarafından kopyalanıyor; asılları
-# assets/ ve packages/kavis-theme/ altında duruyor.
+# External sources (koyu-k-logo.svg, boot-sound.mp3, os-release) are
+# copied into the package tree by tools/build-packages.sh; the originals
+# live under assets/ and packages/kavis-theme/.
 
 export DH_VERBOSE = 1
 
 LOGO   := src/boot/koyu-k-logo.svg
-SES    := src/boot/boot-sound.mp3
+SOUND  := src/boot/boot-sound.mp3
 OSREL  := src/boot/os-release
 DEST   := debian/kavis-boot
-TEMA   := $(DEST)/usr/share/plymouth/themes/kavis
-VARLIK := $(DEST)/usr/share/kavis/boot
+THEME  := $(DEST)/usr/share/plymouth/themes/kavis
+ASSETS := $(DEST)/usr/share/kavis/boot
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	@for f in $(LOGO) $(SES) $(OSREL); do \
+	@for f in $(LOGO) $(SOUND) $(OSREL); do \
 		if [ ! -f "$$f" ]; then \
-			echo "HATA: $$f yok."; \
-			echo "Kaynaklar depo agacinda baska yerde duruyor ve paket"; \
-			echo "agacina derleme sirasinda kopyalaniyor. Derlemek icin:"; \
+			echo "ERROR: $$f is missing."; \
+			echo "The sources live elsewhere in the repo tree and are copied"; \
+			echo "into the package tree at build time. To build:"; \
 			echo "    tools/build-packages.sh kavis-boot"; \
 			exit 1; \
 		fi; \
 	done
 
 override_dh_auto_install:
-	# --- Plymouth teması ---------------------------------------------
-	install -d $(TEMA)
-	install -m644 src/kavis.plymouth $(TEMA)/kavis.plymouth
-	install -m644 src/kavis.script   $(TEMA)/kavis.script
+	# --- Plymouth theme ------------------------------------------------
+	install -d $(THEME)
+	install -m644 src/kavis.plymouth $(THEME)/kavis.plymouth
+	install -m644 src/kavis.script   $(THEME)/kavis.script
 
-	# Madde 30: splash'te HER ZAMAN koyu logo; fotoğraf yok.
-	rsvg-convert -w 512 -h 512 -o $(TEMA)/logo.png $(LOGO)
+	# Madde 30: ALWAYS the dark logo on the splash; no photo.
+	rsvg-convert -w 512 -h 512 -o $(THEME)/logo.png $(LOGO)
 
-	# Yazılar: Plymouth bitmap font kullandığı için metinler burada
-	# PNG'ye çevriliyor — açılışta yazı tipi bağımlılığı kalmıyor,
-	# sonuç her makinede aynı.
-	rsvg-convert -w 800 -o $(TEMA)/made-by-karan.png src/made-by-karan.svg
-	rsvg-convert -w 900 -o $(TEMA)/acilis-ipuclari.png src/acilis-ipuclari.svg
-	# G (v0.4-test1): "Starting…" yanında dönen halka — 8 kare, script
-	# 12 px'e ölçekler. Kareler derlemede üretilir (depoya ikili girmez).
+	# Texts: since Plymouth uses bitmap fonts the texts are converted to
+	# PNG here — no font dependency at boot, the result is identical on
+	# every machine.
+	rsvg-convert -w 800 -o $(THEME)/made-by-karan.png src/made-by-karan.svg
+	rsvg-convert -w 900 -o $(THEME)/boot-hints.png src/boot-hints.svg
+	# G (v0.4-test1): spinning ring next to "Starting…" — 8 frames, the
+	# script scales to 12 px. Frames are generated at build (no binaries
+	# in the repo).
 	python3 tools/gen-spinner.py debian/spinner
 	set -e; for n in 0 1 2 3 4 5 6 7; do \
-		rsvg-convert -w 48 -h 48 -o $(TEMA)/spinner-$$n.png debian/spinner/spinner-$$n.svg; \
+		rsvg-convert -w 48 -h 48 -o $(THEME)/spinner-$$n.png debian/spinner/spinner-$$n.svg; \
 	done
 	rm -rf debian/spinner
 
-	# Ürün adı tek kaynaktan: os-release NAME değeri Türkçe kurallarla
-	# büyük harfe çevrilir (i→İ; Python'un upper()'ı bunu bilmez) ve
-	# şablona işlenir. Ad hiçbir kaynak dosyada sabit yazılı değil.
-	AD=$$(. $(OSREL) && printf '%s' "$$NAME" \
+	# Product name from a single source: the os-release NAME value is
+	# upper-cased with Turkish rules (i→İ; Python's upper() does not
+	# know this) and substituted into the template. The name is not
+	# hard-coded in any source file.
+	NAME=$$(. $(OSREL) && printf '%s' "$$NAME" \
 		| python3 -c 'import sys; s=sys.stdin.read(); print(s.translate(str.maketrans("iı","İI")).upper(), end="")'); \
-	[ -n "$$AD" ] || { echo "HATA: os-release NAME bos"; exit 1; }; \
-	sed "s/@AD@/$$AD/" src/urun-adi.svg.in > debian/urun-adi.svg
-	rsvg-convert -w 800 -o $(TEMA)/urun-adi.png debian/urun-adi.svg
-	rm -f debian/urun-adi.svg
+	[ -n "$$NAME" ] || { echo "ERROR: os-release NAME is empty"; exit 1; }; \
+	sed "s/@NAME@/$$NAME/" src/product-name.svg.in > debian/product-name.svg
+	rsvg-convert -w 800 -o $(THEME)/product-name.png debian/product-name.svg
+	rm -f debian/product-name.svg
 
-	# --- Gömülü kaynaklar (yalnızca root yazabilir) ------------------
-	install -d $(VARLIK)
+	# --- Embedded assets (writable only by root) ------------------------
+	install -d $(ASSETS)
 
-	# Müzik WAV olarak gömülüyor. Sebep iki tane:
-	#   1. Sonuna 0,4 saniyelik fade-out ekleniyor — bölüm 5 "görsel ve
-	#      ses birlikte yumuşakça söner" diyor, mp3 çalarların çoğunda
-	#      fade yok.
-	#   2. Açılışta mp3 çözücüye gerek kalmıyor; aplay (alsa-utils)
-	#      yetiyor, açılış birkaç yüz milisaniye erken başlıyor.
-	# Bedeli ~1 MB ISO alanı; 1,5 GB hedefinde sorun değil.
-	ffmpeg -nostdin -loglevel error -y -i $(SES) \
+	# The music is embedded as WAV. Two reasons:
+	#   1. A 0.4-second fade-out is added at the end — section 5 says
+	#      "image and sound fade out softly together", most mp3 players
+	#      have no fade.
+	#   2. No mp3 decoder is needed at boot; aplay (alsa-utils) is
+	#      enough, the boot starts a few hundred milliseconds earlier.
+	# The cost is ~1 MB of ISO space; no problem within the 1.5 GB target.
+	ffmpeg -nostdin -loglevel error -y -i $(SOUND) \
 		-af "afade=t=out:st=$$(ffprobe -v error -show_entries format=duration \
-			-of default=noprint_wrappers=1:nokey=1 $(SES) \
+			-of default=noprint_wrappers=1:nokey=1 $(SOUND) \
 			| awk '{printf "%.3f", ($$1 > 0.4) ? $$1 - 0.4 : 0}'):d=0.4" \
 		-ar 44100 -ac 2 -c:a pcm_s16le \
-		$(VARLIK)/boot-sound.wav
-	chmod 644 $(VARLIK)/boot-sound.wav
+		$(ASSETS)/boot-sound.wav
+	chmod 644 $(ASSETS)/boot-sound.wav
 
-	# --- Açılış davranışı ayarları (madde 30) ------------------------
-	# dh, /etc altındaki dosyayı kendiliğinden conffile yapar; kullanıcı
-	# değişikliği paket güncellemesinde ezilmez.
+	# --- Boot behavior settings (madde 30) ------------------------------
+	# dh makes the file under /etc a conffile automatically; user changes
+	# are not overwritten on package upgrade.
 	install -d $(DEST)/etc/kavis
 	install -m644 src/boot.conf $(DEST)/etc/kavis/boot.conf
 
-	# --- Ses servisi --------------------------------------------------
+	# --- Sound service --------------------------------------------------
 	install -d $(DEST)/usr/lib/kavis
 	install -m755 src/boot-sound $(DEST)/usr/lib/kavis/boot-sound
 	install -d $(DEST)/lib/systemd/system
 	install -m644 src/kavis-boot-sound.service \
 		$(DEST)/lib/systemd/system/kavis-boot-sound.service
 
-	# plymouth-quit ve plymouth-quit-wait ses servisini beklesin
+	# plymouth-quit and plymouth-quit-wait wait for the sound service
 	install -d $(DEST)/lib/systemd/system/plymouth-quit.service.d
 	install -d $(DEST)/lib/systemd/system/plymouth-quit-wait.service.d
 	install -m644 src/plymouth-quit-dropin.conf \
 		$(DEST)/lib/systemd/system/plymouth-quit.service.d/kavis.conf
-	# quit-wait için AYRI dosya: quit'inki ExecStart'ı değiştiriyor,
-	# aynısını buraya koyarsak `plymouth --wait` komutunu ezer.
+	# SEPARATE file for quit-wait: the quit one changes ExecStart; putting
+	# the same here would override the `plymouth --wait` command.
 	install -m644 src/plymouth-quit-wait-dropin.conf \
 		$(DEST)/lib/systemd/system/plymouth-quit-wait.service.d/kavis.conf
 
-# Dosyalar zaten sıkıştırılmış biçimlerde (PNG, WAV); tekrar sıkıştırmak
-# ISO'da bir şey kazandırmıyor, açılışta çözme maliyeti getiriyor.
+# The files are already in compressed formats (PNG, WAV); compressing
+# again gains nothing on the ISO and adds decode cost at boot.
 override_dh_installsystemd:
 	dh_installsystemd --name=kavis-boot-sound --no-start

@@ -41,8 +41,8 @@ namespace Kavis {
         private const int EDGE = 3;
         private const int CORNER = 180;
         private const int DRAG_MIN = 8;
-        /* C2: bu kadar piksel içeride kalmalı (yatay), başlık tamamen
-         * dikeyde. */
+        /* C2: at least this many pixels must stay inside (horizontal);
+         * the whole titlebar vertically. */
         private const int KEEP_INSIDE = 80;
 
         private enum Zone { NONE, LEFT, RIGHT, TOP, TL, TR, BL, BR }
@@ -71,11 +71,11 @@ namespace Kavis {
         private bool takeover_placed = false;
         private double grab_ratio = 0;   /* pointer x / frame width */
         private int grab_dy = 0;         /* pointer y - frame y */
-        /* İlk yerleştirmeden sonra ölçülen sapma: wnck'nin okuduğu
-         * çerçeve konumu ile set_geometry'nin kullandığı gravity
-         * koordinatı openbox'ta her zaman aynı değil (Xvfb testinde
-         * dikeyde başlık yüksekliği kadar fark çıktı) — bir kez ölçüp
-         * sonraki her adımda düzeltiyoruz. */
+        /* Bias measured after the first placement: the frame position
+         * wnck reads and the gravity coordinate set_geometry uses are
+         * not always the same under openbox (the Xvfb test showed a
+         * vertical difference of one title height) — measured once and
+         * corrected on every following step. */
         private bool bias_known = false;
         private int bias_x = 0;
         private int bias_y = 0;
@@ -116,15 +116,15 @@ namespace Kavis {
             preview.add (box);
             load_css ();
 
-            /* C2: her pencerenin geometri değişimini izle (klavye,
-             * uygulamanın kendi taşıması). Var olanlar + sonrakiler. */
+            /* C2: watch every window's geometry changes (keyboard, the
+             * app moving itself). Existing ones + those opened later. */
             foreach (unowned Wnck.Window w in screen.get_windows ()) {
                 watch_window (w);
             }
             screen.window_opened.connect ((w) => watch_window (w));
 
             Timeout.add (POLL_IDLE_MS, poll);
-            dbg ("basladi composited=%s pencere=%u", composited.to_string (),
+            dbg ("started composited=%s windows=%u", composited.to_string (),
                  screen.get_windows ().length ());
         }
 
@@ -142,7 +142,7 @@ namespace Kavis {
                     Gdk.Screen.get_default (), provider,
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             } catch (Error e) {
-                warning ("kavis-snap: CSS yuklenemedi: %s", e.message);
+                warning ("kavis-snap: could not load CSS: %s", e.message);
             }
         }
 
@@ -157,16 +157,16 @@ namespace Kavis {
             uint mask;
             if (!xdisplay.query_pointer (root, out r, out c, out x, out y,
                                          out wx, out wy, out mask)) {
-                dbg ("query_pointer basarisiz");
+                dbg ("query_pointer failed");
                 return false;
             }
-            /* Button1Mask = 1<<8 (X.h) — vapi'de sabit olarak yok. */
+            /* Button1Mask = 1<<8 (X.h) — no such constant in the vapi. */
             down = (mask & (1 << 8)) != 0;
             return true;
         }
 
-        /* Değişken hızlı yoklama: düğme bir pencerenin üstünde
-         * basılıyken 16 ms, boşta 80 ms. */
+        /* Variable-rate polling: 16 ms while the button is held on a
+         * window, 80 ms when idle. */
         private bool poll () {
             int x, y;
             bool down;
@@ -227,7 +227,7 @@ namespace Kavis {
                                                 out rx, out ry, out child);
             int err = Gdk.error_trap_pop ();
             if (err != 0 || !ok || attrs.width <= 0) {
-                return false;   /* pencere kapandı / geçersiz */
+                return false;   /* window closed / invalid */
             }
             fx = rx; fy = ry;
             fw = attrs.width; fh = attrs.height;
@@ -262,7 +262,7 @@ namespace Kavis {
                 int wx, wy, ww, wh;
                 w.get_geometry (out wx, out wy, out ww, out wh);
                 if (x >= wx && x < wx + ww && y >= wy && y < wy + wh) {
-                    hit = w;   /* liste alttan üste: sonuncu en üstte */
+                    hit = w;   /* list is bottom-to-top: last one is topmost */
                 }
             }
             return hit;
@@ -275,8 +275,8 @@ namespace Kavis {
             takeover_placed = false;
             zone = Zone.NONE;
             drag_window = window_at (x, y);
-            dbg ("basis %d,%d pencere=%s", x, y,
-                 drag_window == null ? "(yok)" : drag_window.get_name ());
+            dbg ("press %d,%d window=%s", x, y,
+                 drag_window == null ? "(none)" : drag_window.get_name ());
             if (drag_window == null || drag_window.is_fullscreen ()) {
                 drag_window = null;
                 return;
@@ -294,8 +294,9 @@ namespace Kavis {
             }
             press_was_maximized = drag_window.is_maximized ();
             if (press_was_maximized) {
-                /* Basış başlıkta mı? (çerçeve üstü ile istemci üstü
-                 * arası). İçerik alanındaki basış sürükleme değildir. */
+                /* Was the press on the titlebar? (between the frame top
+                 * and the client top). A press in the content area is
+                 * not a drag. */
                 int cx, cy, cw, ch;
                 drag_window.get_client_window_geometry (
                     out cx, out cy, out cw, out ch);
@@ -316,9 +317,9 @@ namespace Kavis {
                 drag_window.get_geometry (out wx, out wy, out ww, out wh);
             }
 
-            /* C3: büyütülmüş pencere — openbox bu durumda hiçbir şey
-             * yapmıyor (rc.xml If kuralı); işaretçi eşiği geçince
-             * sürüklemeyi biz üstleniriz. */
+            /* C3: maximized window — openbox does nothing in this case
+             * (rc.xml If rule); once the pointer passes the threshold
+             * we take over the drag. */
             if (press_was_maximized && !taking_over) {
                 if ((x - press_x).abs () < DRAG_MIN
                     && (y - press_y).abs () < DRAG_MIN) {
@@ -327,7 +328,7 @@ namespace Kavis {
                 taking_over = true;
                 dragging = true;
                 drag_window.unmaximize ();
-                return;   /* geometri bir sonraki yoklamada gelir */
+                return;   /* geometry arrives on the next poll */
             }
             if (taking_over) {
                 follow_pointer (x, y, wx, wy, ww, wh);
@@ -337,37 +338,36 @@ namespace Kavis {
             }
 
             if (!dragging) {
-                /* Sürükleme = pencere gerçekten yer değiştirdi. Panel
-                 * tıklaması / masaüstünde seçim asla tetiklemez. */
+                /* Drag = the window actually moved. A panel click /
+                 * rubber-band on the desktop never triggers it. */
                 if ((wx - press_geometry.x).abs () < DRAG_MIN
                     && (wy - press_geometry.y).abs () < DRAG_MIN) {
                     return;
                 }
                 dragging = true;
-                dbg ("surukleme basladi cerceve %d,%d (basista %d,%d)",
+                dbg ("drag started frame %d,%d (at press %d,%d)",
                      wx, wy, press_geometry.x, press_geometry.y);
             }
 
-            /* Unsnap: bizim yapıştırdığımız pencere çekilip
-             * götürülüyorsa eski boyutunu hemen geri ver (W11
-             * davranışı). */
+            /* Unsnap: if a window we snapped is being dragged away,
+             * give back its old size immediately (W11 behavior). */
             if (!restored_this_drag) {
                 restored_this_drag = true;
                 ulong xid = drag_window.get_xid ();
                 Gdk.Rectangle? old = saved.lookup (xid);
                 if (old != null) {
                     saved.remove (xid);
-                    /* Sürükleme sırasında dener (W11 gibi elde küçülsün);
-                     * openbox kendi taşıması sürerken bunu yok sayıyor
-                     * (Xvfb harnesi), o yüzden end_drag bir daha uygular. */
+                    /* Tried during the drag (shrink in hand like W11);
+                     * openbox ignores it while its own move is running
+                     * (Xvfb harness), so end_drag applies it once more. */
                     unsnap_size = { 0, 0, old.width, old.height };
                     drag_window.set_geometry (Wnck.WindowGravity.STATIC,
                         Wnck.WindowMoveResizeMask.WIDTH
                         | Wnck.WindowMoveResizeMask.HEIGHT,
                         0, 0, old.width, old.height);
-                    /* Yapışıkken tekrar yapıştırılırsa 'eski boyut'
-                     * yarım-ekran değil GERÇEK eski boyut kalsın:
-                     * basıştaki geometri artık geri verilen boyut. */
+                    /* If re-snapped while snapped, the 'old size' must
+                     * stay the REAL old size, not half-screen: the
+                     * press geometry is now the restored size. */
                     press_geometry.width = old.width;
                     press_geometry.height = old.height;
                 }
@@ -376,20 +376,20 @@ namespace Kavis {
             Zone before = zone;
             zone = zone_at (x, y);
             if (zone != before) {
-                dbg ("bolge %d -> %d isaretci %d,%d", (int) before, (int) zone, x, y);
+                dbg ("zone %d -> %d pointer %d,%d", (int) before, (int) zone, x, y);
             }
             update_preview (x, y);
         }
 
-        /* C3: geri yüklenmiş pencereyi işaretçinin altına, başlıkta aynı
-         * oransal noktaya koy ve izle. Geometri henüz büyük (unmaximize
-         * işlenmemiş) ise bekle. */
+        /* C3: put the restored window under the pointer at the same
+         * proportional titlebar spot and follow. Wait while the
+         * geometry is still large (unmaximize not yet processed). */
         private void follow_pointer (int x, int y, int wx, int wy,
                                      int ww, int wh) {
             if (!takeover_placed) {
                 if (ww >= press_geometry.width - 2
                     && wh >= press_geometry.height - 2) {
-                    return;   /* hâlâ büyütülmüş boyutta */
+                    return;   /* still at maximized size */
                 }
                 takeover_placed = true;
                 bias_known = false;
@@ -470,7 +470,7 @@ namespace Kavis {
                 r = { wa.x + half_w, wa.y + half_h,
                       wa.width - half_w, wa.height - half_h };
                 break;
-            default:   /* TOP: tam çalışma alanı (büyütme önizlemesi) */
+            default:   /* TOP: full work area (maximize preview) */
                 r = wa;
                 break;
             }
@@ -479,7 +479,7 @@ namespace Kavis {
 
         private void update_preview (int x, int y) {
             if (!composited) {
-                return;   /* kompozitörsüz önizleme opak kutu çizer */
+                return;   /* uncomposited preview would draw an opaque box */
             }
             if (zone == Zone.NONE) {
                 preview.hide ();
@@ -493,9 +493,9 @@ namespace Kavis {
         }
 
         private void end_drag () {
-            dbg ("birakildi dragging=%s bolge=%d pencere=%s",
+            dbg ("released dragging=%s zone=%d window=%s",
                  dragging.to_string (), (int) zone,
-                 drag_window == null ? "(yok)" : drag_window.get_name ());
+                 drag_window == null ? "(none)" : drag_window.get_name ());
             preview.hide ();
             if (dragging && drag_window != null) {
                 if (zone != Zone.NONE) {
@@ -525,7 +525,7 @@ namespace Kavis {
 
             ulong xid = drag_window.get_xid ();
             if (saved.lookup (xid) == null) {
-                /* Yapıştırma öncesi boyut: sürükleme başındaki. */
+                /* Pre-snap size: the one at the start of the drag. */
                 saved.insert (xid, press_geometry);
             }
 
@@ -542,12 +542,12 @@ namespace Kavis {
                 r.x, r.y, r.width, r.height);
         }
 
-        /* --- C2: başlık çubuğu ekranda kalır ------------------------- */
+        /* --- C2: the titlebar stays on screen -------------------------- */
 
         private void watch_window (Wnck.Window w) {
             w.geometry_changed.connect ((win) => {
-                /* Sürükleme sırasında karışma; bırakınca end_drag
-                 * zaten düzeltir. */
+                /* Do not interfere during a drag; end_drag fixes it on
+                 * release anyway. */
                 if (button_was_down) {
                     return;
                 }
@@ -569,13 +569,13 @@ namespace Kavis {
             int title_h = int.max (cy - wy, 24);
             Gdk.Rectangle wa = workarea_at (wx + ww / 2, wy + title_h / 2);
             int nx = wx, ny = wy;
-            /* Dikey: başlık çalışma alanının içinde. */
+            /* Vertical: the titlebar inside the work area. */
             if (wy < wa.y) {
                 ny = wa.y;
             } else if (wy + title_h > wa.y + wa.height) {
                 ny = wa.y + wa.height - title_h;
             }
-            /* Yatay: pencerenin en az KEEP_INSIDE pikseli içeride. */
+            /* Horizontal: at least KEEP_INSIDE pixels of the window inside. */
             if (wx + ww < wa.x + KEEP_INSIDE) {
                 nx = wa.x + KEEP_INSIDE - ww;
             } else if (wx > wa.x + wa.width - KEEP_INSIDE) {
@@ -593,10 +593,10 @@ namespace Kavis {
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
-    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    /* Palette (B2): component CSS gets the @kavis_* names from here. */
     Kavis.Theme.install ();
     var daemon = new Kavis.SnapDaemon ();
-    daemon.ref ();   /* yaşasın — tek sahibi main döngüsü */
+    daemon.ref ();   /* keep alive — the main loop is its only owner */
     Gtk.main ();
     return 0;
 }

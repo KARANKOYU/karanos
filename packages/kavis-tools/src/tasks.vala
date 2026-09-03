@@ -2,7 +2,7 @@
  * totals on top, search filter and end-task. Reads /proc directly — no
  * dependency on libgtop or similar; the panel's RAM rules apply here.
  *
- * Cost model (optimizasyon turu): ONE file per process per tick
+ * Cost model (optimization round): ONE file per process per tick
  * (/proc/PID/stat carries utime, stime AND rss pages), the name is
  * resolved once per pid from /proc/PID/exe (cached until the pid
  * vanishes), uid comes from a stat(2) on the /proc/PID directory, and
@@ -41,7 +41,7 @@ namespace Kavis.Tools {
             public Gtk.TreeIter iter;
             public bool seen;
         }
-        /* pid → son örnek + satır. */
+        /* pid → last sample + row. */
         private HashTable<int, Sample> samples =
             new HashTable<int, Sample> (direct_hash, direct_equal);
         private uint64 prev_total_jiffies = 0;
@@ -55,7 +55,7 @@ namespace Kavis.Tools {
 
         public TaskManagerWindow () {
             set_title (_("Task Manager"));
-            /* W11 başlık çubuğu (geri bildirim A) — Ayarlar'la aynı. */
+            /* W11 title bar (feedback A) — same as Settings. */
             Kavis.HeaderBar.attach (this, _("Task Manager"),
                                     "utilities-system-monitor");
             page_kb = Posix.sysconf (Posix._SC_PAGESIZE) / 1024;
@@ -64,9 +64,9 @@ namespace Kavis.Tools {
 
             var root = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
             root.set_border_width (10);
-            /* H (v0.4-test1): W11 gibi solda gezinti — Süreçler /
-             * Performans / Başlangıç / Günlükler. Stack görünmeyen
-             * sayfayı unmap eder: ölçümler kapalıyken durur. */
+            /* H (v0.4-test1): navigation on the left like W11 —
+             * Processes / Performance / Startup / Logs. Stack unmaps
+             * the hidden page: sampling stops while closed. */
             var stack = new Gtk.Stack ();
             stack.transition_type = Gtk.StackTransitionType.CROSSFADE;
             stack.transition_duration = 140;
@@ -84,7 +84,7 @@ namespace Kavis.Tools {
             stack.add_titled (new LogsPage (), "logs", _("Logs"));
             set_default_size (860, 560);
 
-            /* Üstte toplamlar: W11'in "CPU 22% · Bellek 50%" satırı. */
+            /* Totals on top: W11's "CPU 22% · Memory 50%" line. */
             totals = new Gtk.Label ("");
             totals.set_xalign (0);
             totals.get_style_context ().add_class ("dim-label");
@@ -102,9 +102,9 @@ namespace Kavis.Tools {
 
             store = new Gtk.ListStore (8,
                 typeof (string),   /* NAME */
-                typeof (double),   /* CPU (sıralama) */
+                typeof (double),   /* CPU (sorting) */
                 typeof (string),   /* CPU_TEXT */
-                typeof (uint64),   /* MEM_KB (sıralama) */
+                typeof (uint64),   /* MEM_KB (sorting) */
                 typeof (string),   /* MEM_TEXT */
                 typeof (string),   /* DISK_TEXT */
                 typeof (int),      /* PID */
@@ -124,8 +124,8 @@ namespace Kavis.Tools {
                                          Gtk.SortType.DESCENDING);
 
             view = new Gtk.TreeView.with_model (sortable);
-            /* Satır yüksekliği sabit: GTK her satırı ölçmez (uzun
-             * listede çizim maliyeti düşer). */
+            /* Fixed row height: GTK does not measure every row (lower
+             * drawing cost on a long list). */
             view.fixed_height_mode = true;
             append_column (_("Name"), Col.NAME, Col.NAME, true);
             cpu_column = append_column (_("CPU"), Col.CPU_TEXT, Col.CPU, false);
@@ -142,7 +142,7 @@ namespace Kavis.Tools {
             scroll.add (view);
             root.pack_start (scroll, true, true, 0);
 
-            /* Ölçüm yalnız sayfa görünürken (Stack unmap eder). */
+            /* Sampling only while the page is visible (Stack unmaps). */
             root.map.connect (() => {
                 refresh ();
                 if (timer == 0) {
@@ -189,7 +189,8 @@ namespace Kavis.Tools {
             int pid, uid;
             model.get (iter, Col.PID, out pid, Col.UID, out uid);
 
-            /* Kök (sistem) işlemi: madde gereği uyar, onaysız dokunma. */
+            /* Root (system) process: warn as the task item requires, do
+             * not touch without confirmation. */
             if (uid == 0) {
                 var dialog = new Gtk.MessageDialog (this,
                     Gtk.DialogFlags.MODAL, Gtk.MessageType.WARNING,
@@ -238,7 +239,7 @@ namespace Kavis.Tools {
                     shown++;
                 }
             }
-            /* Kaybolan süreçlerin satırları. */
+            /* Rows of vanished processes. */
             var gone = new GenericArray<int> ();
             samples.foreach ((pid, s) => {
                 if (!s.seen) {
@@ -251,7 +252,7 @@ namespace Kavis.Tools {
                 samples.remove (gone[i]);
             }
 
-            /* Toplamlar: üst satır + sütun başlıkları. */
+            /* Totals: top line + column headers. */
             uint64 mt, mu, mc, st, su;
             SysInfo.memory (out mt, out mu, out mc, out st, out su);
             double mem_pct = (mt > 0) ? 100.0 * mu / mt : 0;
@@ -284,7 +285,7 @@ namespace Kavis.Tools {
 
             Sample? s = samples.lookup (pid);
             if (s == null) {
-                /* Çekirdek iş parçacığı (cmdline boş) gizli — W11 gibi. */
+                /* Kernel thread (empty cmdline) hidden — like W11. */
                 string name = process_name (pid);
                 if (name == null) {
                     return false;
@@ -329,9 +330,9 @@ namespace Kavis.Tools {
         /* Display name: exe basename (e.g. "kavis-panel", not a thread's
          * comm like "MainThread"); null for kernel threads. */
         private static string? process_name (int pid) {
-            /* cmdline NUL ayrılmış: string olarak okumak ilk NUL'da
-             * keser (Vala "\0" ile split edilemez — GLib-CRITICAL,
-             * hata taraması bulgusu). Ham bayt dizisinden ayrıştırılır. */
+            /* cmdline is NUL-separated: reading it as a string cuts at
+             * the first NUL (Vala cannot split on "\0" — GLib-CRITICAL,
+             * bug-scan finding). Parsed from the raw byte array. */
             uint8[] raw;
             try {
                 FileUtils.get_data ("/proc/%d/cmdline".printf (pid), out raw);
@@ -339,7 +340,7 @@ namespace Kavis.Tools {
                 return null;
             }
             if (raw.length == 0) {
-                return null;   /* çekirdek iş parçacığı */
+                return null;   /* kernel thread */
             }
             string[] argv = {};
             int start = 0;
@@ -358,7 +359,7 @@ namespace Kavis.Tools {
             try {
                 string exe = FileUtils.read_link ("/proc/%d/exe".printf (pid));
                 string base_name = Path.get_basename (exe).replace (" (deleted)", "");
-                /* Yorumlayıcılar (python3, sh): betiğin adı daha anlamlı. */
+                /* Interpreters (python3, sh): the script name is more meaningful. */
                 if (base_name.has_prefix ("python") || base_name == "sh"
                     || base_name == "bash" || base_name == "perl") {
                     if (argv.length > 1 && argv[1] != "" && !argv[1].has_prefix ("-")) {
@@ -367,7 +368,7 @@ namespace Kavis.Tools {
                 }
                 return base_name;
             } catch (FileError e) {
-                /* Başkasının süreci: exe okunamaz, argv[0] kalır. */
+                /* Someone else's process: exe unreadable, argv[0] stays. */
                 return Path.get_basename (argv[0]);
             }
         }

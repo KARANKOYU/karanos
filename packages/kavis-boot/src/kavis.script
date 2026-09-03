@@ -1,248 +1,253 @@
-# Kavis — Plymouth açılış ekranı (script eklentisi)
+# Kavis — Plymouth boot splash (script plugin)
 #
-# Madde 30'daki tasarım:
-#   1. Sade zemin (#0D141B) — duvar kâğıdı/fotoğraf YOK
-#   2. Ortada koyu logo (koyu-k-logo.svg'den üretilen logo.png; kural:
-#      açılış ekranında HER ZAMAN koyu logo)
-#   3. Logonun altında ürün adı (urun-adi.png — os-release NAME'den
-#      derlemede üretilir, ad koda gömülü değil)
-#   4. Onun altında küçük "made by Karan" imzası
-#   5. En altta iki ipucu satırı: "F3 — Advanced menu" ve
-#      "Press space to skip" (varsayılan dil EN — 2 Eyl 2026 kararı)
-#   6. Geçişler yumuşak: %15'ten %100'e parlama ile açılır, müzik
-#      bitince (ya da boşlukla atlanınca) yumuşakça söner
+# The design from madde 30:
+#   1. Plain background (#0D141B) — NO wallpaper/photo
+#   2. Dark logo in the center (logo.png generated from koyu-k-logo.svg;
+#      rule: the boot splash ALWAYS uses the dark logo)
+#   3. Product name below the logo (product-name.png — generated at
+#      build time from os-release NAME, the name is not embedded in code)
+#   4. Below that a small "made by Karan" signature
+#   5. Two hint lines at the bottom: "F3 — Advanced menu" and
+#      "Press space to skip" (default language EN — 2 Sep 2026 decision)
+#   6. Smooth transitions: opens with a glow from 15% to 100%, fades
+#      out softly when the music ends (or is skipped with space)
 #
-# Müziği ayrı bir systemd servisi çalar (Plymouth'un ses desteği yok);
-# boşluk tuşunu da o servis dinler (plymouth watch-keystroke) — script
-# tarafında tuş işleme YOK, tek görev çizim.
+# A separate systemd service plays the music (Plymouth has no audio
+# support); that service also listens for the space key (plymouth
+# watch-keystroke) — NO key handling on the script side, drawing only.
 #
-# NEDEN YAZILAR PNG: Plymouth bitmap font kullanıyor; yazılar paket
-# derlenirken SVG'den PNG'ye çevriliyor. Açılışta yazı tipi bağımlılığı
-# kalmıyor, sonuç her makinede birebir aynı.
+# WHY THE TEXTS ARE PNG: Plymouth uses bitmap fonts; the texts are
+# converted from SVG to PNG at package build time. No font dependency
+# at boot, the result is identical on every machine.
 #
-# DİL KISITI: Plymouth'un script dili küçük bir dil. Burada bilerek
-# yalnızca kesin desteklenen yapılar kullanılıyor:
-#   - `++` yok, `kare = kare + 1` yazılıyor
-#   - gövdesiz `return;` yok, her dal if/else ile ayrılıyor
-#   - Sprite'ın opaklığı geri okunamıyor (GetOpacity yok), bu yüzden
-#     opaklıklar ayrı değişkenlerde tutuluyor
+# LANGUAGE LIMITS: Plymouth's script language is a small language. Only
+# constructs known to be supported are used here on purpose:
+#   - no `++`, `frame = frame + 1` is written instead
+#   - no bare `return;`, every branch is split with if/else
+#   - a Sprite's opacity cannot be read back (no GetOpacity), so the
+#     opacities are kept in separate variables
 #
-# ZAMANLAMA: Refresh saniyede ~50 kez çağrılıyor. Gerçek saat okumak
-# yerine kare sayıyoruz — Plymouth'ta güvenilir bir zaman kaynağı yok.
+# TIMING: Refresh is called ~50 times per second. Instead of reading a
+# real clock we count frames — Plymouth has no reliable time source.
 
-# --- ayarlar ---------------------------------------------------------
-KARE_HIZI      = 50.0;
-PARLAMA_SURESI = 1.5;   # saniye — %15'ten %100'e
-BASLANGIC_OPAK = 0.15;
-AD_OPAK        = 0.95;
-IMZA_OPAK      = 0.75;
-IPUCU_OPAK     = 0.70;
-PARLAMA_OPAK   = 0.18;
-# FADE YOK (test8 H3b): eski %35'e solma retain karesinde ~1 sn "takıldı"
-# hissi veriyordu. Splash TAM PARLAKLIKTA kalır; X gelince picom'un
-# fade-in'i masaüstünü üstüne bindirir — geçiş "splash → masaüstü" olur.
-# Kapanışta yalnız ipucu satırı "Starting…" ile değişir (yanıltıcı
-# "boşluk tuşu" yazısı retain karesinde kalmasın).
+# --- settings --------------------------------------------------------
+FRAME_RATE        = 50.0;
+GLOW_DURATION     = 1.5;   # seconds — 15% to 100%
+START_OPACITY     = 0.15;
+NAME_OPACITY      = 0.95;
+SIGNATURE_OPACITY = 0.75;
+HINT_OPACITY      = 0.70;
+GLOW_OPACITY      = 0.18;
+# NO FADE (test8 H3b): the old fade to 35% gave a ~1 s "stuck" feeling
+# on the retained frame. The splash stays at FULL BRIGHTNESS; when X
+# arrives picom's fade-in lays the desktop over it — the transition
+# becomes "splash → desktop". On shutdown only the hint line changes to
+# "Starting…" (the misleading "space key" text must not remain on the
+# retained frame).
 
-# Zemin: sade, tek renk — masaüstü zemini #0D141B (madde 30: duvar
-# kâğıdı yok). Üst ve alt aynı renk, degrade bile yok.
+# Background: plain, single color — the desktop ground #0D141B (madde
+# 30: no wallpaper). Top and bottom the same color, not even a gradient.
 Window.SetBackgroundTopColor(0.051, 0.078, 0.106);
 Window.SetBackgroundBottomColor(0.051, 0.078, 0.106);
 
-ekran_w = Window.GetWidth();
-ekran_h = Window.GetHeight();
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
 
-# --- görseller -------------------------------------------------------
-logo_ham  = Image("logo.png");
-ad_ham    = Image("urun-adi.png");
-imza_ham  = Image("made-by-karan.png");
-ipucu_ham = Image("acilis-ipuclari.png");
-# Boşlukla atlanınca ipuçlarının yerine geçen tek satır (madde 6
-# düzeltmesi): görsel karşılık — splash erken kapanmaz, retain sürer.
-# G/B2: 8 karelik spinner (24 px, turkuaz) — müzik bitince imzanın
-# ALTINDA, ortada belirir ve X gelene kadar döner; "Starting…" yazısı
-# kalktı (halka yeter), ipucu satırı da o anda söner.
+# --- images ----------------------------------------------------------
+logo_raw      = Image("logo.png");
+name_raw      = Image("product-name.png");
+signature_raw = Image("made-by-karan.png");
+hints_raw     = Image("boot-hints.png");
+# The single line that replaces the hints when skipped with space
+# (madde 6 fix): visual feedback — the splash does not close early,
+# retain continues.
+# G/B2: 8-frame spinner (24 px, teal) — when the music ends it appears
+# centered BELOW the signature and spins until X arrives; the
+# "Starting…" text is gone (the ring is enough), the hint line fades
+# out at that moment too.
 SPINNER_PX = 24;
-spinner_kare = 0;
-while (spinner_kare < 8)
+spinner_frame = 0;
+while (spinner_frame < 8)
   {
-    spinner_ham = Image("spinner-" + spinner_kare + ".png");
-    spinner[spinner_kare] = spinner_ham.Scale(SPINNER_PX, SPINNER_PX);
-    spinner_kare = spinner_kare + 1;
+    spinner_raw = Image("spinner-" + spinner_frame + ".png");
+    spinner[spinner_frame] = spinner_raw.Scale(SPINNER_PX, SPINNER_PX);
+    spinner_frame = spinner_frame + 1;
   }
 spinner_sprite = Sprite(spinner[0]);
 spinner_sprite.SetOpacity(0);
-spinner_acik = 0;
+spinner_on = 0;
 
-# Logo ekranın en fazla dörtte birini kaplasın; küçük ekranda taşmasın,
-# büyük ekranda kaybolmasın.
-hedef_h = ekran_h / 4;
-olcek = hedef_h / logo_ham.GetHeight();
-if (logo_ham.GetWidth() * olcek > ekran_w * 0.5)
+# The logo covers at most a quarter of the screen; it must not overflow
+# on a small screen nor get lost on a big one.
+target_h = screen_h / 4;
+logo_scale = target_h / logo_raw.GetHeight();
+if (logo_raw.GetWidth() * logo_scale > screen_w * 0.5)
   {
-    olcek = (ekran_w * 0.5) / logo_ham.GetWidth();
+    logo_scale = (screen_w * 0.5) / logo_raw.GetWidth();
   }
 
-logo_w = logo_ham.GetWidth() * olcek;
-logo_h = logo_ham.GetHeight() * olcek;
-logo = logo_ham.Scale(logo_w, logo_h);
+logo_w = logo_raw.GetWidth() * logo_scale;
+logo_h = logo_raw.GetHeight() * logo_scale;
+logo = logo_raw.Scale(logo_w, logo_h);
 
-# Parlama: aynı görselin biraz büyütülmüş kopyası, arkada, düşük opaklık
-parlama_w = logo_w * 1.10;
-parlama_h = logo_h * 1.10;
-parlama = logo_ham.Scale(parlama_w, parlama_h);
+# Glow: a slightly enlarged copy of the same image, behind, low opacity
+glow_w = logo_w * 1.10;
+glow_h = logo_h * 1.10;
+glow = logo_raw.Scale(glow_w, glow_h);
 
-# Ürün adı logodan biraz geniş — marka yazısı gibi dursun
-ad_w = logo_w * 1.35;
-ad_olcek = ad_w / ad_ham.GetWidth();
-ad_h = ad_ham.GetHeight() * ad_olcek;
-ad = ad_ham.Scale(ad_w, ad_h);
+# The product name is a bit wider than the logo — reads like a wordmark
+name_w = logo_w * 1.35;
+name_scale = name_w / name_raw.GetWidth();
+name_h = name_raw.GetHeight() * name_scale;
+name = name_raw.Scale(name_w, name_h);
 
-# İmza küçük ve soluk
-# H2 (test8): 'made by Karan' 2× — KAVİS yazısının altında rahat
-# okunur; oran 0.55 → 1.1.
-imza_w = logo_w * 1.1;
-imza_olcek = imza_w / imza_ham.GetWidth();
-imza_h = imza_ham.GetHeight() * imza_olcek;
-imza = imza_ham.Scale(imza_w, imza_h);
+# The signature is small and faint
+# H2 (test8): 'made by Karan' 2× — reads comfortably below the KAVİS
+# text; ratio 0.55 → 1.1.
+signature_w = logo_w * 1.1;
+signature_scale = signature_w / signature_raw.GetWidth();
+signature_h = signature_raw.GetHeight() * signature_scale;
+signature = signature_raw.Scale(signature_w, signature_h);
 
-# İpuçları ekran genişliğine göre; alt kenara oturur
-ipucu_w = ekran_w * 0.34;
-if (ipucu_w > ipucu_ham.GetWidth())
+# Hints follow the screen width; they sit at the bottom edge
+hints_w = screen_w * 0.34;
+if (hints_w > hints_raw.GetWidth())
   {
-    ipucu_w = ipucu_ham.GetWidth();
+    hints_w = hints_raw.GetWidth();
   }
-ipucu_olcek = ipucu_w / ipucu_ham.GetWidth();
-ipucu_h = ipucu_ham.GetHeight() * ipucu_olcek;
-ipucu = ipucu_ham.Scale(ipucu_w, ipucu_h);
+hints_scale = hints_w / hints_raw.GetWidth();
+hints_h = hints_raw.GetHeight() * hints_scale;
+hints = hints_raw.Scale(hints_w, hints_h);
 
-# "Başlatılıyor…" aynı ölçekle küçültülür — yazı boyu ipuçlarıyla aynı.
+# "Starting…" is shrunk with the same scale — same text size as the hints.
 
-# --- yerleşim --------------------------------------------------------
-# Logo + ad + imza bloğu dikeyde ortalanır (blok, ipuçlarından bağımsız)
-bosluk1 = logo_h * 0.14;   # logo ile ad arası
-bosluk2 = logo_h * 0.10;   # ad ile imza arası
-toplam_h = logo_h + bosluk1 + ad_h + bosluk2 + imza_h;
-ust = (ekran_h - toplam_h) / 2;
+# --- layout ----------------------------------------------------------
+# The logo + name + signature block is centered vertically (the block
+# is independent of the hints)
+gap1 = logo_h * 0.14;   # between logo and name
+gap2 = logo_h * 0.10;   # between name and signature
+total_h = logo_h + gap1 + name_h + gap2 + signature_h;
+top = (screen_h - total_h) / 2;
 
-logo_x = (ekran_w - logo_w) / 2;
-logo_y = ust;
-ad_x = (ekran_w - ad_w) / 2;
-ad_y = ust + logo_h + bosluk1;
-imza_x = (ekran_w - imza_w) / 2;
-imza_y = ad_y + ad_h + bosluk2;
+logo_x = (screen_w - logo_w) / 2;
+logo_y = top;
+name_x = (screen_w - name_w) / 2;
+name_y = top + logo_h + gap1;
+signature_x = (screen_w - signature_w) / 2;
+signature_y = name_y + name_h + gap2;
 
-ipucu_x = (ekran_w - ipucu_w) / 2;
-ipucu_y = ekran_h - ipucu_h - (ekran_h * 0.05);
+hints_x = (screen_w - hints_w) / 2;
+hints_y = screen_h - hints_h - (screen_h * 0.05);
 
-parlama_sprite = Sprite(parlama);
-parlama_sprite.SetPosition(logo_x - (parlama_w - logo_w) / 2,
-                           logo_y - (parlama_h - logo_h) / 2, 1);
-parlama_sprite.SetOpacity(0);
+glow_sprite = Sprite(glow);
+glow_sprite.SetPosition(logo_x - (glow_w - logo_w) / 2,
+                        logo_y - (glow_h - logo_h) / 2, 1);
+glow_sprite.SetOpacity(0);
 
 logo_sprite = Sprite(logo);
 logo_sprite.SetPosition(logo_x, logo_y, 2);
-logo_sprite.SetOpacity(BASLANGIC_OPAK);
+logo_sprite.SetOpacity(START_OPACITY);
 
-ad_sprite = Sprite(ad);
-ad_sprite.SetPosition(ad_x, ad_y, 2);
-ad_sprite.SetOpacity(0);
+name_sprite = Sprite(name);
+name_sprite.SetPosition(name_x, name_y, 2);
+name_sprite.SetOpacity(0);
 
-imza_sprite = Sprite(imza);
-imza_sprite.SetPosition(imza_x, imza_y, 2);
-imza_sprite.SetOpacity(0);
+signature_sprite = Sprite(signature);
+signature_sprite.SetPosition(signature_x, signature_y, 2);
+signature_sprite.SetOpacity(0);
 
-ipucu_sprite = Sprite(ipucu);
-ipucu_sprite.SetPosition(ipucu_x, ipucu_y, 2);
-ipucu_sprite.SetOpacity(0);
+hints_sprite = Sprite(hints);
+hints_sprite.SetPosition(hints_x, hints_y, 2);
+hints_sprite.SetOpacity(0);
 
-# --- durum -----------------------------------------------------------
-kare = 0;
-hint_degisti = 0;
-ipucu_gizli = 0;
+# --- state -----------------------------------------------------------
+frame = 0;
+hint_changed = 0;
+hints_hidden = 0;
 
-# Sprite'tan opaklık geri okunamadığı için kendimiz tutuyoruz.
-logo_opak = BASLANGIC_OPAK;
-ad_opak = 0;
-imza_opak = 0;
-ipucu_opak = 0;
-parlama_opak = 0;
+# Opacity cannot be read back from a Sprite, so we keep it ourselves.
+logo_opacity = START_OPACITY;
+name_opacity = 0;
+signature_opacity = 0;
+hints_opacity = 0;
+glow_opacity = 0;
 
 fun Refresh()
   {
-    kare = kare + 1;
+    frame = frame + 1;
 
-    t = kare / KARE_HIZI;
-    if (t < PARLAMA_SURESI)
+    t = frame / FRAME_RATE;
+    if (t < GLOW_DURATION)
       {
-        # Açılış: %15 → %100
-        ilerleme = t / PARLAMA_SURESI;
-        logo_opak = BASLANGIC_OPAK + (1 - BASLANGIC_OPAK) * ilerleme;
-        ad_opak = AD_OPAK * ilerleme;
-        imza_opak = IMZA_OPAK * ilerleme;
-        ipucu_opak = IPUCU_OPAK * ilerleme;
-        parlama_opak = PARLAMA_OPAK * ilerleme;
+        # Opening: 15% → 100%
+        progress = t / GLOW_DURATION;
+        logo_opacity = START_OPACITY + (1 - START_OPACITY) * progress;
+        name_opacity = NAME_OPACITY * progress;
+        signature_opacity = SIGNATURE_OPACITY * progress;
+        hints_opacity = HINT_OPACITY * progress;
+        glow_opacity = GLOW_OPACITY * progress;
       }
     else
       {
-        logo_opak = 1;
-        ad_opak = AD_OPAK;
-        imza_opak = IMZA_OPAK;
-        ipucu_opak = IPUCU_OPAK;
-        # Parlama hafifçe nefes alsın — donmuş ekran izlenimi
-        # vermesin. Genlik küçük, dikkat dağıtmıyor.
-        parlama_opak = PARLAMA_OPAK
-                       + 0.07 * Math.Sin((t - PARLAMA_SURESI) * 1.6);
+        logo_opacity = 1;
+        name_opacity = NAME_OPACITY;
+        signature_opacity = SIGNATURE_OPACITY;
+        hints_opacity = HINT_OPACITY;
+        # Let the glow breathe slightly — no frozen-screen impression.
+        # Small amplitude, not distracting.
+        glow_opacity = GLOW_OPACITY
+                       + 0.07 * Math.Sin((t - GLOW_DURATION) * 1.6);
       }
-    logo_sprite.SetOpacity(logo_opak);
-    ad_sprite.SetOpacity(ad_opak);
-    imza_sprite.SetOpacity(imza_opak);
-    if (ipucu_gizli == 1) { ipucu_opak = 0; }
-    ipucu_sprite.SetOpacity(ipucu_opak);
-    parlama_sprite.SetOpacity(parlama_opak);
-    if (spinner_acik == 1)
+    logo_sprite.SetOpacity(logo_opacity);
+    name_sprite.SetOpacity(name_opacity);
+    signature_sprite.SetOpacity(signature_opacity);
+    if (hints_hidden == 1) { hints_opacity = 0; }
+    hints_sprite.SetOpacity(hints_opacity);
+    glow_sprite.SetOpacity(glow_opacity);
+    if (spinner_on == 1)
       {
-        # her 6 karede bir adım (≈ 50 fps'te tam tur 1 sn)
-        spinner_sprite.SetImage(spinner[Math.Int(kare / 6) % 8]);
-        spinner_sprite.SetOpacity(IPUCU_OPAK);
+        # one step every 6 frames (≈ a full turn per second at 50 fps)
+        spinner_sprite.SetImage(spinner[Math.Int(frame / 6) % 8]);
+        spinner_sprite.SetOpacity(HINT_OPACITY);
       }
   }
 
-fun IpucunuDegistir()
+fun SwitchHint()
   {
-    if (hint_degisti == 0)
+    if (hint_changed == 0)
       {
-        hint_degisti = 1;
-        # ipucu satırı söner (Refresh ipucu_gizli'ye bakar), spinner
-        # imzanın altında ortada belirir.
-        ipucu_gizli = 1;
-        spinner_sprite.SetPosition((ekran_w - SPINNER_PX) / 2,
-                                   imza_y + imza_h + bosluk2,
+        hint_changed = 1;
+        # the hint line fades out (Refresh checks hints_hidden), the
+        # spinner appears centered below the signature.
+        hints_hidden = 1;
+        spinner_sprite.SetPosition((screen_w - SPINNER_PX) / 2,
+                                   signature_y + signature_h + gap2,
                                    2);
-        spinner_acik = 1;
+        spinner_on = 1;
       }
   }
 
-# Ses servisi müzik bitince kavis-sonlaniyor, boşlukla atlanınca
-# kavis-atlandi gönderir; iki durumda da (ve quit'te) ipucu satırı
-# "Starting…" olur — fade YOK, splash tam parlaklıkta retain edilir.
-fun DurumDegisti(durum)
+# The sound service sends kavis-finishing when the music ends and
+# kavis-skipped when skipped with space; in both cases (and on quit) the
+# hint line becomes "Starting…" — NO fade, the splash is retained at
+# full brightness.
+fun StatusChanged(status)
   {
-    if (durum == "kavis-sonlaniyor")
+    if (status == "kavis-finishing")
       {
-        IpucunuDegistir();
+        SwitchHint();
       }
-    if (durum == "kavis-atlandi")
+    if (status == "kavis-skipped")
       {
-        IpucunuDegistir();
+        SwitchHint();
       }
   }
 
-fun Cikis()
+fun Quit()
   {
-    IpucunuDegistir();
+    SwitchHint();
   }
 
 Plymouth.SetRefreshFunction(Refresh);
-Plymouth.SetUpdateStatusFunction(DurumDegisti);
-Plymouth.SetQuitFunction(Cikis);
+Plymouth.SetUpdateStatusFunction(StatusChanged);
+Plymouth.SetQuitFunction(Quit);

@@ -27,7 +27,7 @@ namespace Kavis.Ui {
             config = PanelConfig.get_default ();
             content.set_size_request (380, -1);
 
-            /* --- bildirim merkezi başlığı --- */
+            /* --- notification center header --- */
             var header = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             var title = new Gtk.Label (_("Notifications"));
             title.get_style_context ().add_class ("dim");
@@ -77,7 +77,7 @@ namespace Kavis.Ui {
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 4);
 
-            /* --- takvim bölümü: başlık satırı + daraltma --- */
+            /* --- calendar section: header row + collapse --- */
             var cal_header = new Gtk.Button ();
             cal_header.set_relief (Gtk.ReliefStyle.NONE);
             var cal_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
@@ -90,7 +90,7 @@ namespace Kavis.Ui {
             cal_header.add (cal_row);
             cal_header.clicked.connect (() => {
                 set_calendar_collapsed (!config.calendar_collapsed, true);
-                rebuild_notifications ();   /* liste yüksekliği değişir */
+                rebuild_notifications ();   /* list height changes */
                 if (get_visible ()) {
                     refit ();
                 }
@@ -98,13 +98,13 @@ namespace Kavis.Ui {
             content.pack_start (cal_header, false, false, 0);
 
             calendar = new Gtk.Calendar ();
-            calendar.show_heading = true;    /* "Eylül 2026" + ▲▼ */
+            calendar.show_heading = true;    /* "September 2026" + ▲▼ */
             calendar.show_day_names = true;
             content.pack_start (calendar, false, false, 0);
         }
 
-        /* Daraltılınca yalnız başlık satırı kalır; durum kavis.conf'ta
-         * hatırlanır ([clock] calendar_collapsed). */
+        /* When collapsed only the header row remains; the state is
+         * remembered in kavis.conf ([clock] calendar_collapsed). */
         private void set_calendar_collapsed (bool collapsed, bool save) {
             calendar.set_no_show_all (collapsed);
             calendar.set_visible (!collapsed);
@@ -121,7 +121,8 @@ namespace Kavis.Ui {
             }
             unowned NotificationServer? server = Notifications.server;
             if (server == null || server.history.length == 0) {
-                /* Bildirim yokken liste küçülür, takvim tam boy kalır. */
+                /* Without notifications the list shrinks, the
+                 * calendar stays full size. */
                 notif_scroll.set_size_request (-1, 64);
                 var empty = new Gtk.Label (
                     _("No new notifications"));
@@ -136,8 +137,8 @@ namespace Kavis.Ui {
                 config.calendar_collapsed ? 320 : 220);
             clear_all_button.set_sensitive (true);
 
-            /* Uygulama bazlı grupla: geçmiş zaten yeni→eski sıralı;
-             * ilk görüldüğü sıraya göre grup başlıkları. */
+            /* Group by app: history is already sorted newest→oldest;
+             * group headers in first-seen order. */
             var seen = new GenericArray<string> ();
             for (int i = 0; i < server.history.length; i++) {
                 unowned string app = server.history[i].app_name;
@@ -196,7 +197,7 @@ namespace Kavis.Ui {
             var toggle = new Gtk.Button ();
             toggle.set_relief (Gtk.ReliefStyle.NONE);
             var line = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
-            /* 4B: bildirim saati de locale'i izler (EN 3:04 PM). */
+            /* 4B: the notification time follows the locale too (EN 3:04 PM). */
             var when = new Gtk.Label (
                 entry.timestamp.format (TimeFmt.time_format ()));
             when.get_style_context ().add_class ("dim");
@@ -233,7 +234,7 @@ namespace Kavis.Ui {
                 } catch (Error e) { }
             }
 
-            /* Hedefi olan bildirim tıklanabilir bir karta sarılır. */
+            /* A notification with a target is wrapped in a clickable card. */
             Gtk.Widget detail_holder;
             if (entry.target_path != "") {
                 var card = new Gtk.Button ();
@@ -252,8 +253,8 @@ namespace Kavis.Ui {
                 detail_holder = details;
             }
 
-            /* Chevron daraltması: ayrıntı kutusu gizlenir, saat satırı
-             * kalır. Durum geçicidir (yeniden kurulunca açık gelir). */
+            /* Chevron collapse: the detail box is hidden, the time row
+             * stays. The state is transient (expanded again on rebuild). */
             toggle.clicked.connect (() => {
                 bool visible = detail_holder.get_visible ();
                 detail_holder.set_no_show_all (visible);
@@ -264,7 +265,8 @@ namespace Kavis.Ui {
         }
 
         protected override void refresh_content () {
-            /* Başlık: "Çarşamba, 2 Eylül" — gün/ay adları yereldan. */
+            /* Header: "Wednesday, 2 September" — day/month names from
+             * the locale. */
             var now = new DateTime.now_local ();
             date_label.set_markup ("<b>%s, %d %s</b>".printf (
                 Markup.escape_text (now.format ("%A")),
@@ -290,8 +292,8 @@ namespace Kavis.Ui {
         private Gtk.Image en_mark;
 
         public KeyboardPopup () {
-            /* Grup D 2c: başlık ve satırlar kenara yapışıktı — 8-10px
-             * iç boşluk, başlıkla liste arasına ince ayrım çizgisi. */
+            /* Grup D 2c: title and rows were stuck to the edge — 8-10px
+             * inner padding, a thin separator between title and list. */
             var title = new Gtk.Label (_("Keyboard layout"));
             title.get_style_context ().add_class ("dim");
             title.set_xalign (0);

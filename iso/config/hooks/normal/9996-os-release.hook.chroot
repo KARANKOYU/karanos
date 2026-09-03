@@ -1,25 +1,25 @@
 #!/bin/sh
-# Kavis — /etc/os-release'i kavis-theme'in sürümüne geri döndür
+# Kavis — restore /etc/os-release to kavis-theme's version
 #
-# NEDEN GEREKLİ:
-# Debian'da /etc/os-release, /usr/lib/os-release'e giden bir sembolik
-# bağdır. kavis-theme paketi /usr/lib/os-release'i dpkg-divert ile
-# devralıyor, dolayısıyla bağ da bizim dosyamıza çıkmalı.
+# WHY IT IS NEEDED:
+# On Debian, /etc/os-release is a symbolic link to /usr/lib/os-release.
+# The kavis-theme package takes over /usr/lib/os-release with dpkg-divert,
+# so the link should lead to our file too.
 #
-# Ama live-build derlemenin erken bir aşamasında /etc/os-release'i
-# SİLİP yerine GERÇEK BİR DOSYA yazıyor: Debian'ın o anki içeriği +
-# IMAGE_ID ve BUILD_ID satırları. Bu iş bizim paketimiz kurulmadan önce
-# olduğu için ortaya çıkan dosyada "Debian GNU/Linux 13" yazıyordu —
-# ISO'daki /usr/lib/os-release doğru olmasına rağmen sistem kendini
-# Debian sanıyordu.
+# But at an early stage of the build live-build DELETES /etc/os-release
+# and writes a REAL FILE in its place: Debian's content at that moment +
+# IMAGE_ID and BUILD_ID lines. Since this happens before our package is
+# installed, the resulting file said "Debian GNU/Linux 13" — the system
+# thought it was Debian even though /usr/lib/os-release on the ISO was
+# correct.
 #
-# Burada dosyayı yeniden yazıyoruz. live-build'in eklediği IMAGE_ID /
-# BUILD_ID gibi satırlar korunuyor: bunlar derlemenin kimliği, bizim
-# üstümüze aldığımız bilgi değil.
+# Here we rewrite the file. The lines live-build added (IMAGE_ID /
+# BUILD_ID) are preserved: they identify the build, they are not
+# information we override.
 #
-# Bu hook 9990'lardan sonra, temizlikten (9995) önce çalışmalı; adı
-# ona göre seçildi. Paketler chroot hook'larından ÖNCE kurulduğu için
-# /usr/lib/os-release bu noktada bizim dosyamız.
+# This hook must run after the 9990s and before the cleanup (9995); the
+# name was chosen accordingly. Packages are installed BEFORE the chroot
+# hooks, so /usr/lib/os-release is our file at this point.
 
 set -e
 
@@ -27,38 +27,38 @@ ETC=/etc/os-release
 LIB=/usr/lib/os-release
 
 if [ ! -f "$LIB" ]; then
-	echo "E: $LIB yok — kavis-theme kurulmamis mi?" >&2
+	echo "E: $LIB missing — is kavis-theme not installed?" >&2
 	exit 1
 fi
 
-# Ürün adı koda gömülü değil (tek kaynak: kavis-theme'deki os-release).
-# "Bizim dosyamız mı" testi tersinden: Debian kimliği hâlâ duruyorsa
-# dpkg-divert çalışmamış demektir.
+# The product name is not embedded in code (single source: the os-release
+# in kavis-theme). The "is it our file" test is inverted: if the Debian
+# identity is still there, dpkg-divert did not work.
 if grep -q '^ID=debian$' "$LIB"; then
-	echo "E: $LIB hâlâ Debian'ın dosyasi, dpkg-divert calismamis." >&2
+	echo "E: $LIB is still Debian's file, dpkg-divert did not work." >&2
 	head -3 "$LIB" >&2
 	exit 1
 fi
 
-# live-build'in kendi eklediği satırları ayıkla
-KORUNAN=""
+# extract the lines live-build added itself
+PRESERVED=""
 if [ -f "$ETC" ]; then
-	KORUNAN=$(grep -E '^(IMAGE_ID|IMAGE_VERSION|BUILD_ID)=' "$ETC" 2>/dev/null || true)
+	PRESERVED=$(grep -E '^(IMAGE_ID|IMAGE_VERSION|BUILD_ID)=' "$ETC" 2>/dev/null || true)
 fi
 
 {
 	cat "$LIB"
-	if [ -n "$KORUNAN" ]; then
-		echo "$KORUNAN"
+	if [ -n "$PRESERVED" ]; then
+		echo "$PRESERVED"
 	fi
-} > "$ETC.yeni"
-mv "$ETC.yeni" "$ETC"
+} > "$ETC.new"
+mv "$ETC.new" "$ETC"
 chmod 0644 "$ETC"
 
 if ! grep -q '^ID=debian$' "$ETC"; then
-	echo "I: /etc/os-release devralindi"
+	echo "I: /etc/os-release taken over"
 	grep -E '^(PRETTY_NAME|ID|IMAGE_ID|BUILD_ID)=' "$ETC" | sed 's/^/I:   /'
 else
-	echo "E: /etc/os-release yazilamadi" >&2
+	echo "E: could not write /etc/os-release" >&2
 	exit 1
 fi

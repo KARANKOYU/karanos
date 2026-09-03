@@ -50,7 +50,7 @@ def read_ppm(path):
 
 def main():
 	if len(sys.argv) < 2:
-		sys.exit("kullanim: screen-clock-visible.py <dosya.ppm> [--min-bright N]")
+		sys.exit("usage: screen-clock-visible.py <file.ppm> [--min-bright N]")
 	path = sys.argv[1]
 	min_bright = 15
 	for i, a in enumerate(sys.argv):
@@ -59,11 +59,11 @@ def main():
 
 	data = read_ppm(path)
 	if not data:
-		print(f"SAAT-TANI: {path} okunamadi (PPM degil)")
+		print(f"CLOCK-CHECK: {path} unreadable (not a PPM)")
 		return 2
 	w, h, raw = data
 	if len(raw) < w * h * 3:
-		print(f"SAAT-TANI: {path} eksik ({len(raw)} bayt)")
+		print(f"CLOCK-CHECK: {path} truncated ({len(raw)} bytes)")
 		return 2
 
 	x_start = (w * 3) // 4
@@ -81,15 +81,15 @@ def main():
 				bright += 1
 			total += 1
 
-	print(f"SAAT-TANI: sag alt bolge {w - x_start}x{h - y_start} · "
-	      f"{len(colors)} renk · {bright}/{total} parlak piksel "
-	      f"(esik {min_bright})")
+	print(f"CLOCK-CHECK: bottom-right region {w - x_start}x{h - y_start} · "
+	      f"{len(colors)} colors · {bright}/{total} bright pixels "
+	      f"(threshold {min_bright})")
 
 	if bright < min_bright:
-		print("SAAT-TANI: BOS — saat/gosterge bolgesinde parlak piksel yok "
-		      "(picom hayalet cizim belirtisi)")
+		print("CLOCK-CHECK: BLANK — no bright pixels in the clock/indicator region "
+		      "(sign of picom ghost painting)")
 		return 1
-	print("SAAT-TANI: gostergeler gorunuyor")
+	print("CLOCK-CHECK: indicators visible")
 	return 0
 
 

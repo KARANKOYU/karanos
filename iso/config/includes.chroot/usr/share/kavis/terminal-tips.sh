@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# Kavis terminal conveniences (madde 44). Sourced from /etc/bash.bashrc
+# Kavis terminal conveniences (item 44). Sourced from /etc/bash.bashrc
 # by the 0240 hook, AFTER Debian's own command-not-found block — this
 # redefinition wins. English msgids, translations from gettext domain
 # "kavis" (tools/gen-pot.sh scans this file too).
@@ -77,8 +77,9 @@ command_not_found_handle () {
 		;;
 	esac
 
-	# Paket önerisi: command-not-found'un DERLEMEDE hazırlanan
-	# veritabanı (0240 hook). Modül yoksa/değiştiyse klasik araca düş.
+	# Package suggestion: command-not-found's database prepared AT BUILD
+	# TIME (0240 hook). If the module is missing/changed, fall back to the
+	# classic tool.
 	pkgs=$(python3 - "$cmd" 2>/dev/null <<'PYEOF'
 import sys
 try:

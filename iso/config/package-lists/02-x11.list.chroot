@@ -1,9 +1,9 @@
-# Kavis — X11 + Openbox + terminal (1. aşama)
+# Kavis — X11 + Openbox + terminal (stage 1)
 #
-# Kendi bileşenlerimiz (panel, greeter, ayarlar) henüz yok; bu liste
-# "boot ediyor ve grafik arayüz açılıyor" iskeletini kuruyor.
+# Our own components (panel, greeter, settings) do not exist yet; this
+# list sets up the "boots and the graphical interface opens" skeleton.
 
-# --- X sunucusu ---
+# --- X server ---
 xserver-xorg
 xserver-xorg-core
 xserver-xorg-input-all
@@ -12,97 +12,101 @@ xinit
 x11-xserver-utils
 x11-utils
 
-# --- pencere yöneticisi ---
+# --- window manager ---
 openbox
 
-# --- giriş yöneticisi (5. aşamada kavis-greeter ile değişecek) ---
+# --- login manager (to be replaced by kavis-greeter in stage 5) ---
 lightdm
 lightdm-gtk-greeter
 
-# --- terminal (LXDE ailesi: GTK3, hafif, pcmanfm ile aynı takım) ---
-# tilix: madde 40 "bölünmüş pencere" şartını karşılayan tek derlenmiş
-# aday (lxterminal sekme verir ama bölme yok; terminator Python).
+# --- terminal (LXDE family: GTK3, light, same team as pcmanfm) ---
+# tilix: the only compiled candidate that meets the item 40 "split
+# window" requirement (lxterminal has tabs but no splitting; terminator
+# is Python).
 tilix
 
-# xsettingsd: canlı tema/ölçek geçişi (madde 38/10) — Ayarlar
-# Net/ThemeName ve Xft/DPI'yi yazıp SIGHUP verir; GTK uygulamaları
-# yeniden başlatılmadan güncellenir.
+# xsettingsd: live theme/scale switching (item 38/10) — Settings writes
+# Net/ThemeName and Xft/DPI and sends SIGHUP; GTK applications update
+# without a restart.
 xsettingsd
 
-# lxpolkit: oturum polkit aracısı — pkexec diyalogları (nemo "yönetici
-# olarak aç", madde 64 onarım) aracı olmadan HİÇ açılmaz.
+# lxpolkit: session polkit agent — pkexec dialogs (nemo "open as
+# administrator", item 64 repair) NEVER open without the agent.
 lxpolkit
 
-# --- kompozitör (4. aşama) ---
-# Yuvarlatılmış köşe, gölge ve yumuşak geçişler ancak bileşikleme varken
-# çiziliyor. picom olmadan güç menüsü gibi şeffaf kenarlı pencerelerin
-# etrafında siyah çerçeve çıkıyor. xrender arka ucu kullanılıyor: 3B
-# hızlandırması olmayan sanal makinelerde de çalışıyor ve RAM'i az.
+# --- compositor (stage 4) ---
+# Rounded corners, shadows and smooth transitions are drawn only with
+# compositing. Without picom, windows with transparent edges like the
+# power menu get a black frame around them. The xrender backend is used:
+# it also works in virtual machines without 3D acceleration and uses
+# little RAM.
 picom
 
-# --- duvar kağıdı (2. aşama; 4. aşamada panel devralacak) ---
-# feh yerine xwallpaper: tek iş yapıyor, ~50 KB, arka planda süreç
-# bırakmıyor.
+# --- wallpaper (stage 2; the panel takes over in stage 4) ---
+# xwallpaper instead of feh: does one job, ~50 KB, leaves no background
+# process.
 xwallpaper
 
-# --- GTK3 çalışsın diye asgari destek (Recommends kapalı olduğu için şart) ---
+# --- minimal support so GTK3 works (required since Recommends is off) ---
 adwaita-icon-theme
 gtk-update-icon-cache
 librsvg2-common
 fonts-dejavu-core
 fonts-liberation2
 
-# NOT (madde 3 sonrası): Python + PyGObject yığını KALDIRILDI — panel
-# artık derlenmiş Vala ikilisi, ISO'da Python'a bağımlı bileşen yok.
-# İleride Python'a dönen bir kullanıcı uygulaması olursa bağımlılıklar
-# o paketin Depends alanından gelecek.
+# NOTE (after item 3): the Python + PyGObject stack was REMOVED — the
+# panel is now a compiled Vala binary, no component on the ISO depends on
+# Python. If a user application returns to Python later, its
+# dependencies will come from that package's Depends field.
 
-# --- hızlı ayarlar arkayüçleri (madde 37) ---
-# Panel bu araçları çalışma anında yoklar; yoksa ilgili düğme gizlenir.
-# rfkill: Bluetooth aç/kapa (donanım anahtarı arayüzü, ~100 KB)
-# xsct: gece modu — X renk sıcaklığı, tek işlik ufak araç (sct trixie arşivinde yok)
-# brightnessctl: parlaklık; udev kurallarıyla yetki sorununu çözer
+# --- quick settings backends (item 37) ---
+# The panel probes these tools at runtime; if absent the related button
+# is hidden.
+# rfkill: Bluetooth on/off (hardware switch interface, ~100 KB)
+# xsct: night mode — X color temperature, tiny single-purpose tool (sct is not in the trixie archive)
+# brightnessctl: brightness; solves the permission problem with udev rules
 rfkill
 xsct
 brightnessctl
 
-# --- masaüstü simgeleri (madde 6) ---
-# nemo-desktop, nemo paketinin içinde; Grup E dosya yöneticisi olarak
-# yine nemo'yu kullanacak (madde 39) — erken gelmesi çift iş değil.
+# --- desktop icons (item 6) ---
+# nemo-desktop is inside the nemo package; Group E will use nemo as the
+# file manager anyway (item 39) — bringing it early is not double work.
 nemo
 
-# --- panel DBus köprüsü (madde 55/7) ---
-# Openbox kısayolları çalışan panele gdbus ile sesleniyor (W-Tab genel
-# bakış, W-v pano geçmişi). libglib2.0-bin gdbus'ı içerir; Recommends
-# kapalıyken kendiliğinden gelmiyor.
+# --- panel DBus bridge (item 55/7) ---
+# The Openbox shortcuts call the running panel with gdbus (W-Tab
+# overview, W-v clipboard history). libglib2.0-bin contains gdbus; it
+# does not come by itself with Recommends off.
 libglib2.0-bin
 
-# --- pano geçmişi yapıştırma + emoji görünümü (madde 7) ---
-# xdotool: Win+V'de seçilen öğeyi odaklı pencereye Ctrl+V ile basar.
-# fonts-noto-color-emoji: emoji seçicinin kutucukları kutu değil emoji
-# çizsin.
+# --- clipboard history paste + emoji rendering (item 7) ---
+# xdotool: on Win+V presses the selected item into the focused window
+# with Ctrl+V.
+# fonts-noto-color-emoji: so the emoji picker's cells draw emoji, not
+# boxes.
 xdotool
 fonts-noto-color-emoji
 
-# --- touchpad hareketleri (sonraki-isler 6g) ---
-# libinput-tools: `libinput debug-events` — kendi hareket okuyucumuz
-# /usr/lib/kavis/kavis-gestures bunu okur (libinput-gestures ve
-# touchegg trixie arşivinde YOK). Kullanıcı `input` grubunda
-# (bootappend) — aygıt okuma izni oradan.
+# --- touchpad gestures (next-tasks 6g) ---
+# libinput-tools: `libinput debug-events` — our own gesture reader
+# /usr/lib/kavis/kavis-gestures reads it (libinput-gestures and touchegg
+# are NOT in the trixie archive). The user is in the `input` group
+# (bootappend) — device read permission comes from there.
 libinput-tools
 
-# --- tepsi USB aracı (madde 3 düzeltmesi) ---
-# udisksctl: güvenle çıkar — polkit sayesinde canlı kullanıcı root
-# olmadan ayırıp gücü kesebiliyor. Recommends kapalıyken nemo/gvfs
-# zinciriyle kendiliğinden gelmez, açıkça yazılır.
+# --- tray USB tool (item 3 fix) ---
+# udisksctl: safely remove — thanks to polkit the live user can unmount
+# and power off without root. Does not come by itself through the
+# nemo/gvfs chain with Recommends off; written explicitly.
 udisks2
 
-# --- ekran görüntüsü ve kaydı (madde 29 + Grup D 5) ---
-# Donmuş kare + karartma + seçiciler artık kavis-tools'un kendi kodu
-# (flameshot ve slop çıkarıldı); ffmpeg x11grab video kaydı için kalır.
+# --- screenshot and screen recording (item 29 + Group D 5) ---
+# Frozen frame + dimming + selectors are now kavis-tools' own code
+# (flameshot and slop removed); ffmpeg stays for x11grab video recording.
 ffmpeg
 
-# C4 (v0.4-test1): Win tuşuna tek başına basınca başlat menüsü —
-# openbox modifier'ı tek başına bağlayamaz; xcape Super_L dokunuşunu
-# F13'e çevirir, rc.xml F13'ü panele iletir.
+# C4 (v0.4-test1): the start menu on a lone Win key press — openbox
+# cannot bind a modifier on its own; xcape turns a Super_L tap into F13,
+# rc.xml forwards F13 to the panel.
 xcape

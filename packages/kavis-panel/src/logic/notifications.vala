@@ -30,9 +30,9 @@ namespace Kavis {
          * file manager). Empty when absent. */
         public string image_path = "";
         public string target_path = "";
-        /* Eylem düğmeleri (bölüm 5c): [anahtar, etiket, ...] çiftleri.
-         * Toast düğme çizer, tık ActionInvoked sinyaliyle sahibine
-         * döner (renk seçicinin 'rgb kopyala'sı gibi). */
+        /* Action buttons (section 5c): [key, label, ...] pairs. The toast
+         * draws a button per pair; a click goes back to the owner via
+         * the ActionInvoked signal (like the color picker's 'copy rgb'). */
         public string[] actions = {};
     }
 
@@ -57,8 +57,8 @@ namespace Kavis {
         public GenericArray<NotificationEntry> history =
             new GenericArray<NotificationEntry> ();
         public bool dnd = false;
-        /* DND sırasında bastırılanlar — kapatılınca toplu özet
-         * gösterilir (madde 55: "sonra toplu göster"). */
+        /* Suppressed while in DND — a batched summary is shown when DND
+         * is turned off (madde 55: "show them in a batch later"). */
         private int suppressed = 0;
 
         private uint32 next_id = 1;
@@ -93,7 +93,7 @@ namespace Kavis {
             }
             entry.actions = actions;
 
-            /* Bir bildirim yenilendiyse (replaces_id) eski kaydı düşür. */
+            /* If a notification was refreshed (replaces_id), drop the old entry. */
             for (int i = 0; i < history.length; i++) {
                 if (history[i].id == entry.id) {
                     history.remove_index (i);
@@ -106,7 +106,7 @@ namespace Kavis {
             }
             history_changed ();
 
-            /* DND: kritik olmayanlar sessizce yalnız geçmişe düşer. */
+            /* DND: non-critical ones silently go to the history only. */
             if (dnd && !entry.critical) {
                 suppressed++;
             }
@@ -114,11 +114,11 @@ namespace Kavis {
                 int timeout = (expire_timeout > 0)
                     ? expire_timeout : DEFAULT_TIMEOUT_MS;
                 if (entry.critical) {
-                    timeout = 0;   /* elle kapatılana kadar kalır */
+                    timeout = 0;   /* stays until closed by hand */
                 }
                 toast_requested (entry, timeout);
-                /* Bildirim sesi (6b): Rahatsız etmede HİÇ çalmaz
-                 * (kritik toast görünse bile — kural açık). */
+                /* Notification sound (6b): NEVER plays in do-not-disturb
+                 * (even if a critical toast is shown — the rule is explicit). */
                 if (!dnd) {
                     Sounds.play (entry.critical
                         ? "dialog-warning" : "message-new-instant");
@@ -140,14 +140,14 @@ namespace Kavis {
                                             out string version,
                                             out string spec_version)
                                             throws Error {
-            /* Ürün adı koda gömülmez; daemon adı bileşen adıdır. */
+            /* The product name is not embedded in code; the daemon name is the component name. */
             name = "kavis-panel";
             vendor = "kavis";
             version = "1.0";
             spec_version = "1.2";
         }
 
-        /* --- geçmiş yönetimi (bildirim merkezi kullanır) ------------- */
+        /* --- history management (used by the notification center) --- */
 
         [DBus (visible = false)]
         public void clear_all () {
@@ -169,7 +169,7 @@ namespace Kavis {
         public void set_dnd (bool enabled) {
             bool was = dnd;
             dnd = enabled;
-            /* DND kapandı → kaçanların özeti tek toast (madde 55). */
+            /* DND turned off → one toast summarizing what was missed (madde 55). */
             if (was && !enabled && suppressed > 0) {
                 var summary_entry = new NotificationEntry ();
                 summary_entry.id = 0;
@@ -204,13 +204,13 @@ namespace Kavis {
                         connection.register_object (
                             "/org/freedesktop/Notifications", server);
                     } catch (IOError e) {
-                        warning ("kavis-panel: bildirim nesnesi disari verilemedi: %s",
+                        warning ("kavis-panel: could not export the notification object: %s",
                                  e.message);
                     }
                 },
                 null,
                 () => {
-                    warning ("kavis-panel: org.freedesktop.Notifications alinamadi — baska bir bildirim daemon'u mu calisiyor? Bildirimler GOSTERILMEYECEK.");
+                    warning ("kavis-panel: could not acquire org.freedesktop.Notifications — is another notification daemon running? Notifications will NOT be shown.");
                 });
         }
     }

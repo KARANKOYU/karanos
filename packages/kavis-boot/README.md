@@ -1,114 +1,119 @@
 # kavis-boot
 
-Açılış ekranı: Plymouth teması, açılış müziği ve splash'i müzik bitene
-kadar tutan systemd mekanizması.
+Boot splash: the Plymouth theme, the boot music and the systemd
+mechanism that holds the splash until the music ends.
 
-## Davranış (madde 30)
+## Behavior (madde 30)
 
-1. Sade koyu zemin (#0D141B) — duvar kâğıdı/fotoğraf yok. Ortada
-   **koyu logo** (kural: açılışta her zaman koyu-k-logo), **%15
-   opaklıkla** belirir, ~1,5 saniyede %100'e çıkar ve hafif bir parlama
-   alır (parlama sonrasında yavaşça nefes alır)
-2. Logonun altında ürün adı (**os-release NAME'den** derlemede üretilir,
-   Türkçe büyük harf kurallarıyla — "KAVİS"), altında italik
-   **made by Karan**, en altta iki ipucu satırı:
-   "F3 — Gelişmiş menü" ve "Atlamak için boşluk tuşu"
-3. Aynı anda açılış müziği çalar
-4. Splash müzik bitip **0,5 saniye** geçince kapanır; sistem daha erken
-   hazır olsa bile bekler, müzik yarıda kesilmez. Kapanmadan önce görsel
-   ve ses birlikte söner. **Tek istisna boşluk tuşu**: basılırsa müzik
-   kesilir ve açılış hemen sürer (`plymouth watch-keystroke` ile
-   boot-sound scripti dinliyor)
-5. Ses aygıtı yoksa ya da çalma takılırsa en fazla **10 saniye** beklenir
-   ve açılış devam eder. Müzik bir kez çalar, döngüye girmez
-6. `/etc/kavis/boot.conf` ile davranış değiştirilebilir (Ayarlar bunu
-   madde 38'de yönetecek): `MUZIK_CAL=0` müzik hiç çalmaz,
-   `MUZIGI_BEKLE=0` müzik arka planda çalar, splash beklemez
+1. Plain dark background (#0D141B) — no wallpaper/photo. The **dark
+   logo** in the center (rule: always koyu-k-logo at boot) appears at
+   **15% opacity**, rises to 100% in ~1.5 seconds and gets a slight
+   glow (which breathes slowly afterwards)
+2. The product name below the logo (generated at build time **from
+   os-release NAME**, with Turkish upper-case rules — "KAVİS"), the
+   italic **made by Karan** below it, and two hint lines at the bottom:
+   "F3 — Advanced menu" and "Press space to skip"
+3. The boot music plays at the same time
+4. The splash closes **0.5 seconds** after the music ends; it waits even
+   when the system is ready earlier, the music is never cut short. The
+   image and the sound fade out together before closing. **The single
+   exception is the space key**: when pressed the music stops and the
+   boot continues at once (the boot-sound script listens with
+   `plymouth watch-keystroke`)
+5. If there is no audio device or playback hangs, at most **10
+   seconds** are waited and the boot continues. The music plays once,
+   never loops
+6. The behavior can be changed through `/etc/kavis/boot.conf`
+   (Settings will manage it in madde 38): `PLAY_MUSIC=0` never plays the
+   music, `WAIT_FOR_MUSIC=0` plays it in the background, the splash does
+   not wait
 
-F3 gelişmiş menüsü GRUB tarafında: `iso/config/hooks/normal/`
-`9601-grub-gelismis.hook.binary` yazar (güvenli mod, detaylı kayıtlar,
-memtest86+ yalnız amd64, UEFI ayarları).
+The F3 advanced menu is on the GRUB side: `iso/config/hooks/normal/`
+`9601-grub-advanced.hook.binary` writes it (safe mode, verbose logs,
+memtest86+ on amd64 only, UEFI settings).
 
-## Splash'i müzik bitene kadar ne tutuyor
+## What holds the splash until the music ends
 
-`kavis-boot-sound.service` `Type=oneshot`. Müzik çalıp kısa fade-out'u
-bekleyene kadar "başlıyor" sayılıyor. `plymouth-quit.service` ve
-`plymouth-quit-wait.service` için konan drop-in'ler bu servisi
-bekletiyor:
+`kavis-boot-sound.service` is `Type=oneshot`. It counts as "starting"
+until the music has played and the short fade-out has passed. The
+drop-ins placed for `plymouth-quit.service` and
+`plymouth-quit-wait.service` make them wait for this service:
 
 ```
 plymouth-quit.service.d/kavis.conf → After=kavis-boot-sound.service
 ```
 
-Ses servisi başarısız olsa bile sonlandığı için açılış kilitlenmiyor.
-Servisin `TimeoutStartSec=30` değeri, script'in kendi bekleme+çalma sınırlarının (8+10 sn)
-sınırının üstünde bir güvenlik ağı.
+Even if the sound service fails it still terminates, so the boot never
+locks up. The service's `TimeoutStartSec=30` is a safety net above the
+script's own wait+play limits (8+10 s).
 
-## Verilen kararlar
+## Decisions taken
 
-**İtalik yazı PNG olarak gömülü.** Plymouth bitmap font kullanıyor,
-italik desteği yok. Yazıyı kendi framebuffer programımızla çizmek
-Plymouth'u ikinci kez yazmak olurdu. `src/made-by-karan.svg` paket
-derlenirken `rsvg-convert` ile PNG'ye çevriliyor — açılışta yazı tipi
-bağımlılığı kalmıyor ve sonuç her makinede birebir aynı.
+**The italic text is embedded as PNG.** Plymouth uses bitmap fonts with
+no italic support. Drawing the text with our own framebuffer program
+would mean writing Plymouth a second time. `src/made-by-karan.svg` is
+converted to PNG with `rsvg-convert` at package build — no font
+dependency at boot and the result is identical on every machine.
 
-**Müzik WAV olarak gömülüyor, mp3 olarak değil.** İki sebep: mp3
-çalarların çoğunda fade-out yok ve bölüm 5 "görsel ve ses birlikte
-yumuşakça söner" diyor; ayrıca açılışta mp3 çözücüye gerek kalmıyor,
-`aplay` yetiyor. Dönüştürme `ffmpeg` ile paket derlenirken yapılıyor,
-sonuna 0,4 saniyelik fade ekleniyor. Bedeli ~1 MB ISO alanı.
+**The music is embedded as WAV, not mp3.** Two reasons: most mp3
+players have no fade-out and section 5 says "image and sound fade out
+softly together"; also no mp3 decoder is needed at boot, `aplay` is
+enough. The conversion happens with `ffmpeg` at package build, adding a
+0.4-second fade at the end. The cost is ~1 MB of ISO space.
 
-**Tema initramfs'e ayrı hook'la giriyor.** `plymouth-set-default-theme -R`
-tek adımda yapardı ama her paket kurulumunda initramfs üretmek live-build
-chroot'unda derlemeye dakikalar ekliyor. `postinst` yalnızca temayı
-seçiyor, `iso/config/hooks/normal/0300-plymouth.hook.chroot` initramfs'i
-bir kez üretip **temanın gerçekten içine girdiğini doğruluyor** —
-girmezse derleme durur, çünkü aksi hâlde açılışta siyah ekran görünür ve
-sebebi ISO açılmadan anlaşılmaz.
+**The theme enters the initramfs through a separate hook.**
+`plymouth-set-default-theme -R` would do it in one step, but generating
+the initramfs on every package install adds minutes to the build in the
+live-build chroot. `postinst` only selects the theme;
+`iso/config/hooks/normal/0300-plymouth.hook.chroot` generates the
+initramfs once and **verifies the theme really made it in** — if not,
+the build stops, because otherwise a black screen appears at boot and
+the cause cannot be found without booting the ISO.
 
-**Görsel tek kopya.** Aslı tema dizininde (`logo.png`), bölüm 5'in
-istediği `/usr/share/kavis/boot/boot-image.png` ona giden bir bağ.
-Tersi olsaydı tema dizini initramfs'e kopyalanırken bağ kırılırdı.
+**Single copy of the image.** The original lives in the theme directory
+(`logo.png`); the `/usr/share/kavis/boot/boot-image.png` that section 5
+asks for is a link to it. The other way around, the link would break
+when the theme directory is copied into the initramfs.
 
-## Derleme
+## Build
 
 ```bash
 tools/build-packages.sh kavis-boot
 ```
 
-Kaynaklar `assets/boot/` altından `src/boot/` içine kopyalanır (kopya
-`.gitignore`'da). `ffmpeg`, `librsvg2-bin` ve `fonts-dejavu-core`
-derleme bağımlılığı.
+The sources are copied from `assets/boot/` into `src/boot/` (the copy
+is in `.gitignore`). `ffmpeg`, `librsvg2-bin` and `fonts-dejavu-core`
+are build dependencies.
 
-## Nasıl görülür
+## How to see it
 
-Splash yalnızca açılış sırasında ekranda ve `plymouth-x11` Debian'da
-yok, yani yerelde çizdirilemiyor. Duman testi bu yüzden çekirdek
-başladıktan 10 saniye sonra ayrı bir kare alıyor:
-`tani-<mod>` yapıtındaki **`screen-<mod>-acilis.png`**.
+The splash is on screen only during boot and `plymouth-x11` does not
+exist in Debian, so it cannot be rendered locally. That is why the
+smoke test takes a separate frame 10 seconds after the kernel starts:
+**`screen-<mode>-acilis.png`** in the `tani-<mode>` artifact.
 
-## VirtualBox notu — vmwgfx hatası
+## VirtualBox note — vmwgfx error
 
-VirtualBox'ın **VMSVGA** ekran denetleyicisiyle çekirdek şu hatayı
-veriyor:
+With VirtualBox's **VMSVGA** display controller the kernel reports:
 
 ```
 vmwgfx: [drm] *ERROR* vmwgfx seems to be running on an unsupported hypervisor
 ```
 
-Sebep VirtualBox'ın VMware'i tam taklit etmemesi; `vmwgfx` sürücüsü
-bağlanıyor ama çalışmıyor. Sonuç KMS'in devre dışı kalması olabilir ve
-Plymouth DRM yerine metin kipine düşer — splash görünmez.
+The cause is VirtualBox not emulating VMware completely; the `vmwgfx`
+driver binds but does not work. The result can be KMS being disabled,
+and Plymouth falls back to text mode instead of DRM — no splash.
 
-Kavis tarafında yapılanlar:
-- `simpledrm` initramfs'te; vmwgfx başarısız olsa da UEFI framebuffer
-  üstünde bir DRM aygıtı kalıyor.
-- `boot-check` her açılışta `DRM-DEVICES` satırıyla `/dev/dri` içeriğini
-  ve Plymouth'un hangi çiziciyi seçtiğini bildiriyor.
+What is done on the Kavis side:
+- `simpledrm` is in the initramfs; even if vmwgfx fails, a DRM device
+  remains on top of the UEFI framebuffer.
+- `boot-check` reports the contents of `/dev/dri` and which renderer
+  Plymouth picked on every boot in its `DRM-DEVICES` line.
 
-VirtualBox tarafında yapılabilecek: makine ayarlarında **Ekran →
-Grafik Denetleyici** değerini `VBoxSVGA` yapmak. O zaman `vboxvideo`
-sürücüsü devreye giriyor (initramfs'te var) ve hata kayboluyor.
+What can be done on the VirtualBox side: set **Display → Graphics
+Controller** to `VBoxSVGA` in the machine settings. Then the
+`vboxvideo` driver takes over (it is in the initramfs) and the error
+disappears.
 
-**Doğrulandı:** VBoxSVGA'ya geçildiğinde hem `vmwgfx` hatası hem de
-splash sonrası konsol metni kayboldu.
+**Verified:** switching to VBoxSVGA removed both the `vmwgfx` error and
+the console text after the splash.

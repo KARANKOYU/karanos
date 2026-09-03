@@ -1,53 +1,53 @@
-# Kavis — Openbox pencere teması
+# Kavis — Openbox window theme
 #
-# Sonraki-isler bölüm 3 (2 Eyl): W11 görünümü — turkuaz degrade
-# KALKTI, turkuaz yalnız vurgu (etkin pencere kenarlığı). Başlık ~32px,
-# etkin #17222C / etkisiz #121C26, ikon solda (titleLayout NLIMC —
-# 0200 hook'u), başlık sola hizalı. İnce çizgili — ☐ ✕ ikonları
-# xbm dosyalarından. Kapat hover'ı W11 kırmızısı (#C42B1C).
+# Sonraki-isler section 3 (2 Sep): W11 look — the teal gradient is
+# GONE, teal only as accent (active window border). Title ~32px,
+# active #17222C / inactive #121C26, icon on the left (titleLayout
+# NLIMC — 0200 hook), title left-aligned. Thin-line — ☐ ✕ icons from
+# the xbm files. Close hover in W11 red (#C42B1C).
 #
-# OPENBOX SINIRLARI (CSD'ye GEÇİLMEDİ — karar kullanıcının):
-#   ✓ düğme başına hover/pressed rengi (kırmızı kapat DAHİL, 3.6+)
-#   ✗ geçiş animasyonu yok — renkler anlık değişir (120-150 ms fade
-#     ancak CSD/kompozitör hilesiyle olur)
-#   ✗ düğme genişliği ayarlanamaz (~46px olmaz; kare, başlık
-#     yüksekliğine bağlı) ve düğmeler arasında 1-2px boşluk kalır
-#   ✗ hover bg yalnız düğme kutusu kadar — tam yükseklik dolgu değil
+# OPENBOX LIMITS (NOT switched to CSD — the user's decision):
+#   ✓ per-button hover/pressed color (INCLUDING the red close, 3.6+)
+#   ✗ no transition animation — colors change instantly (a 120-150 ms
+#     fade only works with a CSD/compositor trick)
+#   ✗ button width is not adjustable (~46px is impossible; square,
+#     tied to the title height) and a 1-2px gap remains between buttons
+#   ✗ the hover bg covers only the button box — not a full-height fill
 
-# --- kenarlar --------------------------------------------------------
+# --- edges -----------------------------------------------------------
 border.width: 1
 padding.width: 8
-# Başlık yüksekliği Tilix'in CSD çubuğuyla ve Kavis uygulamalarının
-# GtkHeaderBar'ıyla (gtk.css min-height 46px) aynı: yazı (~13px) +
-# 2×16 iç boşluk + 1px kenarlık = 46px (test2 E2; Xvfb'de
-# _NET_FRAME_EXTENTS ile ölçüldü, 11 → 36px'ti).
+# The title height matches Tilix's CSD bar and the Kavis apps'
+# GtkHeaderBar (gtk.css min-height 46px): text (~13px) + 2×16 padding
+# + 1px border = 46px (test2 E2; measured on Xvfb with
+# _NET_FRAME_EXTENTS, 11 gave 36px).
 padding.height: 16
 window.handle.width: 0
 window.client.padding.width: 0
 window.client.padding.height: 0
 
-# C1 (test8): cyan çerçeve kalktı — aktif/pasif aynı nötr kenarlık.
+# C1 (test8): the cyan frame is gone — active/inactive share the same neutral border.
 window.active.border.color: #233A45
 window.inactive.border.color: #233A45
 
-# --- etkin pencere ---------------------------------------------------
+# --- active window ---------------------------------------------------
 window.active.title.bg: flat solid
 window.active.title.bg.color: #17222C
 window.active.title.separator.color: #233A45
-# label.bg yazılmazsa Openbox etiket kutusunu siyaha boyuyor ve başlık
-# çubuğunun ortasında siyah bir şerit çıkıyor.
+# Without label.bg Openbox paints the label box black and a black
+# stripe appears in the middle of the title bar.
 window.active.label.bg: parentrelative
 window.active.label.text.color: #E6EDF3
 window.label.text.justify: left
 
 window.active.button.unpressed.bg: parentrelative
 window.active.button.unpressed.image.color: #E6EDF3
-# hover: başlık zemini + beyaz %10 (openbox rgba bilmez — karışım
-# önceden hesaplandı: #17222C ⊕ %10 beyaz = #2E3842)
+# hover: title ground + 10% white (openbox knows no rgba — the blend
+# is precomputed: #17222C ⊕ 10% white = #2E3842)
 window.active.button.hover.bg: flat solid
 window.active.button.hover.bg.color: #2E3842
 window.active.button.hover.image.color: #E6EDF3
-# basılı: %14 → #374149
+# pressed: 14% → #374149
 window.active.button.pressed.bg: flat solid
 window.active.button.pressed.bg.color: #374149
 window.active.button.pressed.image.color: #E6EDF3
@@ -59,7 +59,7 @@ window.active.button.toggled.hover.bg: flat solid
 window.active.button.toggled.hover.bg.color: #2E3842
 window.active.button.toggled.hover.image.color: #E6EDF3
 
-# Kapat: hover W11 kırmızısı, beyaz ikon; basılı bir ton koyu.
+# Close: hover in W11 red, white icon; pressed one shade darker.
 window.active.button.close.hover.bg: flat solid
 window.active.button.close.hover.bg.color: #C42B1C
 window.active.button.close.hover.image.color: #FFFFFF
@@ -67,14 +67,14 @@ window.active.button.close.pressed.bg: flat solid
 window.active.button.close.pressed.bg.color: #A02316
 window.active.button.close.pressed.image.color: #FFFFFF
 
-# --- etkisiz pencere -------------------------------------------------
+# --- inactive window -------------------------------------------------
 window.inactive.title.bg: flat solid
 window.inactive.title.bg.color: #121C26
 window.inactive.title.separator.color: #233A45
 window.inactive.label.bg: parentrelative
 window.inactive.label.text.color: #8B9BA8
 
-# Pasifte soluk, hover'da canlanır.
+# Faint when inactive, comes alive on hover.
 window.inactive.button.unpressed.bg: parentrelative
 window.inactive.button.unpressed.image.color: #8B9BA8
 window.inactive.button.hover.bg: flat solid
@@ -94,7 +94,7 @@ window.inactive.button.close.pressed.bg: flat solid
 window.inactive.button.close.pressed.bg.color: #A02316
 window.inactive.button.close.pressed.image.color: #FFFFFF
 
-# --- menü ------------------------------------------------------------
+# --- menu ------------------------------------------------------------
 menu.border.width: 1
 menu.border.color: #233A45
 menu.title.bg: flat solid
@@ -112,7 +112,7 @@ menu.separator.color: #233A45
 menu.separator.width: 1
 menu.overlap.x: 0
 
-# --- diğer -----------------------------------------------------------
+# --- other -----------------------------------------------------------
 osd.border.width: 1
 osd.border.color: #233A45
 osd.bg: flat solid
@@ -124,7 +124,7 @@ osd.hilight.bg.colorTo: #4F92F7
 osd.unhilight.bg: flat solid
 osd.unhilight.bg.color: #233A45
 
-# Windows'taki gibi: simge ve başlık solda, düğmeler sağda
-# (N=simge, L=başlık, I=küçült, M=büyüt, C=kapat)
+# Like Windows: icon and title on the left, buttons on the right
+# (N=icon, L=title, I=iconify, M=maximize, C=close)
 window.title.layout: NLIMC
 window.label.text.justify: left

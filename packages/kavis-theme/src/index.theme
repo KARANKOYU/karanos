@@ -2,8 +2,8 @@
 Type=X-GNOME-Metatheme
 Name=Kavis
 Name[tr]=Kavis
-Comment=Kavis görünümü (koyu)
-Comment[en]=Kavis look and feel (dark)
+Comment=Kavis look and feel (dark)
+Comment[tr]=Kavis görünümü (koyu)
 Encoding=UTF-8
 
 [X-GNOME-Metatheme]

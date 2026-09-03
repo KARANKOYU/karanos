@@ -3,7 +3,7 @@
  * A timed do-not-disturb: notifications are muted for the session
  * length, and a notification announces the end. App blocking is
  * DELIBERATELY not here yet — the block list needs a settings surface
- * (Grup F, Ayarlar); the timer core lands now so the quick tile works.
+ * (Grup F, Settings); the timer core lands now so the quick tile works.
  */
 
 namespace Kavis.Focus {
@@ -51,7 +51,7 @@ namespace Kavis.Focus {
                                {}, new HashTable<string, Variant> (
                                    str_hash, str_equal), 8000);
             } catch (Error e) {
-                warning ("kavis-panel: odaklanma bildirimi verilemedi: %s",
+                warning ("kavis-panel: could not send the focus notification: %s",
                          e.message);
             }
         }

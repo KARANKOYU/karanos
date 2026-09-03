@@ -1,21 +1,21 @@
 #!/bin/sh
-# Kavis — /home → /users sembolik bağı (test8 E3)
+# Kavis — /home → /users symbolic link (test8 E3)
 #
-# Evler /users altında (Grup B kararı: autologin + /users/karan);
-# boş /home dosya yöneticisinde kafa karıştırıyordu. /home artık
-# /users'a bağ — iki yol da aynı yere çıkar.
+# Homes live under /users (Group B decision: autologin + /users/karan);
+# an empty /home was confusing in the file manager. /home is now a link
+# to /users — both paths lead to the same place.
 
 set -e
 
 if [ -L /home ]; then
-	echo "I: /home zaten bag"
+	echo "I: /home is already a link"
 	exit 0
 fi
 if [ -d /home ] && [ -n "$(ls -A /home 2>/dev/null)" ]; then
-	echo "W: /home bos degil, bag atlanti (icerik korunuyor)" >&2
+	echo "W: /home is not empty, link skipped (contents preserved)" >&2
 	exit 0
 fi
 rmdir /home 2>/dev/null || true
 mkdir -p /users
 ln -sfn /users /home
-echo "I: /home -> /users bagi kuruldu"
+echo "I: /home -> /users link created"

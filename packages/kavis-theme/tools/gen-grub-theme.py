@@ -10,7 +10,7 @@ Generates, at package build time (no binary blobs in the repo):
 
 All drawings are our own simple SVG paths rendered with rsvg-convert.
 
-Usage: gen-grub-tema.py <output-dir>
+Usage: gen-grub-theme.py <output-dir>
 """
 
 import subprocess
@@ -21,7 +21,7 @@ from pathlib import Path
 TEAL = "#2DD4BF"
 FG = "#E6EDF3"
 
-# 9 dilim: köşeler 10x10 (r=10 çeyrek yuvarlak), kenarlar/merkez düz.
+# 9 slices: corners 10x10 (r=10 quarter circle), edges/center flat.
 SLICES = {
     "nw": (10, 10, '<path d="M10 0 A10 10 0 0 0 0 10 L0 10 L10 10 Z" fill="%s"/>'
                    '<rect x="0" y="10" width="10" height="0" fill="%s"/>' % (TEAL, TEAL)),
@@ -35,25 +35,25 @@ SLICES = {
     "c": (8, 8, '<rect width="8" height="8" fill="%s"/>' % TEAL),
 }
 
-# Basit çizgi ikonlar (24x24, tek renk). Sınıf adları menuentry
-# --class değerleriyle eşleşir.
+# Simple line icons (24x24, single color). The class names match the
+# menuentry --class values.
 LINE = 'fill="none" stroke="%s" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"' % FG
 ICONS = {
-    # ana girdiler: K başharfi
+    # main entries: the letter K
     "kavis": '<path d="M7 4 V20 M17 4 L8 12 L17 20" %s/>' % LINE,
-    # güvenli mod: kalkan
+    # safe mode: shield
     "safemode": '<path d="M12 3 L20 6 V12 C20 17 16 20 12 21 C8 20 4 17 4 12 V6 Z" %s/>' % LINE,
-    # detaylı açılış: terminal
+    # verbose boot: terminal
     "verbose": ('<rect x="3" y="5" width="18" height="14" rx="2" %s/>'
                 '<path d="M6 10 L9 12 L6 14 M12 15 H17" %s/>' % (LINE, LINE)),
-    # bütünlük doğrulama: onay işareti
+    # integrity check: check mark
     "verify": '<path d="M5 13 L10 18 L19 7" %s/>' % LINE,
-    # RAM testi: yonga
+    # RAM test: chip
     "memtest": ('<rect x="7" y="7" width="10" height="10" rx="1" %s/>'
                 '<path d="M9 7 V4 M15 7 V4 M9 17 V20 M15 17 V20 '
                 'M7 9 H4 M7 15 H4 M17 9 H20 M17 15 H20" %s/>'
                 % (LINE, LINE)),
-    # UEFI ayarları: dişli
+    # UEFI settings: gear
     "uefi": ('<circle cx="12" cy="12" r="4" %s/>'
              '<path d="M12 4 V7 M12 17 V20 M4 12 H7 M17 12 H20 '
              'M6.3 6.3 L8.4 8.4 M15.6 15.6 L17.7 17.7 '
@@ -77,7 +77,7 @@ def render(svg_body, width, height, out_path):
 
 def main():
     if len(sys.argv) != 2:
-        print("kullanim: gen-grub-tema.py <cikti-dizini>",
+        print("usage: gen-grub-theme.py <output-dir>",
               file=sys.stderr)
         return 2
     out = Path(sys.argv[1])
@@ -87,7 +87,7 @@ def main():
         render(body, w, h, out / f"select_{name}.png")
     for name, body in ICONS.items():
         render(body, 24, 24, out / "icons" / f"{name}.png")
-    print(f"{len(SLICES)} dilim + {len(ICONS)} ikon -> {out}")
+    print(f"{len(SLICES)} slices + {len(ICONS)} icons -> {out}")
     return 0
 
 

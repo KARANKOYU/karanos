@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Açılış ekranının altındaki iki ipucu satırı (madde 30):
+  The two hint lines at the bottom of the boot splash (madde 30):
     boot.advanced_hint  → "F3 — Advanced menu"
     boot.skip_hint      → "Press space to skip"
-  Metinler İngilizce kaynak dizgilerdir (gettext düzeninin msgid'leriyle
-  aynı üslup; Plymouth çalışma anında .mo okuyamaz, metin buraya
-  derlemede gömülür); splash varsayılan
-  dilde (EN — 2 Eyl 2026 kararı) gösteriliyor; Plymouth'ta çalışma
-  anında dil seçimi yok.
+  The texts are the English source strings (same style as the gettext
+  msgids; Plymouth cannot read .mo at runtime, the text is embedded here
+  at build time); the splash is shown in the default language (EN — 2
+  Sep 2026 decision); there is no runtime language selection in Plymouth.
 
-  Renk #8B9BA8 = ikincil metin; ipuçları dikkat çekmesin diye soluk.
+  Color #8B9BA8 = secondary text; faint so the hints do not draw attention.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="140" viewBox="0 0 900 140">
   <text x="450" y="52"

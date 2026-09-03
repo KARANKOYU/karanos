@@ -14,15 +14,15 @@ namespace Kavis.Selftest {
         public string expect = "ok";
         public int timeout_ms = 3000;
         public string note = "";
-        public bool shot = false;      /* tam kare bu adımda da saklansın */
+        public bool shot = false;      /* keep the full frame at this step too */
     }
 
     public class Scenario : Object {
         public string name = "";
         public string title = "";
-        public string madde = "";
+        public string item = "";
         public string path = "";
-        public string[] allowed = {};  /* bilinen pencere sınıfları */
+        public string[] allowed = {};  /* known window classes */
         private Step[] _steps = {};
         public unowned Step[] get_steps () { return _steps; }
         public string parse_error = "";
@@ -61,22 +61,22 @@ namespace Kavis.Selftest {
                     }
                     string k, v;
                     if (!split_kv (body, out k, out v)) {
-                        sc.parse_error = "satır %d: anahtar bekleniyordu: %s".printf (lineno, body);
+                        sc.parse_error = "line %d: expected a key: %s".printf (lineno, body);
                         return sc;
                     }
                     switch (k) {
                     case "name":  sc.name = v; break;
                     case "title": sc.title = v; break;
-                    case "madde": sc.madde = v; break;
+                    case "item":  sc.item = v; break;
                     case "allowed": sc.allowed = parse_list (v); break;
                     default:
-                        sc.parse_error = "satır %d: bilinmeyen anahtar %s".printf (lineno, k);
+                        sc.parse_error = "line %d: unknown key %s".printf (lineno, k);
                         return sc;
                     }
                     continue;
                 }
                 if (!in_steps) {
-                    sc.parse_error = "satır %d: girintili satır steps dışında".printf (lineno);
+                    sc.parse_error = "line %d: indented line outside steps".printf (lineno);
                     return sc;
                 }
                 if (body.has_prefix ("- ")) {
@@ -85,12 +85,12 @@ namespace Kavis.Selftest {
                     body = body.substring (2).strip ();
                 }
                 if (cur == null) {
-                    sc.parse_error = "satır %d: adım '- do:' ile başlamalı".printf (lineno);
+                    sc.parse_error = "line %d: a step must start with '- do:'".printf (lineno);
                     return sc;
                 }
                 string key, val;
                 if (!split_kv (body, out key, out val)) {
-                    sc.parse_error = "satır %d: 'anahtar: değer' bekleniyordu".printf (lineno);
+                    sc.parse_error = "line %d: expected 'key: value'".printf (lineno);
                     return sc;
                 }
                 switch (key) {
@@ -100,12 +100,12 @@ namespace Kavis.Selftest {
                 case "note":    cur.note = val; break;
                 case "shot":    cur.shot = (val == "true" || val == "yes"); break;
                 default:
-                    sc.parse_error = "satır %d: adımda bilinmeyen anahtar %s".printf (lineno, key);
+                    sc.parse_error = "line %d: unknown key %s in step".printf (lineno, key);
                     return sc;
                 }
             }
             if (sc._steps.length == 0 && sc.parse_error == "") {
-                sc.parse_error = "adım yok";
+                sc.parse_error = "no steps";
             }
             return sc;
         }

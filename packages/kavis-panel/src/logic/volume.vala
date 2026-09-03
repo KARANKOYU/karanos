@@ -93,7 +93,7 @@ namespace Kavis.Volume {
                 SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
                 null, null);
         } catch (SpawnError e) {
-            warning ("kavis-panel: amixer calistirilamadi: %s", e.message);
+            warning ("kavis-panel: could not run amixer: %s", e.message);
         }
     }
 }

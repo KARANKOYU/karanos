@@ -23,8 +23,8 @@ namespace Kavis.Tools {
             public string name;
             public string exec;
             public bool enabled;
-            public bool user_file;      /* ~/.config/autostart'ta var */
-            public bool system_file;    /* /etc/xdg/autostart'ta var */
+            public bool user_file;      /* exists in ~/.config/autostart */
+            public bool system_file;    /* exists in /etc/xdg/autostart */
         }
 
         private Gtk.ListBox list;
@@ -165,8 +165,8 @@ namespace Kavis.Tools {
                 return;
             }
             if (on && e.system_file) {
-                /* Kullanıcı kopyası yalnız gizlemek için vardı: sil,
-                 * sistem girdisi olduğu gibi geri gelir. */
+                /* The user copy existed only to hide: delete it, the
+                 * system entry comes back as is. */
                 FileUtils.remove (user_path);
                 e.user_file = false;
             } else {
@@ -175,7 +175,7 @@ namespace Kavis.Tools {
                     FileUtils.set_contents (user_path, kf.to_data ());
                     e.user_file = true;
                 } catch (Error err) {
-                    warning ("kavis-tools: autostart yazilamadi: %s", err.message);
+                    warning ("kavis-tools: could not write autostart: %s", err.message);
                 }
             }
             e.enabled = on;
@@ -190,7 +190,7 @@ namespace Kavis.Tools {
             reload ();
         }
 
-        /* Kurulu uygulamalardan seç (menüdeki liste). */
+        /* Pick from installed applications (the menu list). */
         private void on_add () {
             var dialog = new Gtk.AppChooserDialog.for_content_type (
                 get_toplevel () as Gtk.Window, Gtk.DialogFlags.MODAL,
@@ -214,7 +214,7 @@ namespace Kavis.Tools {
                         File.new_for_path (info.get_filename ()).copy (
                             File.new_for_path (dest), FileCopyFlags.OVERWRITE);
                     } catch (Error err) {
-                        warning ("kavis-tools: kopyalanamadi: %s", err.message);
+                        warning ("kavis-tools: could not copy: %s", err.message);
                     }
                 }
             }

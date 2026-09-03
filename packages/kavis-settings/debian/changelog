@@ -1,8 +1,8 @@
 kavis-settings (1.0) unstable; urgency=medium
 
-  * İlk iskelet (madde 9): W11 yerleşimi — solda arama + ikonlu bölüm
-    listesi, sağda tembel kurulan içerik sayfaları. Bölüm içerikleri
-    sonraki commit'lerde doluyor; yapılandırma tek dosyada
-    (~/.config/kavis/kavis.conf) toplanacak.
+  * Initial skeleton (madde 9): W11 layout — search + icon section
+    list on the left, lazily built content pages on the right. Section
+    contents fill in over the next commits; configuration will be
+    gathered in a single file (~/.config/kavis/kavis.conf).
 
  -- Karan <farukyildiz3207@gmail.com>  Wed, 02 Sep 2026 12:00:00 +0300

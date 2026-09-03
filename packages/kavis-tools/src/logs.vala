@@ -94,7 +94,7 @@ namespace Kavis.Tools {
             render ();
         }
 
-        /* Kavis bileşen günlükleri: XDG_RUNTIME_DIR/*.log. */
+        /* Kavis component logs: XDG_RUNTIME_DIR/*.log. */
         private string kavis_logs () {
             var sb = new StringBuilder ();
             string dir = Environment.get_variable ("XDG_RUNTIME_DIR") ?? "/tmp";
@@ -141,7 +141,7 @@ namespace Kavis.Tools {
                     FileUtils.set_contents (dialog.get_filename (),
                                             view.buffer.text);
                 } catch (Error e) {
-                    warning ("kavis-tools: gunluk kaydedilemedi: %s", e.message);
+                    warning ("kavis-tools: could not save the log: %s", e.message);
                 }
             }
             dialog.destroy ();

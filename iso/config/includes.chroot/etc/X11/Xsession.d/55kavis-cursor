@@ -1,0 +1,8 @@
+# shellcheck shell=sh
+# Kavis (C5): cursor theme from the environment for ALL toolkits — only
+# GTK reads GTK's settings.ini; Qt/Firefox/Electron look at
+# XCURSOR_THEME. The theme comes from kavis-theme (update-alternatives
+# looks at the same name).
+XCURSOR_THEME=Kavis-Cursors
+XCURSOR_SIZE=24
+export XCURSOR_THEME XCURSOR_SIZE

@@ -16,7 +16,7 @@ namespace Kavis.Quick {
                 | SpawnFlags.STDOUT_TO_DEV_NULL
                 | SpawnFlags.STDERR_TO_DEV_NULL, null, null);
         } catch (Error e) {
-            warning ("kavis-panel: %s calistirilamadi: %s",
+            warning ("kavis-panel: could not run %s: %s",
                      argv[0], e.message);
         }
     }
@@ -47,11 +47,12 @@ namespace Kavis.Quick {
         return has_program ("nmcli");
     }
 
-    /* 4E: gösterge için GERÇEK ağ durumu. nmcli'nin varlığı donanım
-     * demek değil (VM'de Wi-Fi yokken bağlı görünüyordu) — aygıt
-     * listesi okunur. Öncelik W11 gibi: kablolu BAĞLIYSA kablolu
-     * ikonu; değilse Wi-Fi donanımı varsa onun durumu; o da yoksa
-     * kablolu donanımın durumu; hiç aygıt yoksa gösterge gizli. */
+    /* 4E: the REAL network state for the indicator. The presence of
+     * nmcli does not mean hardware (a VM without Wi-Fi showed as
+     * connected) — the device list is read. Priority like W11: if
+     * wired is CONNECTED, the wired icon; else if Wi-Fi hardware
+     * exists, its state; else the wired hardware's state; with no
+     * device at all the indicator is hidden. */
     public enum NetKind { NONE, WIFI, WIRED }
     public struct NetStatus {
         public NetKind kind;
@@ -72,7 +73,7 @@ namespace Kavis.Quick {
             if (parts.length < 2) {
                 continue;
             }
-            /* STATE "connected" ya da "connected (externally)". */
+            /* STATE is "connected" or "connected (externally)". */
             bool up = parts[1].has_prefix ("connected");
             if (parts[0] == "wifi") {
                 wifi_hw = true;
@@ -104,8 +105,8 @@ namespace Kavis.Quick {
         run_async ({ "nmcli", "radio", "wifi", enabled ? "on" : "off" });
     }
 
-    /* Bağlı Wi-Fi ağının adı; bağlı değilken boş. Kutucuk etiketi
-     * olarak gösterilir (W11 davranışı). */
+    /* Name of the connected Wi-Fi network; empty when not connected.
+     * Shown as the tile caption (W11 behaviour). */
     public string wifi_ssid () {
         string? output = run_capture (
             { "nmcli", "-t", "-f", "active,ssid", "dev", "wifi" });
@@ -126,8 +127,8 @@ namespace Kavis.Quick {
         public int signal;
     }
 
-    /* Görünür ağlar (nmcli'nin önbelleğinden — tarama başlatmaz,
-     * hızlı döner). Alt panel listesi için. */
+    /* Visible networks (from nmcli's cache — starts no scan, returns
+     * fast). For the subpage list. */
     public WifiNetwork[] wifi_networks () {
         WifiNetwork[] result = {};
         string? output = run_capture (
@@ -140,7 +141,7 @@ namespace Kavis.Quick {
             if (parts.length < 3 || parts[1] == "") {
                 continue;
             }
-            /* Aynı SSID birden çok bantta görünür; ilkini tut. */
+            /* The same SSID shows up on several bands; keep the first. */
             bool seen = false;
             foreach (unowned WifiNetwork known in result) {
                 if (known.ssid == parts[1]) {
@@ -159,9 +160,9 @@ namespace Kavis.Quick {
         return result;
     }
 
-    /* Kayıtlı ya da şifresiz ağa bağlanır. Şifre isteyen yeni ağın
-     * diyaloğu Ayarlar'ın işi (Grup F) — burada deneme başarısızsa
-     * nmcli sessizce düşer. */
+    /* Connects to a saved or open network. The dialog for a new
+     * network that asks for a password is Settings' job (Grup F) — if
+     * the attempt fails here, nmcli quietly gives up. */
     public void wifi_connect (string ssid) {
         run_async ({ "nmcli", "dev", "wifi", "connect", ssid });
     }
@@ -170,13 +171,13 @@ namespace Kavis.Quick {
         run_async ({ "nmcli", "con", "down", "id", wifi_ssid () });
     }
 
-    /* --- Uçak modu (rfkill hepsi) ------------------------------------- */
+    /* --- Airplane mode (rfkill all) ----------------------------------- */
 
     public bool airplane_available () {
         return has_program ("rfkill");
     }
 
-    /* Uçak modu = hiçbir telsiz açık değil. */
+    /* Airplane mode = no radio is on. */
     public bool airplane_enabled () {
         string? output = run_capture ({ "rfkill", "list" });
         if (output == null || output.strip () == "") {
@@ -211,8 +212,8 @@ namespace Kavis.Quick {
         run_async ({ "rfkill", enabled ? "unblock" : "block", "bluetooth" });
     }
 
-    /* Eşleştirilmiş cihaz listesi (bluetoothctl varsa; yoksa kutucuğun
-     * "›" bölümü hiç görünmez — araç yoklama kuralı). */
+    /* Paired device list (if bluetoothctl exists; otherwise the tile's
+     * "›" part is not shown at all — the tool-probe rule). */
     public bool bluetooth_list_available () {
         return has_program ("bluetoothctl");
     }
@@ -229,7 +230,7 @@ namespace Kavis.Quick {
             return result;
         }
         foreach (unowned string line in output.split ("\n")) {
-            /* "Device AA:BB:CC:DD:EE:FF Ad" */
+            /* "Device AA:BB:CC:DD:EE:FF Name" */
             string[] parts = line.split (" ", 3);
             if (parts.length == 3 && parts[0] == "Device") {
                 BtDevice device = { parts[1], parts[2] };
@@ -243,21 +244,22 @@ namespace Kavis.Quick {
         run_async ({ "bluetoothctl", "connect", address });
     }
 
-    /* --- Ses çıkış aygıtları (pactl — PipeWire/Pulse) ------------------ */
+    /* --- Sound output devices (pactl — PipeWire/Pulse) ----------------- */
 
     public bool sound_output_available () {
         return has_program ("pactl");
     }
 
     public struct SoundOutput {
-        public string name;         /* pactl iç adı */
-        public string description;  /* insan okur ad */
+        public string name;         /* pactl internal name */
+        public string description;  /* human-readable name */
         public bool active;
     }
 
-    /* Kısa liste (id\tad\t...) + varsayılan sink adı. İnsan-okur
-     * açıklama `pactl list sinks` çözümlemesi ister; alt panele iç ad
-     * yeter, zengin adlar Ayarlar Ses sayfasının işi (Grup F). */
+    /* Short list (id\tname\t...) + default sink name. A human-readable
+     * description would need parsing `pactl list sinks`; the internal
+     * name is enough for the subpage, rich names are the job of the
+     * Settings Sound page (Grup F). */
     public SoundOutput[] sound_outputs () {
         SoundOutput[] result = {};
         string? default_sink = run_capture (
@@ -284,9 +286,10 @@ namespace Kavis.Quick {
         run_async ({ "pactl", "set-default-sink", name });
     }
 
-    /* --- Gece modu (xsct — X renk sıcaklığı) --------------------------- */
-    /* Durum X'ten geri OKUNAMAZ (xsct yazar, sorgulamaz); oturum içi
-     * bellekte tutulur. Kalıcılık ve zamanlama madde 10/38'in işi. */
+    /* --- Night light (xsct — X colour temperature) --------------------- */
+    /* The state CANNOT be read back from X (xsct writes, never
+     * queries); it is kept in memory for the session. Persistence and
+     * scheduling are the job of madde 10/38. */
 
     private bool night_on = false;
     private const string NIGHT_TEMPERATURE = "4500";
@@ -304,14 +307,14 @@ namespace Kavis.Quick {
         if (enabled) {
             run_async ({ "xsct", NIGHT_TEMPERATURE });
         } else {
-            run_async ({ "xsct" });   /* argümansız: 6500K'ya döner */
+            run_async ({ "xsct" });   /* no argument: back to 6500K */
         }
     }
 
-    /* --- Oyun Modu (madde 13'e köprü) --------------------------------- */
-    /* Şimdilik yalnız durum dosyası: ~/.config/kavis/gamemode. Grup
-     * H'nin oyun modu servisi bu dosyayı okuyup gerçek işi yapacak;
-     * düğme o güne kadar da durumu doğru gösterir. */
+    /* --- Game Mode (bridge to madde 13) ------------------------------- */
+    /* For now only a state file: ~/.config/kavis/gamemode. Grup H's
+     * game mode service will read this file and do the real work;
+     * until then the button still shows the state correctly. */
 
     private string gamemode_path () {
         return Path.build_filename (
@@ -334,12 +337,12 @@ namespace Kavis.Quick {
         try {
             FileUtils.set_contents (path, enabled ? "on\n" : "off\n");
         } catch (Error e) {
-            warning ("kavis-panel: gamemode durumu yazilamadi: %s",
+            warning ("kavis-panel: could not write gamemode state: %s",
                      e.message);
         }
     }
 
-    /* --- Parlaklık (sysfs backlight) ---------------------------------- */
+    /* --- Brightness (sysfs backlight) --------------------------------- */
 
     private string? backlight_dir_cache = null;
     private bool backlight_probed = false;
@@ -366,8 +369,9 @@ namespace Kavis.Quick {
         return backlight_dir () != null;
     }
 
-    /* 3C: ortak backend'e delege — donanım yoksa xrandr yazılım
-     * parlaklığı, değer kavis.conf'ta; kaydırıcı artık HEP görünür. */
+    /* 3C: delegates to the shared backend — without hardware, xrandr
+     * software brightness with the value in kavis.conf; the slider is
+     * now ALWAYS shown. */
     public int brightness_percent () {
         return Brightness.percent ();
     }

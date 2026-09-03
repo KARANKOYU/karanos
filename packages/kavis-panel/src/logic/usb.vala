@@ -1,5 +1,5 @@
 /* Removable-drive backend for the tray USB tool (business logic —
- * no widget code). Madde 3 düzeltmesi.
+ * no widget code). Madde 3 fix.
  *
  * Listing goes through lsblk (util-linux, always present); safe
  * removal through udisksctl (udisks2 — polkit lets the live/desktop
@@ -21,7 +21,7 @@ namespace Kavis.Usb {
     }
 
     private string? field (string line, string key) {
-        /* lsblk -P satırı: NAME="sdb1" RM="1" ... */
+        /* lsblk -P line: NAME="sdb1" RM="1" ... */
         string marker = key + "=\"";
         int start = line.index_of (marker);
         if (start < 0) {
@@ -68,7 +68,7 @@ namespace Kavis.Usb {
                 continue;
             }
             string display = "";
-            /* Bu diskin etiketli ilk bölümü. */
+            /* The first labeled partition of this disk. */
             foreach (unowned string part in lines) {
                 if (field (part, "PKNAME") == name
                     && (field (part, "LABEL") ?? "") != "") {
@@ -86,9 +86,9 @@ namespace Kavis.Usb {
         return result;
     }
 
-    /* RM bayrağı tek başına yanıltıcı (udisks #358: eMMC "removable"
-     * görünebilir) — USB veriyoluna takılı HER disk çıkarılabilir
-     * sayılır, RM=1 de kalır (SD kart okuyucular TRAN vermez). */
+    /* The RM flag alone is misleading (udisks #358: eMMC can appear
+     * "removable") — EVERY disk on the USB bus counts as removable,
+     * and RM=1 stays too (SD card readers give no TRAN). */
     private bool is_removable (string line) {
         return field (line, "TRAN") == "usb"
             || field (line, "RM") == "1";
@@ -133,12 +133,12 @@ namespace Kavis.Usb {
      * user do this; the mountpoint lands under /media). BLOCKING —
      * worker thread only. Returns the mountpoint, or null.
      *
-     * want_sync (madde 63 "güvenli mod"): -o sync ile bağlamayı
-     * dener; udisks seçenek listesinde sync'e izin vermezse normal
-     * bağlamaya düşer — bağlanamamaktan iyidir. */
+     * want_sync (madde 63 "safe mode"): tries to mount with -o sync;
+     * if udisks does not allow sync in its option list it falls back
+     * to a normal mount — better than not mounting at all. */
     public string? mount_sync (string part, bool want_sync = false) {
-        /* Çıktı: "Mounted /dev/sdb1 at /media/karan/ETIKET" (eski
-         * udisks sona nokta koyardı). */
+        /* Output: "Mounted /dev/sdb1 at /media/karan/LABEL" (old
+         * udisks put a period at the end). */
         string? output = null;
         if (want_sync) {
             output = run_capture ({ "udisksctl", "mount", "-b", part,
@@ -168,7 +168,7 @@ namespace Kavis.Usb {
      * of claiming the stick is safe to pull). */
     /* True while the kernel still has writes going to this disk:
      * in-flight I/O, or the write counter moved since the last call
-     * (madde 63 gerçek yazma göstergesi — /sys/block/<ad>/stat).
+     * (madde 63 real write indicator — /sys/block/<name>/stat).
      * Field 8 = I/Os in progress, field 5 = writes completed. */
     private HashTable<string, uint64?>? last_writes = null;
 
@@ -206,8 +206,8 @@ namespace Kavis.Usb {
     }
 
     /* Names of processes keeping the disk's mountpoints busy (madde
-     * 63: "hangi uygulamanın kullandığı söylenir"). fuser -m verir,
-     * adlar /proc/<pid>/comm'dan. */
+     * 63: "tell which application is using it"). fuser -m gives them,
+     * the names come from /proc/<pid>/comm. */
     public string[] busy_processes (string node) {
         string disk_name = Path.get_basename (node);
         string[] result = {};
@@ -271,8 +271,9 @@ namespace Kavis.Usb {
             }
         }
         if (have_udisks) {
-            /* Güç kesilmiş çubuk gönül rahatlığıyla çekilir; udisks
-             * yoksa ayırma yeterli sayılır (yalnız bağı çözülmüş). */
+            /* A powered-off stick can be pulled with peace of mind;
+             * without udisks unmounting counts as enough (only
+             * unmounted). */
             return run_capture ({ "udisksctl", "power-off", "-b",
                                   node }) != null;
         }

@@ -28,7 +28,7 @@ namespace Kavis.Ui {
         }
 
         private void show_toast (NotificationEntry entry, int timeout_ms) {
-            /* Aynı id'nin tazelenmesi: eski pencereyi kapat. */
+            /* Refresh of the same id: close the old window. */
             for (int i = 0; i < toasts.length; i++) {
                 if (toasts[i].entry_id == entry.id) {
                     toasts[i].close_toast ();
@@ -90,9 +90,9 @@ namespace Kavis.Ui {
             set_skip_pager_hint (true);
             entry_id = entry.id;
 
-            /* Görsel dil popup'larla aynı (.kavis-popup CSS'i panel
-             * açılışında yüklenmiş oluyor — göstergeler popup'larını
-             * kurarken). */
+            /* Same visual language as the popups (the .kavis-popup CSS is
+             * already loaded at panel startup — when the indicators build
+             * their popups). */
             var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
             box.get_style_context ().add_class ("kavis-popup");
             box.set_border_width (12);
@@ -126,8 +126,8 @@ namespace Kavis.Ui {
                 body.set_max_width_chars (36);
                 text.pack_start (body, false, false, 0);
             }
-            /* Küçük önizleme (bölüm 5): görselli bildirimde toast da
-             * gösterir — ekran görüntüsü, renk kutusu. */
+            /* Small preview (section 5): for a notification with an image the
+             * toast shows it too — screenshot, color swatch. */
             if (entry.image_path != ""
                 && FileUtils.test (entry.image_path,
                                    FileTest.IS_REGULAR)) {
@@ -139,8 +139,8 @@ namespace Kavis.Ui {
                     text.pack_start (preview, false, false, 2);
                 } catch (Error e) { }
             }
-            /* Eylem düğmeleri (bölüm 5c): tık ActionInvoked ile
-             * bildirim sahibine döner, toast kapanır. */
+            /* Action buttons (section 5c): a click goes back to the
+             * notification owner via ActionInvoked and the toast closes. */
             if (entry.actions.length >= 2) {
                 var actions_row = new Gtk.Box (
                     Gtk.Orientation.HORIZONTAL, 6);
@@ -161,9 +161,9 @@ namespace Kavis.Ui {
             }
             box.pack_start (text, true, true, 0);
 
-            /* D4: hedefli bildirimde toast'a tık dosyayı
-             * GÖRÜNTÜLEYİCİDE açar (klasör için düğme var); hedefsiz
-             * toast eskisi gibi yalnız kapanır. */
+            /* D4: for a notification with a target, clicking the toast opens
+             * the file in the VIEWER (there is a button for the folder); a
+             * toast without a target just closes as before. */
             button_press_event.connect (() => {
                 if (entry.target_path != ""
                     && FileUtils.test (entry.target_path,

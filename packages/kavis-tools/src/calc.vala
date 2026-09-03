@@ -67,7 +67,7 @@ namespace Kavis.Tools {
         private void evaluate () {
             double value;
             if (Expression.eval (entry.get_text (), out value)) {
-                /* Tam sayıysa .0 gösterme. */
+                /* Do not show .0 for whole numbers. */
                 if (value == Math.floor (value)
                     && value.abs () < 1e15) {
                     result_label.set_markup ("<big><b>%lld</b></big>"
@@ -102,7 +102,7 @@ namespace Kavis.Tools {
 
         public bool eval (string raw, out double result) {
             result = 0;
-            /* Görsel işleçler ASCII'ye. */
+            /* Display operators to ASCII. */
             string text = raw.replace ("×", "*").replace ("÷", "/")
                 .replace ("−", "-").replace (",", ".").strip ();
             if (text == "") {
@@ -185,7 +185,7 @@ namespace Kavis.Tools {
                     i++;
                     continue;
                 }
-                return false;   /* tanınmayan karakter */
+                return false;   /* unrecognized character */
             }
             if (expect_operand) {
                 return false;
@@ -210,8 +210,8 @@ namespace Kavis.Tools {
             }
             double b = values[values.length - 1];
             double a = values[values.length - 2];
-            /* `+=` ref/out dizi parametrelerinde yasak (Vala 0.56);
-             * son elemanı yerinde değiştiriyoruz. */
+            /* `+=` is forbidden on ref/out array parameters (Vala 0.56);
+             * we modify the last element in place. */
             values.resize (values.length - 1);
             values[values.length - 1] = apply (a, b, op);
             return true;

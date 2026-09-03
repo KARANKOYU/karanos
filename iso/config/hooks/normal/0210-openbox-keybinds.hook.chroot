@@ -1,49 +1,50 @@
 #!/bin/sh
-# Kavis — genel kısayol altyapısı (madde 6)
+# Kavis — global shortcut infrastructure (item 6)
 #
-# NEDEN HOOK: 0200 ile aynı sebep — Debian'ın rc.xml'i komple
-# değiştirilmez (fare bölümü ve varsayılan kısayollar kaybolur), yalnız
-# Kavis bloğu </keyboard> kapanışından önce enjekte edilir. Kısayollar
-# TEK yerde (bu blok) durur; Ayarlar (Grup F, madde 29E) aynı bloğu
-# düzenleyecek.
+# WHY A HOOK: same reason as 0200 — Debian's rc.xml is not replaced
+# wholesale (the mouse section and default bindings would be lost); only
+# the Kavis block is injected before the </keyboard> closing tag. The
+# shortcuts live in ONE place (this block); Settings (Group F, item 29E)
+# will edit the same block.
 #
-# Pencere yerleştirme (Windows karşılıkları):
-#   Win+Sol/Sağ  : yarım ekran sola/sağa (önce büyütme kaldırılır —
-#                  büyütülmüş pencerede MoveResizeTo işlemez)
-#   Win+Yukarı   : büyüt
-#   Win+Aşağı    : büyütülmüşse eski boyut, değilse simge durumuna
-#   Alt+Tab      : Debian varsayılanı zaten var, dokunulmuyor
-#   Ctrl+Alt+ok  : masaüstü geçişi — Debian varsayılanında var
-# Sürükleyerek kenara yapıştırma klavyenin işi değil: kavis-snap
-# daemon'u yapıyor (kavis-panel paketi).
+# Window placement (Windows equivalents):
+#   Win+Left/Right : half screen left/right (unmaximize first —
+#                    MoveResizeTo does nothing on a maximized window)
+#   Win+Up         : maximize
+#   Win+Down       : restore if maximized, otherwise iconify
+#   Alt+Tab        : Debian default already exists, untouched
+#   Ctrl+Alt+arrow : desktop switching — in the Debian default
+# Snap-by-dragging-to-edge is not the keyboard's job: the kavis-snap
+# daemon does it (kavis-panel package).
 
 set -e
 
 RC=/etc/xdg/openbox/rc.xml
 
 if [ ! -f "$RC" ]; then
-	echo "E: $RC yok — openbox kurulu mu?" >&2
+	echo "E: $RC missing — is openbox installed?" >&2
 	exit 1
 fi
 
-if grep -q "Kavis kisayollari" "$RC"; then
-	echo "I: kisayollar zaten ekli"
+if grep -q "Kavis keybindings" "$RC"; then
+	echo "I: keybindings already added"
 	exit 0
 fi
 
-# --- Debian varsayılanlarından kaldırılanlar (test8 I1/I2/I3/I5) -----
-# Debian rc.xml'inin kendi bağları bizimkilerle BİRLİKTE koşuyordu
-# (openbox aynı tuşun bütün bağlarını çalıştırır):
-#   I1: A-F4 Close + bizim alt-f4 → pencere kapandıktan sonra araç
-#       "odaklı pencere yok" görüp kapatma diyaloğu açıyordu.
-#   I2: Print/A-Print → scrot (kurulu değil, hata kutusu) + bizim araç.
-#   I3: Desktop/Root/MoveResize'ta tekerlek masaüstü değiştiriyor,
-#       Root'ta orta tık istemci listesi ve sağ tık openbox kök menüsü
-#       açıyordu (masaüstü sağ tıkı nemo-desktop'un işi).
-#   I5: Titlebar Drag yalnız Move — büyütülmüş pencere sürüklenemiyor;
-#       Windows davranışı: önce Unmaximize (normal pencerede etkisiz).
+# --- removed from the Debian defaults (test8 I1/I2/I3/I5) -------------
+# Debian's own rc.xml bindings were running TOGETHER with ours (openbox
+# runs every binding of the same key):
+#   I1: A-F4 Close + our alt-f4 → after the window closed the tool saw
+#       "no focused window" and opened the shutdown dialog.
+#   I2: Print/A-Print → scrot (not installed, error box) + our tool.
+#   I3: In Desktop/Root/MoveResize the wheel switched desktops, on Root
+#       middle click opened the client list and right click the openbox
+#       root menu (desktop right click is nemo-desktop's job).
+#   I5: Titlebar Drag was only Move — a maximized window could not be
+#       dragged; Windows behaviour: Unmaximize first (no effect on a
+#       normal window).
 awk '
-	# atlama modu her kuraldan önce gelir: blok sonunu bekle
+	# skip mode comes before every rule: wait for the end of the block
 	skip == 1 {
 		if ($0 ~ end_tag) skip = 0
 		next
@@ -65,9 +66,9 @@ awk '
 		skip = 1; end_tag = "</mousebind>"; next
 	}
 	ctx == "Titlebar" && /<mousebind button="Left" action="Drag">/ {
-		# C3 (v0.4-test1): buyutulmus pencerede openbox HICBIR SEY
-		# yapmaz — surüklemeyi kavis-snap ustlenir (geri yukleyip
-		# isaretcinin altina koyar, W11). Normal pencerede Move.
+		# C3 (v0.4-test1): on a maximized window openbox does NOTHING —
+		# kavis-snap takes over the drag (restores and puts the window
+		# under the pointer, W11). Move on a normal window.
 		print "    <mousebind button=\"Left\" action=\"Drag\">"
 		print "      <action name=\"If\">"
 		print "        <maximized>yes</maximized>"
@@ -77,35 +78,35 @@ awk '
 		print "    </mousebind>"
 		skip = 1; end_tag = "</mousebind>"; next
 	}
-	# C4: stok W-e (Debian: terminal/dosya yoneticisi) bizim W-e ile
-	# BIRLIKTE kosardi (I1 dersi) — kaldir.
+	# C4: the stock W-e (Debian: terminal/file manager) would run
+	# TOGETHER with our W-e (lesson I1) — remove it.
 	/<keybind key="W-e">/ {
 		skip = 1; end_tag = "</keybind>"; next
 	}
 	{ print }
-' "$RC" > "$RC.temiz"
-mv "$RC.temiz" "$RC"
+' "$RC" > "$RC.clean"
+mv "$RC.clean" "$RC"
 
-# (yorum satırlarında scrot sözcüğü kalabilir — gerçek bağa bak)
+# (the word scrot may remain in comment lines — look at the real binding)
 if grep -q "<command>scrot" "$RC"; then
-	echo "E: scrot baglari hala duruyor" >&2
+	echo "E: scrot bindings are still there" >&2
 	exit 1
 fi
-echo "I: Debian varsayilan baglari temizlendi (A-F4, Print, tekerlek, kok menuleri; Drag=Unmaximize+Move)"
+echo "I: Debian default bindings cleaned (A-F4, Print, wheel, root menus; Drag=Unmaximize+Move)"
 
-# 2A: pencere kenara sürüklenince openbox masaüstü DEĞİŞTİRMESİN —
-# kavis-snap'in kenar yapıştırmasını gölgeliyordu (sol/sağ = yarım,
-# üst = büyüt). 0 = kapalı.
+# 2A: openbox must NOT switch desktops when a window is dragged to an
+# edge — it was shadowing kavis-snap's edge snapping (left/right = half,
+# top = maximize). 0 = off.
 sed -i 's|<screenEdgeWarpTime>[0-9]*</screenEdgeWarpTime>|<screenEdgeWarpTime>0</screenEdgeWarpTime>|' "$RC"
 if ! grep -q "<screenEdgeWarpTime>0</screenEdgeWarpTime>" "$RC"; then
-	echo "E: screenEdgeWarpTime kapatilamadi" >&2
+	echo "E: could not disable screenEdgeWarpTime" >&2
 	exit 1
 fi
-echo "I: kenar suruklemede masaustu gecisi kapali (screenEdgeWarpTime=0)"
+echo "I: desktop switching on edge drag disabled (screenEdgeWarpTime=0)"
 
 SNIPPET=$(mktemp)
 cat > "$SNIPPET" <<'EOF'
-    <!-- Kavis kisayollari (madde 6) — 0210 hook'u ekledi -->
+    <!-- Kavis keybindings (item 6) — added by the 0210 hook -->
     <keybind key="W-Left">
       <action name="Unmaximize"/>
       <action name="MoveResizeTo">
@@ -128,32 +129,32 @@ cat > "$SNIPPET" <<'EOF'
         <else><action name="Iconify"/></else>
       </action>
     </keybind>
-    <!-- Genel bakis (madde 55): calisan panele DBus ile soyleniyor -->
+    <!-- Overview (item 55): told to the running panel over DBus -->
     <keybind key="W-Tab">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowOverview</command>
       </action>
     </keybind>
-    <!-- Snap yerlesim menusu (sonraki-isler 4) -->
+    <!-- Snap layout menu (next-tasks 4) -->
     <keybind key="W-z">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowSnapMenu</command>
       </action>
     </keybind>
-    <!-- Pano gecmisi (madde 7) — artik birlesik panelin pano sekmesi -->
+    <!-- Clipboard history (item 7) — now the unified panel's clipboard tab -->
     <keybind key="W-v">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowClipboard</command>
       </action>
     </keybind>
-    <!-- Emoji ve daha fazlasi (sonraki-isler 5): son kullanilan sekme -->
+    <!-- Emoji and more (next-tasks 5): last used tab -->
     <keybind key="W-period">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowPicker last</command>
       </action>
     </keybind>
-    <!-- Ses/parlaklik/medya tuslari -> kavis-osd (sonraki-isler 6a):
-         panelden ayri surec, panel cokse bile calisir -->
+    <!-- Volume/brightness/media keys -> kavis-osd (next-tasks 6a):
+         separate process from the panel, works even if the panel crashes -->
     <keybind key="XF86AudioRaiseVolume">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeUp</command>
@@ -194,8 +195,8 @@ cat > "$SNIPPET" <<'EOF'
         <command>gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media prev</command>
       </action>
     </keybind>
-    <!-- Ekran goruntusu (madde 29): PrtScr arac menusu, Ctrl+PrtScr
-         sormadan hizli yakalama (ne yakalanacagi capture.conf'tan) -->
+    <!-- Screenshot (item 29): PrtScr tool menu, Ctrl+PrtScr quick
+         capture without asking (what to capture comes from capture.conf) -->
     <keybind key="Print">
       <action name="Execute">
         <command>kavis-tools capture</command>
@@ -206,36 +207,36 @@ cat > "$SNIPPET" <<'EOF'
         <command>kavis-tools capture --quick</command>
       </action>
     </keybind>
-    <!-- Masaustunde Alt+F4 (6e): pencere varsa kapat, yoksa kapatma
-         diyalogu. Pencereliyken ayni WM_DELETE yolu. -->
+    <!-- Alt+F4 on the desktop (6e): close the window if there is one,
+         otherwise the shutdown dialog. Same WM_DELETE path when windowed. -->
     <keybind key="A-F4">
       <action name="Execute">
         <command>kavis-tools alt-f4</command>
       </action>
     </keybind>
-    <!-- Ctrl+Alt+Del ekrani (sonraki-isler 6d): panelden bagimsiz -->
+    <!-- Ctrl+Alt+Del screen (next-tasks 6d): independent of the panel -->
     <keybind key="C-A-Delete">
       <action name="Execute">
         <command>kavis-tools secure-menu</command>
       </action>
     </keybind>
-    <!-- Renk secici (sonraki-isler 5c): dogrudan renk modu -->
+    <!-- Color picker (next-tasks 5c): direct color mode -->
     <keybind key="W-S-c">
       <action name="Execute">
         <command>kavis-tools capture --color</command>
       </action>
     </keybind>
-    <!-- C4 (v0.4-test1): Windows karsiliklari. Win tek basina: xcape
-         Super_L dokunusunu XF86Launch5'e cevirir (autostart), XF86Launch5 baslat
-         menusunu acar; Win+harf kisayollari Super'i modifier olarak
-         gorur, xcape bunlara dokunmaz. -->
+    <!-- C4 (v0.4-test1): Windows equivalents. Win alone: xcape turns a
+         Super_L tap into XF86Launch5 (autostart), XF86Launch5 opens the
+         start menu; Win+letter shortcuts see Super as a modifier, xcape
+         leaves those alone. -->
     <keybind key="XF86Launch5">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false</command>
       </action>
     </keybind>
-    <!-- Ctrl+Esc: Windows'un eski kisayolu; VirtualBox host Win'i
-         yakaladiginda da baslat menusune ulasilsin. -->
+    <!-- Ctrl+Esc: Windows' old shortcut; also reaches the start menu when
+         the VirtualBox host captures Win. -->
     <keybind key="C-Escape">
       <action name="Execute">
         <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false</command>
@@ -263,9 +264,9 @@ cat > "$SNIPPET" <<'EOF'
     </keybind>
 EOF
 
-# Win+sayı (sonraki-isler 2): soldan N. görev çubuğu yuvası —
-# çalışmıyorsa başlat, çalışıyorsa odakla; Shift'liyle yeni pencere.
-# W-0 onuncu yuva. 20 bağ elle yazmak yerine üretiliyor.
+# Win+number (next-tasks 2): Nth taskbar slot from the left — launch if
+# not running, focus if running; with Shift a new window. W-0 is the
+# tenth slot. Generated instead of writing 20 bindings by hand.
 for n in 1 2 3 4 5 6 7 8 9 0; do
 	cat >> "$SNIPPET" <<EOF2
     <keybind key="W-$n">
@@ -288,22 +289,22 @@ awk -v snippet="$SNIPPET" '
 		done = 1
 	}
 	{ print }
-' "$RC" > "$RC.yeni"
-mv "$RC.yeni" "$RC"
+' "$RC" > "$RC.new"
+mv "$RC.new" "$RC"
 rm -f "$SNIPPET"
 
-if grep -q "Kavis kisayollari" "$RC"; then
-	echo "I: pencere yerlestirme kisayollari rc.xml'e eklendi"
+if grep -q "Kavis keybindings" "$RC"; then
+	echo "I: window placement keybindings added to rc.xml"
 else
-	echo "E: kisayollar rc.xml'e yazilamadi" >&2
+	echo "E: could not write the keybindings into rc.xml" >&2
 	exit 1
 fi
 
-# rc.xml hala gecerli XML mi? Bozuk rc.xml openbox'i VARSAYILANLARLA
-# baslatir ve hata sessizce yutulur.
+# Is rc.xml still valid XML? A broken rc.xml starts openbox with the
+# DEFAULTS and the error is swallowed silently.
 if command -v python3 >/dev/null 2>&1; then
 	python3 -c "import xml.dom.minidom, sys; xml.dom.minidom.parse('$RC')" || {
-		echo "E: rc.xml artik gecerli XML degil" >&2
+		echo "E: rc.xml is no longer valid XML" >&2
 		exit 1
 	}
 fi

@@ -1,5 +1,5 @@
 /* Window ↔ .desktop matching (business logic — no widget code).
- * Sonraki-isler bölüm 2 — "işin zor yeri".
+ * Sonraki-isler section 2 — "the hard part of the job".
  *
  * A lookup table is built ONCE (not per window event): for every
  * desktop entry, these keys map to its id, first writer wins in this
@@ -30,7 +30,7 @@ namespace Kavis.AppMatch {
     private void build () {
         table = new HashTable<string, string> (str_hash, str_equal);
 
-        /* 1. elle eşleme dosyası: satır başına "wmclass=desktop-id". */
+        /* 1. manual mapping file: one "wmclass=desktop-id" per line. */
         string contents;
         try {
             FileUtils.get_contents ("/etc/kavis/wmclass-map.conf",
@@ -47,10 +47,10 @@ namespace Kavis.AppMatch {
                 }
             }
         } catch (Error e) {
-            /* dosya yoksa sorun değil */
+            /* a missing file is fine */
         }
 
-        /* 2-4. kurulu .desktop girdileri. */
+        /* 2-4. installed .desktop entries. */
         foreach (AppInfo info in AppInfo.get_all ()) {
             var desktop = info as DesktopAppInfo;
             if (desktop == null) {

@@ -18,9 +18,9 @@ Depends:
  ${misc:Depends},
  xdotool,
  x11-utils,
-Description: Kavis sistem içi otomatik UI testi (madde 72)
- Gerçek oturumda fare/klavye olaylarını üretip her adımı günlükleyen,
- beklentileri ve anormallikleri (coredump, süreç ölümü, RAM sıçraması,
- bilinmeyen pencere) yakalayan test koşucusu. Senaryolar YAML alt
- kümesinde /usr/share/kavis/selftest altında; rapor
- ~/.local/share/kavis/selftest/<tarih-saat>/.
+Description: Kavis in-system automated UI test (madde 72)
+ A test runner that generates mouse/keyboard events in the real session,
+ logs every step and catches expectations and anomalies (coredump,
+ process death, RAM jump, unknown window). Scenarios are a YAML subset
+ under /usr/share/kavis/selftest; the report goes to
+ ~/.local/share/kavis/selftest/<date-time>/.

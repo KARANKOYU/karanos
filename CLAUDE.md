@@ -4,10 +4,19 @@ Debian trixie tabanlı, Windows benzeri masaüstüne sahip, tek
 geliştiricili **açık kaynak olacak** dağıtım. Kavis adı global paylaşım
 için seçildi; r/linux'ta duyuruldu, çeviri/test/kod katkıcısı aranıyor;
 depo Vala taşıması bitince public olacak.
-Proje dili **Türkçe**: commit mesajları, belgeler ve arayüz metinleri
-Türkçe. Fonksiyon açıklamaları (Doxygen/docstring) ise **İngilizce**
-(görev listesi "kod kalitesi" kuralı; eski dosyalarda Türkçe yorum
-kalmış olabilir, yenilerde İngilizce).
+Belgeler (docs/) ve Türkçe çeviri (po/tr.po) Türkçe; kod tabanı,
+yorumlar, commit mesajları ve CI çıktıları **İngilizce** (aşağıdaki
+dil kuralı).
+
+## Dil kuralı — kod tabanı TAMAMEN İngilizce (3 Eyl 2026)
+
+Değişken/fonksiyon/sınıf/dosya adları, yorumlar, commit mesajları, log
+satırları, hata mesajları (kullanıcıya görünenler gettext üzerinden,
+msgid İngilizce), CI çıktıları (KAVIS-CHECK satırları dahil), betik
+adları, config anahtarları — hepsi İngilizce. Türkçe YALNIZ `po/tr.po`
+ve `docs/` altındaki belgelerde (bu dosya dahil). packages/, iso/,
+tools/, tests/, .github/ altında Türkçe kalmaz; CI satırı değişirse
+onu okuyan betik de güncellenir. Commit mesajları İngilizce.
 
 ## Marka — Kavis (eski adı Karan OS)
 
@@ -30,7 +39,7 @@ başlat düğmesi/hakkında etkin temaya göre (`marka.logo_yolu()`).
 
 Bugün yalnız **amd64** ISO'su üretilir ama kod baştan çok mimarili yazılır
 (hedef: ileride arm64). Kurallar `docs/gorev-listesi.md` MİMARİ ilkesinde;
-kısaca: "amd64" dizesi koda gömülmez (`KAVIS_MIMARI` değişkeni /
+kısaca: "amd64" dizesi koda gömülmez (`KAVIS_ARCH` değişkeni /
 `dpkg --print-architecture`), paketler `all`/`any`, x86'ya özgü her şey
 mimari kontrolüyle sarılıp diğer mimarilerde sessizce ve açıklamalı
 kapanır, donanım çalışma anında tespit edilir. arm64 derlemesi istenene
@@ -97,7 +106,7 @@ Geliştirme GitHub Codespaces'te yapılıyor: Debian konteyner, **2 çekirdek**,
 - **ISO'yu yerelde derleme.** `lb build` yalnızca GitHub Actions'ta çalışır
   (`.github/workflows/build-iso.yml`). Sebep çekirdek sayısı ve disk;
   Codespace'te sadece yapılandırma yazılır ve tek tek bileşen testi yapılır.
-- İlk doğrulama yine CI'da: QEMU duman testi ve `tani-<mod>` yapıtı (seri
+- İlk doğrulama yine CI'da: QEMU duman testi ve `diag-<mode>` yapıtı (seri
   günlük + otomatik PNG ekran görüntüleri). Bir şey bozulduğunda önce oraya bak
   — 40 dakikalık koşuyu tahminle harcama.
 - Kullanıcının bağlantısı ~1 MB/s. ISO'yu indirip **VirtualBox'ta elle test
@@ -142,8 +151,8 @@ başarısız saymaz.
   apt ile hazır program kurmak serbest.
 - Her grubun sonunda kendi kodunu gözden geçir (mantık hatası, sızıntı,
   yarım iş, çift iş) ve ne bulduğunu söyle.
-- Commit mesajları Türkçe, ne yapıldığını değil **neyi neden düzelttiğini**
-  anlatır.
+- Commit mesajları İngilizce (3 Eyl 2026 kuralı), ne yapıldığını değil
+  **neyi neden düzelttiğini** anlatır.
 - Commit mesajlarına `Co-Authored-By` satırı **ekleme**.
 - Etiket (`v*`) konacak commit'in mesajına `[skip ci]` **yazma** —
   etiket koşusunu bulandırır; `[skip ci]` yalnız CI'ın kendi otomatik

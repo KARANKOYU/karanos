@@ -1,5 +1,5 @@
-# Kavis varsayılanları (madde 40). Kullanıcının ~/.config/katerc'i
-# bunları ezer. Anahtar adları KTextEditor kateconfig.cpp'den.
+# Kavis defaults (item 40). The user's ~/.config/katerc overrides these.
+# Key names are from KTextEditor's kateconfig.cpp.
 [General]
 Startup Session=new
 Show Full Path in Title=true

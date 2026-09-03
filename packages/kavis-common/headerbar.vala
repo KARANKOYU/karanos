@@ -1,10 +1,11 @@
-/* W11-style CSD title bar for Kavis apps (v0.4-test1 geri bildirimi A).
+/* W11-style CSD title bar for Kavis apps (v0.4-test1 feedback A).
  *
- * KANONİK KOPYA BURASI — build-packages.sh (prepare_sources) GTK
- * paketlerinin src ağacına kopyalar; kopyalar .gitignore'da.
+ * THIS IS THE CANONICAL COPY — build-packages.sh (prepare_sources)
+ * copies it into the GTK packages' src trees; the copies are in
+ * .gitignore.
  *
  * Why CSD here: the Openbox themerc cannot draw 46×32 buttons with a
- * full-height hover fill (1B kararı sınırları). GtkHeaderBar can, and
+ * full-height hover fill (limits of decision 1B). GtkHeaderBar can, and
  * Tilix already ships that look — Kavis apps must match it. The
  * actual colors and 46×32 sizing live in kavis-theme's gtk.css
  * (headerbar button.titlebutton rules), so Tilix and every other CSD
@@ -32,8 +33,8 @@ namespace Kavis.HeaderBar {
         row.show_all ();
         bar.pack_start (row);
 
-        /* Boş özel başlık: HeaderBar'ın ortalanmış varsayılan başlığı
-         * kapanır, başlık soldaki kutudan gelir (W11 hizası). */
+        /* Empty custom title: disables the HeaderBar's centered default
+         * title; the title comes from the box on the left (W11 alignment). */
         var empty = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
         empty.show ();
         bar.set_custom_title (empty);

@@ -1,9 +1,9 @@
 #!/bin/sh
-# /etc/os-release, base-files paketinin sahibi olduğu /usr/lib/os-release
-# dosyasına bir sembolik bağ. Üstüne dosya koyarsak dpkg dosya çakışması
-# verir. Doğru yol dpkg-divert: base-files'ın dosyası .debian uzantısıyla
-# kenara alınır, bizimki onun yerine geçer, paket kaldırılınca aslı geri
-# gelir.
+# /etc/os-release is a symlink to /usr/lib/os-release, owned by the
+# base-files package. Putting a file on top would make dpkg report a
+# file conflict. The right way is dpkg-divert: base-files' file is set
+# aside with the .debian suffix, ours takes its place, and the original
+# comes back when the package is removed.
 set -e
 
 DIVERTED=/usr/lib/os-release

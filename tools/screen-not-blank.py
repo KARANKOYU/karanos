@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""QEMU screendump'inin (PPM) gercekten bir masaustu gosterip
-gostermedigini olcer.
+"""Measure whether a QEMU screendump (PPM) really shows a desktop.
 
-NEDEN VAR: 1. ve 2. asamada CI yesil yandi ama QEMU ekrani simsiyahti —
-grafik oturum hic acilmamisti. "RESULT=OK" satirina bakmak yetmiyor;
-ekranda bir sey CIZILDIGINI de dogrulamak gerekiyor.
+WHY: in stages 1 and 2 CI went green while the QEMU screen was pitch
+black — the graphical session had never started. Looking at the
+"RESULT=OK" line is not enough; it must also be verified that something
+was DRAWN on the screen.
 
-Olcut iki tane, ikisi de gecmeli:
-  1. Renk cesitliligi: kacta kac farkli renk var. Bos bir X kok penceresi
-     tek renktir; duvar kagidi degradesi binlerce renk uretir.
-  2. Parlaklik yayilimi (standart sapma): tek duz renkle doldurulmus bir
-     ekran 0'a yakin sapma verir.
+Two criteria, both must pass:
+  1. Color variety: how many distinct colors. An empty X root window is
+     a single color; a wallpaper gradient produces thousands.
+  2. Brightness spread (standard deviation): a screen filled with one
+     flat color gives a deviation close to 0.
 
-Kullanim:  screen-not-blank.py <dosya.ppm> [--min-renk N] [--min-sapma X]
-Cikis:     0 = ekranda icerik var, 1 = bos/duz ekran, 2 = dosya okunamadi
+Usage:  screen-not-blank.py <file.ppm> [--min-colors N] [--min-stddev X]
+Exit:   0 = content on screen, 1 = blank/flat screen, 2 = unreadable file
 """
 
 import sys
 
 
-def ppm_oku(path):
+def read_ppm(path):
 	with open(path, "rb") as fh:
 		d = fh.read()
 	if d[:2] != b"P6":
@@ -43,49 +43,49 @@ def ppm_oku(path):
 
 def main():
 	if len(sys.argv) < 2:
-		sys.exit("kullanim: screen-not-blank.py <dosya.ppm> [--min-renk N] [--min-sapma X]")
+		sys.exit("usage: screen-not-blank.py <file.ppm> [--min-colors N] [--min-stddev X]")
 	path = sys.argv[1]
-	min_renk = 24
-	min_sapma = 3.0
+	min_colors = 24
+	min_stddev = 3.0
 	for i, a in enumerate(sys.argv):
-		if a == "--min-renk":
-			min_renk = int(sys.argv[i + 1])
-		elif a == "--min-sapma":
-			min_sapma = float(sys.argv[i + 1])
+		if a == "--min-colors":
+			min_colors = int(sys.argv[i + 1])
+		elif a == "--min-stddev":
+			min_stddev = float(sys.argv[i + 1])
 
-	veri = ppm_oku(path)
-	if not veri:
-		print(f"EKRAN-TANI: {path} okunamadi (PPM degil)")
+	data = read_ppm(path)
+	if not data:
+		print(f"SCREEN-CHECK: {path} unreadable (not a PPM)")
 		return 2
-	w, h, raw = veri
+	w, h, raw = data
 	if len(raw) < w * h * 3:
-		print(f"EKRAN-TANI: {path} eksik ({len(raw)} bayt)")
+		print(f"SCREEN-CHECK: {path} truncated ({len(raw)} bytes)")
 		return 2
 
-	# Her pikseli gezmek gereksiz; 4'er piksel atlayarak ornekliyoruz.
-	adim = 4 * 3
-	renkler = set()
-	toplam = 0
-	kare_toplam = 0
-	sayi = 0
-	for off in range(0, w * h * 3 - 3, adim):
+	# Visiting every pixel is unnecessary; sample every 4th pixel.
+	step = 4 * 3
+	colors = set()
+	total = 0
+	sq_total = 0
+	count = 0
+	for off in range(0, w * h * 3 - 3, step):
 		r, g, b = raw[off], raw[off + 1], raw[off + 2]
-		renkler.add((r, g, b))
-		parlaklik = (r * 299 + g * 587 + b * 114) / 1000.0
-		toplam += parlaklik
-		kare_toplam += parlaklik * parlaklik
-		sayi += 1
+		colors.add((r, g, b))
+		luma = (r * 299 + g * 587 + b * 114) / 1000.0
+		total += luma
+		sq_total += luma * luma
+		count += 1
 
-	ort = toplam / sayi
-	sapma = max(0.0, (kare_toplam / sayi) - ort * ort) ** 0.5
+	mean = total / count
+	stddev = max(0.0, (sq_total / count) - mean * mean) ** 0.5
 
-	print(f"EKRAN-TANI: {w}x{h} · {len(renkler)} farkli renk · "
-	      f"ortalama parlaklik {ort:.1f} · sapma {sapma:.2f}")
+	print(f"SCREEN-CHECK: {w}x{h} · {len(colors)} distinct colors · "
+	      f"mean brightness {mean:.1f} · stddev {stddev:.2f}")
 
-	if len(renkler) < min_renk and sapma < min_sapma:
-		print(f"EKRAN-TANI: BOS — en az {min_renk} renk ve {min_sapma} sapma bekleniyordu")
+	if len(colors) < min_colors and stddev < min_stddev:
+		print(f"SCREEN-CHECK: BLANK — expected at least {min_colors} colors and {min_stddev} stddev")
 		return 1
-	print("EKRAN-TANI: ekranda icerik var")
+	print("SCREEN-CHECK: content on screen")
 	return 0
 
 

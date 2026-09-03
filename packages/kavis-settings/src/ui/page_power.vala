@@ -3,7 +3,7 @@
  * is kavis.conf [power] via the shared PowerPlan backend — the quick
  * settings Battery panel reads the SAME keys, no second writer logic.
  * Screen-off timeout applies via DPMS. Lid/suspend timers need logind
- * (root) — deliberately deferred, logged under ONAY BEKLEYEN.
+ * (root) — deliberately deferred, logged under PENDING APPROVAL.
  */
 
 namespace Kavis.Settings.Pages {
@@ -20,12 +20,12 @@ namespace Kavis.Settings.Pages {
             body.pack_start (group (_("On battery")), false, false, 0);
             body.pack_start (plan_list (false), false, false, 0);
         } else {
-            /* Masaüstü: tek liste (pil yok — madde 51). */
+            /* Desktop: single list (no battery — madde 51). */
             body.pack_start (group (_("Power mode")), false, false, 0);
             body.pack_start (plan_list (true), false, false, 0);
         }
 
-        /* Ekran kapatma süresi (DPMS — oturum düzeyi, gerçek). */
+        /* Screen-off timeout (DPMS — session level, real). */
         var screen_off = new Gtk.ComboBoxText ();
         screen_off.append ("0", _("Never"));
         screen_off.append ("5", _("5 minutes"));
@@ -54,7 +54,7 @@ namespace Kavis.Settings.Pages {
         PowerPlan.Plan active = PowerPlan.get_plan (plugged);
         Gtk.RadioButton? first = null;
         foreach (PowerPlan.Plan plan in plans) {
-            PowerPlan.Plan chosen = plan;   /* closure kopyası */
+            PowerPlan.Plan chosen = plan;   /* closure copy */
             var radio = new Gtk.RadioButton.with_label_from_widget (
                 first, plan_name (plan));
             if (first == null) {

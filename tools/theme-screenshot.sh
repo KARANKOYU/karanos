@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
-# Kavis — temayı Xvfb'de çizdirip PNG olarak kaydeder
+# Kavis — render the theme in Xvfb and save it as a PNG
 #
-# NEDEN VAR: temanın nasıl göründüğünü öğrenmenin tek yolu ISO derleyip
-# QEMU'da açmak olmasın. Bu script kavis-theme .deb'ini geçici bir
-# dizine açar, Xvfb + Openbox başlatır, duvar kağıdını ve tema önizleme
-# penceresini çizer, ekranı PNG'ye alır. Codespace'te ~10 saniye sürüyor.
+# WHY: building an ISO and booting it in QEMU should not be the only way to
+# see what the theme looks like. This script extracts the kavis-theme .deb
+# into a temporary directory, starts Xvfb + Openbox, draws the wallpaper
+# and the theme preview window, and grabs the screen to a PNG. Takes ~10 s
+# in a Codespace.
 #
-# Kullanım:
-#   tools/theme-screenshot.sh [cikti.png]
+# Usage:
+#   tools/theme-screenshot.sh [output.png]
 #
-# Gereksinimler: xvfb, openbox, xwallpaper, python3-gi, gir1.2-gtk-3.0
+# Requirements: xvfb, openbox, xwallpaper, python3-gi, gir1.2-gtk-3.0
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-OUT="${1:-$REPO_ROOT/out/tema.png}"
+OUT="${1:-$REPO_ROOT/out/theme.png}"
 DEB=$(ls -1 out/packages/kavis-theme_*_all.deb 2>/dev/null | head -1 || true)
 
 if [[ -z "$DEB" ]]; then
-	echo "==> paket yok, derleniyor"
+	echo "==> no package, building"
 	tools/build-packages.sh kavis-theme >/dev/null
 	DEB=$(ls -1 out/packages/kavis-theme_*_all.deb | head -1)
 fi
 
 for cmd in Xvfb openbox xwallpaper /usr/bin/python3; do
 	command -v "$cmd" >/dev/null || {
-		echo "HATA: $cmd kurulu degil" >&2
+		echo "ERROR: $cmd is not installed" >&2
 		exit 2
 	}
 done
@@ -36,12 +37,12 @@ ROOT=$(mktemp -d)
 trap 'rm -rf "$ROOT"' EXIT
 dpkg-deb -x "$DEB" "$ROOT"
 
-# Temayı sisteme kurmuyoruz — GTK'ya XDG_DATA_DIRS ile gösteriyoruz.
-# Böylece Codespace'in kendi /usr'ı ellenmiyor.
+# The theme is not installed system-wide — GTK is pointed at it through
+# XDG_DATA_DIRS. That way the Codespace's own /usr is left untouched.
 export XDG_DATA_DIRS="$ROOT/usr/share:${XDG_DATA_DIRS:-/usr/share}"
-# Kavis tek temali: koyu. ":dark" soneki GTK'ya tema dizinindeki
-# gtk-dark.css'i yukletiyor; zaten gtk.css de ayni dosyanin kopyasi,
-# yani sonek olmasa da sonuc degismez.
+# Kavis is single-theme: dark. The ":dark" suffix makes GTK load
+# gtk-dark.css from the theme directory; gtk.css is a copy of the same
+# file anyway, so the result is the same without the suffix.
 export GTK_THEME=Kavis:dark
 export XCURSOR_PATH="$ROOT/usr/share/icons"
 export XCURSOR_THEME=Kavis-Cursors
@@ -59,10 +60,10 @@ for _ in $(seq 1 40); do
 	sleep 0.25
 done
 
-# Openbox'ın teması rc.xml'den geliyor. ISO'da bunu
-# iso/config/hooks/normal/0200-openbox-theme.hook.chroot yapıyor;
-# burada aynı dönüşümü geçici bir kopyaya uygulayıp öyle başlatıyoruz ki
-# ekran görüntüsünde gerçek pencere çerçevesi görünsün.
+# Openbox's theme comes from rc.xml. On the ISO this is done by
+# iso/config/hooks/normal/0200-openbox-theme.hook.chroot; here we apply
+# the same transformation to a temporary copy and start with that, so the
+# screenshot shows the real window frame.
 RC="$ROOT/rc.xml"
 awk '
 	/<theme>/            { intheme = 1 }
@@ -77,17 +78,17 @@ sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1
 xwallpaper --zoom "$ROOT/usr/share/backgrounds/kavis/kavis.png" || true
-/usr/bin/python3 tools/ornek-pencere.py \
+/usr/bin/python3 tools/sample-window.py \
 	>"$ROOT/preview.log" 2>&1 &
 PREVIEW_PID=$!
 
-# Pencerenin haritalanmasini bekle. Sabit bir `sleep` yeterli degil:
-# yavas makinede kare pencere cizilmeden aliniyor ve ekran goruntusunde
-# yalnizca duvar kagidi cikiyor.
+# Wait for the window to be mapped. A fixed `sleep` is not enough: on a
+# slow machine the frame is grabbed before the window is drawn and the
+# screenshot shows only the wallpaper.
 for _ in $(seq 1 40); do
 	if xdotool search --name "Kavis" >/dev/null 2>&1; then break; fi
 	if ! kill -0 "$PREVIEW_PID" 2>/dev/null; then
-		echo "HATA: onizleme penceresi cikti, gunluk:" >&2
+		echo "ERROR: preview window exited, log:" >&2
 		cat "$ROOT/preview.log" >&2
 		break
 	fi
@@ -106,7 +107,7 @@ win = Gdk.get_default_root_window()
 w, h = win.get_width(), win.get_height()
 pb = Gdk.pixbuf_get_from_window(win, 0, 0, w, h)
 pb.savev(sys.argv[1], "png", [], [])
-print(f"ekran goruntusu: {sys.argv[1]} ({w}x{h})")
+print(f"screenshot: {sys.argv[1]} ({w}x{h})")
 PY
 
 kill "$PREVIEW_PID" 2>/dev/null || true

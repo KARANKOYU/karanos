@@ -1,61 +1,63 @@
 # kavis-theme
 
-Kavis'in görünümü: GTK teması, simgeler, imleçler, duvar kağıtları ve
-dağıtım kimliği.
+Kavis' look and feel: GTK theme, icons, cursors, wallpapers and the
+distribution identity.
 
-## Ne üretiyor
+## What it produces
 
-| Yol | İçerik |
+| Path | Contents |
 |---|---|
-| `/usr/share/themes/Kavis/gtk-3.0/` | `gtk.css` (açık), `gtk-dark.css` (koyu) |
-| `/usr/share/themes/Kavis/gtk-2.0/gtkrc` | eski GTK2 uygulamaları için renk uyumu |
-| `/usr/share/themes/Kavis/openbox-3/themerc` | pencere çerçevesi ve başlık çubuğu |
-| `/usr/share/icons/Kavis/` | K logosundan türetilen simgeler, Adwaita'yı miras alır |
-| `/usr/share/icons/Kavis-Cursors/` | 16 şekil, 106 ad, ikisi animasyonlu |
-| `/usr/share/backgrounds/kavis/` | `karan`, `karan-koyu`, `kavis-duz` (SVG + PNG + önizleme) |
-| `/etc/gtk-3.0/settings.ini` | sistem geneli varsayılan tema/imleç/yazı tipi |
+| `/usr/share/themes/Kavis/gtk-3.0/` | `gtk.css` (light), `gtk-dark.css` (dark) |
+| `/usr/share/themes/Kavis/gtk-2.0/gtkrc` | color matching for legacy GTK2 apps |
+| `/usr/share/themes/Kavis/openbox-3/themerc` | window frame and title bar |
+| `/usr/share/icons/Kavis/` | icons derived from the K logo, inherits Adwaita |
+| `/usr/share/icons/Kavis-Cursors/` | 16 shapes, 106 names, two animated |
+| `/usr/share/backgrounds/kavis/` | `kavis`, `kavis-night`, `kavis-plain` (SVG + PNG + preview) |
+| `/etc/gtk-3.0/settings.ini` | system-wide default theme/cursor/font |
 | `/etc/os-release` | `PRETTY_NAME="Kavis 1.0"` |
 
-## Depoda ikili dosya yok
+## No binary files in the repo
 
-Simgeler, imleçler ve duvar kağıtları depoda PNG olarak durmuyor; hepsi
-`assets/logo/k-logo.svg` ve `tools/` altındaki iki üreteçten derleme
-sırasında üretiliyor:
+Icons, cursors and wallpapers are not stored in the repo as PNG; they
+are all generated at build time from `assets/logo/k-logo.svg` and the
+two generators under `tools/`:
 
-- `tools/gen-cursors.py` — SVG şekilleri → `rsvg-convert` → `xcursorgen`
-- `tools/gen-wallpapers.py` — SVG degradeler → `rsvg-convert`
+- `tools/gen-cursors.py` — SVG shapes → `rsvg-convert` → `xcursorgen`
+- `tools/gen-wallpapers.py` — SVG gradients → `rsvg-convert`
 
-Renk değiştirmek istersen üreteçlerin başındaki sabitleri düzeltip yeniden
-derlemen yeterli.
+To change a color, fix the constants at the top of the generators and
+rebuild.
 
-## Derleme
-
-```bash
-tools/build-packages.sh kavis-theme     # depo kökünden
-```
-
-Çıktı `out/packages/kavis-theme_1.0_all.deb`. Script `assets/logo/`
-altındaki logoyu `src/logo/` içine kopyalar (o kopya `.gitignore`'da —
-logo tek yerde dursun diye).
-
-## Nasıl göründüğüne bakma
+## Build
 
 ```bash
-tools/theme-screenshot.sh out/tema.png
+tools/build-packages.sh kavis-theme     # from the repo root
 ```
 
-Xvfb + Openbox başlatır, duvar kağıdını ve tema önizleme penceresini
-çizip PNG'ye alır. ISO derlemeden ~10 saniyede sonuç verir.
+Output is `out/packages/kavis-theme_1.0_all.deb`. The script copies the
+logo under `assets/logo/` into `src/logo/` (that copy is in
+`.gitignore` — so the logo lives in one place).
 
-## Bilinen tuzaklar
+## Seeing how it looks
 
-- **`window.*.label.bg` yazılmazsa** Openbox etiket kutusunu siyaha
-  boyuyor ve başlık çubuğunun ortasında siyah bir şerit çıkıyor.
-  `parentrelative` şart.
-- **Openbox'ın teması `rc.xml`'den geliyor**, GTK temasından değil.
-  `iso/config/hooks/normal/0200-openbox-theme.hook.chroot` Debian'ın
-  dosyasındaki tek bir alanı değiştiriyor — dosyayı komple değiştirirsek
-  `<mouse>` bölümü gider ve pencereler fareyle tutulamaz hâle gelir.
-- **`/etc/os-release` `base-files`'a ait.** Üstüne yazmak yerine
-  `dpkg-divert` kullanılıyor (`debian/preinst`), paket kaldırılınca aslı
-  geri geliyor.
+```bash
+tools/theme-screenshot.sh out/theme.png
+```
+
+Starts Xvfb + Openbox, draws the wallpaper and the theme preview window
+and captures them to PNG. Gives a result in ~10 seconds without building
+the ISO.
+
+## Known pitfalls
+
+- **Without `window.*.label.bg`** Openbox paints the label box black and
+  a black stripe appears in the middle of the title bar.
+  `parentrelative` is required.
+- **Openbox's theme comes from `rc.xml`**, not from the GTK theme.
+  `iso/config/hooks/normal/0200-openbox-theme.hook.chroot` changes a
+  single field in Debian's file — replacing the file wholesale would
+  drop the `<mouse>` section and windows could no longer be grabbed with
+  the mouse.
+- **`/etc/os-release` belongs to `base-files`.** Instead of overwriting
+  it, `dpkg-divert` is used (`debian/preinst`); the original comes back
+  when the package is removed.

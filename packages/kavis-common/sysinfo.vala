@@ -1,9 +1,10 @@
 /* Hardware / system facts — ONE reader for Settings > About and the
- * Task Manager's Performance tab (v0.4-test1 H4: iki uygulama aynı
- * veriyi aynı yerden okur).
+ * Task Manager's Performance tab (v0.4-test1 H4: two apps read the
+ * same data from the same place).
  *
- * KANONİK KOPYA BURASI — build-packages.sh kopyalar (kavis-settings
- * src/logic, kavis-tools src); kopyalar .gitignore'da.
+ * THIS IS THE CANONICAL COPY — build-packages.sh copies it
+ * (kavis-settings src/logic, kavis-tools src); the copies are in
+ * .gitignore.
  *
  * Everything comes from /proc, /sys and a few always-present tools
  * (lspci, ip, uname); nothing needs root. Values that DO need root
@@ -185,7 +186,7 @@ namespace Kavis.SysInfo {
         foreach (uint64 x in v) {
             total += x;
         }
-        /* idle + iowait boşta sayılır */
+        /* idle + iowait count as idle */
         busy = total - v[3] - ((v.length > 4) ? v[4] : 0);
     }
 

@@ -1,5 +1,0 @@
-# Kavis (H2): masaüstü kimliği — XDG autostart OnlyShowIn/NotShowIn ve
-# uygulamaların "hangi masaüstündeyim" sorusu buradan cevaplanır.
-XDG_CURRENT_DESKTOP=Kavis
-XDG_SESSION_DESKTOP=kavis
-export XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP

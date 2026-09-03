@@ -1,0 +1,38 @@
+#!/bin/sh
+# Terminal conveniences (item 44).
+#
+# 1) command_not_found_handle: Debian's bash reads /etc/bash.bashrc in an
+#    interactive shell (SYS_BASHRC); our definition is sourced AFTER
+#    Debian's command-not-found block, so it wins.
+# 2) The command-not-found database is prepared AT BUILD TIME — the live
+#    session may have no network, and a "no database" error on first run
+#    is unacceptable (group-e-scan record).
+set -e
+
+if ! grep -q "kavis/terminal-tips.sh" /etc/bash.bashrc; then
+	cat >> /etc/bash.bashrc <<'EOF'
+
+# Kavis terminal conveniences (item 44)
+if [ -f /usr/share/kavis/terminal-tips.sh ]; then
+	. /usr/share/kavis/terminal-tips.sh
+fi
+
+# Tilix directory tracking in split terminals (2E): the VTE hook was only
+# sourced in login shells, and Tilix opened a warning window.
+if [ -f /etc/profile.d/vte-2.91.sh ]; then
+	. /etc/profile.d/vte-2.91.sh
+fi
+EOF
+fi
+
+apt-file update
+update-command-not-found
+
+# The Contents indexes downloaded by apt-file are large and have no use
+# on the ISO; the database (/var/lib/command-not-found) is built, the
+# rest is garbage.
+rm -f /var/lib/apt/lists/*Contents*
+
+# Verification: was the database really created?
+test -s /var/lib/command-not-found/commands.db
+echo "0240: command-not-found database ready"

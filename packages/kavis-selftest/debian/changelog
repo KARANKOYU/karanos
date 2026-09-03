@@ -1,6 +1,6 @@
 kavis-selftest (1.0) unstable; urgency=medium
 
-  * İlk sürüm (madde 72): gerçek oturumda YAML senaryoları koşan,
-    run.log + report.json/html üreten UI test koşucusu.
+  * Initial release (madde 72): UI test runner that runs YAML scenarios
+    in the real session and produces run.log + report.json/html.
 
  -- Karan <farukyildiz3207@gmail.com>  Thu, 03 Sep 2026 20:00:00 +0300

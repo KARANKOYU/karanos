@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Kavis Görev Çubuğu
-Name[en]=Kavis Taskbar
-Comment=Görev çubuğu ve başlat menüsü
-Comment[en]=Taskbar and start menu
+Name=Kavis Taskbar
+Name[tr]=Kavis Görev Çubuğu
+Comment=Taskbar and start menu
+Comment[tr]=Görev çubuğu ve başlat menüsü
 Exec=/usr/bin/kavis-panel
 Icon=kavis
 Terminal=false

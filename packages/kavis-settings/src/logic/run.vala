@@ -23,7 +23,7 @@ namespace Kavis.Settings.Run {
                 SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
                 null, null);
         } catch (Error e) {
-            warning ("kavis-settings: %s calistirilamadi: %s",
+            warning ("kavis-settings: could not run %s: %s",
                      argv[0], e.message);
         }
     }

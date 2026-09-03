@@ -1,38 +1,38 @@
 #!/usr/bin/make -f
-# Kavis görev çubuğu — Vala kaynağından tek ikili.
+# Kavis taskbar — a single binary from Vala sources.
 #
-# NEDEN VALA (madde 3): panelin Python hâli 117 MB RAM yiyordu
-# (yorumlayıcı + PyGObject + tüm GI önbellekleri). Vala aynı GTK/Wnck
-# C API'sine derleniyor: aynı görünüm ve davranış, RAM yalnızca GTK'nın
-# kendi maliyeti. Saf C'ye göre üçte bir kod — "iş 3 katına çıkıyorsa"
-# eşiğinin altında kalmanın yolu.
+# WHY VALA (madde 3): the Python version of the panel ate 117 MB of
+# RAM (interpreter + PyGObject + all the GI caches). Vala compiles to
+# the same GTK/Wnck C API: same look and behavior, RAM is only GTK's
+# own cost. A third of the code of plain C — the way to stay under the
+# "if the work triples" threshold.
 
 export DH_VERBOSE = 1
 
 DEST := debian/kavis-panel
 
-# WNCK_I_KNOW_THIS_IS_UNSTABLE: libwnck başlıkları bu tanım olmadan
-# derlemeyi reddediyor (API kararlılığı feragatnamesi).
-VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
+# WNCK_I_KNOW_THIS_IS_UNSTABLE: the libwnck headers refuse to compile
+# without this define (API stability disclaimer).
+VALA_PACKAGES := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
                  --pkg x11 --pkg gio-unix-2.0 --pkg posix
-# GETTEXT_PACKAGE: valac'ın _() / N_() bağları glib/gi18n-lib.h
-# üzerinden bu tanımı ister (çeviri alanı "kavis" — Grup D işi c).
+# GETTEXT_PACKAGE: valac's _() / N_() bindings require this define
+# through glib/gi18n-lib.h (translation domain "kavis" — Grup D task c).
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w \
                -X -DGETTEXT_PACKAGE='"kavis"'
 
-KAYNAKLAR := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala)
-PO_DOSYALAR := $(wildcard po/*.po)
+SOURCES := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala)
+PO_FILES := $(wildcard po/*.po)
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-panel $(KAYNAKLAR)
-	# theme.vala + config.vala (B2): palet kavis.conf'tan, canlı.
-	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-snap \
+	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-panel $(SOURCES)
+	# theme.vala + config.vala (B2): palette from kavis.conf, live.
+	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-snap \
 		src/snap.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/theme.vala
-	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-osd \
+	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/brightness.vala \
 		src/logic/volume.vala src/logic/quick.vala \
@@ -46,21 +46,23 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/share/applications
 	install -m644 src/kavis-panel.desktop \
 		$(DEST)/usr/share/applications/kavis-panel.desktop
-	# Çeviriler: po/ kanonik kaynağı depo kökünde, build-packages.sh
-	# kopyalar. Meson'a BİLEREK geçilmedi (en hafif çözüm kuralı):
-	# msgfmt adımı yeterli. kavis.mo'yu bu paket taşır; kavis-tools
-	# aynı alanı kullanır (Depends: kavis-panel).
-	set -e; for po in $(PO_DOSYALAR); do \
-		dil=$$(basename $$po .po); \
-		install -d $(DEST)/usr/share/locale/$$dil/LC_MESSAGES; \
+	# Translations: the canonical po/ lives at the repo root,
+	# build-packages.sh copies it. Meson was DELIBERATELY not adopted
+	# (lightest solution rule): the msgfmt step is enough. This package
+	# ships kavis.mo; kavis-tools uses the same domain (Depends:
+	# kavis-panel).
+	set -e; for po in $(PO_FILES); do \
+		lang=$$(basename $$po .po); \
+		install -d $(DEST)/usr/share/locale/$$lang/LC_MESSAGES; \
 		msgfmt --check -o \
-			$(DEST)/usr/share/locale/$$dil/LC_MESSAGES/kavis.mo \
+			$(DEST)/usr/share/locale/$$lang/LC_MESSAGES/kavis.mo \
 			$$po; \
 	done
-	# Çeviri yüzdeleri (dil seçici altyapısı): her derlemede taze.
-	# NOT: hedef "kavis-common paketi" istendi ama kavis-common bir
-	# paket değil, kaynak dizini — .mo'ların sahibi bu paket, JSON da
-	# burada (karar durum.md ONAY BEKLEYEN'de).
+	# Translation percentages (language picker infrastructure): fresh
+	# on every build. NOTE: the "kavis-common package" was requested as
+	# the target, but kavis-common is a source directory, not a package
+	# — this package owns the .mo files, so the JSON lives here too
+	# (decision in durum.md under the "ONAY BEKLEYEN" heading).
 	install -d $(DEST)/usr/share/kavis
 	../../tools/i18n-stats.sh po \
 		$(DEST)/usr/share/kavis/i18n-stats.json

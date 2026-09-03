@@ -48,7 +48,7 @@ namespace Kavis.Tools {
             }
             unowned string home = Environment.get_home_dir ();
             if (kind == "video") {
-                /* Madde 5: videolar videos/recordings altına. */
+                /* Madde 5: videos go under videos/recordings. */
                 string videos = Path.build_filename (home, "videos");
                 if (FileUtils.test (videos, FileTest.IS_DIR)) {
                     return Path.build_filename (videos, "recordings");
@@ -70,9 +70,10 @@ namespace Kavis.Tools {
                 now.format ("%Y-%m-%d_%H-%M-%S") + extension);
         }
 
-        /* gdbus zaten ISO'da; libnotify bağımlılığı yok. `attach`
-         * dolu gelirse panel bildirim merkezinde küçük önizleme
-         * gösterir ve tıklayınca dosyayı dosya yöneticisinde açar. */
+        /* gdbus is already on the ISO; no libnotify dependency. When
+         * `attach` is set the panel shows a small preview in the
+         * notification center and a click opens the file in the file
+         * manager. */
         public void notify_user (string summary, string body,
                                  string icon, string attach = "") {
             string hints = "{}";
@@ -90,13 +91,14 @@ namespace Kavis.Tools {
                 }, null, SpawnFlags.SEARCH_PATH
                    | SpawnFlags.STDOUT_TO_DEV_NULL, null, null);
             } catch (Error e) {
-                warning ("kavis-tools: bildirim verilemedi: %s", e.message);
+                warning ("kavis-tools: could not send notification: %s", e.message);
             }
         }
 
-        /* D4: dosya bildirimi — tıklanabilir toast için hedef yol +
-         * "Show in folder" düğmesi. Düğme tıkı ActionInvoked ile bu
-         * sürece döner (pano ömrü boyunca zaten yaşıyoruz). */
+        /* D4: file notification — target path for a clickable toast +
+         * a "Show in folder" button. The button click comes back to
+         * this process via ActionInvoked (we live for the clipboard's
+         * lifetime anyway). */
         private DBusConnection? notify_bus;
         private uint32 notify_id;
         private string? notify_target;
@@ -153,12 +155,12 @@ namespace Kavis.Tools {
                         }
                     });
             } catch (Error e) {
-                /* bildirim servisi yoksa sessiz; dosya zaten kayıtlı */
+                /* silent without a notification service; the file is saved anyway */
                 notify_user (summary, path, icon, path);
             }
         }
 
-        /* Pano X sahibiyle ölür: görüntüyü koyup bir süre yaşa. */
+        /* The clipboard dies with its X owner: set the image and live a while. */
         public void hold_clipboard_then_quit () {
             Timeout.add_seconds (60, () => {
                 Gtk.main_quit ();
@@ -172,7 +174,7 @@ namespace Kavis.Tools {
                 "kavis-capture.pid");
         }
 
-        /* --- hızlı yakalama (Ctrl+PrtScr) ------------------------------ */
+        /* --- quick capture (Ctrl+PrtScr) ------------------------------- */
 
         public int quick () {
             var root = Gdk.get_default_root_window ();
@@ -198,14 +200,14 @@ namespace Kavis.Tools {
 
             var pixbuf = Gdk.pixbuf_get_from_window (root, x, y, w, h);
             if (pixbuf == null) {
-                warning ("kavis-tools: ekran okunamadi");
+                warning ("kavis-tools: could not read the screen");
                 return 1;
             }
             string path = timestamp_path ("image", ".png");
             try {
                 pixbuf.save (path, "png");
             } catch (Error e) {
-                warning ("kavis-tools: kaydedilemedi: %s", e.message);
+                warning ("kavis-tools: could not save: %s", e.message);
                 return 1;
             }
 
@@ -217,10 +219,10 @@ namespace Kavis.Tools {
             return 0;
         }
 
-        /* --- PrtScr: dondurulmuş kare seçicisi ------------------------- */
+        /* --- PrtScr: frozen-frame selector ----------------------------- */
 
-        /* Kayıt sürerken PrtScr kaydı durdurur: çalışan sürece SIGUSR1
-         * gönderilir (RecorderBar yakalayıp düzgün kapatır). */
+        /* While recording, PrtScr stops it: SIGUSR1 is sent to the
+         * running process (RecorderBar catches it and shuts down cleanly). */
         public int snip (bool color_mode = false) {
             string pid_file = recording_pid_path ();
             string contents;
@@ -231,18 +233,18 @@ namespace Kavis.Tools {
                     Posix.kill ((Posix.pid_t) pid, Posix.Signal.USR1);
                     return 0;
                 }
-                FileUtils.unlink (pid_file);   /* bayat dosya */
+                FileUtils.unlink (pid_file);   /* stale file */
             } catch (Error e) {
-                /* kayıt yok — seçiciye devam */
+                /* no recording — continue to the selector */
             }
 
-            /* Kareyi HER ŞEYDEN ÖNCE dondur (madde 5 kuralı: basılan
-             * andaki ekran, açık menüler dahil). */
+            /* Freeze the frame BEFORE ANYTHING ELSE (madde 5 rule: the
+             * screen at the moment of the keypress, open menus included). */
             var root = Gdk.get_default_root_window ();
             var frozen = Gdk.pixbuf_get_from_window (
                 root, 0, 0, root.get_width (), root.get_height ());
             if (frozen == null) {
-                warning ("kavis-tools: ekran okunamadi");
+                warning ("kavis-tools: could not read the screen");
                 return 1;
             }
             var window = new SnipWindow (frozen, color_mode);
@@ -257,7 +259,7 @@ namespace Kavis.Tools {
 
         private enum Mode { RECT, ELLIPSE, FREEFORM, WINDOW, FULL, COLOR }
 
-        /* Marka turkuazı (görsel kimlik tablosu). */
+        /* Brand teal (visual identity table). */
         private const double TEAL_R = 0.176;
         private const double TEAL_G = 0.831;
         private const double TEAL_B = 0.749;
@@ -283,7 +285,7 @@ namespace Kavis.Tools {
         private double[] path_x = {};
         private double[] path_y = {};
         private bool switching_toggle = false;
-        /* Renk modu (5c): işaretçi konumu + bildirim eylem aboneliği. */
+        /* Color mode (5c): pointer position + notification action subscription. */
         private int pointer_x = 0;
         private int pointer_y = 0;
         private DBusConnection? bus = null;
@@ -315,8 +317,8 @@ namespace Kavis.Tools {
             canvas.button_release_event.connect (on_release);
             overlay.add (canvas);
 
-            /* D1: araç çubuğu üstünde imleç OK olsun (canvas artı
-             * kalır) — kendi GdkWindow'u olan EventBox sarmalı. */
+            /* D1: an ARROW cursor over the toolbar (the canvas keeps
+             * the crosshair) — an EventBox wrapper with its own GdkWindow. */
             var bar_holder = new Gtk.EventBox ();
             bar_holder.add (build_toolbar ());
             bar_holder.set_halign (Gtk.Align.CENTER);
@@ -329,8 +331,8 @@ namespace Kavis.Tools {
             });
             overlay.add_overlay (bar_holder);
 
-            /* D3: Pencere modu — imleçle vurgu yerine AÇIK PENCERE
-             * LİSTESİ (ikon + başlık); seçilen yakalanır. */
+            /* D3: Window mode — an OPEN WINDOW LIST (icon + title)
+             * instead of pointer highlighting; the chosen one is captured. */
             var list_holder = new Gtk.EventBox ();
             window_list_holder = new Gtk.Box (
                 Gtk.Orientation.VERTICAL, 0);
@@ -371,8 +373,8 @@ namespace Kavis.Tools {
                     Gdk.Display.get_default (),
                     Gdk.CursorType.CROSSHAIR));
             });
-            /* POPUP pencere klavye/fareyi ancak grab ile alır; map
-             * asenkron olduğundan kısa aralıkla yeniden dene. */
+            /* A POPUP window only gets keyboard/mouse through a grab;
+             * since map is asynchronous, retry at short intervals. */
             map_event.connect (() => {
                 try_grab ();
                 return false;
@@ -381,10 +383,10 @@ namespace Kavis.Tools {
 
         private void try_grab () {
             var seat = Gdk.Display.get_default ().get_default_seat ();
-            /* owner_events=true: olaylar kendi alt pencerelerimize
-             * (canvas) normal aksın — false olsaydı hepsi üst
-             * pencereye yönlenir, çizim alanı hiç basış görmezdi
-             * (Xvfb'de yaşandı). */
+            /* owner_events=true: events flow normally to our own child
+             * windows (canvas) — with false they would all be routed to
+             * the top-level window and the drawing area would never see
+             * a press (happened on Xvfb). */
             if (seat.grab (get_window (), Gdk.SeatCapabilities.ALL,
                            true, null, null, null)
                 == Gdk.GrabStatus.SUCCESS) {
@@ -409,7 +411,7 @@ namespace Kavis.Tools {
             Gtk.main_quit ();
         }
 
-        /* --- üst araç çubuğu ------------------------------------------ */
+        /* --- top toolbar ---------------------------------------------- */
 
         private Gtk.Widget build_toolbar () {
             var bar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
@@ -487,7 +489,7 @@ namespace Kavis.Tools {
                 bar.pack_start (button, false, false, 0);
             }
 
-            /* Ses seçenekleri yalnız video kipinde görünür. */
+            /* Audio options are visible only in video mode. */
             audio_check = new Gtk.CheckButton.with_label (
                 _("Record audio too"));
             audio_check.set_no_show_all (true);
@@ -524,7 +526,7 @@ namespace Kavis.Tools {
         private void on_mode_toggled (Gtk.ToggleButton source,
                                       Mode chosen) {
             if (switching_toggle || !source.get_active ()) {
-                /* Sönen düğme; ya da tümü sönmesin diye geri yak. */
+                /* The button being untoggled; re-light it so not all go dark. */
                 if (!switching_toggle && !source.get_active ()
                     && mode == chosen) {
                     switching_toggle = true;
@@ -547,7 +549,7 @@ namespace Kavis.Tools {
             canvas.queue_draw ();
         }
 
-        /* D3: pencere listesi yalnız Pencere modunda görünür. */
+        /* D3: the window list is visible only in Window mode. */
         private void update_window_list () {
             var holder = window_list_holder.get_data<Gtk.EventBox> (
                 "holder");
@@ -596,17 +598,18 @@ namespace Kavis.Tools {
             holder.show_all ();
         }
 
-        /* Seçilen pencereyi yakala. Kompozitör varken pencerenin KENDİ
-         * çizim yüzeyi okunur (COMPOSITE yönlendirmesi örtülü kısmı da
-         * içerir — picom canlı sistemde hep açık); kompozitörsüz yedek:
-         * öne getirip kök pencereden kırp. Görev çubuğu kareye girmez —
-         * kaynak pencerenin kendisi. */
+        /* Capture the chosen window. With a compositor the window's OWN
+         * drawing surface is read (COMPOSITE redirection includes the
+         * covered part too — picom is always on in the live system);
+         * fallback without a compositor: raise it and crop from the root
+         * window. The taskbar never enters the frame — the source is the
+         * window itself. */
         private void capture_window (Wnck.Window target) {
             Gdk.Display.get_default ().get_default_seat ().ungrab ();
             hide ();
 
             if (video_mode) {
-                /* Video: pencere öne, kaydı geometrisinde başlat. */
+                /* Video: raise the window, start recording on its geometry. */
                 bool with_audio = audio_check.get_active ();
                 bool with_mic = mic_check.get_active ();
                 target.activate (Gtk.get_current_event_time ());
@@ -639,7 +642,7 @@ namespace Kavis.Tools {
                 }
             }
             if (result == null) {
-                /* Yedek: öne getir, kökten kırp. */
+                /* Fallback: raise, crop from root. */
                 target.activate (Gtk.get_current_event_time ());
                 int wx, wy, ww, wh;
                 target.get_geometry (out wx, out wy, out ww, out wh);
@@ -648,7 +651,7 @@ namespace Kavis.Tools {
                                                      ww, wh);
             }
             if (result == null) {
-                warning ("kavis-tools: pencere okunamadi");
+                warning ("kavis-tools: could not read the window");
                 cancel ();
                 return;
             }
@@ -656,7 +659,7 @@ namespace Kavis.Tools {
             try {
                 result.save (path, "png");
             } catch (Error e) {
-                warning ("kavis-tools: kaydedilemedi: %s", e.message);
+                warning ("kavis-tools: could not save: %s", e.message);
                 cancel ();
                 return;
             }
@@ -667,14 +670,14 @@ namespace Kavis.Tools {
             Capture.hold_clipboard_then_quit ();
         }
 
-        /* --- çizim ---------------------------------------------------- */
+        /* --- drawing -------------------------------------------------- */
 
         private bool on_draw (Cairo.Context cr) {
             Gdk.cairo_set_source_pixbuf (cr, frozen, 0, 0);
             cr.paint ();
             if (mode == Mode.COLOR) {
-                /* Renk modunda karartma YOK — renkler bozulmasın;
-                 * imlecin yanında 9×9 büyüteç + hex kutusu. */
+                /* NO darkening in color mode — colors must stay true;
+                 * a 9×9 magnifier + hex box next to the cursor. */
                 draw_magnifier (cr);
                 return false;
             }
@@ -685,8 +688,8 @@ namespace Kavis.Tools {
                 return false;
             }
 
-            /* Seçim karartmasız: donmuş kare seçim yoluna kırpılıp
-             * yeniden çizilir. */
+            /* Selection without darkening: the frozen frame is clipped
+             * to the selection path and redrawn. */
             cr.save ();
             selection_path (cr);
             cr.clip ();
@@ -699,7 +702,7 @@ namespace Kavis.Tools {
             cr.set_line_width (2);
             cr.stroke ();
 
-            /* Köşede boyut. */
+            /* Size in the corner. */
             if (sel_w > 0 && sel_h > 0) {
                 string text = "%d×%d".printf (sel_w, sel_h);
                 cr.select_font_face ("sans", Cairo.FontSlant.NORMAL,
@@ -725,7 +728,7 @@ namespace Kavis.Tools {
 
         private void selection_path (Cairo.Context cr) {
             if (mode == Mode.ELLIPSE) {
-                /* D2: eliptik seçim — dışı şeffaf kalır. */
+                /* D2: elliptical selection — the outside stays transparent. */
                 if (sel_w < 2 || sel_h < 2) {
                     return;
                 }
@@ -747,7 +750,7 @@ namespace Kavis.Tools {
             }
         }
 
-        /* --- fare ----------------------------------------------------- */
+        /* --- mouse ---------------------------------------------------- */
 
         private bool on_press (Gdk.EventButton event) {
             if (event.button != 1) {
@@ -765,7 +768,7 @@ namespace Kavis.Tools {
                 finish_selection ();
                 break;
             case Mode.WINDOW:
-                /* D3: seçim listeden yapılır, tuvalde tık işlemez. */
+                /* D3: selection is made from the list; a canvas click does nothing. */
                 break;
             case Mode.FREEFORM:
                 selecting = true;
@@ -773,7 +776,7 @@ namespace Kavis.Tools {
                 path_y = { event.y };
                 has_area = false;
                 break;
-            default:   /* RECT ve ELLIPSE: köşeden sürükle */
+            default:   /* RECT and ELLIPSE: drag from a corner */
                 selecting = true;
                 start_x = (int) event.x;
                 start_y = (int) event.y;
@@ -792,7 +795,7 @@ namespace Kavis.Tools {
                 return true;
             }
             if (mode == Mode.WINDOW) {
-                return true;   /* D3: vurgu yok, liste var */
+                return true;   /* D3: no highlight, there is a list */
             }
             if (!selecting) {
                 return false;
@@ -841,7 +844,7 @@ namespace Kavis.Tools {
             sel_h = (int) (max_y - min_y);
         }
 
-        /* --- renk seçici (5c) ----------------------------------------- */
+        /* --- color picker (5c) ---------------------------------------- */
 
         private void pixel_at (int x, int y, out uchar r, out uchar g,
                                out uchar b) {
@@ -855,8 +858,8 @@ namespace Kavis.Tools {
             b = pixels[offset + 2];
         }
 
-        /* 9×9 piksel büyüteç + altında renk kutusu ve hex. Dondurulmuş
-         * kareden okur — hareketli içerik sorun değil. */
+        /* 9×9 pixel magnifier + color box and hex below it. Reads from
+         * the frozen frame — moving content is not a problem. */
         private void draw_magnifier (Cairo.Context cr) {
             const int CELL = 11;
             const int HALF = 4;
@@ -881,7 +884,7 @@ namespace Kavis.Tools {
                     cr.fill ();
                 }
             }
-            /* Çerçeve + ortadaki hücre. */
+            /* Frame + the center cell. */
             cr.set_source_rgb (0.09, 0.13, 0.17);
             cr.set_line_width (2);
             cr.rectangle (ax, ay, size, size);
@@ -890,7 +893,7 @@ namespace Kavis.Tools {
             cr.rectangle (ax + HALF * CELL, ay + HALF * CELL, CELL, CELL);
             cr.stroke ();
 
-            /* Renk kutusu + hex. */
+            /* Color box + hex. */
             uchar cr_, cg, cb;
             pixel_at (pointer_x, pointer_y, out cr_, out cg, out cb);
             string hex = "#%02X%02X%02X".printf (cr_, cg, cb);
@@ -949,7 +952,7 @@ namespace Kavis.Tools {
                 Gdk.Display.get_default ());
             clipboard.set_text (hex, -1);
 
-            /* Renk kutusu görseli (bildirim önizlemesi). */
+            /* Color box image (notification preview). */
             string swatch = Path.build_filename (
                 Environment.get_user_cache_dir (), "kavis",
                 "renk-kutusu.png");
@@ -965,9 +968,9 @@ namespace Kavis.Tools {
                 swatch = "";
             }
 
-            /* Eylem düğmeli bildirim: rgb/hsl kopyala. Düğme tıkları
-             * ActionInvoked ile bu sürece döner (60 sn yaşıyoruz —
-             * pano zaten bunu istiyor). */
+            /* Notification with action buttons: copy rgb/hsl. Button
+             * clicks come back to this process via ActionInvoked (we
+             * live 60 s — the clipboard wants that anyway). */
             send_color_notification (hex, swatch);
             Capture.hold_clipboard_then_quit ();
         }
@@ -1020,12 +1023,12 @@ namespace Kavis.Tools {
                         }
                     });
             } catch (Error e) {
-                warning ("kavis-tools: renk bildirimi verilemedi: %s",
+                warning ("kavis-tools: could not send color notification: %s",
                          e.message);
             }
         }
 
-        /* --- sonuç ---------------------------------------------------- */
+        /* --- result --------------------------------------------------- */
 
         private void finish_selection () {
             sel_x = int.max (0, sel_x);
@@ -1047,8 +1050,8 @@ namespace Kavis.Tools {
             Gdk.Pixbuf result;
             if (mode == Mode.ELLIPSE
                 || (mode == Mode.FREEFORM && path_x.length > 2)) {
-                /* Yol dışı şeffaf: kırpılmış yüzeye yola kıstırılmış
-                 * çizim (W11 serbest kesim davranışı). */
+                /* Transparent outside the path: draw onto the cropped
+                 * surface clipped to the path (W11 freeform behavior). */
                 var surface = new Cairo.ImageSurface (
                     Cairo.Format.ARGB32, sel_w, sel_h);
                 var cr = new Cairo.Context (surface);
@@ -1068,7 +1071,7 @@ namespace Kavis.Tools {
             try {
                 result.save (path, "png");
             } catch (Error e) {
-                warning ("kavis-tools: kaydedilemedi: %s", e.message);
+                warning ("kavis-tools: could not save: %s", e.message);
                 cancel ();
                 return;
             }
@@ -1082,13 +1085,13 @@ namespace Kavis.Tools {
 
         private void start_recording () {
             int x = sel_x, y = sel_y;
-            int w = sel_w / 2 * 2;   /* x11grab çift boyut ister */
+            int w = sel_w / 2 * 2;   /* x11grab wants even dimensions */
             int h = sel_h / 2 * 2;
             bool with_audio = audio_check.get_active ();
             bool with_mic = mic_check.get_active ();
             destroy ();
 
-            /* Overlay yok olsun, gerçek ekran görünsün. */
+            /* Let the overlay vanish so the real screen shows. */
             Timeout.add (250, () => {
                 launch_ffmpeg (x, y, w, h, with_audio, with_mic);
                 return Source.REMOVE;
@@ -1108,8 +1111,8 @@ namespace Kavis.Tools {
                     Environment.get_variable ("DISPLAY") ?? ":0", x, y)
             };
 
-            /* Sistem sesi = varsayılan çıkışın monitörü; mikrofon =
-             * varsayılan kaynak. İkisi birden seçilirse amix. */
+            /* System audio = the default output's monitor; microphone =
+             * the default source. amix when both are selected. */
             int audio_inputs = 0;
             if (with_audio) {
                 string sink = "";
@@ -1151,7 +1154,7 @@ namespace Kavis.Tools {
                     SpawnFlags.SEARCH_PATH
                     | SpawnFlags.DO_NOT_REAP_CHILD, null, out ffmpeg_pid);
             } catch (Error e) {
-                warning ("kavis-tools: ffmpeg baslatilamadi: %s", e.message);
+                warning ("kavis-tools: could not start ffmpeg: %s", e.message);
                 Gtk.main_quit ();
                 return;
             }
@@ -1160,8 +1163,8 @@ namespace Kavis.Tools {
         }
     }
 
-    /* Küçük, hep üstte kayıt çubuğu: kırmızı nokta + sayaç + durdur.
-     * PrtScr da durdurur: pid dosyası + SIGUSR1 (Capture.snip). */
+    /* Small always-on-top recording bar: red dot + counter + stop.
+     * PrtScr stops it too: pid file + SIGUSR1 (Capture.snip). */
     private class RecorderBar : Gtk.Window {
 
         private Pid ffmpeg_pid;
@@ -1192,8 +1195,8 @@ namespace Kavis.Tools {
             stop.clicked.connect (finish);
             row.pack_start (stop, false, false, 0);
 
-            /* Sağ üst köşe: kayıt alanının dışında kalmak kullanıcıya
-             * kalıyor; W11 de böyle. */
+            /* Top-right corner: staying outside the recording area is
+             * up to the user; W11 does the same. */
             var display = Gdk.Display.get_default ();
             var monitor = display.get_primary_monitor ();
             if (monitor != null) {
@@ -1221,8 +1224,9 @@ namespace Kavis.Tools {
             ChildWatch.add (ffmpeg_pid, (pid, wait_status) => {
                 Process.close_pid (pid);
                 FileUtils.unlink (pid_file);
-                /* D4: bildirimdeki "Show in folder" düğmesi bu süreçte
-                 * işleniyor — hemen ölme, kısa bir pay bırak. */
+                /* D4: the "Show in folder" button in the notification is
+                 * handled in this process — do not die at once, leave a
+                 * short margin. */
                 Capture.hold_clipboard_then_quit ();
             });
         }
@@ -1238,12 +1242,12 @@ namespace Kavis.Tools {
                 Source.remove (tick);
                 tick = 0;
             }
-            /* SIGINT: ffmpeg dosyayı düzgün kapatır (moov atomu). */
+            /* SIGINT: ffmpeg closes the file properly (moov atom). */
             Posix.kill ((Posix.pid_t) ffmpeg_pid, Posix.Signal.INT);
             hide ();
             Capture.notify_file (_("Screen recording saved"),
                                  path, "camera-video-symbolic");
-            /* ChildWatch ffmpeg bitince kısa bekleyişe geçirir. */
+            /* ChildWatch moves to the short wait once ffmpeg finishes. */
         }
     }
 }

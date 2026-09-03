@@ -1,4 +1,4 @@
-/* Sound backend (madde 9 Ses bölümü). ALSA only — the ISO has no
+/* Sound backend (madde 9 Sound section). ALSA only — the ISO has no
  * PulseAudio/PipeWire daemon; amixer drives the master volume (same
  * tool the panel uses) and the default output card is chosen by
  * writing ~/.asoundrc (takes effect for newly started streams).
@@ -59,16 +59,16 @@ namespace Kavis.Settings.Audio {
     public void set_default_card (int index) {
         try {
             FileUtils.set_contents (asoundrc_path (),
-                "# Kavis Ayarlar > Ses yazdı (varsayılan çıkış aygıtı).\n"
+                "# Written by Kavis Settings > Sound (default output device).\n"
                 + "defaults.pcm.card %d\ndefaults.ctl.card %d\n"
                     .printf (index, index));
         } catch (Error e) {
-            warning ("kavis-settings: .asoundrc yazilamadi: %s",
+            warning ("kavis-settings: could not write .asoundrc: %s",
                      e.message);
         }
     }
 
-    /* Master volume 0-100 (-M: insan kulağına doğrusal eşleme). */
+    /* Master volume 0-100 (-M: mapping linear to the human ear). */
     public int volume () {
         string? output = Run.capture ({ "amixer", "-M", "get",
                                         "Master" });

@@ -9,8 +9,8 @@
 
 namespace Kavis.Tools.SingleInstance {
 
-    /* posix.vapi flock bilmiyor — doğrudan bağla (Linux: LOCK_EX=2,
-     * LOCK_NB=4; sys/file.h). */
+    /* posix.vapi does not know flock — bind it directly (Linux:
+     * LOCK_EX=2, LOCK_NB=4; sys/file.h). */
     [CCode (cname = "flock", cheader_filename = "sys/file.h")]
     private extern int sys_flock (int fd, int operation);
     private const int FLOCK_EX_NB = 2 | 4;
@@ -21,8 +21,8 @@ namespace Kavis.Tools.SingleInstance {
             Environment.get_user_runtime_dir (), name + ".lock");
         int fd = Posix.open (path, Posix.O_CREAT | Posix.O_RDWR, 0600);
         if (fd < 0) {
-            /* Kilit kurulamıyorsa engel olma — tek örnek garantisi
-             * kaybolur ama araç çalışır. */
+            /* If the lock cannot be set up, do not block — the
+             * single-instance guarantee is lost but the tool works. */
             return true;
         }
         if (sys_flock (fd, FLOCK_EX_NB) != 0) {
@@ -36,7 +36,7 @@ namespace Kavis.Tools.SingleInstance {
             } catch (Error e) { }
             return false;
         }
-        /* fd açık bırakılır (bilerek): süreçle birlikte ölür. */
+        /* fd is left open (on purpose): it dies with the process. */
         return true;
     }
 }

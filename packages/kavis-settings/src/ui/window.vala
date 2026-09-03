@@ -73,9 +73,10 @@ namespace Kavis.Settings {
             public string id;
             public string icon;
             public string title;
-            /* Arama dizini: bu bölümdeki ayar başlıkları (çevrili) —
-             * sayfalar tembel kurulduğundan başlıklar burada da
-             * listelenir; yeni ayar eklerken bu satır da güncellenir. */
+            /* Search index: the setting titles in this section
+             * (translated) — since pages are built lazily the titles
+             * are listed here too; update this line when adding a
+             * setting. */
             public string keywords;
         }
 
@@ -93,8 +94,8 @@ namespace Kavis.Settings {
             window_position = Gtk.WindowPosition.CENTER;
             set_wmclass ("kavis-settings", "kavis-settings");
             icon_name = "preferences-system";
-            /* W11 başlık çubuğu (geri bildirim A): CSD — 46×32
-             * düğmeler ve hover dolgusu themerc'de yapılamıyor. */
+            /* W11 title bar (feedback A): CSD — 46×32 buttons and the
+             * hover fill cannot be done in themerc. */
             Kavis.HeaderBar.attach (this, _("Settings"),
                                     "preferences-system");
 
@@ -157,7 +158,7 @@ namespace Kavis.Settings {
             search.search_changed.connect (() => {
                 sidebar.invalidate_filter ();
             });
-            /* Enter: ilk eşleşen bölüme git. */
+            /* Enter: go to the first matching section. */
             search.activate.connect (() => {
                 for (int i = 0; i < sections.length; i++) {
                     var row = sidebar.get_row_at_index (i);
@@ -197,8 +198,8 @@ namespace Kavis.Settings {
             sidebar.select_row (sidebar.get_row_at_index (0));
         }
 
-        /* Bulanık eşleşme: küçük harfe indirip alt dize YA DA sırayı
-         * koruyan alt dizi ("anmz" → "animasyon hızı") arar. */
+        /* Fuzzy match: lowercases and looks for a substring OR an
+         * order-preserving subsequence ("anmz" → "animation speed"). */
         private static bool fuzzy_match (string needle, string hay) {
             string n = needle.down ();
             string h = hay.down ();
@@ -257,8 +258,8 @@ namespace Kavis.Settings {
                 var scroll = new Gtk.ScrolledWindow (null, null);
                 scroll.hscrollbar_policy = Gtk.PolicyType.NEVER;
                 scroll.add (Pages.build (id, section_title (id)));
-                /* set_visible_child gösterilmemiş çocukta işlemez
-                 * (bilinen tuzak) — önce show_all. */
+                /* set_visible_child does nothing on an unshown child
+                 * (known pitfall) — show_all first. */
                 scroll.show_all ();
                 stack.add_named (scroll, id);
             }

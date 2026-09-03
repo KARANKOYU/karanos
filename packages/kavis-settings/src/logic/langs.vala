@@ -1,5 +1,5 @@
-/* Language list for Keyboard & Language (madde 34 + Grup F dil seçici
- * kuralları — docs/referans/dil-secici.md).
+/* Language list for Keyboard & Language (madde 34 + Grup F language
+ * selector rules — docs/referans/dil-secici.md).
  *
  * Codes and percentages come from /usr/share/kavis/i18n-stats.json
  * (built at package build time, NEVER computed at runtime). Endonyms
@@ -184,9 +184,9 @@ namespace Kavis.Settings.Langs {
         } catch (Error e) {
             return result;
         }
-        /* Satır biçimi sabit (tools/i18n-stats.sh üretir):
+        /* The line format is fixed (produced by tools/i18n-stats.sh):
          *   "tr": {"translated": 161, "total": 161, "percent": 100},
-         * json-glib bağımlılığı yerine satır deseni yeter. */
+         * a line pattern is enough instead of a json-glib dependency. */
         Lang[] parsed = {};
         try {
             var re = new Regex (
@@ -204,10 +204,10 @@ namespace Kavis.Settings.Langs {
             }
         } catch (RegexError e) { }
 
-        /* Sıralama: yüzde azalan; eşitse alfabetik (0%'ler doğal
-         * olarak sona, alfabetik düşer). 78 öğe için basit araya
-         * ekleme yeter — kütüphane sıralaması struct dizisiyle
-         * Vala'da sancılı. */
+        /* Order: percent descending; alphabetical on ties (0% entries
+         * naturally fall to the end, alphabetical). Simple insertion
+         * sort is enough for 78 items — library sorting of a struct
+         * array is painful in Vala. */
         for (int i = 1; i < parsed.length; i++) {
             Lang key = parsed[i];
             int j = i - 1;

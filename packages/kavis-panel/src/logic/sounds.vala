@@ -1,8 +1,8 @@
 /* System sound playback (business logic — no widget code).
- * Sonraki-isler 6b: kavis-theme'in sentezlenmiş freedesktop ses
- * temasını çalar. Yeni daemon YOK — paplay (PipeWire/Pulse) varsa o,
- * yoksa aplay. kavis.conf [sounds] enabled=false hepsini susturur
- * (Ayarlar Grup F).
+ * Sonraki-isler 6b: plays kavis-theme's synthesized freedesktop sound
+ * theme. NO new daemon — paplay (PipeWire/Pulse) when available,
+ * aplay otherwise. kavis.conf [sounds] enabled=false silences all of
+ * them (Settings, Grup F).
  */
 
 namespace Kavis.Sounds {
@@ -23,7 +23,7 @@ namespace Kavis.Sounds {
         return enabled;
     }
 
-    /* name: freedesktop ses adı (device-added, message-new-instant…). */
+    /* name: freedesktop sound name (device-added, message-new-instant…). */
     public void play (string name) {
         if (!sounds_enabled ()) {
             return;

@@ -1,5 +1,0 @@
-# Kavis (3A): /etc/kavis, XDG veri yolunda EN ÖNDE — oradaki .desktop
-# override'ları (NoDisplay, yeniden adlandırma) upstream dosyaları
-# DOSYA DEĞİŞTİRMEDEN ezer; paket güncellemesi çakışması olmaz.
-XDG_DATA_DIRS="/etc/kavis:${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
-export XDG_DATA_DIRS

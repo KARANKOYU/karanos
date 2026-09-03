@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-"""Kavis duvar kağıdı üreteci.
+"""Kavis wallpaper generator.
 
-NEDEN SCRIPT: duvar kağıdını PNG olarak depoya koysak her değişiklik
-megabaytlarca ikili fark demek olurdu. Burada SVG olarak tanımlanıp
-derleme sırasında PNG'ye çevriliyor; depoda yalnızca bu dosya duruyor.
+WHY A SCRIPT: keeping the wallpaper as PNG in the repo would mean
+megabytes of binary diff on every change. Here it is defined as SVG and
+converted to PNG at build time; only this file lives in the repo.
 
-Varsayılan tema koyu olduğu için üç duvar kağıdı da koyu zeminli:
-  kavis       marka degradesi — turkuazdan maviye ışıma (varsayılan)
-  kavis-gece  neredeyse düz, en sakin olanı
-  kavis-duz   tek renk zemin, ortada logo
+Since the default theme is dark, all three wallpapers have a dark ground:
+  kavis        brand gradient — teal-to-blue glow (default)
+  kavis-night  nearly flat, the calmest one
+  kavis-plain  single-color ground, logo in the center
 
-Her duvar kağıdı için üretilenler:
-  <ad>.svg          ölçeklenebilir kaynak
-  <ad>.png          1920x1080 (duvar kağıdı koyucular ham görüntü ister)
-  <ad>-onizleme.png 320x180 (ayarlar uygulaması için küçük resim)
+Generated for each wallpaper:
+  <name>.svg          scalable source
+  <name>.png          1920x1080 (wallpaper setters want a raw image)
+  <name>-preview.png  320x180 (thumbnail for the settings app)
 
-Gereksinim: rsvg-convert (librsvg2-bin)
-Kullanım:   gen-wallpapers.py <cikis-dizini>
+Requirement: rsvg-convert (librsvg2-bin)
+Usage:       gen-wallpapers.py <output-dir>
 """
 
 import os
@@ -25,14 +25,14 @@ import sys
 
 W, H = 1920, 1080
 
-ACCENT = "#2DD4BF"   # turkuaz — ana vurgu
-ACCENT2 = "#4F92F7"  # mavi — ikincil
-GROUND = "#0D141B"   # masaüstü zemini
-SURFACE = "#17222C"  # pencere yüzeyi
+ACCENT = "#2DD4BF"   # teal — primary accent
+ACCENT2 = "#4F92F7"  # blue — secondary
+GROUND = "#0D141B"   # desktop ground
+SURFACE = "#17222C"  # window surface
 BORDER = "#233A45"
 
-# Logodaki "K" — düşük opaklıkta filigran olarak kullanılıyor.
-# assets/logo/koyu-k-logo.svg ile aynı yollar, 100x100 ızgarada.
+# The "K" from the logo — used as a low-opacity watermark.
+# Same paths as assets/logo/koyu-k-logo.svg, on a 100x100 grid.
 K_PATHS = (
 	'<path d="M40 18 C31 24, 27 44, 28 60 C28.6 70, 30 76, 32 80" stroke-width="10"/>'
 	'<path d="M74 24 C60 33, 45 43, 33 51" stroke-width="4.5"/>'
@@ -41,7 +41,7 @@ K_PATHS = (
 
 
 def watermark(cx, cy, size, color, opacity):
-	"""K filigranı — 100x100 ızgaradan istenen boyuta ölçeklenir."""
+	"""K watermark — scaled from the 100x100 grid to the requested size."""
 	s = size / 100.0
 	return (
 		f'<g transform="translate({cx - size / 2:.1f},{cy - size / 2:.1f}) scale({s:.4f})" '
@@ -52,7 +52,7 @@ def watermark(cx, cy, size, color, opacity):
 
 
 def gradient_watermark(cx, cy, size, opacity):
-	"""Degradeli K — logonun kendi renk geçişini taşıyan filigran."""
+	"""Gradient K — a watermark carrying the logo's own color transition."""
 	s = size / 100.0
 	return (
 		f'<g transform="translate({cx - size / 2:.1f},{cy - size / 2:.1f}) scale({s:.4f})" '
@@ -63,7 +63,7 @@ def gradient_watermark(cx, cy, size, opacity):
 
 
 def blob(cx, cy, r, color, opacity):
-	"""Yumuşak renk lekesi — düz degradenin bantlaşmasını kırıyor."""
+	"""Soft color blob — breaks the banding of a flat gradient."""
 	return (
 		f'<radialGradient id="b{cx}{cy}" cx="50%" cy="50%" r="50%">'
 		f'<stop offset="0%" stop-color="{color}" stop-opacity="{opacity}"/>'
@@ -90,7 +90,7 @@ def page(defs, body):
 
 
 def kavis():
-	"""Varsayılan: koyu zemin, turkuazdan maviye ışıma, sağ altta K."""
+	"""Default: dark ground, teal-to-blue glow, K at the bottom right."""
 	defs = (
 		f'<linearGradient id="g" x1="0" y1="0" x2="0.7" y2="1">'
 		f'<stop offset="0%" stop-color="#101B24"/>'
@@ -100,18 +100,20 @@ def kavis():
 	)
 	body = (
 		f'<rect width="{W}" height="{H}" fill="url(#g)"/>'
-		# Turkuaz sol üstten, mavi sağ alttan — logonun degrade yönü.
+		# Teal from the top left, blue from the bottom right — the logo's
+		# gradient direction.
 		f'<g>{blob(300, 200, 880, ACCENT, 0.30)}</g>'
 		f'<g>{blob(1680, 940, 900, ACCENT2, 0.26)}</g>'
 		f'<g>{blob(1500, 260, 520, ACCENT2, 0.10)}</g>'
-		# Masaüstü simgeleri sol üstte duracağı için filigran sağ altta.
+		# Desktop icons sit at the top left, so the watermark is at the
+		# bottom right.
 		+ gradient_watermark(1480, 660, 760, 0.22)
 	)
 	return defs, body
 
 
-def kavis_gece():
-	"""En sakin olanı: neredeyse düz zemin, tek soluk ışıma."""
+def kavis_night():
+	"""The calmest one: nearly flat ground, a single faint glow."""
 	defs = (
 		f'<linearGradient id="g" x1="0" y1="0" x2="0.3" y2="1">'
 		f'<stop offset="0%" stop-color="{SURFACE}"/>'
@@ -126,8 +128,8 @@ def kavis_gece():
 	return defs, body
 
 
-def kavis_duz():
-	"""Dikkat dağıtmayan düz zemin — ortada logo kutusu."""
+def kavis_plain():
+	"""Non-distracting flat ground — logo box in the center."""
 	defs = (
 		f'<linearGradient id="box" x1="0" y1="0" x2="1" y2="1">'
 		f'<stop offset="0%" stop-color="#0F2A2C"/>'
@@ -143,12 +145,13 @@ def kavis_duz():
 	return defs, body
 
 
-def grub_arkaplan():
-	"""GRUB menü arka planı — kural: GRUB'da HER ZAMAN koyu logo.
+def grub_background():
+	"""GRUB menu background — rule: ALWAYS the dark logo in GRUB.
 
-	Duvar kağıdı değil; koyu-k-logo.svg'nin birebir karşılığı (kutu +
-	degradeli K) düz zeminde, üst üçte birlik bölgede. Menü metni ekranın
-	ortasına çizildiği için logo yukarıda duruyor — yazıyla çakışmıyor.
+	Not a wallpaper; the exact counterpart of koyu-k-logo.svg (box +
+	gradient K) on a flat ground, in the top third. The menu text is
+	drawn in the middle of the screen, so the logo stays up top — no
+	overlap with the text.
 	"""
 	defs = (
 		f'<linearGradient id="box" x1="0" y1="0" x2="1" y2="1">'
@@ -156,45 +159,45 @@ def grub_arkaplan():
 		f'<stop offset="100%" stop-color="#152444"/>'
 		f'</linearGradient>'
 	)
-	logo_boy = 130
+	logo_size = 130
 	cx, cy = W / 2, H / 4
 	body = (
 		f'<rect width="{W}" height="{H}" fill="{GROUND}"/>'
-		f'<rect x="{cx - logo_boy / 2:.0f}" y="{cy - logo_boy / 2:.0f}" '
-		f'width="{logo_boy}" height="{logo_boy}" rx="{logo_boy * 0.26:.0f}" '
+		f'<rect x="{cx - logo_size / 2:.0f}" y="{cy - logo_size / 2:.0f}" '
+		f'width="{logo_size}" height="{logo_size}" rx="{logo_size * 0.26:.0f}" '
 		f'fill="url(#box)" stroke="{BORDER}" stroke-width="2"/>'
-		+ gradient_watermark(cx, cy, logo_boy * 0.83, 1.0)
+		+ gradient_watermark(cx, cy, logo_size * 0.83, 1.0)
 	)
 	return defs, body
 
 
 WALLPAPERS = {
 	"kavis": kavis,
-	"kavis-gece": kavis_gece,
-	"kavis-duz": kavis_duz,
+	"kavis-night": kavis_night,
+	"kavis-plain": kavis_plain,
 }
 
 
-def grub_uret(png_yolu):
-	"""GRUB arka planını tek PNG olarak üretir (SVG ve önizleme yok)."""
-	defs, body = grub_arkaplan()
-	svg_yolu = png_yolu + ".tmp.svg"
-	with open(svg_yolu, "w", encoding="utf-8") as fh:
+def gen_grub(png_path):
+	"""Generates the GRUB background as a single PNG (no SVG, no preview)."""
+	defs, body = grub_background()
+	svg_path = png_path + ".tmp.svg"
+	with open(svg_path, "w", encoding="utf-8") as fh:
 		fh.write(page(defs, body))
 	subprocess.run(
-		["rsvg-convert", "-w", str(W), "-o", png_yolu, svg_yolu],
+		["rsvg-convert", "-w", str(W), "-o", png_path, svg_path],
 		check=True,
 	)
-	os.unlink(svg_yolu)
-	print(f"grub arka planı: {png_yolu}")
+	os.unlink(svg_path)
+	print(f"grub background: {png_path}")
 
 
 def main():
 	if len(sys.argv) == 3 and sys.argv[1] == "--grub":
-		grub_uret(os.path.abspath(sys.argv[2]))
+		gen_grub(os.path.abspath(sys.argv[2]))
 		return
 	if len(sys.argv) != 2:
-		sys.exit("kullanim: gen-wallpapers.py <cikis-dizini> | --grub <png>")
+		sys.exit("usage: gen-wallpapers.py <output-dir> | --grub <png>")
 	outdir = os.path.abspath(sys.argv[1])
 	os.makedirs(outdir, exist_ok=True)
 
@@ -203,13 +206,13 @@ def main():
 		svg_path = os.path.join(outdir, f"{name}.svg")
 		with open(svg_path, "w", encoding="utf-8") as fh:
 			fh.write(page(defs, body))
-		for suffix, width in (("", W), ("-onizleme", 320)):
+		for suffix, width in (("", W), ("-preview", 320)):
 			subprocess.run(
 				["rsvg-convert", "-w", str(width),
 				 "-o", os.path.join(outdir, f"{name}{suffix}.png"), svg_path],
 				check=True,
 			)
-		print(f"duvar kağıdı: {name}")
+		print(f"wallpaper: {name}")
 
 
 if __name__ == "__main__":

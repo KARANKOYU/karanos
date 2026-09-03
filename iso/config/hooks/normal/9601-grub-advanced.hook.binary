@@ -1,0 +1,193 @@
+#!/bin/sh
+# Kavis — adds the "Advanced menu (F3)" submenu to GRUB (item 30)
+#
+# Runs AFTER the 9600 (branding) hook; the entries carry the Kavis name
+# at that point. TARGET FILE is grub.cfg — the menu entries are there
+# (config.cfg holds only settings; the first version got this wrong and
+# ran for nothing in v0.2-test1).
+#
+# What it does:
+#   1. removes live-build's English "Utilities..." submenu (its contents
+#      are moved into our menu with the EN titles from the table)
+#   2. moves the "safe mode" entry from the top level into the submenu
+#   3. generates the "Verbose boot" entry (without quiet/splash)
+#   4. rebuilds the boot medium verification entry (if live-build
+#      produced one) with the title from the table
+#   5. adds the memtest86+ entries (x86 only — ARCHITECTURE rule; linux16
+#      on BIOS, chainloader on UEFI, with Secure Boot off since it is
+#      unsigned) and the UEFI setup entry
+#
+# Menu texts are English source strings (GRUB cannot read .mo; the EN
+# column of the old boot.* table is embedded here)
+# (GRUB is single-language; default language EN — decision of 2 Sep
+# 2026). Entry titles are "name — one-line description": GRUB cannot draw
+# a separate description line under an entry.
+#
+# F3 shortcut: trixie's GRUB 2.12 supports submenu --hotkey=f3 (verified
+# from the hotkey_aliases table in grub-core/commands/menuentry.c).
+#
+# DELIBERATELY ABSENT (not yet existing): A/B previous version (27),
+# snapshot list (26), recovery environment (33). Rule: no entry for a
+# feature that does not exist.
+#
+# WORKING DIRECTORY: binary hooks run INSIDE the `binary/` directory.
+# If the submenu cannot be added the ISO keeps booting with the normal
+# entry; the bootloader verification in CI catches the omission.
+
+set -e
+
+grubdir=""
+for candidate in boot/grub ../binary/boot/grub binary/boot/grub; do
+	if [ -d "$candidate" ]; then
+		grubdir="$candidate"
+		break
+	fi
+done
+if [ -z "$grubdir" ]; then
+	echo "W: GRUB directory not found, advanced menu skipped" >&2
+	exit 0
+fi
+
+CFG="$grubdir/grub.cfg"
+if [ ! -f "$CFG" ]; then
+	echo "W: $CFG missing, advanced menu skipped" >&2
+	exit 0
+fi
+
+# --- product name -----------------------------------------------------
+PRODUCT=""
+for osr in ../chroot/etc/os-release chroot/etc/os-release; do
+	if [ -f "$osr" ]; then
+		PRODUCT=$(sed -n 's/^NAME="\?\([^"]*\)"\?$/\1/p' "$osr" | head -1)
+		break
+	fi
+done
+[ -n "$PRODUCT" ] || PRODUCT="Linux"
+
+# --- kernel lines of the normal entry ---------------------------------
+# The "safe mode" entry is skipped; the first remaining menuentry is the
+# normal one. Indentation is preserved (reused inside the block).
+normal_linux=$(awk '
+	/^menuentry / { inside = ($0 !~ /safe mode/) }
+	inside && /^[ \t]*linux/  { print; exit }
+' "$CFG")
+normal_initrd=$(awk '
+	/^menuentry / { inside = ($0 !~ /safe mode/) }
+	inside && /^[ \t]*initrd/ { print; exit }
+' "$CFG")
+
+if [ -z "$normal_linux" ] || [ -z "$normal_initrd" ]; then
+	echo "W: no linux/initrd line found inside grub.cfg, advanced menu skipped" >&2
+	exit 0
+fi
+
+# --- take the safe mode block out of the top level --------------------
+safe_block=$(awk '
+	/^menuentry .*safe mode/ { take = 1 }
+	take { print }
+	take && /^\}/ { exit }
+' "$CFG")
+
+awk '
+	/^menuentry .*safe mode/ { skip = 1 }
+	!skip { print }
+	skip && /^\}/ { skip = 0 }
+' "$CFG" > "$CFG.new"
+mv "$CFG.new" "$CFG"
+
+# --- kernel lines of the verification entry (if any) ------------------
+# With checksums enabled, live-build puts a "Verify integrity of the boot
+# medium" entry under Utilities; we take its append (with
+# verify-checksums) from there and rebuild it with our title.
+verify_linux=$(awk '
+	/menuentry "Verify integrity/ { take = 1 }
+	take && /^[ \t]*linux/  { print; exit }
+' "$CFG")
+verify_initrd=$(awk '
+	/menuentry "Verify integrity/ { take = 1 }
+	take && /^[ \t]*initrd/ { print; exit }
+' "$CFG")
+
+# --- remove live-build's Utilities submenu ----------------------------
+# Its contents (fwsetup, verify) move into our submenu; two submenus
+# would be both crowded and half in a different style.
+if grep -q "^submenu 'Utilities" "$CFG"; then
+	awk '
+		/^submenu .Utilities/ { skip = 1 }
+		!skip { print }
+		skip && /^\}/ { skip = 0 }
+	' "$CFG" > "$CFG.new"
+	mv "$CFG.new" "$CFG"
+	echo "I: Utilities submenu removed (contents moved into the Kavis menu)"
+fi
+
+# --- verbose boot: without quiet/splash -------------------------------
+verbose_linux=$(printf '%s\n' "$normal_linux" \
+	| sed -e 's/ quiet//g' -e 's/ splash//g' \
+	      -e 's/ plymouth\.ignore-serial-consoles//g')
+
+# --- memtest86+ (x86 only — ARCHITECTURE rule) ------------------------
+memtest_bin=0
+memtest_efi=0
+for c in ../chroot chroot; do
+	[ -d "$c" ] || continue
+	if [ -f "$c/boot/memtest86+x64.bin" ]; then
+		cp "$c/boot/memtest86+x64.bin" "$grubdir/../memtest86+x64.bin"
+		memtest_bin=1
+	fi
+	if [ -f "$c/boot/memtest86+x64.efi" ]; then
+		cp "$c/boot/memtest86+x64.efi" "$grubdir/../memtest86+x64.efi"
+		memtest_efi=1
+	fi
+	break
+done
+
+# --- write the submenu ------------------------------------------------
+{
+	echo ""
+	echo "### $PRODUCT — advanced menu (F3) ###"
+	echo "submenu \"Advanced menu (F3)\" --class uefi --hotkey=f3 {"
+	echo "	source /boot/grub/theme.cfg"
+
+	if [ -n "$safe_block" ]; then
+		printf '%s\n' "$safe_block" | sed 's/^/	/'
+	fi
+
+	echo "	menuentry \"Verbose boot — disable quiet boot\" --class verbose {"
+	printf '	%s\n' "$verbose_linux"
+	printf '	%s\n' "$normal_initrd"
+	echo "	}"
+
+	if [ -n "$verify_linux" ] && [ -n "$verify_initrd" ]; then
+		echo "	menuentry \"Verify integrity of the boot medium\" --class verify {"
+		printf '	%s\n' "$verify_linux"
+		printf '	%s\n' "$verify_initrd"
+		echo "	}"
+	fi
+
+	if [ "$memtest_bin" -eq 1 ]; then
+		echo "	if [ \"\$grub_platform\" = \"pc\" ]; then"
+		echo "		menuentry \"RAM test (memtest86+)\" --class memtest {"
+		echo "			linux16 /boot/memtest86+x64.bin"
+		echo "		}"
+		echo "	fi"
+	fi
+	if [ "$memtest_efi" -eq 1 ]; then
+		echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
+		echo "		menuentry \"RAM test (memtest86+, requires Secure Boot off)\" --class memtest {"
+		echo "			chainloader /boot/memtest86+x64.efi"
+		echo "		}"
+		echo "	fi"
+	fi
+
+	echo "	if [ \"\$grub_platform\" = \"efi\" ]; then"
+	echo "		menuentry \"Enter UEFI/BIOS setup\" --class uefi {"
+	echo "			fwsetup"
+	echo "		}"
+	echo "	fi"
+
+	echo "}"
+} >> "$CFG"
+
+echo "I: advanced menu added (safe=$([ -n "$safe_block" ] && echo 1 || echo 0) verify=$([ -n "$verify_linux" ] && echo 1 || echo 0) memtest_bios=$memtest_bin memtest_efi=$memtest_efi)"
+grep -c '^menuentry\|^	menuentry\|^submenu' "$CFG" | sed 's/^/I: grub.cfg entry count: /'

@@ -31,7 +31,7 @@ namespace Kavis.Ui {
 
             var tile_icon = new Gtk.Image.from_icon_name (
                 icon_name, Gtk.IconSize.INVALID);
-            tile_icon.set_pixel_size (20);   /* B4: 20px ikon */
+            tile_icon.set_pixel_size (20);   /* B4: 20px icon */
             var main_button = new Gtk.Button ();
             main_button.add (tile_icon);
             main_button.set_relief (Gtk.ReliefStyle.NONE);
@@ -75,8 +75,8 @@ namespace Kavis.Ui {
 
     public class QuickSettingsPopup : PanelPopup {
 
-        /* Tek örnek: ses/pil göstergeleri ve tepsi araçları (madde 3)
-         * aynı popup'ı açar. */
+        /* Single instance: the volume/battery indicators and the tray
+         * tools (madde 3) open the same popup. */
         private static QuickSettingsPopup? instance = null;
 
         public static QuickSettingsPopup get_default () {
@@ -132,8 +132,8 @@ namespace Kavis.Ui {
             content.pack_start (stack, true, true, 0);
         }
 
-        /* Tepsi araçları doğrudan bir alt sayfaya açabilir (madde 3:
-         * Wi-Fi simgesi → ağ listesi). */
+        /* Tray tools can open straight onto a subpage (madde 3: Wi-Fi
+         * icon → network list). */
         public void open_page (Gtk.Widget anchor, string page) {
             if (get_visible ()) {
                 dismiss ();
@@ -165,7 +165,7 @@ namespace Kavis.Ui {
             refit ();
         }
 
-        /* --- ana sayfa ------------------------------------------------ */
+        /* --- main page ------------------------------------------------ */
 
         private Gtk.Widget build_main_page () {
             var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 10);
@@ -205,7 +205,7 @@ namespace Kavis.Ui {
                                                  N_("Airplane mode"), false);
                 airplane_tile.toggled_by_user.connect ((on) => {
                     Quick.airplane_set (on);
-                    /* Telsiz kutucukları da değişir. */
+                    /* The radio tiles change too. */
                     Timeout.add (300, () => {
                         refresh_content ();
                         return Source.REMOVE;
@@ -249,9 +249,9 @@ namespace Kavis.Ui {
             attach_tile (grid, dnd_tile, ref col, ref row);
 
             if (Battery.present ()) {
-                /* 3D: kutucuk artık aç/kapa değil — "Battery" alt
-                 * paneline açılır (4 mod orada); pil yoksa kutucuk
-                 * HİÇ görünmez. */
+                /* 3D: the tile is no longer a toggle — it opens the
+                 * "Battery" subpage (the 4 modes live there); without
+                 * a battery the tile is NOT shown at all. */
                 saver_tile = new SettingTile ("battery-good-symbolic",
                                               N_("Battery"), true);
                 saver_tile.toggled_by_user.connect ((on) => {
@@ -268,8 +268,8 @@ namespace Kavis.Ui {
                 "preferences-desktop-accessibility-symbolic",
                 N_("Accessibility"), true);
             access_tile.toggled_by_user.connect ((on) => {
-                /* Aç/kapa karşılığı yok; kutucuk yalnız alt panele
-                 * açılır. Durum vurgusunu geri al. */
+                /* No toggle counterpart; the tile only opens the
+                 * subpage. Undo the state highlight. */
                 access_tile.set_state (false);
                 show_page ("access");
             });
@@ -283,15 +283,16 @@ namespace Kavis.Ui {
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 0);
 
-            /* --- kaydırıcılar (3C: W11 sırası — parlaklık ÜSTTE,
-             * ses altta; sürüklerken değer balonu; parlaklık artık
-             * donanımsız da görünür, xrandr yazılım kipiyle) --- */
+            /* --- sliders (3C: W11 order — brightness on TOP, volume
+             * below; value bubble while dragging; brightness is now
+             * shown even without hardware, via xrandr software mode) --- */
             {
                 var row_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-                /* D1 (test2): ikon, ses satırındaki sessize alma
-                 * düğmesiyle AYNI kapta (kenarlıksız düğme) — çıplak
-                 * Image'ın genişliği farklı olduğu için iki kaydırıcı
-                 * farklı x'te başlıyordu. Düğmenin işi yok. */
+                /* D1 (test2): the icon sits in the SAME container as
+                 * the mute button on the volume row (a relief-less
+                 * button) — a bare Image has a different width, so the
+                 * two sliders used to start at different x. The button
+                 * does nothing. */
                 var icon_box = new Gtk.Button ();
                 icon_box.set_relief (Gtk.ReliefStyle.NONE);
                 icon_box.set_can_focus (false);
@@ -318,15 +319,16 @@ namespace Kavis.Ui {
                     brightness_source = Timeout.add (80, () => {
                         brightness_source = 0;
                         Quick.brightness_set (value);
-                        /* Fn tuşlarıyla aynı OSD (3C). */
+                        /* Same OSD as the Fn keys (3C). */
                         show_brightness_osd ();
                         return Source.REMOVE;
                     });
                 });
                 row_box.pack_start (brightness_box, true, true, 0);
                 if (Volume.available () && Quick.sound_output_available ()) {
-                    /* D1: ses satırındaki "›" ile aynı boyda görünmez
-                     * yer tutucu — kaydırıcılar aynı x'te bitsin. */
+                    /* D1: invisible placeholder the same size as the
+                     * "›" on the volume row — so the sliders end at
+                     * the same x. */
                     var spacer = new Gtk.Button.with_label ("\u203a");
                     spacer.set_relief (Gtk.ReliefStyle.NONE);
                     spacer.set_sensitive (false);
@@ -390,7 +392,7 @@ namespace Kavis.Ui {
                 new Gtk.Separator (Gtk.Orientation.HORIZONTAL),
                 false, false, 0);
 
-            /* --- alt satır: pil + dişli --- */
+            /* --- bottom row: battery + gear --- */
             var bottom = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             battery_label = new Gtk.Label ("");
             battery_label.set_xalign (0);
@@ -424,7 +426,7 @@ namespace Kavis.Ui {
             }
         }
 
-        /* --- alt sayfalar --------------------------------------------- */
+        /* --- subpages ------------------------------------------------- */
 
         private Gtk.Widget subpage (string title_key, out Gtk.Box body) {
             var page = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
@@ -477,9 +479,9 @@ namespace Kavis.Ui {
             return page;
         }
 
-        /* test8 B1: güç planı seçimi — şarjdayken ve pildeyken ayrı
-         * sütun, üç plan radyosu (eski BatteryPopup mantığı geri,
-         * alt panel olarak). */
+        /* test8 B1: power plan choice — separate columns for plugged-in
+         * and on-battery, three plan radios (the old BatteryPopup
+         * logic is back, as a subpage). */
         private Gtk.RadioButton[] plugged_choices = {};
         private Gtk.RadioButton[] battery_choices = {};
         private bool plans_building = false;
@@ -508,8 +510,8 @@ namespace Kavis.Ui {
             column.pack_start (title, false, false, 0);
             Gtk.RadioButton? group = null;
             Gtk.RadioButton[] built = {};
-            /* 3D: Ayarlar > Güç ile aynı 4 mod, aynı veri
-             * (kavis.conf [power] — PowerPlan tek yazıcı). */
+            /* 3D: the same 4 modes and the same data as Settings >
+             * Power (kavis.conf [power] — PowerPlan is the sole writer). */
             PowerPlan.Plan[] plans = { PowerPlan.Plan.SAVER,
                                        PowerPlan.Plan.NORMAL,
                                        PowerPlan.Plan.PERFORMANCE,
@@ -549,8 +551,8 @@ namespace Kavis.Ui {
         private Gtk.Widget build_access_page () {
             Gtk.Box body;
             var page = subpage (N_("Accessibility"), out body);
-            /* Erişilebilirlik seçenekleri Ayarlar uygulamasıyla
-             * geliyor (Grup F); alt panel o güne kadar bunu söyler. */
+            /* Accessibility options arrive with the Settings app
+             * (Grup F); until then the subpage says so. */
             var soon = new Gtk.Label (_("Settings app coming soon"));
             soon.get_style_context ().add_class ("dim");
             soon.set_margin_top (20);
@@ -657,11 +659,11 @@ namespace Kavis.Ui {
             sink_list.show_all ();
         }
 
-        /* --- durum tazeleme ------------------------------------------- */
+        /* --- state refresh -------------------------------------------- */
 
-        /* 3C: sürüklerken kaydırıcının üstünde değer balonu ("90") —
-         * GTK3'te hazır balon yok, en hafifi draw_value'yu yalnız
-         * basılıyken açmak. */
+        /* 3C: value bubble ("90") above the slider while dragging —
+         * GTK3 has no ready-made bubble; the lightest option is to
+         * enable draw_value only while pressed. */
         /* D2 (test2): the drag-time value bubble is an overlay child, so
          * it takes no layout space and showing it cannot shift the row
          * (draw_value used to add a text line above the trough while
@@ -683,8 +685,8 @@ namespace Kavis.Ui {
             overlay.add_overlay (bubble);
             overlay.set_overlay_pass_through (bubble, true);
             scale.button_press_event.connect (() => {
-                /* Önce göster: gizli widget'ın tercih edilen genişliği
-                 * 0 döner, konum yanlış çıkar. */
+                /* Show first: a hidden widget's preferred width comes
+                 * back as 0 and the position would be wrong. */
                 bubble.show ();
                 place_bubble (scale, bubble);
                 return false;
@@ -716,8 +718,9 @@ namespace Kavis.Ui {
             int travel = scale.get_allocated_width () - KNOB_W;
             int knob_start = (int) (frac * travel);
             int knob_end = knob_start + KNOB_W;
-            /* Tercih edilen genişlik kenar boşluğunu da sayar — önce
-             * sıfırla, yoksa balon her ölçümde biraz daha sağa kayar. */
+            /* The preferred width includes the margin — reset it
+             * first, else the bubble drifts a bit further right on
+             * every measurement. */
             bubble.set_margin_start (0);
             int min_w, nat_w;
             bubble.get_preferred_width (out min_w, out nat_w);
@@ -726,7 +729,8 @@ namespace Kavis.Ui {
             bubble.set_margin_start (int.max (0, int.min (x, limit)));
         }
 
-        /* Fn tuşlarıyla aynı OSD'yi göster (kavis-osd ayrı süreç). */
+        /* Show the same OSD as the Fn keys (kavis-osd is a separate
+         * process). */
         private void show_brightness_osd () {
             try {
                 Process.spawn_async (null, {
@@ -754,7 +758,7 @@ namespace Kavis.Ui {
         }
 
         protected override void refresh_content () {
-            /* Her açılış ana sayfadan başlar (W11 davranışı). */
+            /* Every open starts on the main page (W11 behaviour). */
             var saved = stack.get_transition_type ();
             stack.set_transition_type (Gtk.StackTransitionType.NONE);
             stack.set_visible_child_name ("main");

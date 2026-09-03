@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Emoji Seçici
-Name[en]=Emoji Picker
+Name=Emoji Picker
+Name[tr]=Emoji Seçici
 Exec=kavis-tools emoji
 Icon=face-smile
 Categories=Utility;

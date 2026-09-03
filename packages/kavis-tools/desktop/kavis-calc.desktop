@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Hesap Makinesi
-Name[en]=Calculator
+Name=Calculator
+Name[tr]=Hesap Makinesi
 Exec=kavis-tools calc
 Icon=accessories-calculator
 Categories=Utility;Calculator;

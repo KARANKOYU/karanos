@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the Kavis system sounds (sonraki-isler 6b).
+"""Generate the Kavis system sounds (follow-up work 6b).
 
 Pure-stdlib sine synthesis (wave + math — numpy would be a build
 dependency for nothing): short notes from one timbre family, all
@@ -7,7 +7,7 @@ license-free by construction. Run by the kavis-theme package build;
 output lands in /usr/share/sounds/kavis/stereo/ under freedesktop
 sound-theme names so GTK apps pick them up automatically.
 
-Usage: gen-sistem-sesleri.py <output-dir>
+Usage: gen-system-sounds.py <output-dir>
 """
 
 import math
@@ -47,13 +47,13 @@ def write_wav(path, samples):
         for value in samples:
             clipped = max(-1.0, min(1.0, value))
             raw = struct.pack("<h", int(clipped * 32767))
-            frames += raw + raw   # stereo: iki kanala aynı örnek
+            frames += raw + raw   # stereo: same sample on both channels
         out.writeframes(bytes(frames))
 
 
 def main():
     if len(sys.argv) != 2:
-        print("kullanim: gen-sistem-sesleri.py <cikti-dizini>",
+        print("usage: gen-system-sounds.py <output-dir>",
               file=sys.stderr)
         return 2
     out = Path(sys.argv[1])
@@ -62,17 +62,17 @@ def main():
     A5, E5, D4, C3, G4 = 880.0, 659.25, 293.66, 130.81, 392.0
 
     sounds = {
-        # aygıt takıldı: iki nota yukarı (Windows USB sesi gibi)
+        # device plugged in: two notes up (like the Windows USB sound)
         "device-added": tone(E5, 0.16) + tone(A5, 0.28),
-        # aygıt çıkarıldı: iki nota aşağı
+        # device removed: two notes down
         "device-removed": tone(A5, 0.16) + tone(E5, 0.28),
-        # bildirim: tek yumuşak "ding"
+        # notification: a single soft "ding"
         "message-new-instant": tone(A5, 0.5, volume=0.42),
-        # uyarı: iki hızlı düşük nota
+        # warning: two quick low notes
         "dialog-warning": tone(D4, 0.12) + silence(0.05) + tone(D4, 0.2),
-        # hata: kısa, mat, düşük
+        # error: short, dull, low
         "dialog-error": tone(C3, 0.3, harmonics=(1.0, 0.5, 0.25)),
-        # düşük pil: uyarı sesi + tekrar
+        # low battery: the warning sound, repeated
         "battery-low": (tone(G4, 0.14) + silence(0.08) + tone(D4, 0.22)
                         + silence(0.25)
                         + tone(G4, 0.14) + silence(0.08) + tone(D4, 0.22)),

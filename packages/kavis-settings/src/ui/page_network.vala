@@ -1,7 +1,7 @@
-/* Network page (madde 52 — bu adımda YALNIZ okuma: Wi-Fi listesi ve
- * kayıtlı ağlar NetworkManager'dan gösterilir; bağlanma/hotspot
- * sonraki adımların işi). nmcli -t (terse) kullanılır — insan biçimi
- * sürümle oynar (ayarlar.md).
+/* Network page (madde 52 — READ-ONLY at this step: the Wi-Fi list and
+ * saved networks are shown from NetworkManager; connecting/hotspot is
+ * the job of later steps). nmcli -t (terse) is used — the human format
+ * shifts between versions (ayarlar.md).
  */
 
 namespace Kavis.Settings.Pages {
@@ -10,7 +10,7 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        /* Wi-Fi anahtarı (gerçek ayar: nmcli radio). */
+        /* Wi-Fi switch (real setting: nmcli radio). */
         string? radio_state = Run.capture ({ "nmcli", "-t", "radio",
                                              "wifi" });
         bool has_wifi = (radio_state != null);
@@ -61,7 +61,7 @@ namespace Kavis.Settings.Pages {
             body.pack_start (none, false, false, 0);
         }
 
-        /* Kayıtlı bağlantılar. */
+        /* Saved connections. */
         body.pack_start (group (_("Saved networks")), false, false, 0);
         string? saved = Run.capture ({ "nmcli", "-t",
             "-f", "NAME,TYPE", "connection", "show" });

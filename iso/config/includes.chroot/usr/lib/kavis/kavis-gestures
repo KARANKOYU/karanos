@@ -1,16 +1,17 @@
 #!/bin/sh
-# Kavis — touchpad hareketleri (sonraki-isler 6g)
+# Kavis — touchpad gestures (next-tasks 6g)
 #
-# libinput-gestures/touchegg trixie arşivinde YOK; bu betik aynı
-# yaklaşımı (libinput debug-events akışını okuma) sıfırdan, awk ile
-# uygular. GESTURE_SWIPE_UPDATE satırlarındaki dx/dy toplanır, END'de
-# baskın eksen + parmak sayısı /etc/kavis/gestures.conf eşlemesine
-# (kullanıcı: ~/.config/kavis/gestures.conf) çevrilip xdotool'a basılır.
-# Sıkıştırma (pinch) bilerek bağlanmaz — uygulamaya bırakılır.
+# libinput-gestures/touchegg are NOT in the trixie archive; this script
+# implements the same approach (reading the libinput debug-events
+# stream) from scratch with awk. dx/dy from the GESTURE_SWIPE_UPDATE
+# lines are summed; at END the dominant axis + finger count is mapped
+# through /etc/kavis/gestures.conf (user: ~/.config/kavis/gestures.conf)
+# and pressed with xdotool. Pinch is deliberately not bound — left to the
+# application.
 #
-# `libinput debug-events` hata ayıklama aracı sayılır ama kararlı tek
-# metin arayüzü bu (referans araçlar da bunu okur); kullanıcı `input`
-# grubunda olduğundan root gerekmez.
+# `libinput debug-events` counts as a debugging tool, but it is the only
+# stable text interface (the reference tools read it too); since the user
+# is in the `input` group, root is not needed.
 
 set -u
 
@@ -33,7 +34,7 @@ BEGIN {
 }
 /GESTURE_SWIPE_BEGIN/ { dx = 0; dy = 0; fingers = $NF }
 /GESTURE_SWIPE_UPDATE/ {
-	# "... 3  0.25/ 4.03 (unaccelerated)" — bölü işaretli çift dx/dy
+	# "... 3  0.25/ 4.03 (unaccelerated)" — slash-separated dx/dy pair
 	for (i = 1; i <= NF; i++) {
 		if ($i ~ /\/$/) { dx += $i + 0; dy += $(i + 1) + 0; break }
 		if ($i ~ /\//) {
@@ -45,12 +46,12 @@ BEGIN {
 	}
 }
 /GESTURE_SWIPE_END/ {
-	yon = ""
+	dir = ""
 	adx = (dx < 0) ? -dx : dx; ady = (dy < 0) ? -dy : dy
-	if (adx > ady && adx > 15) yon = (dx > 0) ? "right" : "left"
-	else if (ady > 15)         yon = (dy > 0) ? "down" : "up"
-	if (yon != "") {
-		key = map[yon fingers]
+	if (adx > ady && adx > 15) dir = (dx > 0) ? "right" : "left"
+	else if (ady > 15)         dir = (dy > 0) ? "down" : "up"
+	if (dir != "") {
+		key = map[dir fingers]
 		if (key != "") system("xdotool key " key " &")
 	}
 }

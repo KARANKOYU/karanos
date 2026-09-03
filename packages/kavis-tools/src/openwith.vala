@@ -1,5 +1,5 @@
 /* "Open with" dialog (sonraki-isler 6c) —
- * `kavis-tools open-with <dosya>`.
+ * `kavis-tools open-with <file>`.
  *
  * Kavis' own picker instead of the stock GTK dialog: MIME-matched
  * apps with the first three marked recommended, the rest behind an
@@ -101,7 +101,8 @@ namespace Kavis.Tools {
             }
             var list_row = new Gtk.ListBoxRow ();
             list_row.add (row);
-            /* Seçim geri okuması: indeks hesabı yerine satıra iliştir. */
+            /* Reading the selection back: attach to the row instead of
+             * computing an index. */
             list_row.set_data<AppInfo> ("kavis-app", info);
             return list_row;
         }
@@ -124,7 +125,7 @@ namespace Kavis.Tools {
                 count++;
             }
 
-            /* Kalanlar "diğer uygulamalar" başlığının altında. */
+            /* The rest go under the "other applications" heading. */
             var others = new GenericArray<AppInfo> ();
             foreach (AppInfo info in all) {
                 bool seen = false;
@@ -155,7 +156,7 @@ namespace Kavis.Tools {
                 }
             }
             list.show_all ();
-            /* İlk gerçek satır seçili gelsin. */
+            /* The first real row comes preselected. */
             var first = list.get_row_at_index (0);
             if (first != null) {
                 list.select_row (first);
@@ -177,10 +178,10 @@ namespace Kavis.Tools {
             }
             if (always_check.get_active ()) {
                 try {
-                    /* xdg-mime default eşdeğeri, süreçsiz. */
+                    /* Equivalent of xdg-mime default, without a process. */
                     info.set_as_default_for_type (content_type);
                 } catch (Error e) {
-                    warning ("kavis-tools: varsayilan yazilamadi: %s",
+                    warning ("kavis-tools: could not write the default: %s",
                              e.message);
                 }
             }
@@ -189,7 +190,7 @@ namespace Kavis.Tools {
             try {
                 info.launch (files, null);
             } catch (Error e) {
-                warning ("kavis-tools: acilamadi: %s", e.message);
+                warning ("kavis-tools: could not open: %s", e.message);
             }
             destroy ();
         }
@@ -205,7 +206,7 @@ namespace Kavis.Tools {
                 destroy ();
                 return;
             }
-            /* Mağaza Grup G'de geliyor. */
+            /* The Store arrives in Grup G. */
             Capture.notify_user (_("Store app coming soon"), "",
                                  "system-software-install-symbolic");
         }

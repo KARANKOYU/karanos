@@ -1,22 +1,24 @@
 #!/bin/sh
-# Kavis — GRUB menüsüne geri sayım ve seri konsol ekle
+# Kavis — add a countdown and a serial console to the GRUB menu
 #
-# NEDEN VAR:
-# live-build'in ürettiği boot/grub/config.cfg dosyasında `set timeout`
-# SATIRI YOK. GRUB'da timeout tanımsızsa menü sonsuza kadar tuş bekler.
-# Gerçek makinede kullanıcı Enter'a basar ve fark edilmez; ama otomatik
-# testte (ve "aç, git, gel, açılmış olsun" beklentisinde) sistem menüde
-# takılı kalır. İlk CI koşusunda tam olarak bu oldu: üç QEMU testi de
-# 25 dakika menüde bekleyip zaman aşımına uğradı.
+# WHY IT EXISTS:
+# The boot/grub/config.cfg that live-build produces has NO `set timeout`
+# LINE. With timeout undefined, the GRUB menu waits for a key forever. On
+# a real machine the user presses Enter and never notices; but in an
+# automated test (and with the "turn it on, walk away, come back, it has
+# booted" expectation) the system sits in the menu. Exactly this happened
+# in the first CI run: all three QEMU tests waited 25 minutes in the menu
+# and timed out.
 #
-# Ayrıca config.cfg `terminal_output gfxterm` diyor — yani GRUB çıktısı
-# yalnızca ekrana gidiyor, seri porta hiçbir şey yazmıyordu. Seri konsolu
-# da ekliyoruz ki bir daha takılırsa CI günlüğünde MENÜYÜ görebilelim.
+# Also, config.cfg says `terminal_output gfxterm` — GRUB output went only
+# to the screen and nothing was written to the serial port. We add the
+# serial console too, so that if it gets stuck again we can see the MENU
+# in the CI log.
 #
-# ÇALIŞMA DİZİNİ: live-build binary hook'ları `binary/` dizininin İÇİNDE
-# çalıştırır, derleme kökünde değil. İlk denemede yolu `binary/boot/...`
-# yazdığım için hook dosyayı bulamayıp derlemeyi durdurdu. Bu yüzden
-# aşağıda birkaç aday yol deneniyor.
+# WORKING DIRECTORY: live-build runs binary hooks INSIDE the `binary/`
+# directory, not in the build root. On the first attempt I wrote the path
+# as `binary/boot/...`, the hook could not find the file and stopped the
+# build. Hence several candidate paths are tried below.
 
 set -e
 
@@ -33,24 +35,25 @@ do
 done
 
 if [ -z "$CFG" ]; then
-	echo "E: GRUB config.cfg bulunamadi." >&2
-	echo "E: calisma dizini: $(pwd)" >&2
-	echo "E: buradaki icerik:" >&2
+	echo "E: GRUB config.cfg not found." >&2
+	echo "E: working directory: $(pwd)" >&2
+	echo "E: contents here:" >&2
 	ls -la >&2 || true
-	echo "E: Bu hook duzeltilmeden ISO menude takilir, derleme durduruluyor." >&2
+	echo "E: Without fixing this hook the ISO gets stuck in the menu; stopping the build." >&2
 	exit 1
 fi
 
-echo "I: GRUB yapilandirmasi bulundu: $CFG"
+echo "I: GRUB configuration found: $CFG"
 
 cat >> "$CFG" <<'EOF'
 
 ### Kavis ###
-# B1 (v0.4-test2): menü VARSAYILAN GİZLİ — Windows gibi doğrudan açılır.
-# Shift basılı tutulursa (keystatus) menü gelir ve bekler; gelince F3
-# gelişmiş alt menüyü açar (9601). keystatus'un çalışmadığı bazı UEFI
-# firmware'lerinde yedek yol: 1 sn'lik gizli sayaçta ESC/F4 menüyü
-# gösterir. timeout=0 seçilmedi: o zaman ESC penceresi de kalmazdı.
+# B1 (v0.4-test2): the menu is HIDDEN BY DEFAULT — boots straight through
+# like Windows. If Shift is held (keystatus) the menu appears and waits;
+# once shown, F3 opens the advanced submenu (9601). Fallback for some UEFI
+# firmwares where keystatus does not work: ESC/F4 during the 1 s hidden
+# countdown shows the menu. timeout=0 was not chosen: then there would be
+# no ESC window either.
 set default=0
 if keystatus --shift; then
 set timeout=-1
@@ -59,14 +62,14 @@ else
 set timeout=1
 set timeout_style=hidden
 fi
-# H3a (test8): GRUB'un framebuffer'ı çekirdeğe DEVREDİLİR — mod
-# değişimi olmaz, GRUB'un son karesi Plymouth başlayana kadar kalır;
-# GRUB→çekirdek arasındaki siyah ekran kapanır.
+# H3a (test8): GRUB's framebuffer is HANDED OVER to the kernel — no mode
+# change, GRUB's last frame stays until Plymouth starts; the black screen
+# between GRUB and the kernel goes away.
 set gfxpayload=keep
 
-# GRUB çıktısını seri porta da ver — CI'daki QEMU testi menüyü görebilsin.
-# Seri portu olmayan gerçek donanımda `serial` komutu başarısız olur ve
-# blok atlanır, hiçbir etkisi olmaz.
+# Send GRUB output to the serial port as well — so the QEMU test in CI
+# can see the menu. On real hardware without a serial port the `serial`
+# command fails, the block is skipped, and there is no effect.
 if serial --unit=0 --speed=115200; then
 	terminal_input  --append serial
 	terminal_output --append serial
@@ -76,8 +79,8 @@ EOF
 if grep -q '^set timeout=1$' "$CFG" \
 	&& grep -q '^set timeout_style=hidden$' "$CFG" \
 	&& grep -q '^set gfxpayload=keep$' "$CFG"; then
-	echo "I: GRUB menusu gizli (timeout=1 hidden, Shift ile menu), gfxpayload=keep ve seri konsol eklendi"
+	echo "I: GRUB menu hidden (timeout=1 hidden, menu with Shift), gfxpayload=keep and serial console added"
 else
-	echo "E: yazma basarisiz gorunuyor, $CFG icinde timeout yok" >&2
+	echo "E: the write appears to have failed, no timeout inside $CFG" >&2
 	exit 1
 fi

@@ -1,10 +1,10 @@
-/* Screen brightness backend (3C) — KANONİK KOPYA BURASI
- * (build-packages.sh panel ve Ayarlar'a kopyalar).
+/* Screen brightness backend (3C) — THIS IS THE CANONICAL COPY
+ * (build-packages.sh copies it into the panel and Settings).
  *
  * Hardware path: /sys/class/backlight via brightnessctl — its own
  * udev rule grants the video group write access, so no pkexec (the
- * live user is in video). Software path (desktops/VMs, madde 3C:
- * kaydırıcı GİZLENMEZ): xrandr --brightness gamma multiplier mapped
+ * live user is in video). Software path (desktops/VMs, madde 3C: the
+ * slider is NOT hidden): xrandr --brightness gamma multiplier mapped
  * 0.3–1.0, value remembered in kavis.conf [display] brightness.
  * Both paths persist to kavis.conf — the Settings Display page reads
  * the same key.
@@ -39,7 +39,7 @@ namespace Kavis.Brightness {
     }
 
     /* Current brightness 0-100. Software path reads the stored value
-     * (xrandr'ın gama çarpanını geri okumak kırılgan). */
+     * (reading xrandr's gamma multiplier back is fragile). */
     public int percent () {
         string? dir = backlight_dir ();
         if (dir != null) {
@@ -70,9 +70,9 @@ namespace Kavis.Brightness {
                 warning ("kavis: brightnessctl: %s", e.message);
             }
         } else {
-            /* Yazılım parlaklığı: 0.30-1.00 gama çarpanı, bağlı her
-             * çıkışa. Tam karartma bilerek yok (ekran "kayboldu"
-             * sanılmasın). */
+            /* Software brightness: 0.30-1.00 gamma multiplier on every
+             * connected output. Full blackout is deliberately absent
+             * (so the screen is not mistaken for "gone"). */
             double gamma = 0.3 + 0.7 * value / 100.0;
             foreach (string output in connected_outputs ()) {
                 try {
@@ -84,7 +84,7 @@ namespace Kavis.Brightness {
                 } catch (Error e) { }
             }
         }
-        /* Tek veri (3C): Ayarlar > Ekran aynı anahtarı okur. */
+        /* Single source (3C): Settings > Display reads the same key. */
         var file = Config.load ();
         file.set_integer ("display", "brightness", value);
         Config.save (file);

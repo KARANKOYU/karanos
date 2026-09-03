@@ -2,8 +2,8 @@
  *
  * Every page is a vertical list of "setting rows": bold-ish label +
  * optional subtitle on the left, the control on the right — the W11
- * Settings card shape, spacing per tasarim-dili.md (16 iç kenar,
- * 8 öğe arası, 12 grup arası).
+ * Settings card shape, spacing per tasarim-dili.md (16 inner padding,
+ * 8 between items, 12 between groups).
  */
 
 namespace Kavis.Settings.Pages {
@@ -25,8 +25,9 @@ namespace Kavis.Settings.Pages {
     public Gtk.Widget row (string title, string? subtitle,
                            Gtk.Widget? control) {
         var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 16);
-        /* B4: her ayar satırı W11 gibi bir KART — zemin, 1px kenarlık,
-         * 8px köşe; kartlar arası boşluk gövde spacing'i (8). */
+        /* B4: every setting row is a CARD like W11 — background, 1px
+         * border, 8px corners; the gap between cards is the body
+         * spacing (8). */
         box.get_style_context ().add_class ("kavis-card");
         var text = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
         var label = new Gtk.Label (title);

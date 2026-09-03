@@ -1,45 +1,47 @@
 [Unit]
-Description=Kavis açılış müziği ve açılış ekranı bekleme
+Description=Kavis boot music and boot splash hold
 Documentation=file:///usr/share/doc/kavis-boot/README.md
 
-# NEDEN `sound.target` YOK:
-# İlk sürüm `After=sound.target` ile bekliyordu. sound.target ancak udev
-# ses kartını bulup yapılandırdıktan sonra ulaşılıyor; gerçek donanımda
-# bu açılışın çok ilerisinde oluyordu. Sonuç VirtualBox testinde şuydu:
-# splash sessiz geldi, söndü, konsol göründü, müzik ancak o noktada
-# başladı ve masaüstüne kadar taşındı. Yani servis splash'i tutamayacak
-# kadar geç başlıyordu.
+# WHY NO `sound.target`:
+# The first version waited with `After=sound.target`. sound.target is
+# reached only after udev has found and configured the sound card; on
+# real hardware that was far into the boot. The result in the
+# VirtualBox test: the splash came up silent, faded, the console
+# appeared, the music started only then and spilled all the way into
+# the desktop. So the service started too late to hold the splash.
 #
-# Artık servis mümkün olan en erken noktada başlıyor ve ses aygıtını
-# BEKLEMEYİ script'in kendisi yapıyor (sınırlı süreyle). Böylece
-# başlama anı öngörülebilir ve splash'i tutan sıralama işliyor.
+# Now the service starts at the earliest possible point and WAITING for
+# the audio device is done by the script itself (with a bounded time).
+# This makes the start moment predictable and the ordering that holds
+# the splash works.
 #
-# NEDEN `systemd-udev-trigger` da YOK (4D): After=systemd-udev-trigger
-# SOUND-DELAY'i 3.7-4.0 saniyeye çıkarıyordu — KVM'siz QEMU'da trigger
-# splash başladıktan saniyeler sonra bitiyor ve servis o kadar bekliyordu.
-# Aygıt düğümünü script zaten kendi yokladığı için (0,2 sn'de bir,
-# en çok 8 sn) sıralama bağı gereksiz: tek koşulumuz splash'ten önce
-# başlamamak, onu da plymouth-start satırı sağlıyor.
+# WHY NO `systemd-udev-trigger` either (4D): After=systemd-udev-trigger
+# pushed SOUND-DELAY to 3.7-4.0 seconds — in QEMU without KVM the
+# trigger finishes seconds after the splash starts and the service
+# waited that long. Since the script already polls the device node
+# itself (every 0.2 s, at most 8 s) the ordering bond is unnecessary:
+# our only condition is not starting before the splash, and the
+# plymouth-start line provides that.
 DefaultDependencies=no
 After=plymouth-start.service
 
-# Splash'i müzik bitene kadar tutan asıl mekanizma BU İKİ SATIR.
-# plymouth-quit tarafındaki drop-in'ler de aynı sıralamayı söylüyor;
-# iki yönden birden yazmak, drop-in bir şekilde devreye girmezse bile
-# sıralamanın korunmasını sağlıyor.
+# THESE TWO LINES are the actual mechanism holding the splash until the
+# music ends. The drop-ins on the plymouth-quit side state the same
+# ordering; writing it from both directions keeps the ordering even if
+# a drop-in somehow does not take effect.
 Before=plymouth-quit.service plymouth-quit-wait.service
 
-# Açılış ekranı gösterilmiyorsa müziği de çalmıyoruz: kurtarma modunda
-# ya da `splash` verilmemişken sessiz açılmak doğru davranış.
+# No boot splash shown, no music either: booting silently in recovery
+# mode or without `splash` is the right behavior.
 ConditionKernelCommandLine=splash
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/lib/kavis/boot-sound
-# Script kendi içinde sınırlıyor (ses aygıtını beklemek + çalmak toplam
-# ~15 saniyeyi geçmiyor); bu değer onun üstünde bir güvenlik ağı.
-# Aşılırsa servis başarısız sayılır ama açılış durmaz.
+# The script bounds itself (waiting for the audio device + playing does
+# not exceed ~15 seconds in total); this value is a safety net above
+# that. If exceeded the service counts as failed but the boot goes on.
 TimeoutStartSec=30
 StandardOutput=journal
 StandardError=journal

@@ -1,11 +1,11 @@
-/* Keyboard & Language page (madde 34 + dil-secici.md kuralları).
+/* Keyboard & Language page (madde 34 + dil-secici.md rules).
  *
  * Language list: endonym + translation percent from the build-time
  * JSON; 100% first, then descending, 0% dimmed but selectable with a
  * one-line warning. Selection is written to kavis.conf and to
  * ~/.xsessionrc (LANG for the next session — gettext reads the
  * environment at process start; running apps keep their language).
- * Keyboard layout: ONE global layout via setxkbmap (2F kararı).
+ * Keyboard layout: ONE global layout via setxkbmap (decision 2F).
  */
 
 namespace Kavis.Settings.Pages {
@@ -17,7 +17,7 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        /* --- Dil --- */
+        /* --- Language --- */
         body.pack_start (group (_("Language")), false, false, 0);
         var note = new Gtk.Label ("");
         note.set_xalign (0);
@@ -42,7 +42,7 @@ namespace Kavis.Settings.Pages {
             pct.get_style_context ().add_class ("dim-label");
             box.pack_end (pct, false, false, 0);
             if (lang.percent == 0) {
-                /* Soluk ama SEÇİLEBİLİR (dil-secici.md). */
+                /* Dimmed but SELECTABLE (dil-secici.md). */
                 name.set_opacity (0.5);
             }
             lrow.add (box);
@@ -73,9 +73,9 @@ namespace Kavis.Settings.Pages {
             } else {
                 note.label = _("Applying…");
             }
-            /* B6: sistem dili — yazımlar, locale-gen (pkexec), panel
-             * conf'u izleyip yeniden başlar, bildirim, Ayarlar kendini
-             * yeni dille yeniden açar. */
+            /* B6: system language — file writes, locale-gen (pkexec),
+             * the panel watches the conf and restarts, a notification,
+             * and Settings re-opens itself in the new language. */
             Apply.language (code, Langs.locale_of (code));
         });
         var list_scroll = new Gtk.ScrolledWindow (null, null);
@@ -84,7 +84,7 @@ namespace Kavis.Settings.Pages {
         body.pack_start (list_scroll, false, false, 0);
         body.pack_start (note, false, false, 0);
 
-        /* --- Klavye düzeni --- */
+        /* --- Keyboard layout --- */
         body.pack_start (group (_("Keyboard layout")), false, false, 0);
         var layout = new Gtk.ComboBoxText ();
         string[,] layouts = {
@@ -106,10 +106,10 @@ namespace Kavis.Settings.Pages {
             _("One global layout for every window"), layout),
             false, false, 0);
 
-        /* --- Kısayollar (madde 34: liste; düzenleme yakalama
-         * widget'ı ayrı iş — ayarlar.md taraması) --- */
-        /* B7: bölümler + tuş rozetleri (W11 kısayol listesi). Kaynak
-         * rc.xml (0210 hook'u) ve panelin kendi bağları. */
+        /* --- Shortcuts (madde 34: a list; an editing capture widget
+         * is separate work — ayarlar.md survey) --- */
+        /* B7: sections + key badges (W11 shortcut list). Source: rc.xml
+         * (0210 hook) and the panel's own bindings. */
         body.pack_start (group (_("Shortcuts")), false, false, 0);
         body.pack_start (group (_("System")), false, false, 0);
         add_shortcut (body, "Win", _("Start menu"));

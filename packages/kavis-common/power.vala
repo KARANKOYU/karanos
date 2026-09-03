@@ -1,7 +1,7 @@
 /* Power actions (business logic — no widget code here).
- * KANONİK KOPYA BURASI (kavis-common) — appinit düzeni: derlemede
- * kavis-panel ve kavis-tools src ağaçlarına kopyalanır (6d: Ctrl+
- * Alt+Del ekranı da aynı eylemleri kullanır).
+ * THIS IS THE CANONICAL COPY (kavis-common) — appinit scheme: copied
+ * into the kavis-panel and kavis-tools src trees at build time (6d:
+ * the Ctrl+Alt+Del screen uses the same actions).
  *
  * Via systemd/logind. No sudo: logind already grants the local seated
  * user poweroff/reboot/suspend through polkit, so no password prompt
@@ -16,14 +16,14 @@ namespace Kavis.Power {
      * beats a dead taskbar. */
     private void run (string[] argv) {
         if (Environment.find_program_in_path (argv[0]) == null) {
-            warning ("kavis: %s yok, eylem atlandi", argv[0]);
+            warning ("kavis: %s not found, action skipped", argv[0]);
             return;
         }
         try {
             Process.spawn_async (null, argv, null,
                                  SpawnFlags.SEARCH_PATH, null, null);
         } catch (SpawnError e) {
-            warning ("kavis: %s basarisiz: %s", argv[0], e.message);
+            warning ("kavis: %s failed: %s", argv[0], e.message);
         }
     }
 

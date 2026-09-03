@@ -1,12 +1,13 @@
-# Kavis — hedef dil listesi (Grup F dil seçici + kurulum sihirbazı
-# altyapısı). Weblate depo public olunca po/'yu bağlar; buradaki liste
-# "eklenebilir diller"i besler. .po dosyaları ÖNCEDEN AÇILMAZ — çeviri
-# başlayınca Weblate/katkıcı açar; dosyası olmayan dil %0 sayılır ve
-# gettext eksikte İngilizce msgid gösterir.
-# Bölge kodu yalnız gerektiğinde (en_GB: msgid'ler ABD İngilizcesi,
-# İngiliz yazımı ayrı dosya).
+# Kavis — target language list (infrastructure for the group F language
+# picker and the installer). Weblate will hook po/ up once the repo is
+# public; this list feeds the "languages you can add". The .po files are
+# NOT created up front — Weblate or a contributor creates one when the
+# translation starts; a language without a file counts as 0% and gettext
+# falls back to the English msgid.
+# Region codes only where they matter (en_GB: the msgids are US English,
+# British spelling lives in its own file).
 
-# --- Avrupa ----------------------------------------------------------
+# --- Europe ----------------------------------------------------------
 tr
 en_GB
 de
@@ -45,11 +46,11 @@ ca
 gl
 eu
 
-# --- Amerika ---------------------------------------------------------
+# --- Americas ---------------------------------------------------------
 es_MX
 pt_BR
 
-# --- Orta Doğu -------------------------------------------------------
+# --- Middle East -------------------------------------------------------
 ar
 fa
 he
@@ -57,7 +58,7 @@ ur
 ku
 ckb
 
-# --- Asya ------------------------------------------------------------
+# --- Asia ------------------------------------------------------------
 hi
 bn
 ta
@@ -88,7 +89,7 @@ mn
 ka
 hy
 
-# --- Afrika ----------------------------------------------------------
+# --- Africa ----------------------------------------------------------
 sw
 am
 af

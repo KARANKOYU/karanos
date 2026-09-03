@@ -9,7 +9,7 @@
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
-    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    /* Palette (B2): component CSS takes the @kavis_* names from here. */
     Kavis.Theme.install ();
 
     string tool = (args.length > 1) ? args[1] : "tasks";
@@ -19,8 +19,8 @@ int main (string[] args) {
         window = new Kavis.Tools.CalculatorWindow ();
         break;
     case "emoji":
-        /* Emoji seçici birleşik panele taşındı (sonraki-isler 5):
-         * .desktop girdisi çalışan paneldeki paneli açar. */
+        /* The emoji picker moved into the unified panel (sonraki-isler
+         * 5): the .desktop entry opens the picker in the running panel. */
         try {
             Process.spawn_sync (null, {
                 "gdbus", "call", "--session",
@@ -30,24 +30,25 @@ int main (string[] args) {
             }, null, SpawnFlags.SEARCH_PATH
                | SpawnFlags.STDOUT_TO_DEV_NULL, null, null);
         } catch (Error e) {
-            warning ("kavis-tools: panele ulasilamadi: %s", e.message);
+            warning ("kavis-tools: could not reach the panel: %s", e.message);
         }
         return 0;
     case "capture":
-        /* PrtScr akışı kendi ana döngüsünü yönetir: seçici pencere,
-         * ardından pano bekleyişi ya da kayıt çubuğu. */
+        /* The PrtScr flow runs its own main loop: the selector window,
+         * then the clipboard wait or the recording bar. */
         if (args.length > 2 && args[2] == "--quick") {
             return Kavis.Tools.Capture.quick ();
         }
-        /* --color: Win+Shift+C — seçici doğrudan renk modunda
-         * (sonraki-isler 5c). */
+        /* --color: Win+Shift+C — the selector starts directly in color
+         * mode (sonraki-isler 5c). */
         return Kavis.Tools.Capture.snip (
             args.length > 2 && args[2] == "--color");
     case "alt-f4":
-        /* Masaüstünde Alt+F4 (6e): ÖNCE odaktaki pencere kapatılır;
-         * güç diyaloğu YALNIZ odakta pencere yokken açılır. Tuş
-         * basılı tutulunca her tekrar yeni süreç — tek örnek kilidi
-         * (2B): açıksa mevcut pencere öne gelir, yenisi açılmaz. */
+        /* Alt+F4 on the desktop (6e): the focused window is closed
+         * FIRST; the power dialog opens ONLY when no window has focus.
+         * Holding the key down spawns a new process per repeat — the
+         * single-instance lock (2B): if open, the existing window is
+         * raised and no new one opens. */
         if (Kavis.Tools.AltF4.close_focused_window ()) {
             return 0;
         }
@@ -57,24 +58,24 @@ int main (string[] args) {
         window = new Kavis.Tools.ShutdownDialog ();
         break;
     case "power-dialog":
-        /* Aynı diyalog, odak kontrolü olmadan — Ctrl+Alt+Del
-         * ekranının güç düğmesi çağırır (2D: tek bileşen). */
+        /* The same dialog without the focus check — called by the
+         * Ctrl+Alt+Del screen's power button (2D: one component). */
         if (!Kavis.Tools.SingleInstance.acquire ("kavis-power")) {
             return 0;
         }
         window = new Kavis.Tools.ShutdownDialog ();
         break;
     case "secure-menu":
-        /* Ctrl+Alt+Del (sonraki-isler 6d) — panelden bağımsız.
-         * Aynı tek örnek koruması: basılı tutunca üst üste karartma
-         * katmanı yığılmasın. */
+        /* Ctrl+Alt+Del (sonraki-isler 6d) — independent of the panel.
+         * The same single-instance guard: holding the keys must not
+         * stack dimming layers on top of each other. */
         if (!Kavis.Tools.SingleInstance.acquire ("kavis-secure")) {
             return 0;
         }
         window = new Kavis.Tools.SecureMenuWindow ();
         break;
     case "open-with":
-        /* "Bununla aç" penceresi (sonraki-isler 6c). */
+        /* "Open with" window (sonraki-isler 6c). */
         if (args.length < 3) {
             stderr.printf (_("usage: kavis-tools open-with <file>\n"));
             return 2;
@@ -82,7 +83,8 @@ int main (string[] args) {
         window = new Kavis.Tools.OpenWithWindow (args[2]);
         break;
     case "repair-drive":
-        /* Bağlanamayan USB onarımı (madde 64) — panel bildirimi açar. */
+        /* Repair of a USB drive that fails to mount (madde 64) — the
+         * panel notification opens it. */
         if (args.length < 3) {
             stderr.printf (_("usage: kavis-tools repair-drive <device>\n"));
             return 2;
@@ -90,8 +92,8 @@ int main (string[] args) {
         window = new Kavis.Tools.RepairDriveWindow (args[2]);
         break;
     case "preview":
-        /* Hızlı önizleme (madde 36): org.nemo.Preview servisi.
-         * Dosyasız çağrı D-Bus activation'dan gelir. */
+        /* Quick preview (madde 36): the org.nemo.Preview service. A call
+         * without a file comes from D-Bus activation. */
         return Kavis.Tools.Preview.run (
             (args.length > 2) ? args[2] : null);
     case "tasks":

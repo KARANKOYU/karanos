@@ -7,7 +7,7 @@
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
-    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    /* Palette (B2): component CSS takes the @kavis_* names from here. */
     Kavis.Theme.install ();
 
     var window = new Kavis.Settings.Window ();

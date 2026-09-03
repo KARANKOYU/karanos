@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Görev Yöneticisi
-Name[en]=Task Manager
+Name=Task Manager
+Name[tr]=Görev Yöneticisi
 Exec=kavis-tools tasks
 Icon=utilities-system-monitor
 Categories=System;Monitor;

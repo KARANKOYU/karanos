@@ -1,35 +1,35 @@
-name: ISO derle ve test et
+name: Build and test ISO
 
-# Yerelde ISO DERLEMEYECEĞİZ — Codespace 2 çekirdek, derleme 40+ dakika ve
-# ~15 GB disk ister. Tüm derleme ve QEMU testi burada, GitHub'ın makinesinde.
+# We will NOT build the ISO locally — a Codespace has 2 cores, the build
+# takes 40+ minutes and wants ~15 GB of disk. All building and the QEMU
+# test happen here, on GitHub's machine.
 
-# TETİKLEYİCİLER (madde 22): her push'ta derleme YOK — her commit 25-40
-# dakika sürüyor ve Actions kotasını yakıyordu. ISO yalnızca iki yolla
-# derlenir:
-#   1. Actions sekmesinden elle (Run workflow)
-#   2. v* etiketi push edilince (yayın)
-# Hızlı kontroller (lint.yml) her push'ta koşmaya devam ediyor.
+# TRIGGERS (item 22): NO build on every push — every commit took 25-40
+# minutes and burned the Actions quota. The ISO is built only two ways:
+#   1. Manually from the Actions tab (Run workflow)
+#   2. When a v* tag is pushed (release)
+# The quick checks (lint.yml) keep running on every push.
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Sürüm (örn. 1.0-test)"
+        description: "Version (e.g. 1.0-test)"
         required: false
         default: "1.0-dev"
       smoke_test:
-        description: "QEMU duman testini çalıştır"
+        description: "Run the QEMU smoke test"
         type: boolean
         default: true
       release:
-        description: "Bitince taslak öndeğerlendirme sürümü (pre-release) yayınla"
+        description: "Publish a pre-release when done"
         type: boolean
         default: false
   push:
     tags:
       - "v*"
-  # Haftalık sağlamlık koşusu (madde 72, kararlar.md 9a): güncel
-  # trixie ile derle + 5 profil QEMU; kırmızıysa "haftalik-issue" işi
-  # otomatik issue açar. Pazartesi 03:00 UTC.
+  # Weekly robustness run (item 72, kararlar.md 9a): build against current
+  # trixie + 5 QEMU profiles; if red, the "weekly-issue" job opens an
+  # issue automatically. Monday 03:00 UTC.
   schedule:
     - cron: "0 3 * * 1"
 
@@ -37,38 +37,39 @@ concurrency:
   group: iso-${{ github.ref }}
   cancel-in-progress: true
 
-# Hedef mimari TEK yerden (çok-mimarili hazırlık kuralı). arm64 ISO'su
-# istendiği gün burada değer değiştirmek (veya matrise almak) yetmeli;
-# auto/config ve paket listeleri değişkene/koşullara göre davranıyor.
-# arm64 derlemesi bilinçli olarak CI'a EKLENMEDİ — kota.
+# Target architecture from ONE place (multi-arch rule). The day an arm64
+# ISO is wanted, changing the value here (or moving it into a matrix)
+# should be enough; auto/config and the package lists follow the
+# variable/conditions. The arm64 build is deliberately NOT in CI — quota.
 env:
-  KAVIS_MIMARI: amd64
+  KAVIS_ARCH: amd64
 
 jobs:
   # ------------------------------------------------------------------
-  # ISO'ya giren .deb ile test edilen .deb aynı koşunun ürünü olsun diye
-  # paketleri ayrı bir iş akışından değil, buradan çağırıyoruz.
+  # So that the .deb going into the ISO and the .deb being tested come
+  # from the same run, the packages are called from here rather than
+  # from a separate workflow.
   packages:
-    name: Paketler
+    name: Packages
     uses: ./.github/workflows/build-packages.yml
 
   # ------------------------------------------------------------------
   build:
-    name: ISO derle
+    name: Build ISO
     needs: packages
     runs-on: ubuntu-latest
     timeout-minutes: 120
     container:
       image: debian:trixie
-      # live-build chroot kurar, loop/mount kullanır — ayrıcalıklı olmalı
+      # live-build sets up a chroot and uses loop/mount — must be privileged
       options: --privileged
     outputs:
       version: ${{ steps.meta.outputs.version }}
       iso_name: ${{ steps.meta.outputs.iso_name }}
       product: ${{ steps.meta.outputs.product }}
-      mimari: ${{ steps.meta.outputs.mimari }}
+      arch: ${{ steps.meta.outputs.arch }}
     steps:
-      - name: Derleme bağımlılıkları
+      - name: Build dependencies
         run: |
           set -eux
           export DEBIAN_FRONTEND=noninteractive
@@ -77,8 +78,8 @@ jobs:
             live-build debootstrap squashfs-tools xorriso \
             dosfstools mtools \
             ca-certificates git curl rsync file sudo
-          # Önyükleyici araçları hedef mimariye göre (grub-pc yalnız x86)
-          case "$KAVIS_MIMARI" in
+          # Bootloader tools per target architecture (grub-pc is x86 only)
+          case "$KAVIS_ARCH" in
             amd64) apt-get install -y --no-install-recommends \
                      grub-pc-bin grub-efi-amd64-bin ;;
             arm64) apt-get install -y --no-install-recommends \
@@ -87,15 +88,17 @@ jobs:
 
       - uses: actions/checkout@v7
 
-      - name: Sürüm bilgisi
+      - name: Version info
         id: meta
         run: |
           set -eu
-          # Ürün adı/kimliği tek kaynaktan: tema paketindeki os-release.
-          # ISO adına küçük harfli kimlik (ID), görünen yerlere NAME gider.
-          # DİKKAT: os-release kendi VERSION="1.0" değişkenini de tanımlar;
-          # bu yüzden ÖNCE kaynaklanır, koşunun sürümü SONRA yazılır —
-          # v0.2-test3'te sıra tersti ve ISO adı yanlışlıkla 1.0 olmuştu.
+          # Product name/id from a single source: the theme package's
+          # os-release. The lowercase id (ID) goes into the ISO name,
+          # NAME into visible places.
+          # CAUTION: os-release also defines its own VERSION="1.0"; so it
+          # is sourced FIRST and the run's version is written AFTER —
+          # in v0.2-test3 the order was reversed and the ISO name
+          # wrongly became 1.0.
           . packages/kavis-theme/src/os-release
           if [ "${{ github.ref_type }}" = "tag" ]; then
             VERSION="${GITHUB_REF_NAME#v}"
@@ -103,18 +106,18 @@ jobs:
             VERSION="${{ inputs.version || 'main-dev' }}"
           fi
           echo "version=${VERSION}"                            >> "$GITHUB_OUTPUT"
-          echo "iso_name=${ID}-${VERSION}-${KAVIS_MIMARI}.iso" >> "$GITHUB_OUTPUT"
+          echo "iso_name=${ID}-${VERSION}-${KAVIS_ARCH}.iso" >> "$GITHUB_OUTPUT"
           echo "product=${NAME}"                               >> "$GITHUB_OUTPUT"
-          echo "mimari=${KAVIS_MIMARI}"                        >> "$GITHUB_OUTPUT"
-          echo "Sürüm: ${NAME} ${VERSION} (${KAVIS_MIMARI})"
+          echo "arch=${KAVIS_ARCH}"                            >> "$GITHUB_OUTPUT"
+          echo "Version: ${NAME} ${VERSION} (${KAVIS_ARCH})"
 
-      # apt paket önbelleği (madde 22): live-build indirdiği tüm .deb'leri
-      # ve debootstrap arşivini iso/cache altında tutuyor. Bunu koşular
-      # arasında saklamak, değişmeyen paketlerin her koşuda yeniden
-      # inmesini engelliyor. Anahtar paket listelerine bağlı: listeler
-      # değişince yeni önbellek yazılır, kısmi eşleşme (restore-keys)
-      # eskisinden başlar.
-      - name: live-build önbelleği
+      # apt package cache (item 22): live-build keeps every .deb it
+      # downloads and the debootstrap archive under iso/cache. Keeping it
+      # between runs stops unchanged packages from being downloaded again
+      # every run. The key depends on the package lists: when the lists
+      # change a new cache is written, a partial match (restore-keys)
+      # starts from the old one.
+      - name: live-build cache
         uses: actions/cache@v4
         with:
           path: iso/cache
@@ -122,36 +125,36 @@ jobs:
           restore-keys: |
             lb-cache-
 
-      - name: live-build yapılandır
+      - name: Configure live-build
         working-directory: iso
         env:
           KAVIS_VERSION: ${{ steps.meta.outputs.version }}
         run: |
           set -eux
           chmod +x auto/config auto/build auto/clean
-          # .hook.chroot ve .hook.binary — ikisi de çalıştırılabilir olmalı
+          # .hook.chroot and .hook.binary — both must be executable
           chmod +x config/hooks/normal/*.hook.*
-          # --purge KULLANMA: cache/ dizinini de siler ve actions/cache ile
-          # geri getirilen apt önbelleğini çöpe atar. Temiz CI çalışma
-          # alanında purge'un sildiği başka bir şey de yok.
+          # Do NOT use --purge: it also deletes cache/ and throws away
+          # the apt cache restored by actions/cache. In a clean CI
+          # workspace there is nothing else purge would delete anyway.
           lb clean || true
           lb config
 
-      # live-build, config/packages.chroot/ altındaki .deb'leri chroot'a
-      # kendiliğinden kuruyor. APT deposu 13. aşamada gelene kadar
-      # kavis-* paketleri ISO'ya bu yoldan giriyor.
-      # DİKKAT: `lb config`ten SONRA indiriliyor — lb'nin config ağacını
-      # yeniden kurduğu bir durumda .deb'lerin silinmemesi için.
-      - name: kavis-* paketlerini indir
+      # live-build installs the .deb files under config/packages.chroot/
+      # into the chroot on its own. Until the APT repository arrives in
+      # stage 13, the kavis-* packages enter the ISO this way.
+      # CAUTION: downloaded AFTER `lb config` — so the .deb files are not
+      # deleted in case lb rebuilds the config tree.
+      - name: Download kavis-* packages
         uses: actions/download-artifact@v8
         with:
           name: kavis-packages
           path: iso/config/packages.chroot
 
-      - name: Yerleşen paketleri göster
+      - name: Show the placed packages
         run: ls -lh iso/config/packages.chroot/
 
-      - name: ISO derle
+      - name: Build ISO
         working-directory: iso
         env:
           KAVIS_VERSION: ${{ steps.meta.outputs.version }}
@@ -159,13 +162,14 @@ jobs:
           set -eux
           lb build
 
-      - name: ISO'yu adlandır ve özetini çıkar
+      - name: Name the ISO and compute its checksum
         id: pack
         working-directory: iso
         run: |
           set -eux
-          # Dosya adı auto/config'deki --image-name'den (os-release ID)
-          # gelir; ada bağımlı kalmamak için her .hybrid.iso kabul ediliyor.
+          # The file name comes from --image-name in auto/config
+          # (os-release ID); any .hybrid.iso is accepted so as not to
+          # depend on the name.
           SRC=$(ls -1 ./*.hybrid.iso 2>/dev/null | head -1)
           mkdir -p ../out
           mv "$SRC" "../out/${{ steps.meta.outputs.iso_name }}"
@@ -175,113 +179,115 @@ jobs:
           sha256sum "${{ steps.meta.outputs.iso_name }}" > SHA256SUMS
           ls -lh
 
-      # QEMU testi 25 dakika sürüyor. Önyükleyici hatasını 5 saniyede
-      # yakalayabiliyorsak orada yakalayalım: ISO'nun içindeki GRUB
-      # yapılandırmasını çıkarıp beklediğimiz satırlar var mı diye bak.
-      - name: ISO içi önyükleyici doğrulaması
+      # The QEMU test takes 25 minutes. If a bootloader error can be
+      # caught in 5 seconds, catch it there: extract the GRUB
+      # configuration from inside the ISO and look for the lines we expect.
+      - name: In-ISO bootloader verification
         working-directory: out
         run: |
           set -eu
           ISO="${{ steps.meta.outputs.iso_name }}"
           rm -rf grubcheck && mkdir grubcheck
-          # Menü girdileri grub.cfg'de, ayarlar config.cfg'de — bu ayrım
-          # v0.2-test1'de öğrenildi; iki dosya da denetleniyor.
+          # Menu entries are in grub.cfg, settings in config.cfg — this
+          # split was learned in v0.2-test1; both files are checked.
           xorriso -osirrox on -indev "$ISO" \
             -extract /boot/grub/config.cfg grubcheck/config.cfg \
             -extract /boot/grub/grub.cfg grubcheck/grub.cfg 2>/dev/null
-          echo "--- ISO içindeki grub.cfg sonu ---"
+          echo "--- tail of grub.cfg inside the ISO ---"
           tail -25 grubcheck/grub.cfg
           echo "------------------------------------"
-          hata=0
+          fail=0
           if grep -q '^set timeout=' grubcheck/config.cfg; then
-            echo "✓ set timeout var — menü kendiliğinden açılacak (B1: gizli, Shift ile görünür)"
+            echo "✓ set timeout present — menu proceeds on its own (B1: hidden, Shift shows it)"
           else
-            echo "::error::GRUB config.cfg içinde 'set timeout' YOK. ISO menüde takılır."
-            hata=1
+            echo "::error::GRUB config.cfg has NO 'set timeout'. The ISO will hang in the menu."
+            fail=1
           fi
           if grep -q 'terminal_output --append serial' grubcheck/config.cfg; then
-            echo "✓ seri konsol var — CI menüyü görebilir"
+            echo "✓ serial console present — CI can see the menu"
           else
-            echo "::warning::GRUB seri konsola yazmıyor, hata ayıklaması zorlaşır"
+            echo "::warning::GRUB does not write to the serial console, debugging gets harder"
           fi
           for f in config.cfg grub.cfg; do
             if grub-script-check "grubcheck/$f"; then
-              echo "✓ $f GRUB sözdizimi geçerli"
+              echo "✓ $f GRUB syntax valid"
             else
-              echo "::error::$f GRUB sözdizimi HATALI — menü hiç açılmaz"
-              hata=1
+              echo "::error::$f GRUB syntax INVALID — the menu will never open"
+              fail=1
             fi
           done
-          # Marka ve gelişmiş menü (9600 + 9601): ürün adı tek kaynaktan.
-          # Adım working-directory: out ile çalışıyor — yol depo köküne göre.
+          # Branding and advanced menu (9600 + 9601): product name from a
+          # single source. The step runs with working-directory: out —
+          # path relative to the repo root.
           . "$GITHUB_WORKSPACE/packages/kavis-theme/src/os-release"
-          markali=$(grep -c "menuentry \"$NAME" grubcheck/grub.cfg || true)
-          if [ "$markali" -ge 1 ]; then
-            echo "✓ markalı girdi sayısı: $markali"
+          branded=$(grep -c "menuentry \"$NAME" grubcheck/grub.cfg || true)
+          if [ "$branded" -ge 1 ]; then
+            echo "✓ branded entry count: $branded"
           else
-            echo "::error::grub.cfg'de '$NAME' adlı girdi YOK — 9600 hook'u incele"
-            hata=1
+            echo "::error::grub.cfg has NO entry named '$NAME' — inspect the 9600 hook"
+            fail=1
           fi
           if grep -q '^submenu "Advanced menu (F3)"' grubcheck/grub.cfg; then
-            echo "✓ Advanced menu (F3) var"
+            echo "✓ Advanced menu (F3) present"
           else
-            echo "::error::Advanced menu (F3) grub.cfg'de YOK — 9601 hook'u incele"
-            hata=1
+            echo "::error::Advanced menu (F3) NOT in grub.cfg — inspect the 9601 hook"
+            fail=1
           fi
           if grep -q "submenu 'Utilities" grubcheck/grub.cfg; then
-            echo "::warning::İngilizce Utilities alt menüsü hâlâ duruyor"
+            echo "::warning::The stock Utilities submenu is still there"
           fi
           rm -rf grubcheck
-          exit $hata
+          exit $fail
 
-      - name: Boyut kontrolü (sınır 1900 MB, kararlar.md 8)
+      - name: Size check (limit 1900 MB, kararlar.md 8)
         working-directory: out
         run: |
           set -eu
           BYTES=$(stat -c%s "${{ steps.meta.outputs.iso_name }}")
           MB=$((BYTES / 1024 / 1024))
-          # Grup G kararı 8 (3 Eyl): 1536 → 1900 (GitHub Release 2 GiB
-          # sınırına pay); 1700 üstü erken uyarı.
+          # Group G decision 8 (3 Sep): 1536 → 1900 (headroom under the
+          # GitHub Release 2 GiB limit); early warning above 1700.
           LIMIT=1900
           WARN=1700
-          echo "ISO boyutu: ${MB} MB (sınır ${LIMIT} MB)"
+          echo "ISO size: ${MB} MB (limit ${LIMIT} MB)"
           {
             echo "### ISO"
             echo ""
-            echo "| Alan | Değer |"
+            echo "| Field | Value |"
             echo "|---|---|"
-            echo "| Dosya | \`${{ steps.meta.outputs.iso_name }}\` |"
-            echo "| Boyut | **${MB} MB** / ${LIMIT} MB |"
+            echo "| File | \`${{ steps.meta.outputs.iso_name }}\` |"
+            echo "| Size | **${MB} MB** / ${LIMIT} MB |"
             echo "| sha256 | \`$(cut -d' ' -f1 "${{ steps.meta.outputs.iso_name }}.sha256")\` |"
           } >> "$GITHUB_STEP_SUMMARY"
-          # Madde 46A: boyut sınırı artık HATA — GitHub release sınırı ve
-          # kullanıcının indirme bütçesi; uyarı olarak kalınca büyüme
-          # sessizce birikiyordu.
+          # Item 46A: the size limit is now an ERROR — GitHub release
+          # limit and the user's download budget; as a warning, growth
+          # accumulated silently.
           if [ "$MB" -gt "$LIMIT" ]; then
-            echo "::error::ISO ${MB} MB — ${LIMIT} MB sınırının ÜSTÜNDE"
+            echo "::error::ISO ${MB} MB — ABOVE the ${LIMIT} MB limit"
             exit 1
           elif [ "$MB" -gt "$WARN" ]; then
-            echo "::warning::ISO ${MB} MB — ${WARN} MB uyarı eşiğini aştı (sınır ${LIMIT})"
+            echo "::warning::ISO ${MB} MB — exceeded the ${WARN} MB warning threshold (limit ${LIMIT})"
           fi
 
-      - name: Paket listesini kaydet (boyut ayıklaması için)
+      - name: Save the package list (for size analysis)
         if: always()
         working-directory: iso
         run: |
           set -eu
           mkdir -p ../out
           if [ -f chroot.packages.live ]; then
-            cp chroot.packages.live ../out/paket-listesi.txt
+            cp chroot.packages.live ../out/package-list.txt
           fi
           cp build.log ../out/build.log 2>/dev/null || true
 
-      - name: Bağımlılık aralıkları (DEPS-RANGE, madde 72)
-        # kavis-* control dosyalarındaki >= / << sınırları ISO'ya giren
-        # gerçek sürümlerle karşılaştırılır; dpkg zaten kuruluşta
-        # zorlar ama burada hangi paket sınıra dayandı açıkça görünsün.
-        run: tools/check-deps-range.sh out/paket-listesi.txt
+      - name: Dependency ranges (DEPS-RANGE, item 72)
+        # The >= / << bounds in the kavis-* control files are compared
+        # with the real versions that went into the ISO; dpkg enforces
+        # them at install anyway, but here it is visible which package
+        # is up against its bound.
+        run: tools/check-deps-range.sh out/package-list.txt
 
-      - name: ISO'yu yükle
+      - name: Upload ISO
         uses: actions/upload-artifact@v7
         with:
           name: kavis-iso
@@ -289,7 +295,7 @@ jobs:
           retention-days: 14
           compression-level: 0
 
-      - name: Derleme günlüğünü yükle (hata durumunda da)
+      - name: Upload build log (also on failure)
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -302,32 +308,33 @@ jobs:
 
   # ------------------------------------------------------------------
   smoke-test:
-    name: QEMU ${{ matrix.mode }} (${{ matrix.profil }})
+    name: QEMU ${{ matrix.mode }} (${{ matrix.profile }})
     needs: build
-    # Duman testi şimdilik yalnız amd64 için var (qemu-system-x86 + OVMF).
-    # arm64 günü geldiğinde qemu-system-arm + AAVMF ile ayrı bir yol yazılacak.
+    # The smoke test exists only for amd64 for now (qemu-system-x86 + OVMF).
+    # When arm64's day comes a separate path with qemu-system-arm + AAVMF will be written.
     if: >-
-      needs.build.outputs.mimari == 'amd64' &&
+      needs.build.outputs.arch == 'amd64' &&
       (github.event_name != 'workflow_dispatch' || inputs.smoke_test)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
       fail-fast: false
-      # Madde 46A: üç açılış kipi varsayılan profille + iki donanım
-      # profili (2 GB/tek çekirdek ve 4 GB/4 çekirdek + virtio ekran)
-      # UEFI'de. Profil değerleri "Duman testi" adımındaki case'te.
+      # Item 46A: three boot modes with the default profile + two
+      # hardware profiles (2 GB/single core and 4 GB/4 cores + virtio
+      # display) under UEFI. Profile values are in the case in the
+      # "Smoke test" step.
       matrix:
         mode: [bios, uefi, secureboot]
-        profil: [varsayilan]
+        profile: [default]
         include:
           - mode: uefi
-            profil: dusuk
+            profile: low
           - mode: uefi
-            profil: genis
+            profile: wide
     container:
       image: debian:trixie
     steps:
-      - name: QEMU ve OVMF
+      - name: QEMU and OVMF
         run: |
           set -eux
           export DEBIAN_FRONTEND=noninteractive
@@ -338,77 +345,77 @@ jobs:
 
       - uses: actions/checkout@v7
 
-      - name: ISO'yu indir
+      - name: Download ISO
         uses: actions/download-artifact@v8
         with:
           name: kavis-iso
           path: out
 
-      - name: Duman testi
+      - name: Smoke test
         env:
           TIMEOUT: 900
-          SERIAL_OUT: ${{ github.workspace }}/tani/serial-${{ matrix.mode }}-${{ matrix.profil }}.log
-          SCREENSHOT_DIR: ${{ github.workspace }}/tani
+          SERIAL_OUT: ${{ github.workspace }}/diag/serial-${{ matrix.mode }}-${{ matrix.profile }}.log
+          SCREENSHOT_DIR: ${{ github.workspace }}/diag
         run: |
           set -eu
-          mkdir -p tani
+          mkdir -p diag
           chmod +x tools/qemu-smoke-test.sh
-          # Donanım profilleri (madde 46A)
-          case "${{ matrix.profil }}" in
-            dusuk) export RAM_MB=2048 CPUS=1 ;;
-            genis) export RAM_MB=4096 CPUS=4 VGA=virtio ;;
-            varsayilan) : ;;
+          # Hardware profiles (item 46A)
+          case "${{ matrix.profile }}" in
+            low) export RAM_MB=2048 CPUS=1 ;;
+            wide) export RAM_MB=4096 CPUS=4 VGA=virtio ;;
+            default) : ;;
           esac
           ISO=$(ls out/*.iso | head -1)
           tools/qemu-smoke-test.sh "$ISO" "${{ matrix.mode }}"
 
-      # Madde 46A: sonuçlar tablo hâlinde job summary'ye; boşta RAM
-      # 1 GB'ı aşarsa UYARI (canlı oturumda squashfs RAM overlay'i
-      # yüzünden kurulu sistemden yüksek çıkar — bu yüzden hata değil).
-      - name: Sonuç özeti
+      # Item 46A: results as a table in the job summary; if idle RAM
+      # exceeds 1 GB → WARNING (in the live session the squashfs RAM
+      # overlay makes it higher than an installed system — hence not an error).
+      - name: Result summary
         if: always()
         run: |
           set -eu
-          seri="tani/serial-${{ matrix.mode }}-${{ matrix.profil }}.log"
-          [ -f "$seri" ] || { echo "seri günlük yok"; exit 0; }
+          serial="diag/serial-${{ matrix.mode }}-${{ matrix.profile }}.log"
+          [ -f "$serial" ] || { echo "no serial log"; exit 0; }
           {
-            echo "### QEMU ${{ matrix.mode }} (${{ matrix.profil }})"
+            echo "### QEMU ${{ matrix.mode }} (${{ matrix.profile }})"
             echo ""
-            echo "| Kontrol | Sonuç |"
+            echo "| Check | Result |"
             echo "|---|---|"
-            grep -o 'KAVIS-CHECK: [A-Z-]*=\?[^\r]*' "$seri" \
+            grep -o 'KAVIS-CHECK: [A-Z-]*=\?[^\r]*' "$serial" \
               | sed 's/^KAVIS-CHECK: //' \
               | grep -E '^(RESULT|MEM-USED|BOOT-MODE|SECURE-BOOT|FAILED-CHECKS|SPLASH-TIMING|SOUND-DELAY|PANEL-RSS|PANEL-USS|SETTINGS)' \
               | sed 's/^\([A-Z-]*\)=\?/| \1 | /; s/$/ |/' || true
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
-          mem=$(grep -o 'KAVIS-CHECK: MEM-USED=[0-9]*' "$seri" | grep -o '[0-9]*' | tail -1 || true)
+          mem=$(grep -o 'KAVIS-CHECK: MEM-USED=[0-9]*' "$serial" | grep -o '[0-9]*' | tail -1 || true)
           if [ -n "${mem:-}" ] && [ "$mem" -gt 1024 ]; then
-            echo "::warning::Boşta RAM ${mem} MB — 1 GB hedefinin üstünde (${{ matrix.mode }}/${{ matrix.profil }})"
+            echo "::warning::Idle RAM ${mem} MB — above the 1 GB target (${{ matrix.mode }}/${{ matrix.profile }})"
           fi
 
-      # Boot başarısız olursa ekran görüntüsü olmadan teşhis etmek zor. ISO
-      # elle de indirilebiliyor ama 40 dakikalık koşuyu tahminle harcamamak
-      # için önce buradaki günlük ve karelere bakılır.
-      - name: Teşhis dosyalarını yükle (seri günlük + ekran görüntüsü)
+      # If boot fails, diagnosing without a screenshot is hard. The ISO
+      # can be downloaded by hand too, but to avoid burning a 40-minute
+      # run on guesswork, the log and frames here are looked at first.
+      - name: Upload diagnostics (serial log + screenshots)
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: tani-${{ matrix.mode }}-${{ matrix.profil }}
-          path: tani/
+          name: diag-${{ matrix.mode }}-${{ matrix.profile }}
+          path: diag/
           retention-days: 7
           if-no-files-found: ignore
 
   # ------------------------------------------------------------------
-  # NEDEN DAHA ÖNCE HİÇ ÇALIŞMADI (madde 22 incelemesi): iş yalnızca
-  # `github.ref_type == 'tag'` iken koşuyordu ve depoya bugüne dek hiç
-  # v* etiketi push edilmedi — yani adım hatalı değildi, hiç tetiklenmedi.
-  # Üstüne `draft: true` vardı: etiket atılsaydı bile sürüm taslak olarak
-  # oluşacak, Releases sayfasında görünmeyecekti.
-  # Düzeltme: (1) elle koşuda "release" kutusu işaretlenirse de yayınlanır
-  # (pre-release olarak, v<sürüm> etiketiyle), (2) taslak kapatıldı.
-  haftalik-issue:
-    name: Haftalık koşu kırmızı → issue
+  # WHY IT NEVER RAN BEFORE (item 22 review): the job ran only when
+  # `github.ref_type == 'tag'` and no v* tag had ever been pushed to the
+  # repo — so the step was not broken, it was never triggered.
+  # On top of that there was `draft: true`: even with a tag the release
+  # would have been created as a draft and not shown on the Releases page.
+  # Fix: (1) it also publishes when the "release" box is ticked in a
+  # manual run (as a pre-release, with a v<version> tag), (2) draft disabled.
+  weekly-issue:
+    name: Weekly run red → issue
     needs: [build, smoke-test]
     if: >-
       always() && github.event_name == 'schedule' &&
@@ -420,10 +427,10 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          pattern: tani-*
-          path: tani
+          pattern: diag-*
+          path: diag
         continue-on-error: true
-      - name: Issue aç ya da yorum ekle
+      - name: Open an issue or add a comment
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -432,43 +439,43 @@ jobs:
           SMOKE_RESULT: ${{ needs.smoke-test.result }}
         run: |
           set -eu
-          # Başlık: kırılan denetimler (seri günlüklerdeki FAILED-CHECKS);
-          # derleme kırıldıysa "derleme".
-          kirilan=$(grep -rh "KAVIS-CHECK: FAILED-CHECKS=" tani 2>/dev/null \
+          # Title: the broken checks (FAILED-CHECKS from the serial logs);
+          # "build" if the build broke.
+          broken=$(grep -rh "KAVIS-CHECK: FAILED-CHECKS=" diag 2>/dev/null \
             | sed 's/.*FAILED-CHECKS=//' | tr ' ' '\n' | sort -u | tr '\n' ' ' || true)
           if [ "$BUILD_RESULT" = "failure" ]; then
-            kirilan="derleme ${kirilan}"
+            broken="build ${broken}"
           fi
-          kirilan=$(printf '%s' "$kirilan" | sed 's/ *$//')
-          [ -n "$kirilan" ] || kirilan="bilinmiyor"
-          baslik="trixie güncellemesi kırdı: ${kirilan}"
-          govde="Haftalık zamanlanmış koşu ($(date -u +%Y-%m-%d)) kırmızı.
-          - derleme: ${BUILD_RESULT}
-          - QEMU duman testi: ${SMOKE_RESULT}
-          - kırılan denetimler: ${kirilan}
-          - koşu: ${RUN_URL}"
-          gh label create trixie-haftalik --repo "$REPO" --force \
-            --description "Haftalık trixie koşusu kırmızı" --color B60205
-          acik=$(gh issue list --repo "$REPO" --label trixie-haftalik --state open \
+          broken=$(printf '%s' "$broken" | sed 's/ *$//')
+          [ -n "$broken" ] || broken="unknown"
+          title="trixie update broke: ${broken}"
+          body="Weekly scheduled run ($(date -u +%Y-%m-%d)) is red.
+          - build: ${BUILD_RESULT}
+          - QEMU smoke test: ${SMOKE_RESULT}
+          - broken checks: ${broken}
+          - run: ${RUN_URL}"
+          gh label create trixie-weekly --repo "$REPO" --force \
+            --description "Weekly trixie run is red" --color B60205
+          open_issue=$(gh issue list --repo "$REPO" --label trixie-weekly --state open \
             --json number --jq '.[0].number // empty')
-          if [ -n "$acik" ]; then
-            gh issue comment "$acik" --repo "$REPO" --body "$govde"
-            echo "Açık issue #$acik'e yorum eklendi."
+          if [ -n "$open_issue" ]; then
+            gh issue comment "$open_issue" --repo "$REPO" --body "$body"
+            echo "Comment added to open issue #$open_issue."
           else
-            gh issue create --repo "$REPO" --label trixie-haftalik \
-              --title "$baslik" --body "$govde"
+            gh issue create --repo "$REPO" --label trixie-weekly \
+              --title "$title" --body "$body"
           fi
 
   release:
-    name: Releases'e yükle
+    name: Upload to Releases
     needs: [build, smoke-test]
-    # `needs` içindeki smoke-test elle koşuda kapatılabiliyor; atlanmış
-    # bağımlılık normalde bu işi de atlatır. O yüzden koşul açık açık:
-    # derleme başarılı + duman testi başarılı YA DA atlanmış olmalı.
-    # `v*-test*` etiketleri release ÜRETMEZ: Codespace token'ı
-    # workflow_dispatch yapamadığı (403) için derleme+test koşusunu
-    # başlatmanın tek otonom yolu etiket push'u — test etiketleri bu iş
-    # için var, Releases sayfasını kirletmesin.
+    # smoke-test in `needs` can be disabled in a manual run; a skipped
+    # dependency would normally skip this job too. So the condition is
+    # explicit: build succeeded + smoke test succeeded OR skipped.
+    # `v*-test*` tags do NOT produce a release: the Codespace token cannot
+    # do workflow_dispatch (403), so pushing a tag is the only autonomous
+    # way to start a build+test run — test tags exist for that and must
+    # not litter the Releases page.
     if: >-
       !cancelled() &&
       needs.build.result == 'success' &&
@@ -484,13 +491,13 @@ jobs:
           name: kavis-iso
           path: out
 
-      - name: Release oluştur
+      - name: Create release
         uses: softprops/action-gh-release@v3
         with:
           name: ${{ needs.build.outputs.product }} ${{ needs.build.outputs.version }}
-          # Elle koşuda etiket yok; sürümden bir etiket adı türetiliyor ve
-          # o koşunun commit'ine iliştiriliyor. Etiket push'unda bu iki
-          # satır etkisiz (mevcut etiket kullanılır).
+          # A manual run has no tag; a tag name is derived from the
+          # version and attached to that run's commit. On a tag push
+          # these two lines have no effect (the existing tag is used).
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', needs.build.outputs.version) }}
           target_commitish: ${{ github.sha }}
           draft: false
@@ -502,14 +509,14 @@ jobs:
           body: |
             ## ${{ needs.build.outputs.product }} ${{ needs.build.outputs.version }}
 
-            **Dosya:** `${{ needs.build.outputs.iso_name }}`
+            **File:** `${{ needs.build.outputs.iso_name }}`
 
-            ### Kurulum
-            1. ISO'yu indir, `SHA256SUMS` ile doğrula
-            2. USB'ye yaz (balenaEtcher, Rufus veya `dd`)
-            3. USB'den aç → canlı sistemi dene veya kur
+            ### Installation
+            1. Download the ISO, verify it with `SHA256SUMS`
+            2. Write it to a USB stick (balenaEtcher, Rufus or `dd`)
+            3. Boot from the USB → try the live system or install
 
-            Doğrulama:
+            Verification:
             ```
             sha256sum -c ${{ needs.build.outputs.iso_name }}.sha256
             ```

@@ -1,4 +1,4 @@
-/* Snap layout menu (UI layer) — sonraki-isler bölüm 4.
+/* Snap layout menu (UI layer) — sonraki-isler section 4.
  *
  * Win+Z opens a small centered popup showing layout schemas (halves,
  * two-thirds, quarters, thirds); hovering lights a cell, clicking
@@ -76,7 +76,7 @@ namespace Kavis.Ui {
             grid.set_border_width (14);
             add (grid);
 
-            /* 2 sütun: yarımlar, üçte iki; çeyrekler, üçler. */
+            /* 2 columns: halves, two-thirds; quarters, thirds. */
             Cell[] halves = {
                 { 0, 0, 0.5, 1 }, { 0.5, 0, 0.5, 1 }
             };
@@ -144,8 +144,8 @@ namespace Kavis.Ui {
             if (window == null) {
                 return;
             }
-            /* Menü açıkken pencere kapanmış olabilir — unowned işaretçi
-             * sarkmasın (debug turu bulgusu). */
+            /* The window may have closed while the menu was open — do
+             * not let the unowned pointer dangle (debug-pass finding). */
             bool alive = false;
             foreach (unowned Wnck.Window candidate in
                      Wnck.Screen.get_default ().get_windows ()) {
@@ -162,7 +162,7 @@ namespace Kavis.Ui {
             var display = Gdk.Display.get_default ();
             var monitor = display.get_monitor_at_point (
                 wx + ww / 2, wy + wh / 2);
-            /* Workarea: panel şeridi düşülmüş alan. */
+            /* Workarea: the area with the panel strut subtracted. */
             Gdk.Rectangle area = monitor.get_workarea ();
             int x = area.x + (int) (cell.fx * area.width);
             int y = area.y + (int) (cell.fy * area.height);
@@ -177,8 +177,8 @@ namespace Kavis.Ui {
             window.activate (Gtk.get_current_event_time ());
         }
 
-        /* Menü açılırken ETKİN pencere hedeftir; popup WM odağı
-         * almaz, pencere etkin kalır. */
+        /* The window ACTIVE when the menu opens is the target; the popup
+         * takes no WM focus, so the window stays active. */
         public void open () {
             if (get_visible ()) {
                 dismiss ();

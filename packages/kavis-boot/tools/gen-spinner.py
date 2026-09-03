@@ -14,7 +14,7 @@ SIZE, R, DOT = 48, 17, 4.2
 for frame in range(8):
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" viewBox="0 0 {SIZE} {SIZE}">']
     for i in range(8):
-        # parlak nokta çerçeveyle döner; arkasındakiler solar
+        # the bright dot rotates with the frame; the ones behind it fade
         age = (i - frame) % 8
         opacity = 1.0 - age * 0.11
         a = math.radians(i * 45 - 90)
@@ -23,4 +23,4 @@ for frame in range(8):
         parts.append(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{DOT}" fill="#2DD4BF" fill-opacity="{opacity:.2f}"/>')
     parts.append("</svg>")
     (out / f"spinner-{frame}.svg").write_text("\n".join(parts) + "\n")
-print(f"{out}: 8 kare")
+print(f"{out}: 8 frames")

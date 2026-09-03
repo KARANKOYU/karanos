@@ -1,15 +1,16 @@
 [Unit]
-Description=Kavis acilis dogrulamasi (CI duman testi)
+Description=Kavis boot check (CI smoke test)
 Documentation=https://github.com/KARANKOYU/karanos
 After=graphical.target
-# Sadece canlı (USB/ISO) oturumda çalışır — kurulu sistemde çalışmaz.
+# Runs only in the live (USB/ISO) session — not on the installed system.
 ConditionPathExists=/run/live/medium
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# X sunucusu gerçekten ayağa kalktı mı diye en fazla 120 saniye bekler ve
-# sonucu seri konsola yazar. GitHub Actions'taki QEMU testi bu satırı arar.
+# Waits at most 120 seconds for the X server to really come up and
+# writes the result to the serial console. The QEMU test on GitHub
+# Actions looks for that line.
 ExecStart=/usr/lib/kavis/boot-check
 StandardOutput=journal+console
 StandardError=journal+console

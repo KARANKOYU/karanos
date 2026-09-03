@@ -1,11 +1,12 @@
 /* Keyboard layout (business logic — no widget code here).
  *
- * Talks to setxkbmap (x11-xkb-utils, a panel dependency). 2F kararı:
- * TEK GLOBAL düzen, pencere başına grup YOK. Kaynak öncelik sırası:
+ * Talks to setxkbmap (x11-xkb-utils, a panel dependency). 2F decision:
+ * ONE GLOBAL layout, NO per-window group. Source priority order:
  * kavis.conf [keyboard] layout → /etc/default/keyboard XKBLAYOUT →
- * "tr". X sunucusu klavye yeniden takılınca (VM'de sanal klavye bunu
- * yapar) düzeni KENDİ varsayılanına sıfırlayabilir — gösterge her
- * yoklamada enforce() çağırıp yapılandırılmış düzene geri çeker.
+ * "tr". The X server may reset the layout to ITS OWN default when the
+ * keyboard is re-plugged (the virtual keyboard in a VM does this) — the
+ * indicator calls enforce() on every poll to pull it back to the
+ * configured layout.
  */
 
 namespace Kavis.Keyboard {
@@ -53,8 +54,8 @@ namespace Kavis.Keyboard {
         return "tr";
     }
 
-    /* X'in düzeni yapılandırılandan saptıysa geri çek (2F: klavye
-     * yeniden takılınca X kendi varsayılanına dönebiliyor). */
+    /* If X's layout drifted from the configured one, pull it back (2F:
+     * X may return to its own default when the keyboard is re-plugged). */
     public void enforce () {
         string wanted = configured_layout ();
         if (current_layout () != wanted) {
@@ -73,15 +74,15 @@ namespace Kavis.Keyboard {
 
     private void apply (string layout) {
         try {
-            /* -option "": grup/karma seçenek kalıntısı temizlenir —
-             * tek global düzen kuralı. */
+            /* -option "": clears any leftover group/toggle options —
+             * the single global layout rule. */
             Process.spawn_async (null,
                 { "setxkbmap", "-layout", layout, "-option", "" },
                 null,
                 SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
                 null, null);
         } catch (SpawnError e) {
-            warning ("kavis-panel: setxkbmap calistirilamadi: %s", e.message);
+            warning ("kavis-panel: could not run setxkbmap: %s", e.message);
         }
     }
 }

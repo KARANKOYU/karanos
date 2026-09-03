@@ -1,24 +1,24 @@
 #!/usr/bin/make -f
-# Kavis Ayarlar — Vala kaynağından tek ikili (madde 9).
-# appinit.vala kanonik kopyadan gelir (packages/kavis-common —
-# build-packages.sh koyar). Çeviriler gettext "kavis" alanından;
-# .mo dosyalarını kavis-panel taşır (Depends).
+# Kavis Settings — single binary from Vala sources (madde 9).
+# appinit.vala comes from the canonical copy (packages/kavis-common —
+# placed by build-packages.sh). Translations come from the gettext
+# "kavis" domain; kavis-panel ships the .mo files (Depends).
 
 export DH_VERBOSE = 1
 
 DEST := debian/kavis-settings
 
-VALA_PAKETLER := --pkg gtk+-3.0 --pkg posix
+VALA_PKGS := --pkg gtk+-3.0 --pkg posix
 VALA_CFLAGS := -X -O2 -X -w -X -DGETTEXT_PACKAGE='"kavis"'
 
-KAYNAKLAR := $(wildcard src/*.vala) $(wildcard src/ui/*.vala) \
+SOURCES := $(wildcard src/*.vala) $(wildcard src/ui/*.vala) \
              $(wildcard src/logic/*.vala)
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-settings $(KAYNAKLAR)
+	valac $(VALA_PKGS) $(VALA_CFLAGS) -o kavis-settings $(SOURCES)
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin
@@ -26,8 +26,8 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/share/applications
 	install -m644 desktop/kavis-settings.desktop \
 		$(DEST)/usr/share/applications/kavis-settings.desktop
-	# Sistem dili (B6): root yardımcısı + polkit izni (etkin kullanıcı
-	# parolasız; pkexec yolu annotate ile sabit).
+	# System language (B6): root helper + polkit permission (active user
+	# without password; the pkexec path is pinned via annotate).
 	install -d $(DEST)/usr/lib/kavis $(DEST)/usr/share/polkit-1/actions
 	install -m755 scripts/set-locale $(DEST)/usr/lib/kavis/set-locale
 	install -m644 polkit/org.kavis.settings.policy \

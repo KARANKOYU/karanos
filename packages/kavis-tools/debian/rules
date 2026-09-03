@@ -1,26 +1,26 @@
 #!/usr/bin/make -f
-# Kavis küçük araçları — Vala kaynağından tek ikili (madde 7).
-# appinit.vala kanonik kopyadan gelir (packages/kavis-common —
-# build-packages.sh koyar). Çeviriler gettext "kavis" alanından;
-# .mo dosyalarını kavis-panel taşır (Depends).
+# Kavis small tools — single binary from Vala sources (madde 7).
+# appinit.vala comes from the canonical copy (packages/kavis-common —
+# placed by build-packages.sh). Translations come from the gettext
+# "kavis" domain; kavis-panel ships the .mo files (Depends).
 
 export DH_VERBOSE = 1
 
 DEST := debian/kavis-tools
 
-# gstreamer-1.0: hızlı önizlemenin video/ses oynatıcısı (madde 36).
-VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
+# gstreamer-1.0: the quick preview's video/audio player (madde 36).
+VALA_PKGS := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
                  --pkg posix --pkg gstreamer-1.0 --pkg gio-unix-2.0
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm \
                -X -DGETTEXT_PACKAGE='"kavis"'
 
-KAYNAKLAR := $(wildcard src/*.vala)
+SOURCES := $(wildcard src/*.vala)
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-tools $(KAYNAKLAR)
+	valac $(VALA_PKGS) $(VALA_CFLAGS) -o kavis-tools $(SOURCES)
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin
@@ -29,21 +29,21 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/share/nemo/actions
 	install -m644 desktop/kavis-open-with.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-open-with.nemo_action
-	# Madde 39 sağ tık maddeleri: yolu kopyala + masaüstüne kısayol.
+	# Madde 39 right-click items: copy path + shortcut to desktop.
 	install -m644 desktop/kavis-copy-path.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-copy-path.nemo_action
 	install -m644 desktop/kavis-send-desktop.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-send-desktop.nemo_action
 	install -m644 desktop/kavis-preview.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-preview.nemo_action
-	# "Editörde aç" (madde 39/40): kate kurulu değilse menüde çıkmaz
-	# (Dependencies satırı) — kavis-tools kate'e bağımlı DEĞİL.
+	# "Open in editor" (madde 39/40): hidden from the menu when kate is
+	# not installed (Dependencies line) — kavis-tools does NOT depend on kate.
 	install -m644 desktop/kavis-open-editor.nemo_action \
 		$(DEST)/usr/share/nemo/actions/kavis-open-editor.nemo_action
 	install -d $(DEST)/usr/lib/kavis
 	install -m755 scripts/nemo-action $(DEST)/usr/lib/kavis/nemo-action
-	# Boşluk tuşu önizlemesi (madde 36): nemo org.nemo.Preview'u
-	# çağırır, bu servis dosyası bizim önizleyiciyi otomatik başlatır.
+	# Space-bar preview (madde 36): nemo calls org.nemo.Preview; this
+	# service file auto-starts our previewer.
 	install -d $(DEST)/usr/share/dbus-1/services
 	install -m644 desktop/org.nemo.Preview.service \
 		$(DEST)/usr/share/dbus-1/services/org.nemo.Preview.service
@@ -53,16 +53,16 @@ override_dh_auto_install:
 		$(DEST)/usr/share/applications/kavis-calc.desktop
 	install -m644 desktop/kavis-emoji.desktop \
 		$(DEST)/usr/share/applications/kavis-emoji.desktop
-	# Güç diyaloğunun görev çubuğu kimliği (2C): NoDisplay —
-	# menüde durmaz, yalnız WM_CLASS→ikon eşleşmesi için.
+	# Taskbar identity of the power dialog (2C): NoDisplay — not in
+	# the menu, only for the WM_CLASS→icon match.
 	install -m644 desktop/kavis-power.desktop \
 		$(DEST)/usr/share/applications/kavis-power.desktop
-	# fastfetch (madde 71): Kavis yapılandırması + K logosu; düz
-	# `fastfetch` de aynı dosyayı bulsun diye /etc/fastfetch bağı.
+	# fastfetch (madde 71): Kavis configuration + K logo; the
+	# /etc/fastfetch link lets plain `fastfetch` find the same file.
 	install -d $(DEST)/etc/kavis/fastfetch $(DEST)/etc/fastfetch
-	AD=$$(. fastfetch/os-release && printf '%s' "$$NAME"); \
-	[ -n "$$AD" ] || { echo "HATA: os-release NAME bos"; exit 1; }; \
-	sed "s/@AD@/$$AD/" fastfetch/config.jsonc.in > $(DEST)/etc/kavis/fastfetch/config.jsonc
+	NAME=$$(. fastfetch/os-release && printf '%s' "$$NAME"); \
+	[ -n "$$NAME" ] || { echo "ERROR: os-release NAME is empty"; exit 1; }; \
+	sed "s/@NAME@/$$NAME/" fastfetch/config.jsonc.in > $(DEST)/etc/kavis/fastfetch/config.jsonc
 	install -m644 fastfetch/logo-dark.txt $(DEST)/etc/kavis/fastfetch/logo-dark.txt
 	install -m644 fastfetch/logo-light.txt $(DEST)/etc/kavis/fastfetch/logo-light.txt
 	ln -s /etc/kavis/fastfetch/config.jsonc $(DEST)/etc/fastfetch/config.jsonc

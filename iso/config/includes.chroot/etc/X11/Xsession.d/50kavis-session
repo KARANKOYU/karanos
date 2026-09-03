@@ -1,0 +1,6 @@
+# shellcheck shell=sh
+# Kavis (H2): desktop identity — XDG autostart OnlyShowIn/NotShowIn and
+# the applications' "which desktop am I on" question are answered here.
+XDG_CURRENT_DESKTOP=Kavis
+XDG_SESSION_DESKTOP=kavis
+export XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP

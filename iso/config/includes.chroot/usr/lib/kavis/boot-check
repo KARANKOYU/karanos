@@ -1,14 +1,16 @@
 #!/bin/sh
-# Kavis — açılış duman testi (yalnızca canlı oturumda çalışır)
+# Kavis — boot smoke test (runs only in the live session)
 #
-# Amaç: her değişiklikte ISO'yu indirip elle açmadan, açılışın gerçekten
-# grafik arayüze kadar geldiğini bilmek. Bu script durumu seri konsola tek
-# satırlık işaretler hâlinde yazar; CI bu satırları arar.
+# Purpose: to know that the boot really reaches the graphical interface
+# without downloading the ISO and booting it by hand on every change.
+# This script writes the state to the serial console as one-line markers;
+# CI looks for those lines.
 
 set -u
 
-# Satırlar seri konsola (CI) ve /run/kavis/boot-check.log'a (selftest ve
-# kullanıcı okuyabilsin — journal canlı kullanıcıya kapalı) yazılır.
+# Lines go to the serial console (CI) and to /run/kavis/boot-check.log
+# (so selftest and the user can read them — the journal is closed to the
+# live user).
 mkdir -p /run/kavis 2>/dev/null && chmod 755 /run/kavis 2>/dev/null
 log() {
 	echo "KAVIS-CHECK: $*"
@@ -16,35 +18,36 @@ log() {
 	chmod 644 /run/kavis/boot-check.log 2>/dev/null
 }
 
-# Ölümcül sayılan hatalar burada birikir. En sonda RESULT=FAIL veriyoruz.
-# NEDEN: 1. ve 2. aşamada grafik oturum hiç açılmadığı hâlde bu script
-# RESULT=OK yazıyordu, çünkü pencere yöneticisinin yokluğu yalnızca
-# "uyarı" sayılıyordu. CI iki kez yanlış yeşil yandı. Artık masaüstünün
-# gerçekten ayakta olması testin geçme şartı.
-olumcul=""
+# Errors counted as fatal accumulate here. RESULT=FAIL is given at the end.
+# WHY: in stages 1 and 2 this script wrote RESULT=OK even though the
+# graphical session never opened, because the absence of the window
+# manager counted only as a "warning". CI went green wrongly twice. Now
+# the desktop really being up is the condition for passing the test.
+failed=""
 fatal() {
 	log "$1"
-	olumcul="${olumcul} ${2}"
+	failed="${failed} ${2}"
 }
 
-# USS (MB): /proc/PID/smaps_rollup Private_Clean + Private_Dirty — süreç
-# ölünce en az bu kadar RAM boşalır; paylaşılan kütüphane sayfaları yok.
+# USS (MB): /proc/PID/smaps_rollup Private_Clean + Private_Dirty — at
+# least this much RAM is freed when the process dies; no shared library
+# pages.
 uss_mb() {
 	awk '/^Private_(Clean|Dirty):/ { s += $2 } END { printf "%d", s / 1024 }' \
 		"/proc/$1/smaps_rollup" 2>/dev/null || echo 0
 }
 
-# 0) Canlı kullanıcı oluşturuldu mu
-# live-config bu kullanıcıyı user-setup ile yaratıyor. Paket eksikse
-# kullanıcı hiç oluşmuyor ve oturum açılamıyor — bu kontrol o durumu
-# doğrudan gösterir.
+# 0) Was the live user created
+# live-config creates this user with user-setup. If the package is
+# missing the user is never created and the session cannot open — this
+# check shows that case directly.
 if getent passwd karan >/dev/null 2>&1; then
 	log "USER-OK karan ($(getent passwd karan | cut -d: -f6,7))"
 else
-	fatal "USER-FAIL canli kullanici 'karan' yok — user-setup kurulu mu?" "kullanici"
+	fatal "USER-FAIL live user 'karan' missing — is user-setup installed?" "user"
 fi
 
-# 1) X sunucusu ayağa kalktı mı
+# 1) Did the X server come up
 x_up=0
 i=0
 while [ "$i" -lt 120 ]; do
@@ -57,17 +60,17 @@ while [ "$i" -lt 120 ]; do
 done
 
 if [ "$x_up" -ne 1 ]; then
-	log "X-FAIL Xorg 120 saniyede baslamadi"
+	log "X-FAIL Xorg did not start within 120 seconds"
 	log "RESULT=FAIL"
 	exit 1
 fi
-log "X-OK Xorg calisiyor (${i} saniyede)"
+log "X-OK Xorg running (after ${i} seconds)"
 
-# 2) Pencere yöneticisi
-# Pencere yöneticisi yoksa masaüstü diye bir şey yok demektir: X boş bir
-# kök pencere gösterir, ekran görüntüsü simsiyah çıkar. Bu durumda
-# tahmin yürütmek yerine oturumun neden açılmadığını buradan döküyoruz —
-# aksi hâlde her denemede 40 dakikalık CI koşusu harcanıyor.
+# 2) Window manager
+# Without a window manager there is no such thing as a desktop: X shows
+# an empty root window, the screenshot comes out pitch black. In that
+# case, instead of guessing, we dump from here why the session did not
+# open — otherwise every attempt burns a 40-minute CI run.
 wm_up=0
 i=0
 while [ "$i" -lt 60 ]; do
@@ -80,15 +83,15 @@ while [ "$i" -lt 60 ]; do
 done
 
 if [ "$wm_up" -eq 1 ]; then
-	log "WM-OK openbox calisiyor (${i} saniyede)"
+	log "WM-OK openbox running (after ${i} seconds)"
 else
-	fatal "WM-FAIL openbox calismiyor — oturum acilmamis" "oturum"
-	echo "--- KAVIS-TANI: oturum neden acilmadi ---"
+	fatal "WM-FAIL openbox not running — session did not open" "session"
+	echo "--- KAVIS-DIAG: why the session did not open ---"
 	echo "# systemctl is-active lightdm: $(systemctl is-active lightdm 2>&1)"
-	echo "# kullanici karan: $(getent passwd karan 2>&1 || echo YOK)"
-	echo "# oturum dosyalari:"
+	echo "# user karan: $(getent passwd karan 2>&1 || echo MISSING)"
+	echo "# session files:"
 	ls -1 /usr/share/xsessions/ 2>&1 | sed 's/^/#   /'
-	echo "# calisan surecler:"
+	echo "# running processes:"
 	ps -eo comm= 2>/dev/null | sort -u \
 		| grep -iE '^(x|xorg|lightdm|openbox|dbus)' | sed 's/^/#   /'
 	for f in /var/log/lightdm/lightdm.log \
@@ -98,47 +101,47 @@ else
 		if [ -r "$f" ]; then
 			tail -n 25 "$f" 2>&1 | sed 's/^/#   /'
 		else
-			echo "#   (okunamadi)"
+			echo "#   (unreadable)"
 		fi
 	done
 	echo "# ===== journalctl -u lightdm ====="
 	journalctl -u lightdm --no-pager -n 30 2>&1 | sed 's/^/#   /'
-	echo "--- KAVIS-TANI sonu ---"
+	echo "--- KAVIS-DIAG end ---"
 fi
 
-# 3) Tema paketi ISO'ya girdi mi ve dosyaları yerinde mi
-# Ekran görüntüsünde "renkli bir şey" görmek yetmiyor; parçaların
-# tek tek yerinde olduğunu da bilelim.
-theme_eksik=""
+# 3) Did the theme package make it into the ISO and are its files in place
+# Seeing "something colorful" in the screenshot is not enough; let us
+# also know that the pieces are individually in place.
+theme_missing=""
 for f in /usr/share/themes/Kavis/gtk-3.0/gtk.css \
 	/usr/share/themes/Kavis/openbox-3/themerc \
 	/etc/gtk-3.0/settings.ini; do
-	[ -f "$f" ] || theme_eksik="${theme_eksik} ${f}"
+	[ -f "$f" ] || theme_missing="${theme_missing} ${f}"
 done
-if [ -z "$theme_eksik" ]; then
-	log "THEME-OK gtk+openbox teması yerinde"
+if [ -z "$theme_missing" ]; then
+	log "THEME-OK gtk+openbox theme in place"
 else
-	fatal "THEME-FAIL eksik:${theme_eksik}" "tema"
+	fatal "THEME-FAIL missing:${theme_missing}" "theme"
 fi
 
 if [ -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr ]; then
-	log "CURSOR-OK $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l) imleç adı"
+	log "CURSOR-OK $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l) cursor names"
 else
-	fatal "CURSOR-FAIL imleç teması yok" "imlec"
+	fatal "CURSOR-FAIL cursor theme missing" "cursor"
 fi
 
 if [ -f /usr/share/backgrounds/kavis/kavis.png ]; then
 	log "WALLPAPER-OK"
 else
-	fatal "WALLPAPER-FAIL duvar kagidi yok" "duvarkagidi"
+	fatal "WALLPAPER-FAIL wallpaper missing" "wallpaper"
 fi
 
-# Görev çubuğu (4. aşama) çalışıyor mu
-# Panel yoksa masaüstü Windows benzeri olmuyor; ekran görüntüsünde de
-# yalnızca duvar kağıdı görünür.
-# Panel GTK + Wnck yüklüyor; öykünmeli QEMU'da bu birkaç saniye
-# sürüyor. Pencere yöneticisinde yaptığım hatanın aynısını burada da
-# yapmayalım: anında bakmak yanlış negatif veriyor, bekleyerek bakıyoruz.
+# Is the taskbar (stage 4) running
+# Without the panel the desktop is not Windows-like; the screenshot shows
+# only the wallpaper too.
+# The panel loads GTK + Wnck; in emulated QEMU that takes a few seconds.
+# Let us not repeat the mistake I made with the window manager here:
+# looking immediately gives a false negative, so we wait while looking.
 panel_up=0
 i=0
 while [ "$i" -lt 45 ]; do
@@ -151,11 +154,11 @@ while [ "$i" -lt 45 ]; do
 done
 
 if [ "$panel_up" -eq 1 ]; then
-	log "PANEL-OK kavis-panel calisiyor (${i} saniyede)"
-	# Vala taşımasının kanıtı + gerçek RAM maliyeti (madde 3 "bitince
-	# RAM tekrar ölçülür"). exe yolu ikilinin çalıştığını, VmRSS
-	# yorumlayıcısız maliyeti gösterir. GTK'nın yüklemesi bitsin diye
-	# kısa bir bekleme — erken ölçüm olduğundan küçük çıkıyor.
+	log "PANEL-OK kavis-panel running (after ${i} seconds)"
+	# Proof of the Vala port + the real RAM cost (item 3 "RAM is measured
+	# again when done"). The exe path shows the binary is running, VmRSS
+	# the cost without an interpreter. A short wait so GTK finishes
+	# loading — an early measurement comes out small.
 	sleep 3
 	panel_pid=$(pgrep -x kavis-panel | head -1 || true)
 	if [ -n "$panel_pid" ] && [ -r "/proc/$panel_pid/status" ]; then
@@ -163,14 +166,15 @@ if [ "$panel_up" -eq 1 ]; then
 		panel_rss_kb=$(awk '/^VmRSS:/ { print $2 }' "/proc/$panel_pid/status")
 		log "PANEL-EXE=$panel_exe"
 		log "PANEL-RSS=$((panel_rss_kb / 1024))MB"
-		# J (v0.4-test1): USS = yalnız bu sürece ait sayfalar (paylaşılan
-		# gtk/rsvg kütüphaneleri hariç) — gerçek maliyet ölçüsü.
+		# J (v0.4-test1): USS = only the pages belonging to this process
+		# (shared gtk/rsvg libraries excluded) — the real cost measure.
 		log "PANEL-USS=$(uss_mb "$panel_pid")MB"
 	fi
-	# v0.4-test2 A: "süreç var" ≠ "pencere ekranda". CI karesi panel ve
-	# masaüstü katmanı GÖRÜNÜR olunca alınır; 60 sn içinde haritalanmazsa
-	# gerçek hata (PANEL-NOT-MAPPED). Dış betik DESKTOP-READY satırını
-	# görünce +2 sn bekleyip kareyi alır.
+	# v0.4-test2 A: "process exists" ≠ "window on screen". The CI frame is
+	# taken once the panel and the desktop layer are VISIBLE; if not
+	# mapped within 60 s it is a real error (PANEL-NOT-MAPPED). The outer
+	# script waits +2 s after seeing the DESKTOP-READY line and takes the
+	# frame.
 	mapped=0
 	j=0
 	while [ "$j" -lt 60 ]; do
@@ -183,307 +187,314 @@ if [ "$panel_up" -eq 1 ]; then
 		sleep 1
 	done
 	if [ "$mapped" -eq 1 ]; then
-		log "DESKTOP-READY panel ve masaustu pencereleri gorunur (${j} saniyede)"
+		log "DESKTOP-READY panel and desktop windows visible (after ${j} seconds)"
 	else
-		fatal "PANEL-NOT-MAPPED panel/masaustu penceresi 60 sn icinde haritalanmadi" "panel-pencere"
+		fatal "PANEL-NOT-MAPPED panel/desktop window not mapped within 60 s" "panel-window"
 	fi
 else
-	fatal "PANEL-FAIL kavis-panel calismiyor" "panel"
-	echo "--- KAVIS-TANI: panel neden calismiyor ---"
-	echo "# kavis-panel yolu: $(command -v kavis-panel 2>&1 || echo YOK)"
-	echo "# paket kurulu mu: $(dpkg-query -W -f='${Status}' kavis-panel 2>&1)"
-	# Openbox otomatik başlangıcı panelin çıktısını buraya yazıyor.
-	# Kullanıcının çalışma dizini root'un değil, o yüzden ikisine de bak.
+	fatal "PANEL-FAIL kavis-panel not running" "panel"
+	echo "--- KAVIS-DIAG: why the panel is not running ---"
+	echo "# kavis-panel path: $(command -v kavis-panel 2>&1 || echo MISSING)"
+	echo "# package installed: $(dpkg-query -W -f='${Status}' kavis-panel 2>&1)"
+	# The Openbox autostart writes the panel's output here. The user's
+	# runtime directory is not root's, so look at both.
 	for f in /run/user/1000/kavis-panel.log /tmp/kavis-panel.log \
 		/home/karan/.xsession-errors; do
 		echo "# ===== $f ====="
 		if [ -r "$f" ]; then
 			tail -n 30 "$f" 2>&1 | sed 's/^/#   /'
 		else
-			echo "#   (okunamadi)"
+			echo "#   (unreadable)"
 		fi
 	done
-	echo "# ikili ve bagimliliklari:"
+	echo "# binary and its dependencies:"
 	ldd /usr/bin/kavis-panel 2>&1 | grep -i "not found" | sed 's/^/#   /' \
-		|| echo "#   (tum kutuphaneler bulundu)"
-	echo "--- KAVIS-TANI sonu ---"
+		|| echo "#   (all libraries found)"
+	echo "--- KAVIS-DIAG end ---"
 fi
 
-# Açılış ekranı (3. aşama): tema seçili mi, kaynaklar yerinde mi
-# Splash'in gerçekten göründüğünü buradan anlayamayız (o sırada bu script
-# henüz çalışmıyor); parçaların yerinde olduğunu doğruluyoruz. Görüntünün
-# kendisi CI'daki "acilis" ekran karesinden bakılır.
+# Boot screen (stage 3): is the theme selected, are the resources in place
+# We cannot tell from here whether the splash really showed (this script
+# is not running yet at that time); we verify that the pieces are in
+# place. The image itself is checked from the "acilis" screen frame in CI.
 if [ -f /usr/share/plymouth/themes/kavis/kavis.script ] &&
 	[ -f /usr/share/plymouth/themes/kavis/logo.png ] &&
-	[ -f /usr/share/plymouth/themes/kavis/urun-adi.png ] &&
-	[ -f /usr/share/plymouth/themes/kavis/acilis-ipuclari.png ] &&
+	[ -f /usr/share/plymouth/themes/kavis/product-name.png ] &&
+	[ -f /usr/share/plymouth/themes/kavis/boot-hints.png ] &&
 	[ -f /usr/share/plymouth/themes/kavis/made-by-karan.png ]; then
-	secili=$(plymouth-set-default-theme 2>/dev/null || echo "?")
-	if [ "$secili" = "kavis" ]; then
-		log "SPLASH-OK tema kavis"
+	selected=$(plymouth-set-default-theme 2>/dev/null || echo "?")
+	if [ "$selected" = "kavis" ]; then
+		log "SPLASH-OK theme kavis"
 	else
-		fatal "SPLASH-FAIL varsayilan tema '$secili'" "splash"
+		fatal "SPLASH-FAIL default theme '$selected'" "splash"
 	fi
 else
-	fatal "SPLASH-FAIL plymouth temasi eksik" "splash"
+	fatal "SPLASH-FAIL plymouth theme incomplete" "splash"
 fi
 
-# -s: dosya var VE boş değil — sıfır baytlık WAV (bozuk dönüşüm)
-# sessiz açılışta ancak burada yakalanır (boot-sound işi, Grup D).
+# -s: the file exists AND is not empty — a zero-byte WAV (broken
+# conversion) is caught only here on a silent boot (boot-sound task,
+# Group D).
 if [ -s /usr/share/kavis/boot/boot-sound.wav ]; then
-	log "BOOTSOUND-OK $(stat -c %s /usr/share/kavis/boot/boot-sound.wav) bayt"
+	log "BOOTSOUND-OK $(stat -c %s /usr/share/kavis/boot/boot-sound.wav) bytes"
 else
-	fatal "BOOTSOUND-FAIL acilis muzigi yok ya da bos" "acilis-muzigi"
+	fatal "BOOTSOUND-FAIL boot music missing or empty" "boot-sound"
 fi
 
-# Ses servisi çalıştı mı — çalmadıysa splash'i tutan mekanizma da
-# devreye girmemiş demektir.
-ses_durum=$(systemctl is-active kavis-boot-sound.service 2>/dev/null || echo yok)
-log "BOOTSOUND-SERVICE=${ses_durum}"
+# Did the sound service run — if it did not play, the mechanism holding
+# the splash never kicked in either.
+sound_state=$(systemctl is-active kavis-boot-sound.service 2>/dev/null || echo none)
+log "BOOTSOUND-SERVICE=${sound_state}"
 
-# --- Açılış sırası doğrulaması --------------------------------------
-# NEDEN GEREKLİ: QEMU'da ses arka ucu "none" ve zamanlama gerçek
-# donanımdan farklı, bu yüzden akış bozukluğu orada görünmüyordu.
-# VirtualBox testinde şu yaşandı: splash geldi (sessiz), söndü, konsol
-# göründü, müzik ANCAK O ZAMAN başladı, splash ikinci kez geldi ve müzik
-# masaüstüne taştı. Beklenen sıra:
+# --- Boot order verification ----------------------------------------
+# WHY IT IS NEEDED: in QEMU the audio backend is "none" and the timing
+# differs from real hardware, so the flow defect did not show there. In
+# the VirtualBox test this happened: the splash came (silent), went out,
+# the console showed, the music started ONLY THEN, the splash came a
+# second time and the music spilled into the desktop. Expected order:
 #
-#   plymouth-start  ≤  ses servisi başlangıcı  ≤  ses servisi bitişi
-#                                              ≤  plymouth-quit
+#   plymouth-start  ≤  sound service start  ≤  sound service end
+#                                            ≤  plymouth-quit
 #
-# Zaman damgalarını systemd'nin kendi monotonik sayaçlarından okuyoruz
-# (mikrosaniye); journalctl metnini ayrıştırmaktan daha güvenilir.
-zaman() {
-	deger=$(systemctl show -p "$2" --value "$1" 2>/dev/null || echo 0)
-	case "$deger" in
+# Timestamps are read from systemd's own monotonic counters
+# (microseconds); more reliable than parsing journalctl text.
+ts() {
+	value=$(systemctl show -p "$2" --value "$1" 2>/dev/null || echo 0)
+	case "$value" in
 	'' | *[!0-9]*) echo 0 ;;
-	*) echo "$deger" ;;
+	*) echo "$value" ;;
 	esac
 }
 
-ply_basla=$(zaman plymouth-start.service InactiveExitTimestampMonotonic)
-ses_basla=$(zaman kavis-boot-sound.service InactiveExitTimestampMonotonic)
-ses_bit=$(zaman kavis-boot-sound.service ActiveEnterTimestampMonotonic)
-# Splash'in kapanış anı plymouth-quit.service'ten OKUNMAZ: lightdm
-# `Conflicts=plymouth-quit.service` taşıyor, o birimi iptal edip splash'i
-# kendisi kapatıyor — quit hep 0.0s görünüyordu (İş 2'de bulundu).
-# plymouth-quit-wait `plymouth --wait` çalıştırıyor; komut plymouthd
-# gerçekten çıktığı anda döner, yani birimin "active" olduğu an splash'in
-# ekranı bıraktığı andır. Kapanışı kim yaparsa yapsın doğru ölçülür.
-ply_bitir=$(zaman plymouth-quit-wait.service ActiveEnterTimestampMonotonic)
+ply_start=$(ts plymouth-start.service InactiveExitTimestampMonotonic)
+snd_start=$(ts kavis-boot-sound.service InactiveExitTimestampMonotonic)
+snd_end=$(ts kavis-boot-sound.service ActiveEnterTimestampMonotonic)
+# The splash's closing moment is NOT read from plymouth-quit.service:
+# lightdm carries `Conflicts=plymouth-quit.service`, cancels that unit
+# and closes the splash itself — quit always showed 0.0s (found in Task
+# 2). plymouth-quit-wait runs `plymouth --wait`; the command returns the
+# moment plymouthd really exits, so the instant the unit becomes "active"
+# is the instant the splash releases the screen. Measured correctly no
+# matter who does the closing.
+ply_quit=$(ts plymouth-quit-wait.service ActiveEnterTimestampMonotonic)
 
-sn() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
-log "SPLASH-TIMING start=$(sn "$ply_basla")s ses_basla=$(sn "$ses_basla")s ses_bit=$(sn "$ses_bit")s quit=$(sn "$ply_bitir")s"
+sec() { echo "$(($1 / 1000000)).$(( ($1 % 1000000) / 100000 ))"; }
+log "SPLASH-TIMING start=$(sec "$ply_start")s snd_start=$(sec "$snd_start")s snd_end=$(sec "$snd_end")s quit=$(sec "$ply_quit")s"
 
-# Devir teslim denetimi (v0.3-test2/test3 dersleriyle üçüncü biçim):
-# Kullanıcının gördüğü boşluk "quit ile X PROSESİ arası" DEĞİL — retain
-# akışında X, Plymouth'tan ÖNCE başlar; o süre örtüşmedir, hata değil.
-# Görsel boşluk, splash'in bırakılması (quit) ile masaüstünün İLK KARESİ
-# arasıdır. İlk kare için ölçülebilir en yakın an: oturumun ilk çizen
-# sürecinin (openbox) başlangıcı. Proses başlangıçları /proc/<pid>/stat
-# 22. alandan (starttime, tik) okunur — monotonik eksende, systemd
-# damgalarıyla kıyaslanabilir.
-# İkinci kanıt katmanı: lightdm.log. lightdm devri yaptıysa "retaining
-# splash", yapmadıysa (minimum-vt sorunu geri gelirse) "not replacing
-# it" / "no displays replace" yazar — en güvenilir gösterge bu.
+# Handoff check (third form, with the v0.3-test2/test3 lessons):
+# The gap the user sees is NOT "quit to the X PROCESS" — in the retain
+# flow X starts BEFORE Plymouth ends; that span is overlap, not an error.
+# The visual gap is between the splash being released (quit) and the
+# desktop's FIRST FRAME. The closest measurable moment for the first
+# frame: the start of the session's first drawing process (openbox).
+# Process start times are read from /proc/<pid>/stat field 22 (starttime,
+# ticks) — on the monotonic axis, comparable with systemd's timestamps.
+# Second layer of evidence: lightdm.log. If lightdm did the handoff it
+# writes "retaining splash", if not (should the minimum-vt problem
+# return) "not replacing it" / "no displays replace" — the most reliable
+# indicator.
 
 # Print a process's start time in µs on the CLOCK_MONOTONIC axis
 # (0 if the process or the value cannot be read). Args: process names
 # to try in order with pgrep -x.
-proc_basla() {
+proc_start() {
 	pb_pid=""
-	for pb_ad in "$@"; do
-		pb_pid=$(pgrep -x "$pb_ad" 2>/dev/null | head -1)
+	for pb_name in "$@"; do
+		pb_pid=$(pgrep -x "$pb_name" 2>/dev/null | head -1)
 		[ -n "$pb_pid" ] && break
 	done
 	if [ -z "$pb_pid" ] || [ ! -r "/proc/$pb_pid/stat" ]; then
 		echo 0
 		return
 	fi
-	pb_tik=$(awk '{sub(/.*\) /, ""); print $20}' "/proc/$pb_pid/stat")
+	pb_ticks=$(awk '{sub(/.*\) /, ""); print $20}' "/proc/$pb_pid/stat")
 	pb_hz=$(getconf CLK_TCK 2>/dev/null || echo 100)
-	case "$pb_tik" in
+	case "$pb_ticks" in
 	'' | *[!0-9]*) echo 0 ;;
-	*) echo $((pb_tik * 1000000 / pb_hz)) ;;
+	*) echo $((pb_ticks * 1000000 / pb_hz)) ;;
 	esac
 }
 
-x_basla=$(proc_basla Xorg X)
-masa_basla=$(proc_basla openbox)
+x_start=$(proc_start Xorg X)
+desk_start=$(proc_start openbox)
 
-retain="belirsiz"
+retain="unknown"
 if [ -r /var/log/lightdm/lightdm.log ]; then
 	if grep -qi "retaining splash" /var/log/lightdm/lightdm.log; then
 		retain="ok"
 	elif grep -qiE "no displays replace|not replacing it" \
 		/var/log/lightdm/lightdm.log; then
-		retain="yok"
+		retain="none"
 	fi
 fi
 case "$retain" in
 ok)
-	log "SPLASH-RETAIN-OK lightdm splash'i devraldi (X=$(sn "$x_basla")s'de basladi, quit=$(sn "$ply_bitir")s)"
+	log "SPLASH-RETAIN-OK lightdm took over the splash (X started at $(sec "$x_start")s, quit=$(sec "$ply_quit")s)"
 	;;
-yok)
-	fatal "SPLASH-RETAIN-FAIL lightdm splash'i devralmadan kapatmis — minimum-vt ayari etkin mi?" "splash-devir"
+none)
+	fatal "SPLASH-RETAIN-FAIL lightdm closed the splash without taking it over — is the minimum-vt setting active?" "splash-handoff"
 	;;
 *)
-	log "SPLASH-RETAIN=belirsiz (lightdm.log'da plymouth kaydi bulunamadi)"
+	log "SPLASH-RETAIN=unknown (no plymouth record found in lightdm.log)"
 	;;
 esac
 
-if [ "$ply_bitir" -ne 0 ] && [ "$masa_basla" -ne 0 ]; then
-	if [ "$masa_basla" -le "$ply_bitir" ]; then
-		log "SPLASH-HANDOFF=0.0s (splash, masaustu cizilmeye baslayana kadar kaldi)"
+if [ "$ply_quit" -ne 0 ] && [ "$desk_start" -ne 0 ]; then
+	if [ "$desk_start" -le "$ply_quit" ]; then
+		log "SPLASH-HANDOFF=0.0s (splash stayed until the desktop began drawing)"
 	else
-		devir=$((masa_basla - ply_bitir))
-		log "SPLASH-HANDOFF=$(sn "$devir")s (quit -> masaustunun ilk sureci)"
-		# Eşik 3 sn (KVM'siz QEMU payı dahil; gerçek donanımda 1-2 sn
-		# beklenir). Retain kanıtlıysa bu pencerede ekranda splash'in
-		# son karesi durur (X -background none ile başlatılıyor) —
-		# siyah/konsol yok, uyarı yeter. Retain kanıtı yoksa boşluk
-		# gerçekten görünür demektir: test düşer.
-		if [ "$devir" -gt 3000000 ]; then
+		gap=$((desk_start - ply_quit))
+		log "SPLASH-HANDOFF=$(sec "$gap")s (quit -> desktop's first process)"
+		# Threshold 3 s (including the margin for QEMU without KVM; 1-2 s
+		# expected on real hardware). If retain is proven, the splash's
+		# last frame stays on screen in this window (X is started with
+		# -background none) — no black/console, a warning is enough. If
+		# there is no retain proof the gap is really visible: the test
+		# fails.
+		if [ "$gap" -gt 3000000 ]; then
 			if [ "$retain" = "ok" ]; then
-				log "SPLASH-HANDOFF-WARN $(sn "$devir")s uzun ama retain karesi ekrani ortuyor"
+				log "SPLASH-HANDOFF-WARN $(sec "$gap")s is long but the retained frame covers the screen"
 			else
-				fatal "SPLASH-HANDOFF-FAIL quit ile masaustu arasi $(sn "$devir")s — bosluk gorunur" "splash-devir"
+				fatal "SPLASH-HANDOFF-FAIL $(sec "$gap")s between quit and the desktop — gap is visible" "splash-handoff"
 			fi
 		fi
 	fi
 else
-	log "SPLASH-HANDOFF-YOK (quit=$(sn "$ply_bitir")s masaustu=$(sn "$masa_basla")s olculemedi)"
+	log "SPLASH-HANDOFF-NONE (quit=$(sec "$ply_quit")s desktop=$(sec "$desk_start")s could not be measured)"
 fi
 
-# Müzik splash'e göre ne kadar geç başlıyor? Bölüm 5 "aynı anda" diyor;
-# ses aygıtının hazır olmasını beklemek zorunda olduğumuz için sıfır
-# olamıyor ama küçük kalmalı. VirtualBox testinde müzik görselin
-# ortasında başlıyordu — ölçtüğümüz gecikme bu.
-if [ "$ply_basla" -ne 0 ] && [ "$ses_basla" -ge "$ply_basla" ]; then
-	gecikme=$((ses_basla - ply_basla))
-	log "SOUND-DELAY=$(sn "$gecikme")s (splash basladiktan sonra)"
-	if [ "$gecikme" -gt 3000000 ]; then
-		log "SOUND-DELAY-WARN muzik splash'ten 3 saniyeden gec basladi"
+# How late does the music start relative to the splash? Section 5 says
+# "at the same time"; since we must wait for the audio device to be
+# ready it cannot be zero, but it must stay small. In the VirtualBox test
+# the music started in the middle of the visual — that is the delay we
+# measure.
+if [ "$ply_start" -ne 0 ] && [ "$snd_start" -ge "$ply_start" ]; then
+	delay=$((snd_start - ply_start))
+	log "SOUND-DELAY=$(sec "$delay")s (after the splash started)"
+	if [ "$delay" -gt 3000000 ]; then
+		log "SOUND-DELAY-WARN music started more than 3 seconds after the splash"
 	fi
 fi
 
-# Ses servisinin kendi ölçümü: aygıtın hazır olmasını kaç saniye
-# bekledi. Gecikmenin kaynağı bu mu, yoksa servis mi geç başlatıldı —
-# ayırt etmek için.
+# The sound service's own measurement: how many seconds it waited for the
+# device to be ready. To tell whether this is the source of the delay or
+# the service was started late.
 journalctl -b --no-pager -o cat -u kavis-boot-sound.service 2>/dev/null |
-	grep -E "ses aygiti|muzik|plymouth:" | sed 's/^/KAVIS-CHECK: BOOTSOUND-LOG: /' || true
+	grep -E "sound device|music|plymouth:" | sed 's/^/KAVIS-CHECK: BOOTSOUND-LOG: /' || true
 
-# Plymouth hangi çizici (renderer) ile çalıştı? DRM bulunamayıp metin
-# kipine düşerse splash görünmüyor. VirtualBox'ta vmwgfx hatası
-# yüzünden bu riskli.
+# Which renderer did Plymouth run with? If DRM is not found and it falls
+# back to text mode the splash does not show. Risky on VirtualBox because
+# of the vmwgfx error.
 ply_renderer=$(journalctl -b --no-pager 2>/dev/null |
 	grep -iE "plymouth.*(renderer|drm|frame-buffer|framebuffer)" | tail -3 || true)
 if [ -n "$ply_renderer" ]; then
 	echo "$ply_renderer" | sed 's/^/KAVIS-CHECK: SPLASH-RENDERER: /'
 fi
-# Madde 71: kavisfetch çıktısı seri günlüğe; "Kavis" (os-release adı)
-# ve logo satırı (K bloğu) görünmeli.
+# Item 71: kavisfetch output to the serial log; "Kavis" (the os-release
+# name) and the logo line (K block) must show.
 if command -v kavisfetch >/dev/null 2>&1; then
 	fetch_out=$(runuser -u karan -- env DISPLAY=:0 kavisfetch --pipe 2>&1 | head -40 || true)
 	printf '%s\n' "$fetch_out" | sed 's/^/KAVIS-CHECK: FETCH: /'
 	. /etc/os-release
 	if printf '%s' "$fetch_out" | grep -q "$NAME" \
 		&& printf '%s' "$fetch_out" | grep -q '██'; then
-		log "FETCH-OK kavisfetch calisti, ad ve logo var"
+		log "FETCH-OK kavisfetch ran, name and logo present"
 	else
-		log "FETCH-FAIL kavisfetch ciktisinda ad ya da logo yok"
+		log "FETCH-FAIL name or logo missing from kavisfetch output"
 	fi
 else
-	log "FETCH-FAIL kavisfetch kurulu degil"
+	log "FETCH-FAIL kavisfetch not installed"
 fi
 
-# C1 (v0.4-test1): kenara yapıştırma daemon'u oturumda ayakta mı —
-# VM'de snap çalışmıyorsa ilk şüpheli bu.
+# C1 (v0.4-test1): is the edge snapping daemon up in the session — if
+# snapping does not work in the VM this is the first suspect.
 if pgrep -x kavis-snap >/dev/null 2>&1; then
 	log "SNAP-RUNNING-OK"
 else
-	log "SNAP-RUNNING-FAIL kavis-snap sureci yok"
+	log "SNAP-RUNNING-FAIL kavis-snap process missing"
 fi
 log "DRM-DEVICES=$(ls -1 /dev/dri 2>/dev/null | tr '\n' ' ')"
 
-sira_hatasi=""
-if [ "$ply_basla" -eq 0 ]; then
-	sira_hatasi="${sira_hatasi} plymouth-start-hic-calismadi"
+order_errors=""
+if [ "$ply_start" -eq 0 ]; then
+	order_errors="${order_errors} plymouth-start-never-ran"
 fi
-if [ "$ses_basla" -eq 0 ]; then
-	sira_hatasi="${sira_hatasi} ses-servisi-hic-calismadi"
-elif [ "$ses_basla" -lt "$ply_basla" ]; then
-	sira_hatasi="${sira_hatasi} ses-splash-ten-once-basladi"
+if [ "$snd_start" -eq 0 ]; then
+	order_errors="${order_errors} sound-service-never-ran"
+elif [ "$snd_start" -lt "$ply_start" ]; then
+	order_errors="${order_errors} sound-started-before-splash"
 fi
-# plymouth-quit ses servisi bitmeden koştuysa splash müziği kesmiş ya da
-# müzik splash'i aşmış demektir — ikisi de bölüm 5'e aykırı.
-if [ "$ply_bitir" -ne 0 ] && [ "$ses_bit" -ne 0 ] && [ "$ply_bitir" -lt "$ses_bit" ]; then
-	sira_hatasi="${sira_hatasi} quit-muzik-bitmeden-calisti"
+# If plymouth-quit ran before the sound service finished, either the
+# splash cut the music or the music outlasted the splash — both contrary
+# to section 5.
+if [ "$ply_quit" -ne 0 ] && [ "$snd_end" -ne 0 ] && [ "$ply_quit" -lt "$snd_end" ]; then
+	order_errors="${order_errors} quit-ran-before-music-ended"
 fi
-# Kapanış anı hiç ölçülemediyse (plymouth-quit-wait çalışmamış) devir
-# teslim de doğrulanamamış demektir; quit=0.0s'yi sessizce geçme.
-if [ "$ply_bitir" -eq 0 ]; then
-	sira_hatasi="${sira_hatasi} splash-kapanisi-olculemedi"
+# If the closing moment could not be measured at all (plymouth-quit-wait
+# did not run) the handoff is unverified too; do not pass quit=0.0s
+# silently.
+if [ "$ply_quit" -eq 0 ]; then
+	order_errors="${order_errors} splash-quit-not-measured"
 fi
 
-# Splash kaç kez gösterildi? Birden fazlaysa arada konsola düşülmüş
-# demektir (gerçek donanımda görülen belirti).
-splash_adet=$(journalctl -b --no-pager -u plymouth-start.service 2>/dev/null |
+# How many times was the splash shown? More than once means the console
+# was dropped to in between (the symptom seen on real hardware).
+splash_count=$(journalctl -b --no-pager -u plymouth-start.service 2>/dev/null |
 	grep -c "Started plymouth-start" || true)
-[ -n "$splash_adet" ] || splash_adet=0
-log "SPLASH-COUNT=${splash_adet}"
-if [ "$splash_adet" -gt 1 ]; then
-	sira_hatasi="${sira_hatasi} splash-birden-fazla-baslatildi"
+[ -n "$splash_count" ] || splash_count=0
+log "SPLASH-COUNT=${splash_count}"
+if [ "$splash_count" -gt 1 ]; then
+	order_errors="${order_errors} splash-started-more-than-once"
 fi
 
-if [ -z "$sira_hatasi" ]; then
+if [ -z "$order_errors" ]; then
 	log "SPLASH-ORDER-OK"
 else
-	fatal "SPLASH-ORDER-FAIL${sira_hatasi}" "splash-sirasi"
-	echo "--- KAVIS-TANI: acilis sirasi ---"
+	fatal "SPLASH-ORDER-FAIL${order_errors}" "splash-order"
+	echo "--- KAVIS-DIAG: boot order ---"
 	journalctl -b --no-pager -o short-monotonic \
 		-u plymouth-start.service -u kavis-boot-sound.service \
 		-u plymouth-quit.service -u plymouth-quit-wait.service \
 		-u lightdm.service 2>&1 |
 		tail -n 40 | sed 's/^/#   /'
-	echo "--- KAVIS-TANI sonu ---"
+	echo "--- KAVIS-DIAG end ---"
 fi
 
-# Plymouth script'i ayrıştırılabildi mi?
-# Tema script'inde bir sözdizimi hatası olursa splash sessizce boş kalır;
-# açılış devam ettiği için hiçbir yerde hata görünmez. Plymouth ayrıştırma
-# hatalarını günlüğe yazıyor, burada onu arıyoruz.
-ply_hata=$(journalctl -b --no-pager 2>/dev/null |
+# Could the Plymouth script be parsed?
+# A syntax error in the theme script leaves the splash silently empty;
+# since the boot continues, no error shows anywhere. Plymouth logs parse
+# errors; we look for them here.
+ply_err=$(journalctl -b --no-pager 2>/dev/null |
 	grep -iE 'plymouth.*(parse|syntax|error).*(script|theme)|kavis\.script' |
 	head -3 || true)
-if [ -n "$ply_hata" ]; then
-	fatal "SPLASH-SCRIPT-FAIL plymouth tema script'inde hata" "splash-script"
-	echo "$ply_hata" | sed 's/^/#   /'
+if [ -n "$ply_err" ]; then
+	fatal "SPLASH-SCRIPT-FAIL error in the plymouth theme script" "splash-script"
+	echo "$ply_err" | sed 's/^/#   /'
 else
-	log "SPLASH-SCRIPT-OK ayristirma hatasi yok"
+	log "SPLASH-SCRIPT-OK no parse errors"
 fi
 
-# os-release dpkg-divert ile devralınmıştı; gerçekten devraldı mı.
-# Ürün adı koda gömülmüyor (tek kaynak ilkesi): Debian kimliği hâlâ
-# duruyorsa devralma başarısız demektir.
+# os-release was taken over with dpkg-divert; did it really take over.
+# The product name is not embedded in code (single source principle): if
+# the Debian identity is still there the takeover failed.
 if [ -f /etc/os-release ] && ! grep -q '^ID=debian$' /etc/os-release; then
 	log "OSRELEASE-OK $(. /etc/os-release && echo "$PRETTY_NAME")"
 else
 	fatal "OSRELEASE-FAIL $(grep '^PRETTY_NAME=' /etc/os-release 2>/dev/null)" "os-release"
 fi
 
-# 4) Firmware yüklendi mi (Wi-Fi/ekran kartı için kritik — prompt 16)
+# 4) Was firmware loaded (critical for Wi-Fi/graphics card — prompt 16)
 if [ -d /lib/firmware ] && [ -n "$(ls -A /lib/firmware 2>/dev/null)" ]; then
-	log "FIRMWARE-OK $(find /lib/firmware -type f 2>/dev/null | wc -l) dosya"
+	log "FIRMWARE-OK $(find /lib/firmware -type f 2>/dev/null | wc -l) files"
 else
-	log "FIRMWARE-WARN /lib/firmware bos"
+	log "FIRMWARE-WARN /lib/firmware empty"
 fi
 
-# 5) EFI ile mi açıldı, BIOS ile mi
+# 5) Booted with EFI or BIOS
 if [ -d /sys/firmware/efi ]; then
 	log "BOOT-MODE=UEFI"
-	# efivars dosyasi: ilk 4 bayt oznitelik, 5. bayt SecureBoot degeri (0/1)
-	sb_state="okunamadi"
+	# efivars file: first 4 bytes are attributes, the 5th byte is the SecureBoot value (0/1)
+	sb_state="unreadable"
 	for sb in /sys/firmware/efi/efivars/SecureBoot-*; do
 		[ -r "$sb" ] || continue
 		sb_val=$(od -An -t u1 -j 4 -N 1 "$sb" 2>/dev/null | tr -d ' \n')
@@ -498,33 +509,33 @@ else
 	log "BOOT-MODE=BIOS"
 fi
 
-# 7) Kompozitör (madde 2): picom çalışmıyorsa menü/pencere kapanınca
-# artık görüntü kalıyor ve güç menüsünün köşeleri siyah çiziliyor.
+# 7) Compositor (item 2): if picom is not running, leftover images stay
+# when menus/windows close and the power menu's corners are drawn black.
 if pgrep -x picom >/dev/null 2>&1; then
 	log "PICOM-OK"
 else
-	fatal "PICOM-FAIL picom calismiyor" "picom"
+	fatal "PICOM-FAIL picom not running" "picom"
 fi
 
-# 8) /users/karan dizin yapısı (madde 0)
-ev=$(getent passwd karan 2>/dev/null | cut -d: -f6)
-if [ "$ev" = "/users/karan" ]; then
-	eksik_dizin=""
+# 8) /users/karan directory layout (item 0)
+home=$(getent passwd karan 2>/dev/null | cut -d: -f6)
+if [ "$home" = "/users/karan" ]; then
+	missing_dirs=""
 	for d in desktop downloads documents pictures videos music; do
-		[ -d "/users/karan/$d" ] || eksik_dizin="$eksik_dizin $d"
+		[ -d "/users/karan/$d" ] || missing_dirs="$missing_dirs $d"
 	done
-	if [ -z "$eksik_dizin" ]; then
-		log "USERS-OK ev=/users/karan, 6 klasor hazir"
+	if [ -z "$missing_dirs" ]; then
+		log "USERS-OK home=/users/karan, 6 folders ready"
 	else
-		fatal "USERS-FAIL eksik klasor:$eksik_dizin" "users"
+		fatal "USERS-FAIL missing folders:$missing_dirs" "users"
 	fi
 else
-	fatal "USERS-FAIL ev '$ev' (beklenen /users/karan)" "users"
+	fatal "USERS-FAIL home '$home' (expected /users/karan)" "users"
 fi
 
-# 8b) Ayarlar uygulaması (madde 9): pencere gerçekten açılıyor mu.
-# Panel oturumunda karan olarak başlatılır; 3 sn sonra sınıf adıyla
-# aranır (xdotool ISO'da — pano yapıştırma zaten kullanıyor).
+# 8b) Settings application (item 9): does the window really open.
+# Started as karan in the panel session; after 3 s it is searched by
+# class name (xdotool is on the ISO — clipboard paste already uses it).
 if command -v kavis-settings >/dev/null 2>&1; then
 	runuser -u karan -- env DISPLAY=:0 kavis-settings >/dev/null 2>&1 &
 	settings_shell_pid=$!
@@ -536,148 +547,151 @@ if command -v kavis-settings >/dev/null 2>&1; then
 			settings_rss_kb=$(awk '/^VmRSS:/ { print $2 }' \
 				"/proc/$settings_pid/status")
 			settings_uss=$(uss_mb "$settings_pid")
-			log "SETTINGS-OK pencere acildi, RSS=$((settings_rss_kb / 1024))MB USS=${settings_uss}MB"
-			# J: hedef USS <= 10 MB, üstü UYARI (RSS paylaşılan
-			# kütüphaneleri sayar, hedef için anlamsızdı).
+			log "SETTINGS-OK window opened, RSS=$((settings_rss_kb / 1024))MB USS=${settings_uss}MB"
+			# J: target USS <= 10 MB, above is a WARNING (RSS counts shared
+			# libraries, meaningless for the target).
 			if [ "$settings_uss" -gt 10 ]; then
 				log "SETTINGS-USS-WARN ${settings_uss}MB > 10MB"
 			fi
 		else
-			log "SETTINGS-OK pencere acildi"
+			log "SETTINGS-OK window opened"
 		fi
 	else
-		fatal "SETTINGS-FAIL kavis-settings penceresi acilmadi" "settings"
+		fatal "SETTINGS-FAIL kavis-settings window did not open" "settings"
 	fi
 	pkill -x kavis-settings 2>/dev/null || true
 	wait "$settings_shell_pid" 2>/dev/null || true
 else
-	fatal "SETTINGS-FAIL kavis-settings kurulu degil" "settings"
+	fatal "SETTINGS-FAIL kavis-settings not installed" "settings"
 fi
 
-# 9) Güvenlik sertleştirme (madde 8): sysctl değerleri gerçekten uygulanmış mı
-sysctl_hata=""
-dogrula_sysctl() {
-	deger=$(cat "/proc/sys/$1" 2>/dev/null || echo "?")
-	if [ "$deger" != "$2" ]; then
-		sysctl_hata="$sysctl_hata $1=$deger"
+# 9) Security hardening (item 8): were the sysctl values really applied
+sysctl_bad=""
+check_sysctl() {
+	value=$(cat "/proc/sys/$1" 2>/dev/null || echo "?")
+	if [ "$value" != "$2" ]; then
+		sysctl_bad="$sysctl_bad $1=$value"
 	fi
 }
-dogrula_sysctl kernel/unprivileged_userns_clone 0
-dogrula_sysctl kernel/kptr_restrict 2
-dogrula_sysctl kernel/dmesg_restrict 1
-dogrula_sysctl kernel/yama/ptrace_scope 1
-if [ -z "$sysctl_hata" ]; then
-	log "SYSCTL-OK 4 sertlestirme degeri uygulanmis"
+check_sysctl kernel/unprivileged_userns_clone 0
+check_sysctl kernel/kptr_restrict 2
+check_sysctl kernel/dmesg_restrict 1
+check_sysctl kernel/yama/ptrace_scope 1
+if [ -z "$sysctl_bad" ]; then
+	log "SYSCTL-OK 4 hardening values applied"
 else
-	fatal "SYSCTL-FAIL beklenmeyen:$sysctl_hata" "sysctl"
+	fatal "SYSCTL-FAIL unexpected:$sysctl_bad" "sysctl"
 fi
 
-# 10) earlyoom (madde 8) — servis ayakta mı
+# 10) earlyoom (item 8) — is the service up
 if systemctl is-active --quiet earlyoom.service 2>/dev/null; then
 	log "EARLYOOM-OK"
 else
-	fatal "EARLYOOM-FAIL servis calismiyor" "earlyoom"
+	fatal "EARLYOOM-FAIL service not running" "earlyoom"
 fi
 
-# 11) Sağlamlık denetimleri (madde 72, kararlar.md 9a)
-# 11a) Servis sağlığı: hiçbir systemd birimi failed durumunda olmasın
-basarisiz=$(systemctl --failed --no-legend --plain 2>/dev/null | awk '{print $1}' | tr '\n' ' ')
-if [ -z "${basarisiz% }" ]; then
+# 11) Robustness checks (item 72, kararlar.md 9a)
+# 11a) Service health: no systemd unit may be in the failed state
+failed_units=$(systemctl --failed --no-legend --plain 2>/dev/null | awk '{print $1}' | tr '\n' ' ')
+if [ -z "${failed_units% }" ]; then
 	log "SERVICES-OK"
 else
-	fatal "SERVICES-FAIL basarisiz birim: ${basarisiz% }" "servisler"
+	fatal "SERVICES-FAIL failed units: ${failed_units% }" "services"
 fi
 
-# 11b) Journal: bu açılışta öncelik <= err olan satır sayısı eşiğin
-# altında olmalı. Eşik 20 (kararlar.md 9a): QEMU'daki test2 ISO'sunda
-# ölçülen değer 0 (3 Eyl kalibrasyonu); ilk 20 satır teşhis için.
-journal_hata=$(journalctl -b -p err --no-pager -q 2>/dev/null | wc -l)
-log "JOURNAL-ERRORS=${journal_hata}"
-journalctl -b -p err --no-pager -q -o short 2>/dev/null | head -20 | while IFS= read -r satir; do
-	log "JOURNAL-ERR ${satir}"
+# 11b) Journal: the number of lines with priority <= err in this boot
+# must be below the threshold. Threshold 20 (kararlar.md 9a): the value
+# measured on the test2 ISO in QEMU was 0 (3 Sep calibration); the first
+# 20 lines for diagnosis.
+journal_errs=$(journalctl -b -p err --no-pager -q 2>/dev/null | wc -l)
+log "JOURNAL-ERRORS=${journal_errs}"
+journalctl -b -p err --no-pager -q -o short 2>/dev/null | head -20 | while IFS= read -r line; do
+	log "JOURNAL-ERR ${line}"
 done
-if [ "$journal_hata" -le 20 ]; then
-	log "JOURNAL-OK ${journal_hata} <= 20"
+if [ "$journal_errs" -le 20 ]; then
+	log "JOURNAL-OK ${journal_errs} <= 20"
 else
-	fatal "JOURNAL-FAIL ${journal_hata} err satiri (esik 20)" "journal"
+	fatal "JOURNAL-FAIL ${journal_errs} err lines (threshold 20)" "journal"
 fi
 
-# 11c) Coredump: ne systemd-coredump kaydı ne de dosyası
-cekirdek_dosya=$(find /var/lib/systemd/coredump -type f 2>/dev/null | wc -l)
-cekirdek_kayit=0
+# 11c) Coredump: neither a systemd-coredump record nor a file
+core_files=$(find /var/lib/systemd/coredump -type f 2>/dev/null | wc -l)
+core_records=0
 if command -v coredumpctl >/dev/null 2>&1; then
-	cekirdek_kayit=$(coredumpctl list --no-legend 2>/dev/null | wc -l)
+	core_records=$(coredumpctl list --no-legend 2>/dev/null | wc -l)
 fi
-if [ "$cekirdek_dosya" -eq 0 ] && [ "$cekirdek_kayit" -eq 0 ]; then
+if [ "$core_files" -eq 0 ] && [ "$core_records" -eq 0 ]; then
 	log "COREDUMP-OK"
 else
-	coredumpctl list --no-legend 2>/dev/null | head -5 | while IFS= read -r satir; do
-		log "COREDUMP ${satir}"
+	coredumpctl list --no-legend 2>/dev/null | head -5 | while IFS= read -r line; do
+		log "COREDUMP ${line}"
 	done
-	fatal "COREDUMP-FAIL dosya=${cekirdek_dosya} kayit=${cekirdek_kayit}" "coredump"
+	fatal "COREDUMP-FAIL files=${core_files} records=${core_records}" "coredump"
 fi
 
-# 11d) dpkg -V: Kavis'in değiştirdiği Debian paket dosyası olmasın.
-# Conffile'lar (2. sütun 'c') serbest — sayısı loglanır. 9995-cleanup
-# hook'unun bilerek sildiği belge/man/locale dosyaları "missing" çıkar
-# (3 Eyl kalibrasyonu: hepsi /usr/share/doc, man/<dil>, doc-base) —
-# onlar sayılır, hata değil. Gerisi (değişmiş ya da başka yerde eksik)
-# hata. Tüm dosyaların md5'i alınır (KVM'li CI'da dakikalar, TCG'de
-# ~10 dk); 300 sn'de bitmezse WARN (kırmızı değil), düşük öncelikle.
-dpkg_cikti=$(timeout 300 nice -n 19 ionice -c 3 dpkg -V 2>/dev/null)
+# 11d) dpkg -V: no Debian package file modified by Kavis. Conffiles
+# (2nd column 'c') are allowed — their count is logged. The doc/man/locale
+# files deliberately deleted by the 9995-cleanup hook come out as
+# "missing" (3 Sep calibration: all under /usr/share/doc, man/<lang>,
+# doc-base) — those are counted, not an error. The rest (modified, or
+# missing elsewhere) is an error. All files are md5-summed (minutes in
+# CI with KVM, ~10 min on TCG); if it does not finish in 300 s, WARN (not
+# red), at low priority.
+dpkg_out=$(timeout 300 nice -n 19 ionice -c 3 dpkg -V 2>/dev/null)
 dpkg_rc=$?
 if [ "$dpkg_rc" -eq 124 ]; then
-	log "DPKG-VERIFY-WARN 300 sn'de bitmedi"
+	log "DPKG-VERIFY-WARN did not finish in 300 s"
 else
-	conffile_sayi=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 == "c"' | wc -l)
-	beklenen_eksik=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/")' | wc -l)
-	degisen=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 != "c" && !($1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/"))')
-	printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 == "c" {print $NF}' | head -30 | while IFS= read -r satir; do
-		log "DPKG-CONFFILE ${satir}"
+	conffile_count=$(printf '%s\n' "$dpkg_out" | awk 'NF && $2 == "c"' | wc -l)
+	expected_missing=$(printf '%s\n' "$dpkg_out" | awk 'NF && $1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/")' | wc -l)
+	changed=$(printf '%s\n' "$dpkg_out" | awk 'NF && $2 != "c" && !($1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/"))')
+	printf '%s\n' "$dpkg_out" | awk 'NF && $2 == "c" {print $NF}' | head -30 | while IFS= read -r line; do
+		log "DPKG-CONFFILE ${line}"
 	done
-	if [ -z "$degisen" ]; then
-		log "DPKG-VERIFY-OK conffile=${conffile_sayi} temizlik-eksik=${beklenen_eksik}"
+	if [ -z "$changed" ]; then
+		log "DPKG-VERIFY-OK conffile=${conffile_count} cleanup-missing=${expected_missing}"
 	else
-		printf '%s\n' "$degisen" | head -30 | while IFS= read -r satir; do
-			log "DPKG-VERIFY-DIFF ${satir}"
+		printf '%s\n' "$changed" | head -30 | while IFS= read -r line; do
+			log "DPKG-VERIFY-DIFF ${line}"
 		done
-		fatal "DPKG-VERIFY-FAIL $(printf '%s\n' "$degisen" | wc -l) degismis paket dosyasi (conffile=${conffile_sayi})" "dpkg-verify"
+		fatal "DPKG-VERIFY-FAIL $(printf '%s\n' "$changed" | wc -l) modified package files (conffile=${conffile_count})" "dpkg-verify"
 	fi
 fi
 
-# 11e) Açılış süresi: toplam + en yavaş 5 birim (karşılaştırma docs'ta)
+# 11e) Boot time: total + the 5 slowest units (comparison in docs)
 log "BOOT-TIME $(systemd-analyze time 2>/dev/null | head -1 | tr -s ' ')"
-systemd-analyze blame --no-pager 2>/dev/null | head -5 | while IFS= read -r satir; do
-	log "BOOT-BLAME $(printf '%s' "$satir" | tr -s ' ')"
+systemd-analyze blame --no-pager 2>/dev/null | head -5 | while IFS= read -r line; do
+	log "BOOT-BLAME $(printf '%s' "$line" | tr -s ' ')"
 done
 
-# 6) Bellek kullanımı — prompt 20'deki 1 GB hedefi için ölçüm
+# 6) Memory usage — measurement for the 1 GB target in prompt 20
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"
 
-# 12) Selftest (madde 72): masaüstü hazırsa senaryolar gerçek oturumda
-# koşar; run.log satırları seri günlüğe SELFTEST öneki ile düşer.
-# Boşta RAM ölçümünden SONRA (uygulama açıp kapatıyor). 15 dk sınırı
-# (TCG'de yavaş); sınır aşımı ya da hata SELFTEST-FAIL = kırmızı.
+# 12) Selftest (item 72): if the desktop is ready the scenarios run in
+# the real session; run.log lines land in the serial log with the
+# SELFTEST prefix. AFTER the idle RAM measurement (it opens and closes
+# applications). 15 min limit (slow on TCG); exceeding the limit or an
+# error is SELFTEST-FAIL = red.
 if [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
 	selftest_rc=0
 	runuser -u karan -- env DISPLAY=:0 HOME=/users/karan \
 		XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
-		timeout 900 kavis-selftest --all 2>/dev/null | while IFS= read -r satir; do
-		log "SELFTEST ${satir}"
+		timeout 900 kavis-selftest --all 2>/dev/null | while IFS= read -r line; do
+		log "SELFTEST ${line}"
 	done
 	selftest_rc=$(runuser -u karan -- sh -c 'd=$(ls -1d /users/karan/.local/share/kavis/selftest/*/ 2>/dev/null | tail -1); grep -c "SELFTEST-FAIL" "${d}run.log" 2>/dev/null' || true)
 	if [ "${selftest_rc:-0}" = "0" ]; then
 		log "SELFTEST-OK"
 	else
-		fatal "SELFTEST-FAIL senaryo hatasi (run.log)" "selftest"
+		fatal "SELFTEST-FAIL scenario error (run.log)" "selftest"
 	fi
 else
-	log "SELFTEST-SKIP panel yok ya da kavis-selftest kurulu degil"
+	log "SELFTEST-SKIP no panel or kavis-selftest not installed"
 fi
 
-if [ -n "$olumcul" ]; then
-	log "FAILED-CHECKS=${olumcul# }"
+if [ -n "$failed" ]; then
+	log "FAILED-CHECKS=${failed# }"
 	log "RESULT=FAIL"
 	exit 1
 fi

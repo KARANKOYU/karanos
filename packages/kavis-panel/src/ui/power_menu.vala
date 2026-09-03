@@ -18,16 +18,16 @@ namespace Kavis.Ui {
         private const int MARGIN_PLAIN = 0;
 
         private const string CSS = """
-        /* Kutunun kendisi: yüzey rengi, yuvarlatılmış köşe, ince
-           kenarlık ve yumuşak gölge. Gölge iç kutuda; pencere şeffaf
-           kalıyor ki gölge kırpılmasın. */
+        /* The box itself: surface color, rounded corners, thin border
+           and a soft shadow. The shadow is on the inner box; the window
+           stays transparent so the shadow is not clipped. */
         .kavis-power-menu {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
           border-radius: 10px;
           box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
         }
-        /* Kompozitör yokken: gölge ve yuvarlak köşe yerine sade kenarlık. */
+        /* Without a compositor: a plain border instead of shadow and rounded corners. */
         .kavis-power-menu.plain {
           border-radius: 0;
           box-shadow: none;
@@ -91,7 +91,7 @@ namespace Kavis.Ui {
                     Gdk.Screen.get_default (), provider,
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             } catch (Error e) {
-                warning ("kavis-panel: guc menusu CSS yuklenemedi: %s",
+                warning ("kavis-panel: could not load the power menu CSS: %s",
                          e.message);
             }
         }
@@ -112,8 +112,8 @@ namespace Kavis.Ui {
             box.set_border_width (6);
             outer.pack_start (box, true, true, 0);
 
-            /* Row order as requested: Kilitle, Uyku, Kapat, Yeniden
-             * başlat. */
+            /* Row order as requested: Lock, Sleep, Shut down,
+             * Restart. */
             box.pack_start (row (N_("Lock"),
                 "system-lock-screen-symbolic", Power.lock), false, false, 0);
             box.pack_start (row (N_("Sleep"),

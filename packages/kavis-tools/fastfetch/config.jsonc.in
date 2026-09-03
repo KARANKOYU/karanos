@@ -1,9 +1,10 @@
-// Kavis — fastfetch yapılandırması (madde 71). `kavisfetch` ve düz
-// `fastfetch` (/etc/fastfetch/config.jsonc bağı) aynı dosyayı okur.
-// Logo: /etc/kavis/fastfetch/logo-{dark,light}.txt — kavisfetch temaya
-// göre seçer; düz fastfetch koyu logoyu alır.
-// OS satırı /etc/os-release'ten gelir; DE satırındaki ad derlemede aynı
-// dosyadan işlenir (config.jsonc.in → config.jsonc, marka kuralı).
+// Kavis — fastfetch configuration (madde 71). `kavisfetch` and plain
+// `fastfetch` (/etc/fastfetch/config.jsonc link) read the same file.
+// Logo: /etc/kavis/fastfetch/logo-{dark,light}.txt — kavisfetch picks
+// by theme; plain fastfetch gets the dark logo.
+// The OS line comes from /etc/os-release; the name on the DE line is
+// substituted at build time from the same file (config.jsonc.in →
+// config.jsonc, brand rule).
 {
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
     "logo": {
@@ -25,9 +26,10 @@
         { "type": "packages", "key": "Packages" },
         { "type": "shell", "key": "Shell" },
         { "type": "display", "key": "Display" },
-        // DE: fastfetch bilinmeyen masaüstünü yazmıyor; ad derlemede
-        // os-release NAME'den (@AD@) işlenir — marka kuralı korunur.
-        { "type": "custom", "key": "DE", "format": "@AD@ (Openbox)" },
+        // DE: fastfetch does not print an unknown desktop; the name is
+        // substituted at build time from os-release NAME (@NAME@) — the
+        // brand rule is preserved.
+        { "type": "custom", "key": "DE", "format": "@NAME@ (Openbox)" },
         { "type": "theme", "key": "Theme" },
         { "type": "icons", "key": "Icons" },
         { "type": "font", "key": "Font" },

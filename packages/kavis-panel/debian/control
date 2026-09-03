@@ -28,15 +28,16 @@ Depends:
  x11-xkb-utils,
  librsvg2-common,
  alsa-utils,
-Description: Kavis görev çubuğu ve başlat menüsü
- Ekranın altında duran görev çubuğu: solda K logolu başlat düğmesi,
- ortada o anki sanal masaüstünün açık pencereleri, sağda masaüstü
- göstergesi, klavye dili, pil ve saat.
+Description: Kavis taskbar and start menu
+ Taskbar sitting at the bottom of the screen: start button with the K
+ logo on the left, the open windows of the current virtual desktop in
+ the middle, desktop indicator, keyboard language, battery and clock
+ on the right.
  .
- Başlat menüsünde arama kutusu, kategorilere ayrılmış program listesi
- ve altta güç düğmesi (kilitle, uyku, kapat, yeniden başlat popup'ı)
- bulunur.
+ The start menu holds a search box, a program list grouped by
+ category and a power button at the bottom (lock, sleep, shut down,
+ restart popup).
  .
- Vala ile yazılmıştır ve tek bir yerel ikili olarak derlenir; madde 3
- gereği Python sürümünün yerini almıştır (117 MB yerine birkaç MB RAM).
- Arayüz metinleri docs/kavis-arayuz-metinleri.md tablolarından alınır.
+ Written in Vala and compiled to a single native binary; per madde 3
+ it replaced the Python version (a few MB of RAM instead of 117 MB).
+ UI strings are taken from the docs/kavis-arayuz-metinleri.md tables.

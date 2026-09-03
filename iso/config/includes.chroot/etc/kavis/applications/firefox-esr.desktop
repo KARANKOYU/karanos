@@ -1,7 +1,7 @@
 [Desktop Entry]
 # Kavis F2 (v0.4-test1): "Firefox ESR Web Browser" → "Firefox".
-# Debian firefox-esr.desktop'unun override'ı (3A düzeni); alanlar
-# upstream'le aynı, yalnız Name kısaldı.
+# Override of Debian's firefox-esr.desktop (3A layout); the fields
+# match upstream, only Name got shorter.
 Version=1.0
 Name=Firefox
 Comment=Browse the World Wide Web

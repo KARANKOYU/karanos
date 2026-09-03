@@ -1,5 +1,5 @@
 /* Pinned taskbar apps (business logic — no widget code).
- * Sonraki-isler bölüm 2.
+ * Sonraki-isler section 2.
  *
  * Storage: ~/.config/kavis/pinned.conf — one .desktop id per line,
  * order = taskbar order. Missing file falls back to the default set
@@ -11,11 +11,11 @@
 namespace Kavis.Pinned {
 
     private const string[] DEFAULTS = {
-        "nemo.desktop",            /* dosya yöneticisi (madde 39) */
+        "nemo.desktop",            /* file manager (madde 39) */
         "firefox-esr.desktop",
         "com.gexperts.Tilix.desktop", /* terminal (madde 40: tilix) */
-        "kavis-settings.desktop",  /* Ayarlar (Grup F 1A) */
-        "kavis-store.desktop",     /* Grup G'de gelecek — o güne dek gizli */
+        "kavis-settings.desktop",  /* Settings (Grup F 1A) */
+        "kavis-store.desktop",     /* arrives in Grup G — hidden until then */
     };
 
     private string config_path () {
@@ -47,7 +47,7 @@ namespace Kavis.Pinned {
             FileUtils.set_contents (path,
                 string.joinv ("\n", ids) + "\n");
         } catch (Error e) {
-            warning ("kavis-panel: pinned.conf yazilamadi: %s", e.message);
+            warning ("kavis-panel: could not write pinned.conf: %s", e.message);
         }
     }
 

@@ -18,14 +18,14 @@ Depends:
  adwaita-icon-theme,
  hicolor-icon-theme,
  papirus-icon-theme,
-Description: Kavis görünümü — GTK teması, simgeler, imleçler, duvar kağıtları
- Kavis'in kimliğini taşıyan görsel dosyalar:
+Description: Kavis look and feel — GTK theme, icons, cursors, wallpapers
+ The visual files carrying Kavis' identity:
  .
-  * GTK3 teması (açık ve koyu), GTK2 uyumu ve Openbox pencere teması
-  * K logosundan türetilen simge teması (Papirus-Dark + Adwaita mirası)
-  * Turkuaz vurgulu XCursor imleç teması
-  * Marka renklerinde duvar kağıtları
-  * /etc/os-release içinde dağıtım kimliği
+  * GTK3 theme (light and dark), GTK2 compatibility and Openbox window theme
+  * Icon theme derived from the K logo (inherits Papirus-Dark + Adwaita)
+  * XCursor cursor theme with teal accent
+  * Wallpapers in the brand colors
+  * Distribution identity in /etc/os-release
  .
- Renkler: turkuaz #2DD4BF, mavi #4F92F7, zemin #0D141B, metin #E6EDF3.
- Varsayilan gorunum koyu; acik tema ikinci secenek.
+ Colors: teal #2DD4BF, blue #4F92F7, ground #0D141B, text #E6EDF3.
+ The default look is dark; the light theme is the second option.

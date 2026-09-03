@@ -1,10 +1,11 @@
-# Kavis — Openbox oturum başlangıcı
+# Kavis — Openbox session startup
 
-# --- Duvar kağıdı ----------------------------------------------------
-# kavis-theme paketinden geliyor. Paket yoksa (çıplak ISO) düz renge
-# düşüyoruz ki ekran yine de "açıldı" desin.
-# xsettings: tema/ikon/ölçek tek kaynaktan, canlı (madde 38).
-# Ayarlar bu dosyayı yazıp SIGHUP verir; ilk açılışta varsayılan üret.
+# --- Wallpaper -------------------------------------------------------
+# Comes from the kavis-theme package. If the package is absent (bare
+# ISO) we fall back to a flat color so the screen still says "it's up".
+# xsettings: theme/icons/scale from a single source, live (item 38).
+# Settings writes this file and sends SIGHUP; generate a default on the
+# first start.
 XS_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/xsettingsd/xsettingsd.conf"
 if command -v xsettingsd >/dev/null 2>&1; then
 	if [ ! -f "$XS_CONF" ]; then
@@ -16,115 +17,118 @@ fi
 
 if command -v xwallpaper >/dev/null 2>&1 &&
 	[ -f /usr/share/backgrounds/kavis/kavis.png ]; then
-	# Ayarlar > Görünüm'ün seçtiği duvar kâğıdı kavis.conf'ta;
-	# yoksa varsayılan (kabuk için hafif grep — keyfile ayrıştırma yok).
-	DUVAR=$(grep -m1 '^wallpaper=' "${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf" 2>/dev/null | cut -d= -f2-)
-	[ -f "$DUVAR" ] || DUVAR=/usr/share/backgrounds/kavis/kavis.png
-	xwallpaper --zoom "$DUVAR" &
+	# The wallpaper chosen in Settings > Appearance is in kavis.conf;
+	# otherwise the default (a light grep for the shell — no keyfile
+	# parsing).
+	WALLPAPER=$(grep -m1 '^wallpaper=' "${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf" 2>/dev/null | cut -d= -f2-)
+	[ -f "$WALLPAPER" ] || WALLPAPER=/usr/share/backgrounds/kavis/kavis.png
+	xwallpaper --zoom "$WALLPAPER" &
 else
 	xsetroot -solid "#0D141B" &
 fi
 
-# --- İmleç -----------------------------------------------------------
-# Kök penceredeki imleç ayrıca ayarlanmazsa masaüstünün boş alanında X'in
-# kalın çarpı imleci kalıyor, tema imleci yalnızca pencerelerde görünüyor.
+# --- Cursor ----------------------------------------------------------
+# Unless the cursor on the root window is set separately, X's thick cross
+# cursor stays on the empty desktop area and the theme cursor shows only
+# in windows.
 xsetroot -cursor_name left_ptr &
 
-# --- Kompozitör ------------------------------------------------------
-# Gölge ve yuvarlatılmış köşeler için. Panelden ÖNCE başlıyor: panel
-# açılışta bileşiklemenin var olup olmadığına bakıp güç menüsünü ona
-# göre çiziyor. xrender arka ucu, 3B gerektirmiyor.
+# --- Compositor ------------------------------------------------------
+# For shadows and rounded corners. Starts BEFORE the panel: at startup
+# the panel checks whether compositing exists and draws the power menu
+# accordingly. The xrender backend needs no 3D.
 if command -v picom >/dev/null 2>&1; then
-	# Ayarlar > Görünüm köşe/animasyon değiştirince kullanıcı kopyası
-	# yazar (picom canlı yeniden yükleme bilmiyor) — varsa onu kullan.
+	# When Settings > Appearance changes corners/animation it writes a
+	# user copy (picom knows no live reload) — use that if present.
 	PICOM_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/kavis/picom.conf"
 	[ -f "$PICOM_CONF" ] || PICOM_CONF=/etc/xdg/picom-kavis.conf
 	picom --backend xrender --config "$PICOM_CONF" &
-	# Panel bileşiklemeyi görebilsin diye kısa bir pay.
+	# A short margin so the panel can see the compositing.
 	sleep 1
 fi
 
-# --- Görev çubuğu ve başlat menüsü (4. aşama) ------------------------
-# NEDEN GÜNLÜĞE YAZIYORUZ: panel ilk denemede canlı ortamda çöktü ve
-# çıktısı hiçbir yere gitmediği için sebebi görünmedi — duman testi
-# yalnızca "çalışmıyor" diyebildi. Artık hata metni burada duruyor ve
-# boot-check onu seri konsola döküyor.
+# --- Taskbar and start menu (stage 4) --------------------------------
+# WHY WE LOG: on the first try the panel crashed in the live environment
+# and, since its output went nowhere, the reason was invisible — the
+# smoke test could only say "not running". Now the error text stays here
+# and boot-check dumps it to the serial console.
 #
-# NEDEN YENİDEN DENİYORUZ: panel Wnck üzerinden pencere yöneticisine
-# bağlanıyor; openbox otomatik başlangıcı çalıştırdığında bazen henüz
-# tam hazır olmuyor. Üç deneme, aralarında birer saniye.
+# WHY WE RETRY: the panel connects to the window manager through Wnck;
+# when openbox runs the autostart it is sometimes not fully ready yet.
+# Three attempts, one second apart.
 KAVIS_PANEL_LOG="${XDG_RUNTIME_DIR:-/tmp}/kavis-panel.log"
 export KAVIS_PANEL_LOG
 
 if command -v kavis-panel >/dev/null 2>&1; then
 	(
-		deneme=1
-		while [ "$deneme" -le 3 ]; do
-			echo "--- kavis-panel denemesi $deneme ---" >>"$KAVIS_PANEL_LOG"
+		attempt=1
+		while [ "$attempt" -le 3 ]; do
+			echo "--- kavis-panel attempt $attempt ---" >>"$KAVIS_PANEL_LOG"
 			kavis-panel >>"$KAVIS_PANEL_LOG" 2>&1 && exit 0
-			echo "--- panel cikti (kod $?), yeniden deneniyor ---" \
+			echo "--- panel exited (code $?), retrying ---" \
 				>>"$KAVIS_PANEL_LOG"
-			deneme=$((deneme + 1))
+			attempt=$((attempt + 1))
 			sleep 1
 		done
 	) &
 fi
 
-# --- Win tuşu (C4) ---------------------------------------------------
-# Tek başına Super_L dokunuşu → XF86Launch5 (rc.xml: başlat menüsü). Chord'lar
-# (Win+E...) etkilenmez; -t 300: 300 ms'den uzun basış dokunuş sayılmaz.
+# --- Win key (C4) ----------------------------------------------------
+# A lone Super_L tap → XF86Launch5 (rc.xml: start menu). Chords (Win+E...)
+# are unaffected; -t 300: a press longer than 300 ms does not count as a
+# tap.
 if command -v xcape >/dev/null 2>&1; then
 	xcape -t 300 -e 'Super_L=XF86Launch5' &
 fi
 
-# --- Kenara yapıştırma (madde 6) -------------------------------------
-# Sürükle-kenara-yapıştır; klavye kısayolları openbox'ın kendi işi
-# (0210 hook'u). Panelle aynı paketten gelir.
+# --- Edge snapping (item 6) ------------------------------------------
+# Drag-to-edge snapping; keyboard shortcuts are openbox's own job (0210
+# hook). Comes from the same package as the panel.
 if command -v kavis-snap >/dev/null 2>&1; then
 	kavis-snap &
 fi
 
-# Ses/parlaklık/kilit/medya OSD'si (sonraki-isler 6a) — panelden ayrı
+# Volume/brightness/lock/media OSD (next-tasks 6a) — separate from the panel
 if command -v kavis-osd >/dev/null 2>&1; then
 	kavis-osd &
 fi
 
-# Touchpad hareketleri (sonraki-isler 6g): touchpad VARSA başlar,
-# yoksa hiç başlamaz. libinput-gestures/touchegg trixie'de olmadığı
-# için kendi ince okuyucumuz (/usr/lib/kavis/kavis-gestures).
-# Ayarlar > Touchpad aç/kapa Grup F notu.
+# Touchpad gestures (next-tasks 6g): starts if there IS a touchpad,
+# never starts otherwise. libinput-gestures/touchegg are not in trixie,
+# hence our own thin reader (/usr/lib/kavis/kavis-gestures).
+# Settings > Touchpad on/off is a Group F note.
 if [ -x /usr/lib/kavis/kavis-gestures ] \
 	&& grep -qi touchpad /proc/bus/input/devices 2>/dev/null; then
 	/usr/lib/kavis/kavis-gestures &
 fi
 
-# Polkit oturum aracısı (madde 39 "yönetici olarak aç" + madde 64
-# onarım): pkexec parola diyaloğunu bu aracı çizer, yoksa yetki
-# isteyen HİÇBİR masaüstü işlemi çalışmaz.
+# Polkit session agent (item 39 "open as administrator" + item 64
+# repair): this agent draws the pkexec password dialog; without it NO
+# desktop operation that needs privileges works.
 if command -v lxpolkit >/dev/null 2>&1; then
 	lxpolkit &
 fi
 
-# --- Masaüstü simgeleri (madde 6) ------------------------------------
-# nemo-desktop yalnız simge katmanını çizer (dosya yöneticisinin kendisi
-# Grup E'de yapılandırılacak). GDK_GL=disable: llvmpipe tuzağı (madde
-# 61) — nemo bizim ikili olmadığı için ortak başlangıcı kullanamıyor,
-# ortam değişkeni buradan veriliyor.
+# --- Desktop icons (item 6) ------------------------------------------
+# nemo-desktop draws only the icon layer (the file manager itself is
+# configured in Group E). GDK_GL=disable: the llvmpipe trap (item 61) —
+# nemo is not our binary so it cannot use the shared startup; the
+# environment variable is given from here.
 if command -v nemo-desktop >/dev/null 2>&1; then
 	GDK_GL=disable nemo-desktop &
 fi
-# C5: kök pencere imleci nemo-desktop AÇILDIKTAN sonra bir kez daha —
-# masaüstü katmanı kök imlecini devralır; erken ayarlanmışsa ve tema
-# geç geldiyse I-beam/çarpı takılı kalıyordu. XCURSOR_THEME Xsession.d
-# 55kavis-imlec'te.
+# C5: root window cursor once more AFTER nemo-desktop has opened — the
+# desktop layer takes over the root cursor; if it was set early and the
+# theme came late, the I-beam/cross stayed stuck. XCURSOR_THEME is in
+# Xsession.d 55kavis-cursor.
 (sleep 2; xsetroot -cursor_name left_ptr) &
 
 # --- XDG autostart (H2) -----------------------------------------------
-# Görev Yöneticisi > Başlangıç'ın yönettiği liste; tek mekanizma.
-# v0.4-test2 dersi: bu girdiler (at-spi, xapp-sn-watcher, ikinci picom
-# denemesi) panelle AYNI ANDA başlayınca KVM'siz QEMU'da panelin
-# haritalanması 12 sn'yi aşıp CI karesini kaçırdı. Önce panel gelsin
-# (en çok 10 sn beklenir), sonra düşük öncelikle diğerleri.
+# The list managed by Task Manager > Startup; the single mechanism.
+# v0.4-test2 lesson: when these entries (at-spi, xapp-sn-watcher, a second
+# picom attempt) started at the SAME TIME as the panel, mapping the panel
+# in QEMU without KVM exceeded 12 s and missed the CI frame. The panel
+# comes first (waited for at most 10 s), then the others at low priority.
 if [ -x /usr/lib/kavis/kavis-session-autostart ]; then
 	(
 		i=0
@@ -138,6 +142,6 @@ if [ -x /usr/lib/kavis/kavis-session-autostart ]; then
 	) &
 fi
 
-# Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken
-# 10 dakika sonra ekranın kararması kafa karıştırıyor).
+# Screensaver/DPMS stay off in live mode (when trying from USB, the
+# screen going dark after 10 minutes is confusing).
 xset s off -dpms &

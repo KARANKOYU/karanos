@@ -22,18 +22,20 @@ Depends:
  lightdm (<< 1.34),
  plymouth-themes,
  alsa-utils,
-Description: Kavis açılış ekranı — Plymouth teması ve açılış müziği
- Sade koyu zeminde ortada koyu Kavis logosu belirir: %15 opaklıkla
- başlar, yaklaşık 1,5 saniyede tam görünür olur ve hafif bir parlama
- alır. Altında ürün adı ve italik "made by Karan" imzası, en altta
- "F3 — Gelişmiş menü" ve "Atlamak için boşluk tuşu" ipuçları durur.
+Description: Kavis boot splash — Plymouth theme and boot music
+ The dark Kavis logo appears centered on a plain dark background: it
+ starts at 15% opacity, becomes fully visible in about 1.5 seconds and
+ gets a slight glow. Below it the product name and the italic "made by
+ Karan" signature, at the bottom the "F3 — Advanced menu" and "Press
+ space to skip" hints.
  .
- Aynı anda açılış müziği çalar. Plymouth'un ses desteği olmadığı için
- müziği ayrı bir systemd servisi yönetir; açılış ekranı müzik bitene
- kadar kapanmaz. Tek istisna boşluk tuşudur: basılırsa müzik kesilir
- ve açılış hemen sürer. Davranış /etc/kavis/boot.conf ile kapatılıp
- açılabilir. Ses aygıtı yoksa en fazla 10 saniye beklenir ve açılış
- devam eder.
+ The boot music plays at the same time. Since Plymouth has no audio
+ support, a separate systemd service manages the music; the boot splash
+ does not close until the music ends. The single exception is the space
+ key: when pressed the music stops and the boot continues at once. The
+ behavior can be switched on and off through /etc/kavis/boot.conf. If
+ there is no audio device, at most 10 seconds are waited and the boot
+ continues.
  .
- Müzik ISO'ya gömülü gelir, /usr/share/kavis/boot/ altında durur ve
- yalnızca root yazabilir.
+ The music ships embedded in the ISO, lives under /usr/share/kavis/boot/
+ and is writable only by root.
