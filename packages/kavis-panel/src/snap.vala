@@ -81,6 +81,21 @@ namespace Kavis {
         private int intended_x = 0;
         private int intended_y = 0;
 
+        /* KAVIS_SNAP_DEBUG=1: every state transition to stderr (VM
+         * diagnosis, selftest). Off by default — zero cost. */
+        private bool debug_on = Environment.get_variable ("KAVIS_SNAP_DEBUG") != null;
+
+        private void dbg (string fmt, ...) {
+            if (!debug_on) {
+                return;
+            }
+            var l = va_list ();
+            var msg = fmt.vprintf (l);
+            var now = new DateTime.now_local ();
+            printerr ("%s.%03d kavis-snap: %s\n", now.format ("%H:%M:%S"),
+                      now.get_microsecond () / 1000, msg);
+        }
+
         public SnapDaemon () {
             screen = Wnck.Screen.get_default ();
             screen.force_update ();
@@ -108,6 +123,8 @@ namespace Kavis {
             screen.window_opened.connect ((w) => watch_window (w));
 
             Timeout.add (POLL_IDLE_MS, poll);
+            dbg ("basladi composited=%s pencere=%u", composited.to_string (),
+                 screen.get_windows ().length ());
         }
 
         private void load_css () {
@@ -139,6 +156,7 @@ namespace Kavis {
             uint mask;
             if (!xdisplay.query_pointer (root, out r, out c, out x, out y,
                                          out wx, out wy, out mask)) {
+                dbg ("query_pointer basarisiz");
                 return false;
             }
             /* Button1Mask = 1<<8 (X.h) — vapi'de sabit olarak yok. */
@@ -174,6 +192,47 @@ namespace Kavis {
             return Source.CONTINUE;
         }
 
+        /* Frame geometry straight from the X server, root coordinates.
+         * Wnck's cached geometry LAGS during an openbox interactive
+         * move: the client gets no ConfigureNotify until the button is
+         * released (v0.4-test2 E1, seen in a real VM — Xvfb tests moved
+         * windows with xdotool, which never showed this), so the "did
+         * the frame move" drag test must not depend on it. The frame is
+         * the client's top-most ancestor below root (openbox reparents
+         * the client straight into the frame window); an unreparented
+         * client is its own frame. */
+        private bool frame_geometry (Wnck.Window w, out int fx, out int fy,
+                                     out int fw, out int fh) {
+            fx = 0; fy = 0; fw = 0; fh = 0;
+            unowned X.Display xd =
+                ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
+            X.Window root = xd.default_root_window ();
+            X.Window frame = (X.Window) w.get_xid ();
+            Gdk.error_trap_push ();
+            for (int depth = 0; depth < 8; depth++) {
+                X.Window r, parent;
+                X.Window[] children;
+                xd.query_tree (frame, out r, out parent, out children);
+                if (parent == root || parent == 0) {
+                    break;
+                }
+                frame = parent;
+            }
+            X.WindowAttributes attrs;
+            xd.get_window_attributes (frame, out attrs);
+            X.Window child;
+            int rx, ry;
+            bool ok = xd.translate_coordinates (frame, root, 0, 0,
+                                                out rx, out ry, out child);
+            int err = Gdk.error_trap_pop ();
+            if (err != 0 || !ok || attrs.width <= 0) {
+                return false;   /* pencere kapandı / geçersiz */
+            }
+            fx = rx; fy = ry;
+            fw = attrs.width; fh = attrs.height;
+            return true;
+        }
+
         /* Topmost normal window whose frame contains the point. */
         private unowned Wnck.Window? window_at (int x, int y) {
             unowned List<Wnck.Window> stacked = screen.get_windows_stacked ();
@@ -200,16 +259,23 @@ namespace Kavis {
             takeover_placed = false;
             zone = Zone.NONE;
             drag_window = window_at (x, y);
+            dbg ("basis %d,%d pencere=%s", x, y,
+                 drag_window == null ? "(yok)" : drag_window.get_name ());
             if (drag_window == null || drag_window.is_fullscreen ()) {
                 drag_window = null;
                 return;
             }
             press_x = x;
             press_y = y;
-            drag_window.get_geometry (out press_geometry.x,
-                                      out press_geometry.y,
-                                      out press_geometry.width,
-                                      out press_geometry.height);
+            if (!frame_geometry (drag_window, out press_geometry.x,
+                                 out press_geometry.y,
+                                 out press_geometry.width,
+                                 out press_geometry.height)) {
+                drag_window.get_geometry (out press_geometry.x,
+                                          out press_geometry.y,
+                                          out press_geometry.width,
+                                          out press_geometry.height);
+            }
             press_was_maximized = drag_window.is_maximized ();
             if (press_was_maximized) {
                 /* Basış başlıkta mı? (çerçeve üstü ile istemci üstü
@@ -230,7 +296,9 @@ namespace Kavis {
 
         private void track_drag (int x, int y) {
             int wx, wy, ww, wh;
-            drag_window.get_geometry (out wx, out wy, out ww, out wh);
+            if (!frame_geometry (drag_window, out wx, out wy, out ww, out wh)) {
+                drag_window.get_geometry (out wx, out wy, out ww, out wh);
+            }
 
             /* C3: büyütülmüş pencere — openbox bu durumda hiçbir şey
              * yapmıyor (rc.xml If kuralı); işaretçi eşiği geçince
@@ -260,6 +328,8 @@ namespace Kavis {
                     return;
                 }
                 dragging = true;
+                dbg ("surukleme basladi cerceve %d,%d (basista %d,%d)",
+                     wx, wy, press_geometry.x, press_geometry.y);
             }
 
             /* Unsnap: bizim yapıştırdığımız pencere çekilip
@@ -283,7 +353,11 @@ namespace Kavis {
                 }
             }
 
+            Zone before = zone;
             zone = zone_at (x, y);
+            if (zone != before) {
+                dbg ("bolge %d -> %d isaretci %d,%d", (int) before, (int) zone, x, y);
+            }
             update_preview (x, y);
         }
 
@@ -399,6 +473,9 @@ namespace Kavis {
         }
 
         private void end_drag () {
+            dbg ("birakildi dragging=%s bolge=%d pencere=%s",
+                 dragging.to_string (), (int) zone,
+                 drag_window == null ? "(yok)" : drag_window.get_name ());
             preview.hide ();
             if (dragging && drag_window != null) {
                 if (zone != Zone.NONE) {
