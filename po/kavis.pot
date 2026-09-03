@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 14:21+0000\n"
+"POT-Creation-Date: 2026-09-03 15:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,98 +18,98 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: packages/kavis-common/picker_data.vala:17
-#: packages/kavis-common/picker_data.vala:35
+#: packages/kavis-common/picker_data.vala:37
 msgid "Smileys"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:19
-#: packages/kavis-common/picker_data.vala:35
+#: packages/kavis-common/picker_data.vala:37
 msgid "People"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:21
-#: packages/kavis-common/picker_data.vala:35
+#: packages/kavis-common/picker_data.vala:37
 msgid "Nature"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:23
-#: packages/kavis-common/picker_data.vala:35
+#: packages/kavis-common/picker_data.vala:37
 msgid "Food"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:25
-#: packages/kavis-common/picker_data.vala:36
+#: packages/kavis-common/picker_data.vala:38
 msgid "Travel"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:27
-#: packages/kavis-common/picker_data.vala:36
+#: packages/kavis-common/picker_data.vala:38
 msgid "Objects"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:29
-#: packages/kavis-common/picker_data.vala:36
+#: packages/kavis-common/picker_data.vala:38
 #: packages/kavis-panel/src/ui/picker.vala:171
 msgid "Symbols"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:40
-#: packages/kavis-common/picker_data.vala:55
+#: packages/kavis-common/picker_data.vala:42
+#: packages/kavis-common/picker_data.vala:57
 msgid "Happy"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:42
-#: packages/kavis-common/picker_data.vala:55
+#: packages/kavis-common/picker_data.vala:44
+#: packages/kavis-common/picker_data.vala:57
 msgid "Sad"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:44
-#: packages/kavis-common/picker_data.vala:55
+#: packages/kavis-common/picker_data.vala:46
+#: packages/kavis-common/picker_data.vala:57
 msgid "Angry"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:46
-#: packages/kavis-common/picker_data.vala:55
+#: packages/kavis-common/picker_data.vala:48
+#: packages/kavis-common/picker_data.vala:57
 msgid "Surprised"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:48
-#: packages/kavis-common/picker_data.vala:56
+#: packages/kavis-common/picker_data.vala:50
+#: packages/kavis-common/picker_data.vala:58
 msgid "Love"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:50
-#: packages/kavis-common/picker_data.vala:56
+#: packages/kavis-common/picker_data.vala:52
+#: packages/kavis-common/picker_data.vala:58
 msgid "Other"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:60
-#: packages/kavis-common/picker_data.vala:75
+#: packages/kavis-common/picker_data.vala:62
+#: packages/kavis-common/picker_data.vala:77
 msgid "Currency"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:62
-#: packages/kavis-common/picker_data.vala:75
+#: packages/kavis-common/picker_data.vala:64
+#: packages/kavis-common/picker_data.vala:77
 msgid "Arrows"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:64
-#: packages/kavis-common/picker_data.vala:75
+#: packages/kavis-common/picker_data.vala:66
+#: packages/kavis-common/picker_data.vala:77
 msgid "Punctuation"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:66
-#: packages/kavis-common/picker_data.vala:75
+#: packages/kavis-common/picker_data.vala:68
+#: packages/kavis-common/picker_data.vala:77
 msgid "Math"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:68
-#: packages/kavis-common/picker_data.vala:76
+#: packages/kavis-common/picker_data.vala:70
+#: packages/kavis-common/picker_data.vala:78
 msgid "Accented letters"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:70
-#: packages/kavis-common/picker_data.vala:76
+#: packages/kavis-common/picker_data.vala:72
+#: packages/kavis-common/picker_data.vala:78
 msgid "Super/subscript"
 msgstr ""
 
@@ -180,7 +180,7 @@ msgstr ""
 #: packages/kavis-panel/src/kavis_osd.vala:275
 #: packages/kavis-panel/src/kavis_osd.vala:288
 #: packages/kavis-panel/src/ui/indicators.vala:223
-#: packages/kavis-panel/src/ui/quick_settings.vala:778
+#: packages/kavis-panel/src/ui/quick_settings.vala:793
 #, c-format
 msgid "%d%%"
 msgstr ""
@@ -304,15 +304,15 @@ msgstr ""
 msgid "New desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:471
+#: packages/kavis-panel/src/ui/indicators.vala:475
 msgid "Only one desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:473
+#: packages/kavis-panel/src/ui/indicators.vala:477
 msgid "Close the last desktop — its windows move to the previous one"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/indicators.vala:474
+#: packages/kavis-panel/src/ui/indicators.vala:478
 msgid "Close the last desktop"
 msgstr ""
 
@@ -331,107 +331,107 @@ msgstr ""
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1167
+#: packages/kavis-panel/src/ui/panel.vala:1169
 #, c-format
 msgid "Open %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1183
-#: packages/kavis-panel/src/ui/start_menu.vala:215
+#: packages/kavis-panel/src/ui/panel.vala:1185
+#: packages/kavis-panel/src/ui/start_menu.vala:216
 msgid "Unpin from taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1184
-#: packages/kavis-panel/src/ui/start_menu.vala:215
+#: packages/kavis-panel/src/ui/panel.vala:1186
+#: packages/kavis-panel/src/ui/start_menu.vala:216
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1200
+#: packages/kavis-panel/src/ui/panel.vala:1202
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1200
+#: packages/kavis-panel/src/ui/panel.vala:1202
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1296
+#: packages/kavis-panel/src/ui/panel.vala:1298
 #: packages/kavis-settings/src/ui/page_taskbar.vala:28
 #: packages/kavis-settings/src/ui/window.vala:127
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1304
+#: packages/kavis-panel/src/ui/panel.vala:1306
 #: packages/kavis-settings/src/ui/page_taskbar.vala:13
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1304
+#: packages/kavis-panel/src/ui/panel.vala:1306
 #: packages/kavis-settings/src/ui/page_taskbar.vala:14
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1305
+#: packages/kavis-panel/src/ui/panel.vala:1307
 #: packages/kavis-settings/src/ui/page_taskbar.vala:15
 #: packages/kavis-settings/src/ui/page_taskbar.vala:42
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1305
+#: packages/kavis-panel/src/ui/panel.vala:1307
 #: packages/kavis-settings/src/ui/page_taskbar.vala:16
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1326
+#: packages/kavis-panel/src/ui/panel.vala:1328
 #: packages/kavis-settings/src/ui/page_taskbar.vala:39
 #: packages/kavis-settings/src/ui/window.vala:127
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1334
+#: packages/kavis-panel/src/ui/panel.vala:1336
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1334
+#: packages/kavis-panel/src/ui/panel.vala:1336
 #: packages/kavis-settings/src/ui/page_taskbar.vala:33
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1334
+#: packages/kavis-panel/src/ui/panel.vala:1336
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1357
+#: packages/kavis-panel/src/ui/panel.vala:1359
 #: packages/kavis-settings/src/ui/page_taskbar.vala:48
 #: packages/kavis-settings/src/ui/window.vala:128
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1364
+#: packages/kavis-panel/src/ui/panel.vala:1366
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1364
+#: packages/kavis-panel/src/ui/panel.vala:1366
 #: packages/kavis-settings/src/ui/page_taskbar.vala:43
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1387
+#: packages/kavis-panel/src/ui/panel.vala:1389
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1392
+#: packages/kavis-panel/src/ui/panel.vala:1394
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1430
+#: packages/kavis-panel/src/ui/panel.vala:1432
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1447
+#: packages/kavis-panel/src/ui/panel.vala:1449
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1449
+#: packages/kavis-panel/src/ui/panel.vala:1451
 #: packages/kavis-tools/src/securemenu.vala:87
 #: packages/kavis-tools/src/tasks.vala:57
 #: packages/kavis-tools/src/tasks.vala:59
@@ -546,7 +546,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:182
 #: packages/kavis-panel/src/ui/quick_settings.vala:461
-#: packages/kavis-panel/src/ui/quick_settings.vala:752
+#: packages/kavis-panel/src/ui/quick_settings.vala:767
 #: packages/kavis-settings/src/ui/page_network.vala:24
 msgid "Wi-Fi"
 msgstr ""
@@ -650,21 +650,21 @@ msgstr ""
 msgid "No networks found"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/start_menu.vala:47
+#: packages/kavis-panel/src/ui/start_menu.vala:48
 msgid "Search apps and files"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/start_menu.vala:72
-#: packages/kavis-panel/src/ui/start_menu.vala:77
+#: packages/kavis-panel/src/ui/start_menu.vala:73
+#: packages/kavis-panel/src/ui/start_menu.vala:78
 #: packages/kavis-settings/src/ui/window.vala:118
 msgid "Power"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/start_menu.vala:137
+#: packages/kavis-panel/src/ui/start_menu.vala:138
 msgid "No results found"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/start_menu.vala:228
+#: packages/kavis-panel/src/ui/start_menu.vala:229
 msgid "Add desktop shortcut"
 msgstr ""
 
@@ -1370,11 +1370,11 @@ msgstr ""
 msgid "Video memory"
 msgstr ""
 
-#: packages/kavis-tools/src/preview.vala:437
+#: packages/kavis-tools/src/preview.vala:442
 msgid "Showing the first part of a large file"
 msgstr ""
 
-#: packages/kavis-tools/src/preview.vala:533
+#: packages/kavis-tools/src/preview.vala:538
 msgid "Could not preview this file"
 msgstr ""
 
