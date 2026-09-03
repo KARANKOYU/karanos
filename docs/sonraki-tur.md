@@ -4,27 +4,16 @@
 Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
 İngilizce (CLAUDE.md dil kuralı), push kullanıcı isteyince.
 
-## 0. Bu turda yarım kalanlar (önce bunlar)
+## 0. Durum (3 Eyl sonu)
 
-- **F1 / F2 / F4 ajanları çalışıyordu**, çıktıları commit EDİLMEDİ.
-  Çalışma ağacında duran değişiklikler:
-  - F1 (Hakkında hiyerarşisi): `packages/kavis-common/sysinfo.vala`,
-    `packages/kavis-settings/src/ui/page_system.vala`
-  - F2 (çözünürlük + yenileme hızı listeleri):
-    `packages/kavis-settings/src/logic/xrandr_info.vala`,
-    `packages/kavis-settings/src/ui/page_display.vala`
-  - F4 (dil açılır listesi + tam klavye düzeni listesi):
-    `packages/kavis-settings/src/ui/page_keyboard.vala`,
-    `packages/kavis-settings/src/logic/langs.vala`,
-    `packages/kavis-panel/src/logic/keyboard.vala`,
-    `packages/kavis-panel/src/ui/indicators.vala`
-  İlk iş: `git status` ile bu dosyaları gözden geçir, derle
-  (`tools/build-packages.sh`), Xvfb/VM'de doğrula, madde başına ayrı
-  commit at. Yarım/bozuk bir şey varsa o dosyayı `git checkout` ile
-  geri al ve maddeyi sıfırdan yap.
-- **Selftest senaryoları 03/06/09/39 VM'de koştu ve geçti** (40 adımın
-  38'i); kalan 2 düşüş test2 ISO'suna özgü (B1 GRUB gizli ve
-  /run/kavis/boot-check.log v0.4-test3 ISO'sunda gelecek).
+- **F1, F2, F4 bitti ve commit edildi** (`584281e`, `8015bf7`,
+  `6400573` + çeviriler `70ff2c5`). Çalışma ağacı temiz, tüm denetimler
+  geçiyor (derleme, shellcheck, check-config, check-packages,
+  check-i18n 352 msgid, KEYBIND 25/25, SNAP 4/4).
+- **Henüz VM'de görülmediler:** üçü de Xvfb'de doğrulandı; F1'in
+  bellek satırları (dmidecode kök ister) ve F2'nin çoklu çıkış/Hz
+  listesi gerçek makinede bir daha bakılmalı.
+- F5, H2, H3 de bitti. Push yapılmadı: origin/main 20 commit geride.
 
 ## 1. Selftest eksikleri (madde 72)
 
@@ -39,7 +28,8 @@ Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
 
 ## 2. A–J turunun kalanı
 
-- **F3** ölçek: %125'te yazı devasa, hizalar kayıyor. GDK_SCALE tam
+- **F3** ölçek (ilk sırada: F2'nin ekran görüntüsünde ölçek kutusu
+  İngilizce arayüzde "%100" yazıyor — locale biçimi hatası doğrulandı): %125'te yazı devasa, hizalar kayıyor. GDK_SCALE tam
   sayı + GDK_DPI_SCALE/xrandr --scale; 100/125/150/175/200 VM'de tek
   tek denenecek. Yüzde biçimi locale'e uyacak (EN "125%", TR "%125").
 - **G1–G6** Görev Yöneticisi: ayrı `kavis-taskmanager` ikilisi + kendi
@@ -91,7 +81,10 @@ Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
 
 ## 4. Yeni kararlar (3 Eyl akşamı, kullanıcı notu — henüz YAPILMADI)
 
-- **Kısayollar gruplanacak.** rc.xml ve Ayarlar'daki kısayol listesi
+- **Kısayollar gruplanacak.** (Not: Ayarlar > Klavye sayfasındaki
+  kısayol listesi F4 ekran görüntüsünde zaten "System" / "Window"
+  başlıklarıyla gruplu görünüyor — madde 74 bunun üstüne yeniden
+  atama ve Fn kombinasyonlarını ekleyecek.) rc.xml ve Ayarlar'daki kısayol listesi
   düz liste olmayacak: "Sistem", "Pencere", "Masaüstü", "Uygulama",
   "Medya/Fn" gibi gruplar. Fn+F2 türü kombinasyonlar **varsayılan**
   olarak gelecek ama kullanıcı ne yaptığını değiştirebilecek
