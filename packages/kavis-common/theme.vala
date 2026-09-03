@@ -41,6 +41,7 @@ namespace Kavis.Theme {
         @define-color kavis_underline_idle  rgba(139, 155, 168, 0.75);
         @define-color kavis_menu_category   #8FA1B3;
         @define-color kavis_menu_hover      rgba(255, 255, 255, 0.10);
+        @define-color kavis_overlay_flash   rgba(255, 255, 255, 0.18);
     """;
 
     private const string LIGHT = """
@@ -67,6 +68,7 @@ namespace Kavis.Theme {
         @define-color kavis_underline_idle  rgba(92, 107, 120, 0.75);
         @define-color kavis_menu_category   #5C6B78;
         @define-color kavis_menu_hover      rgba(0, 0, 0, 0.06);
+        @define-color kavis_overlay_flash   rgba(0, 0, 0, 0.14);
     """;
 
     private Gtk.CssProvider? provider = null;

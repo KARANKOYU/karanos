@@ -100,6 +100,18 @@ namespace Kavis.Ui {
         .kavis-panel button.start {
           padding: 0 12px;
         }
+        /* C4 (v0.4-test2): tıklama geri bildirimi — 150 ms hover'dan
+           bir ton açık parlama + ikonda hafif küçülme (transition ile
+           geri büyür). */
+        .kavis-panel button image {
+          transition: -gtk-icon-transform 150ms ease;
+        }
+        .kavis-panel button.flash {
+          background-color: @kavis_overlay_flash;
+        }
+        .kavis-panel button.flash image {
+          -gtk-icon-transform: scale(0.88);
+        }
         /* Masaüstünü göster şeridi: köşede 8 px'lik W11 kalıntısı —
            yuvarlatma ve iç boşluk almaz. */
         .kavis-panel button.edge {
@@ -637,6 +649,7 @@ namespace Kavis.Ui {
         }
 
         private void on_start_clicked (Gtk.Button button) {
+            flash (button);
             if (start_menu.get_visible ()) {
                 start_menu.dismiss ();
                 return;
@@ -772,6 +785,9 @@ namespace Kavis.Ui {
             }
             var slot = slots[index];
             if (new_window || slot.windows.length == 0) {
+                if (slot.button != null) {
+                    flash (slot.button);
+                }
                 launch_slot (slot);
             } else {
                 on_slot_clicked (slot);
@@ -1027,7 +1043,20 @@ namespace Kavis.Ui {
             }
         }
 
+        /* C4: 150 ms'lik parlama sınıfı — tık ve Win+sayı için aynı. */
+        private void flash (Gtk.Widget widget) {
+            unowned Gtk.StyleContext ctx = widget.get_style_context ();
+            ctx.add_class ("flash");
+            Timeout.add (150, () => {
+                ctx.remove_class ("flash");
+                return Source.REMOVE;
+            });
+        }
+
         private void on_slot_clicked (TaskSlot slot) {
+            if (slot.button != null) {
+                flash (slot.button);
+            }
             if (slot.windows.length == 0) {
                 launch_slot (slot);
                 return;
