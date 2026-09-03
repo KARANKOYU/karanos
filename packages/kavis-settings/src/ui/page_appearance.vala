@@ -39,22 +39,43 @@ namespace Kavis.Settings.Pages {
         anim.active_id = conf_get_int ("appearance", "animation", 100)
                              .to_string ();
 
-        /* İki kontrol tek uygulayıcıyı besler: değerler kavis.conf'a
+        /* Popup animasyonu (test2 C6): panelin kendi popup'ları
+         * (başlat, hızlı ayarlar, bildirimler, takvim). Süre yukarıdaki
+         * hızdan gelir; picom'daki pencere kuralı Apply.picom yazar. */
+        var popup = new Gtk.ComboBoxText ();
+        popup.append ("slide", _("Slide up"));
+        popup.append ("grow", _("Grow"));
+        popup.append ("fade", _("Fade"));
+        popup.append ("none", _("None"));
+        popup.active_id = conf_get ("appearance", "popup_animation",
+                                    "slide");
+
+        /* Üç kontrol tek uygulayıcıyı besler: değerler kavis.conf'a
          * yazılır, picom kullanıcı kopyasıyla yeniden başlar. */
         radius.button_release_event.connect (() => {
             apply_picom ((int) radius.get_value (),
-                         int.parse (anim.active_id ?? "100"));
+                         int.parse (anim.active_id ?? "100"),
+                         popup.active_id ?? "slide");
             return false;
         });
         anim.changed.connect (() => {
             apply_picom ((int) radius.get_value (),
-                         int.parse (anim.active_id ?? "100"));
+                         int.parse (anim.active_id ?? "100"),
+                         popup.active_id ?? "slide");
+        });
+        popup.changed.connect (() => {
+            apply_picom ((int) radius.get_value (),
+                         int.parse (anim.active_id ?? "100"),
+                         popup.active_id ?? "slide");
         });
         body.pack_start (row (_("Corner roundness"),
             _("Window corners; popups keep the design values"),
             radius), false, false, 0);
         body.pack_start (row (_("Animation speed"), null, anim),
                          false, false, 0);
+        body.pack_start (row (_("Popup animation"),
+            _("Start menu, quick settings and notifications"), popup),
+            false, false, 0);
 
         /* Saydamlık (panel akriliği; canlı — panel kavis.conf izler). */
         var transparency = new Gtk.Switch ();
@@ -196,9 +217,11 @@ namespace Kavis.Settings.Pages {
         }
     }
 
-    private void apply_picom (int radius, int anim) {
+    private void apply_picom (int radius, int anim, string popup) {
         conf_set_int ("appearance", "radius", radius);
         conf_set_int ("appearance", "animation", anim);
-        Apply.picom (radius, anim);
+        conf_set ("appearance", "popup_animation", popup);
+        Apply.picom (radius, anim, popup,
+                     conf_get ("taskbar", "position", "bottom"));
     }
 }

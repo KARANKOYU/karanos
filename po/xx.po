@@ -357,6 +357,9 @@ msgstr "⟪Battery··⟫"
 msgid "Accessibility"
 msgstr "⟪Accessibility·····⟫"
 
+msgid "Brightness"
+msgstr "⟪Brightness····⟫"
+
 msgid "Brightness (backlight)"
 msgstr "⟪Brightness (backlight)········⟫"
 
@@ -471,6 +474,15 @@ msgstr "⟪Normal··⟫"
 msgid "Slow"
 msgstr "⟪Slow··⟫"
 
+msgid "Slide up"
+msgstr "⟪Slide up···⟫"
+
+msgid "Grow"
+msgstr "⟪Grow··⟫"
+
+msgid "Fade"
+msgstr "⟪Fade··⟫"
+
 msgid "Corner roundness"
 msgstr "⟪Corner roundness······⟫"
 
@@ -479,6 +491,12 @@ msgstr "⟪Window corners; popups keep the design values············
 
 msgid "Animation speed"
 msgstr "⟪Animation speed······⟫"
+
+msgid "Popup animation"
+msgstr "⟪Popup animation······⟫"
+
+msgid "Start menu, quick settings and notifications"
+msgstr "⟪Start menu, quick settings and notifications·················⟫"
 
 msgid "Transparency effects"
 msgstr "⟪Transparency effects········⟫"
@@ -503,9 +521,6 @@ msgstr "⟪Scale··⟫"
 
 msgid "Text and interface size"
 msgstr "⟪Text and interface size·········⟫"
-
-msgid "Brightness"
-msgstr "⟪Brightness····⟫"
 
 msgid "Warmer colors in the evening (4500K)"
 msgstr "⟪Warmer colors in the evening (4500K)··············⟫"

@@ -17,6 +17,13 @@ namespace Kavis.Settings.Pages {
         position.active_id = conf_get ("taskbar", "position", "bottom");
         position.changed.connect (() => {
             conf_set ("taskbar", "position", position.active_id);
+            /* C6: popup kayma yönü panel konumuna bağlı — picom
+             * kuralını yeni yönle yeniden yaz. */
+            Apply.picom (conf_get_int ("appearance", "radius", 8),
+                         conf_get_int ("appearance", "animation", 100),
+                         conf_get ("appearance", "popup_animation",
+                                   "slide"),
+                         position.active_id ?? "bottom");
         });
         body.pack_start (row (_("Position"), null, position),
                          false, false, 0);

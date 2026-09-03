@@ -994,3 +994,19 @@ msgstr "Son masaüstünü kapat — pencereleri bir öncekine taşınır"
 
 msgid "Close the last desktop"
 msgstr "Son masaüstünü kapat"
+
+
+msgid "Slide up"
+msgstr "Yukarı kayma"
+
+msgid "Grow"
+msgstr "Büyüme"
+
+msgid "Fade"
+msgstr "Solma"
+
+msgid "Popup animation"
+msgstr "Açılır pencere animasyonu"
+
+msgid "Start menu, quick settings and notifications"
+msgstr "Başlat menüsü, hızlı ayarlar ve bildirimler"

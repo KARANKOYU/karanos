@@ -156,8 +156,13 @@ namespace Kavis.Settings.Apply {
     /* Compositor knobs (madde 38): write ~/.config/kavis/picom.conf
      * from the system template with corner radius and animation speed
      * substituted, then restart picom (autostart prefers the user
-     * copy). anim_factor: 0 = off, else duration multiplier ×100. */
-    public void picom (int radius, int anim_factor) {
+     * copy). anim_factor: 0 = off, else duration multiplier ×100.
+     * popup (C6): "slide" | "grow" | "fade" | "none" — animation of
+     * the panel's own popups, written as a picom window rule between
+     * the popup-animasyon-basi/-sonu markers; the slide direction
+     * follows the taskbar position ("bottom" → slides up). */
+    public void picom (int radius, int anim_factor, string popup,
+                       string position) {
         string template;
         try {
             FileUtils.get_contents ("/etc/xdg/picom-kavis.conf",
@@ -171,6 +176,15 @@ namespace Kavis.Settings.Apply {
             template = re.replace (template, -1, 0,
                 "corner-radius = %d;".printf (radius));
         } catch (RegexError e) { }
+        /* Popup kuralı önce yazılır ki süre çarpanı ona da uygulansın. */
+        int rb = template.index_of ("# popup-animasyon-basi");
+        int re_ = template.index_of ("# popup-animasyon-sonu");
+        if (rb >= 0 && re_ > rb) {
+            template = template.substring (0, rb)
+                + "# popup-animasyon-basi\n"
+                + popup_rule (anim_factor == 0 ? "none" : popup, position)
+                + "  " + template.substring (re_);
+        }
         if (anim_factor == 0) {
             /* Animasyon kapalı: bloğu boş listeyle değiştir. */
             int start = template.index_of ("animations = (");
@@ -216,6 +230,46 @@ namespace Kavis.Settings.Apply {
             "pkill -USR1 -x picom || "
             + "picom --backend xrender --config '" + user_conf
             + "' -b" });
+    }
+
+    /* The picom window rule for panel popups (C6). Durations are the
+     * design-language bases (0.18 / 0.12) — the caller scales them
+     * together with the window animations. */
+    private string popup_rule (string popup, string position) {
+        string open_dir, close_dir;
+        switch (position) {
+        case "top":   open_dir = "down";  close_dir = "up";    break;
+        case "left":  open_dir = "right"; close_dir = "left";  break;
+        case "right": open_dir = "left";  close_dir = "right"; break;
+        default:      open_dir = "up";    close_dir = "down";  break;
+        }
+        string anims;
+        switch (popup) {
+        case "none":
+            anims = "()";
+            break;
+        case "grow":
+            anims = "(\n"
+                + "      { triggers = [ \"open\", \"show\" ];  preset = \"appear\";    scale = 0.90; duration = 0.18; },\n"
+                + "      { triggers = [ \"close\", \"hide\" ]; preset = \"disappear\"; scale = 0.90; duration = 0.12; }\n"
+                + "    )";
+            break;
+        case "fade":
+            anims = "(\n"
+                + "      { triggers = [ \"open\", \"show\" ];  preset = \"appear\";    scale = 1.0; duration = 0.18; },\n"
+                + "      { triggers = [ \"close\", \"hide\" ]; preset = \"disappear\"; scale = 1.0; duration = 0.12; }\n"
+                + "    )";
+            break;
+        default: /* slide */
+            anims = "(\n"
+                + "      { triggers = [ \"open\", \"show\" ];  preset = \"slide-in\";  direction = \"" + open_dir + "\";   duration = 0.18; },\n"
+                + "      { triggers = [ \"close\", \"hide\" ]; preset = \"slide-out\"; direction = \"" + close_dir + "\"; duration = 0.12; }\n"
+                + "    )";
+            break;
+        }
+        return "  { match = \"class_g = 'kavis-panel' && override_redirect\";\n"
+            + "    animations = " + anims + ";\n"
+            + "  }\n";
     }
 
     /* Keyboard layout: one GLOBAL layout, no per-window groups (2F
