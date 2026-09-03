@@ -39,6 +39,13 @@ for f in /etc/xdg/autostart/*.desktop "$userdir"/*.desktop; do
 	fi
 	exec_line=$(value "$f" Exec | sed 's/ %[a-zA-Z]//g')
 	[ -n "$exec_line" ] || continue
+	# Oturum betiğinin zaten başlattığı şey (picom, nemo-desktop...)
+	# ikinci kez başlatılmaz — QEMU'da her süreç pahalı, picom ikincisi
+	# zaten "başka kompozitör var" deyip çıkıyordu.
+	cmd_base=$(basename "${exec_line%% *}")
+	if pgrep -x "$cmd_base" >/dev/null 2>&1; then
+		echo "atla (zaten calisiyor): $base" >>"$LOG"; continue
+	fi
 	echo "baslat: $base -> $exec_line" >>"$LOG"
 	sh -c "$exec_line" >>"$LOG" 2>&1 &
 done

@@ -250,18 +250,35 @@ if [[ "$result" == "OK" ]]; then
 	# "RESULT=OK" satirini gormek yetmiyor: 1. ve 2. asamada bu satir
 	# yazildigi hâlde QEMU ekrani simsiyahti, cunku grafik oturum hic
 	# acilmamisti. Ekranda gercekten bir sey cizildigini de olcuyoruz.
+	# ESIKLER (tek kare uzerinden karar verilmez, v0.4-test2 dersi):
+	#  - screen-not-blank: en az 24 farkli renk VE parlaklik sapmasi >= 3
+	#    (koyu temanin gercek masaustu: ~2000 renk, sapma ~11.5 — esigin
+	#    4 kati).
+	#  - screen-clock-visible: alt 44 satir x sag ceyrek (14080 px) icinde
+	#    parlakligi 120'yi gecen en az 15 piksel (cizilmis panel: ~440 —
+	#    esigin 30 kati; panel henuz haritalanmadiysa 0).
+	# Panel KVM'siz QEMU'da gec gelebiliyor: kare bos/saatsiz cikarsa 5 sn
+	# sonra bir kez daha alinir; ikisi de bossa BLANK.
 	ppm="$WORKDIR/screen-masaustu.ppm"
+	screen_check() {
+		python3 "$REPO_ROOT/tools/screen-not-blank.py" "$1" || return 1
+		python3 "$REPO_ROOT/tools/screen-clock-visible.py" "$1" || return 2
+		return 0
+	}
 	if [[ -s "$ppm" ]]; then
-		if ! python3 "$REPO_ROOT/tools/screen-not-blank.py" "$ppm"; then
+		screen_check "$ppm"; rc=$?
+		if (( rc != 0 )); then
+			echo ">> ilk kare gecmedi (kod $rc) — 5 sn sonra ikinci kare"
+			sleep 5
+			snapshot "masaustu"
+			screen_check "$ppm"; rc=$?
+		fi
+		if (( rc == 1 )); then
 			result="BLANK"
 			echo "::error::Masaustu karesi bos ($MODE) — oturum acilmis gorunuyor ama ekranda hicbir sey yok"
-		# Panelin sag bolgesi (saat/gostergeler) gercekten cizilmis mi?
-		# picom'un damage hatasi bu bolgeyi siyah birakiyordu; tum ekran
-		# denetimi duvar kagidi yuzunden bunu yakalayamiyor (VM'de
-		# dogrulanan hata, Asama 1).
-		elif ! python3 "$REPO_ROOT/tools/screen-clock-visible.py" "$ppm"; then
+		elif (( rc == 2 )); then
 			result="BLANK"
-			echo "::error::Panelin saat bolgesi bos ($MODE) — picom hayalet cizim belirtisi"
+			echo "::error::Panelin saat bolgesi bos ($MODE) — panel haritalanmamis ya da picom hayalet cizim"
 		fi
 	else
 		echo "!! masaustu karesi alinamadi, ekran denetimi atlandi"
@@ -350,7 +367,7 @@ FAIL)
 	exit 1
 	;;
 BLANK)
-	echo ">> SONUC: BASARISIZ — masaustu karesi bos ($MODE)"
+	echo ">> SONUC: BASARISIZ — masaustu karesi bos ya da panel bolgesi cizilmemis ($MODE)"
 	echo ">> TESHIS: boot-check gecti ama ekranda hicbir sey cizilmemis."
 	echo ">>         Genellikle pencere yoneticisi ya da duvar kagidi"
 	echo ">>         calismamis demektir. tani-$MODE yapitindaki"

@@ -121,8 +121,21 @@ fi
 
 # --- XDG autostart (H2) -----------------------------------------------
 # Görev Yöneticisi > Başlangıç'ın yönettiği liste; tek mekanizma.
+# v0.4-test2 dersi: bu girdiler (at-spi, xapp-sn-watcher, ikinci picom
+# denemesi) panelle AYNI ANDA başlayınca KVM'siz QEMU'da panelin
+# haritalanması 12 sn'yi aşıp CI karesini kaçırdı. Önce panel gelsin
+# (en çok 10 sn beklenir), sonra düşük öncelikle diğerleri.
 if [ -x /usr/lib/kavis/kavis-session-autostart ]; then
-	/usr/lib/kavis/kavis-session-autostart &
+	(
+		i=0
+		while [ "$i" -lt 20 ]; do
+			pgrep -x kavis-panel >/dev/null 2>&1 \
+				&& xdotool search --class kavis-panel >/dev/null 2>&1 && break
+			sleep 0.5; i=$((i + 1))
+		done
+		sleep 1
+		exec nice -n 10 /usr/lib/kavis/kavis-session-autostart
+	) &
 fi
 
 # Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken

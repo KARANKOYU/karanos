@@ -382,6 +382,20 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - v0.4-test2 KIRMIZI → KÖK SEBEP (3 Eyl): 5/5 profil "masaustu
+>   karesi bos" — gerçek sebep EKRAN-TANI değil SAAT-TANI: duvar kâğıdı
+>   çizilmiş (2063 renk, sapma 11.5), PANEL YOK; +3 sn'lik "son" karede
+>   panel var (4 sabitli ikon, Papirus). Yani panel geç haritalanıyor:
+>   kavis-session-autostart (H2) at-spi + registry, xapp-sn-watcher,
+>   ikinci picom denemesi ve xcape panelle aynı anda başlayınca KVM'siz
+>   QEMU'da haritalanma 12 sn eşiğini aştı (yerel Xvfb'de panel 1 sn'de
+>   açılıyor — CPU yarışı, hata değil). Düzeltme: başlatıcı panel
+>   haritalanana dek bekler (≤10 sn) ve nice 10 ile koşar, zaten çalışan
+>   komutları (picom) atlar; CI kare boş/saatsizse 5 sn sonra bir daha
+>   alır; eşikler qemu-smoke-test.sh'ta belgeli (boş: <24 renk VE
+>   sapma <3 — gerçek masaüstü 4 kat üstünde; saat: 14080 px'te ≥15
+>   parlak — çizilmiş panel ~440, 30 kat). Yan bulgu: SETTINGS/PANEL
+>   USS satırları çalıştı (PANEL-USS=1MB erken ölçüm).
 > - v0.4-test1 TURU TAMAM (3 Eyl): I 95925a3 (Shift/Zorla kapat),
 >   J bdf0321 (USS ölçümü: SETTINGS-USS-WARN >10 MB, PANEL-USS;
 >   panel-xx gerçek '…' denetimi), Ctrl+Esc e30cc29, madde 70 kilit
