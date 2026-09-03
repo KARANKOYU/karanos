@@ -79,6 +79,10 @@ namespace Kavis.Settings {
             window_position = Gtk.WindowPosition.CENTER;
             set_wmclass ("kavis-settings", "kavis-settings");
             icon_name = "preferences-system";
+            /* W11 başlık çubuğu (geri bildirim A): CSD — 46×32
+             * düğmeler ve hover dolgusu themerc'de yapılamıyor. */
+            Kavis.HeaderBar.attach (this, _("Settings"),
+                                    "preferences-system");
 
             sections = {
                 { "appearance", "applications-graphics-symbolic",

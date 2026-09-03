@@ -74,6 +74,8 @@ prepare_sources() {
 		install -d packages/kavis-settings/src/logic
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-settings/src/appinit.vala
+		install -m644 packages/kavis-common/headerbar.vala \
+			packages/kavis-settings/src/headerbar.vala
 		install -m644 packages/kavis-common/config.vala \
 			packages/kavis-settings/src/logic/config.vala
 		install -m644 packages/kavis-common/powerplan.vala \
@@ -85,6 +87,8 @@ prepare_sources() {
 		install -d packages/kavis-tools/src
 		install -m644 packages/kavis-common/appinit.vala \
 			packages/kavis-tools/src/appinit.vala
+		install -m644 packages/kavis-common/headerbar.vala \
+			packages/kavis-tools/src/headerbar.vala
 		# Güç eylemleri (6d): Ctrl+Alt+Del ekranı panelin güç
 		# menüsüyle aynı logind komutlarını kullanır.
 		install -m644 packages/kavis-common/power.vala \

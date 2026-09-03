@@ -48,25 +48,42 @@ Sınırlar (bilinçli kabul):
 Sıkışıklık yok — kullanıcı ferah hissetmeli. Yeni bir widget bu
 değerlerin dışına çıkacaksa sebebi commit mesajında yazılır.
 
-## Pencere başlık düğmeleri (1B kararı, 3 Eyl 2026)
+## Başlık çubuğu (v0.4-test1 A kararı, 3 Eyl 2026 — 1B'yi GÜNCELLER)
 
-KARAR: **Seçenek A — Openbox themerc** (kullanıcı seçimi; CSD demosu
-gösterildi, reddedildi). Gerekçe/koşul: SSD her pencerede tutarlı
-(nemo/kate/tilix dahil), CSD yalnız kavis-* uygulamalarını süsleyip
-karma görünüm yaratıyordu.
+KARAR: **çift katman.** Kavis'in kendi uygulamaları (Ayarlar, Görev
+Yöneticisi, ileride Mağaza/kurucu) GtkHeaderBar ile **CSD** kullanır —
+Tilix'in başlık çubuğu referans görünüm. Üçüncü parti/SSD pencereler
+(nemo, gparted, firefox...) openbox themerc'nin buna birebir eşlenmiş
+sürümünü alır. (Eski 1B "yalnız themerc" kararı bu turda kullanıcı
+tarafından değiştirildi: "terminaldeki gibi".)
+
+CSD (kaynaklar: kavis-common/headerbar.vala + kavis-theme gtk-dark.css
+ve gtk-light.css `headerbar` blokları — Tilix dahil her CSD pencere
+otomatik uyar):
 
 | Öğe | Değer |
 |---|---|
-| Başlık yüksekliği | ~32px (font 10-11 + padding.height 8) |
-| Düğme sırası | – ☐ ✕ sağda; ikon + başlık solda (NLIMC) |
-| Düğme ikonu | 14px xbm (daha büyüğü openbox kutusunda kırpılır) |
+| Yerleşim | solda ikon + ad (sola hizalı), sağda – ☐ ✕ |
+| Düğme | 46×32 px, köşe 0, tam yükseklik hover |
 | Kapat hover / basılı | #C42B1C / #A02316, beyaz ✕ |
-| Diğer hover / basılı | beyaz %10 (#2E3842) / %14 (#374149) |
+| Diğer hover / basılı | koyu: beyaz %10 / %14 — açık: siyah %8 / %12 |
+| Çubuk | min 32px, yüzey #17222C (koyu) / #FFFFFF (açık), 1px alt kenarlık |
+| Arka planda (backdrop) | zemin bir ton koyulaşır, metin ikincil renk |
 
-Openbox sınırları (bilinçli kabul — themerc başındaki not asıl
-kaynak): düğme kutusu KARE ve başlık yüksekliğine bağlı (W11'in
-46×32'si olmaz), düğmeler arasında 1-2px boşluk kalır, hover kutusu
-tam yükseklik dolmaz, geçiş animasyonu yok.
+SSD / themerc eşleme:
+
+| Öğe | Değer |
+|---|---|
+| Başlık yüksekliği | ~35px (font 10 + padding.height 11) — CSD ile eşit |
+| Düğme sırası | – ☐ ✕ sağda; ikon + başlık solda (NLIMC) |
+| Düğme ikonu | 16px xbm, 12px glif — GTK sembolik ikonlarla aynı optik boy |
+| Kapat hover / basılı | #C42B1C / #A02316, beyaz ✕ (CSD ile aynı) |
+| Diğer hover / basılı | #2E3842 / #374149 |
+
+Kalan openbox sınırları (bilinçli kabul): düğme kutusu kare (46px
+genişlik olmaz), 1-2px düğme arası boşluk, hover kutusu tam yükseklik
+dolmaz, animasyon yok. Yan yana bakışta fark ayrıntı düzeyinde —
+kanıt: v0.4-test2 A ekran görüntüsü (Tilix + Nemo + Ayarlar).
 
 ## Güç diyaloğu / Ctrl+Alt+Del (2D hedef tasarımı)
 

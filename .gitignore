@@ -70,6 +70,7 @@ packages/kavis-tools/kavis-tools
 # Ortak kaynakların derleme kopyaları (madde 61) — kanonik dosyalar
 # packages/kavis-common/, kopyaları build-packages.sh koyar
 packages/*/src/logic/appinit.vala
+packages/*/src/headerbar.vala
 packages/*/src/logic/config.vala
 packages/*/src/logic/powerplan.vala
 packages/*/src/logic/brightness.vala

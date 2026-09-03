@@ -33,6 +33,9 @@ namespace Kavis.Tools {
         public TaskManagerWindow () {
             set_title (_("Task Manager"));
             set_default_size (620, 480);
+            /* W11 başlık çubuğu (geri bildirim A) — Ayarlar'la aynı. */
+            Kavis.HeaderBar.attach (this, _("Task Manager"),
+                                    "utilities-system-monitor");
 
             var root = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
             root.set_border_width (10);
