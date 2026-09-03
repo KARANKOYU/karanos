@@ -67,6 +67,16 @@ override_dh_auto_install:
 	install -m644 fastfetch/logo-light.txt $(DEST)/etc/kavis/fastfetch/logo-light.txt
 	ln -s /etc/kavis/fastfetch/config.jsonc $(DEST)/etc/fastfetch/config.jsonc
 	install -m755 scripts/kavisfetch $(DEST)/usr/bin/kavisfetch
+	# Templates for the file manager's "New file" menu (feedback H2/H3).
+	# XDG_TEMPLATES_DIR points here (0031-kavis-dirs), so the home
+	# directory keeps its six lower-case folders and the templates stay
+	# read-only. The three OOXML files are generated: ZIP containers do
+	# not belong in git.
+	install -d $(DEST)/usr/share/kavis/templates
+	install -m644 templates/* $(DEST)/usr/share/kavis/templates/
+	chmod 755 $(DEST)/usr/share/kavis/templates/"Shell Script.sh"
+	python3 tools/gen-office-templates.py \
+		$(DEST)/usr/share/kavis/templates
 
 override_dh_auto_clean:
 	rm -f kavis-tools
