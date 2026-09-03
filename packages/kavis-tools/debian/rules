@@ -57,6 +57,16 @@ override_dh_auto_install:
 	# menüde durmaz, yalnız WM_CLASS→ikon eşleşmesi için.
 	install -m644 desktop/kavis-power.desktop \
 		$(DEST)/usr/share/applications/kavis-power.desktop
+	# fastfetch (madde 71): Kavis yapılandırması + K logosu; düz
+	# `fastfetch` de aynı dosyayı bulsun diye /etc/fastfetch bağı.
+	install -d $(DEST)/etc/kavis/fastfetch $(DEST)/etc/fastfetch
+	AD=$$(. fastfetch/os-release && printf '%s' "$$NAME"); \
+	[ -n "$$AD" ] || { echo "HATA: os-release NAME bos"; exit 1; }; \
+	sed "s/@AD@/$$AD/" fastfetch/config.jsonc.in > $(DEST)/etc/kavis/fastfetch/config.jsonc
+	install -m644 fastfetch/logo-dark.txt $(DEST)/etc/kavis/fastfetch/logo-dark.txt
+	install -m644 fastfetch/logo-light.txt $(DEST)/etc/kavis/fastfetch/logo-light.txt
+	ln -s /etc/kavis/fastfetch/config.jsonc $(DEST)/etc/fastfetch/config.jsonc
+	install -m755 scripts/kavisfetch $(DEST)/usr/bin/kavisfetch
 
 override_dh_auto_clean:
 	rm -f kavis-tools

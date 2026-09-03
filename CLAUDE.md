@@ -145,6 +145,9 @@ başarısız saymaz.
 - Commit mesajları Türkçe, ne yapıldığını değil **neyi neden düzelttiğini**
   anlatır.
 - Commit mesajlarına `Co-Authored-By` satırı **ekleme**.
+- Etiket (`v*`) konacak commit'in mesajına `[skip ci]` **yazma** —
+  etiket koşusunu bulandırır; `[skip ci]` yalnız CI'ın kendi otomatik
+  commit'inde (çeviri tablosu) olur.
 - Yeni CI doğrulama adımını önce Codespace'te aynı komutlarla çalıştır;
   yerelde geçmeyeni push etme. Yeni bağımlılık → hem paketin `Depends`
   alanına hem iş akışının kurulum adımına.

@@ -18,6 +18,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  kavis-panel,
+ fastfetch,
  fonts-noto-color-emoji,
  xclip,
  xdg-user-dirs,

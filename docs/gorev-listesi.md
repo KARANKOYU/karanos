@@ -510,6 +510,17 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     monitörleri kaplayan override-redirect pencere; oturum
     kilitliyken bildirim içerikleri gizli. Karar (kararlar.md 7 ile
     uyum): dil/klavye kilit ekranında da değiştirilebilir.
+71. **fastfetch / kavisfetch (2026-09-03 eki, Grup F sonu, yarım gün).**
+    Debian 13'ün fastfetch'i; /etc/kavis/fastfetch/config.jsonc + K
+    logosu ASCII (koyu/açık iki turkuaz); satırlar OS (os-release'ten
+    "Kavis 1.0"), Host, Kernel, Uptime, Packages (apt+flatpak), Shell,
+    Display, DE "Kavis (Openbox)", Theme, Icons, Font, Terminal, CPU,
+    GPU, Memory, Swap, Disk (btrfs). `kavisfetch` = fastfetch bu
+    config'le, temaya göre logo rengi; terminal açılışında ÇALIŞMAZ,
+    yalnız elle. Düz `fastfetch` de aynı config'i alır (/etc/fastfetch
+    bağı). Hakkında > Kopyala ile aynı bilgi kümesi (kavis-common
+    SysInfo). CI: QEMU'da `kavisfetch --pipe` çıktısı seri günlüğe,
+    ad + logo satırı varsa FETCH-OK.
     - Alt birimler: @ (sistem, yenilenir), @users (dokunulmaz),
       @flatpak (/var/lib/flatpak, korunur), @old-* (otomatik temizlik).
     - /etc'den kaydedilip geri konanlar: hostname, timezone,
@@ -536,7 +547,7 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
 - **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29, 61, 62
 - **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44, 63, 64
 - **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50,
-  70 (kilit ekranı — grup sonu)
+  70 (kilit ekranı — grup sonu), 71 (fastfetch — grup sonu)
 - **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11, 65 (CachyOS
   incelemesi — Grup H'nin girdisi, H başlamadan hazır olur) + aşağıdaki
   "Grup G ek maddesi" (userns açılışı + telafi önlemleri)

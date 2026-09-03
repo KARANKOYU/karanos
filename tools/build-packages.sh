@@ -103,6 +103,9 @@ prepare_sources() {
 			packages/kavis-tools/src/theme.vala
 		install -m644 packages/kavis-common/sysinfo.vala \
 			packages/kavis-tools/src/sysinfo.vala
+		# fastfetch DE satırı (madde 71): ürün adı os-release'ten.
+		install -m644 packages/kavis-theme/src/os-release \
+			packages/kavis-tools/fastfetch/os-release
 		# Güç eylemleri (6d): Ctrl+Alt+Del ekranı panelin güç
 		# menüsüyle aynı logind komutlarını kullanır.
 		install -m644 packages/kavis-common/power.vala \

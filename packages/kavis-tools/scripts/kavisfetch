@@ -1,0 +1,14 @@
+#!/bin/sh
+# Kavis — sistem özeti (madde 71): fastfetch, Kavis yapılandırmasıyla.
+# Yalnız elle çalışır; terminal açılışına BAĞLANMAZ (yavaşlatır).
+# Logo rengi temaya göre: koyu temada turkuaz #2DD4BF, açık temada
+# koyulaştırılmış turkuaz #0D9488 (tasarim-dili.md açık palet kuralı).
+conf="${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf"
+logo=/etc/kavis/fastfetch/logo-dark.txt
+color="38;2;45;212;191"
+if [ -r "$conf" ] && grep -q '^theme=light' "$conf" 2>/dev/null; then
+	logo=/etc/kavis/fastfetch/logo-light.txt
+	color="38;2;13;148;136"
+fi
+exec fastfetch --config /etc/kavis/fastfetch/config.jsonc \
+	--logo "$logo" --logo-type file --logo-color-1 "$color" "$@"

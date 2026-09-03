@@ -354,6 +354,22 @@ ply_renderer=$(journalctl -b --no-pager 2>/dev/null |
 if [ -n "$ply_renderer" ]; then
 	echo "$ply_renderer" | sed 's/^/KAVIS-CHECK: SPLASH-RENDERER: /'
 fi
+# Madde 71: kavisfetch çıktısı seri günlüğe; "Kavis" (os-release adı)
+# ve logo satırı (K bloğu) görünmeli.
+if command -v kavisfetch >/dev/null 2>&1; then
+	fetch_out=$(runuser -u karan -- env DISPLAY=:0 kavisfetch --pipe 2>&1 | head -40 || true)
+	printf '%s\n' "$fetch_out" | sed 's/^/KAVIS-CHECK: FETCH: /'
+	. /etc/os-release
+	if printf '%s' "$fetch_out" | grep -q "$NAME" \
+		&& printf '%s' "$fetch_out" | grep -q '██'; then
+		log "FETCH-OK kavisfetch calisti, ad ve logo var"
+	else
+		log "FETCH-FAIL kavisfetch ciktisinda ad ya da logo yok"
+	fi
+else
+	log "FETCH-FAIL kavisfetch kurulu degil"
+fi
+
 # C1 (v0.4-test1): kenara yapıştırma daemon'u oturumda ayakta mı —
 # VM'de snap çalışmıyorsa ilk şüpheli bu.
 if pgrep -x kavis-snap >/dev/null 2>&1; then
