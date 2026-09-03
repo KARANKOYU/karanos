@@ -165,6 +165,7 @@ trap "kill $QEMU_PID 2>/dev/null || true; rm -rf '$WORKDIR'" EXIT
 
 result=""
 elapsed=0
+desktop_shot=0
 kernel_seen=0
 kernel_seen_at=0
 splash_shot=0
@@ -173,6 +174,15 @@ while (( elapsed < TIMEOUT )); do
 	if ! kill -0 "$QEMU_PID" 2>/dev/null; then
 		echo ">> QEMU beklenmedik sekilde kapandi (${elapsed}s)"
 		break
+	fi
+	# Masaustu karesi: boot-check panel + nemo-desktop pencerelerinin
+	# GORUNUR oldugunu (DESKTOP-READY) soyleyince +2 sn bekleyip alinir
+	# (v0.4-test2 A: 12 sn'lik sabit bekleme yavas profillerde erkendi).
+	if (( desktop_shot == 0 )) && grep -q "KAVIS-CHECK: DESKTOP-READY" "$SERIAL" 2>/dev/null; then
+		desktop_shot=1
+		echo ">> DESKTOP-READY goruldu (${elapsed}s), 2 sn sonra masaustu karesi"
+		sleep 2
+		snapshot "masaustu"
 	fi
 	if grep -q "KAVIS-CHECK: RESULT=OK" "$SERIAL" 2>/dev/null; then
 		result="OK"
@@ -243,45 +253,25 @@ done
 # Birkac saniye bekleyip alinan kare, temanin nasil gorundugunu ISO'yu
 # indirmeden gostermenin en hizli yolu.
 if [[ "$result" == "OK" ]]; then
-	echo ">> masaustu oturuyor, tema karesi icin ${DESKTOP_SETTLE:-12}s bekleniyor"
-	sleep "${DESKTOP_SETTLE:-12}"
-	snapshot "masaustu"
-
-	# "RESULT=OK" satirini gormek yetmiyor: 1. ve 2. asamada bu satir
-	# yazildigi hâlde QEMU ekrani simsiyahti, cunku grafik oturum hic
-	# acilmamisti. Ekranda gercekten bir sey cizildigini de olcuyoruz.
-	# ESIKLER (tek kare uzerinden karar verilmez, v0.4-test2 dersi):
-	#  - screen-not-blank: en az 24 farkli renk VE parlaklik sapmasi >= 3
-	#    (koyu temanin gercek masaustu: ~2000 renk, sapma ~11.5 — esigin
-	#    4 kati).
-	#  - screen-clock-visible: alt 44 satir x sag ceyrek (14080 px) icinde
-	#    parlakligi 120'yi gecen en az 15 piksel (cizilmis panel: ~440 —
-	#    esigin 30 kati; panel henuz haritalanmadiysa 0).
-	# Panel KVM'siz QEMU'da gec gelebiliyor: kare bos/saatsiz cikarsa 5 sn
-	# sonra bir kez daha alinir; ikisi de bossa BLANK.
+	# Karar DESKTOP-READY'ye bagli (boot-check icinde: 60 sn'de
+	# haritalanmazsa PANEL-NOT-MAPPED → RESULT=FAIL). Buradaki olcutler
+	# yalniz GUNLUK: ortalama parlaklik, tekil renk sayisi, saat bolgesi.
+	#  - screen-not-blank: <24 renk VE sapma <3 → bos (koyu masaustu
+	#    ~2000 renk, sapma ~11.5)
+	#  - screen-clock-visible: alt 44 satir x sag ceyrekte >=15 parlak
+	#    piksel (cizilmis panel ~440)
 	ppm="$WORKDIR/screen-masaustu.ppm"
-	screen_check() {
-		python3 "$REPO_ROOT/tools/screen-not-blank.py" "$1" || return 1
-		python3 "$REPO_ROOT/tools/screen-clock-visible.py" "$1" || return 2
-		return 0
-	}
+	if [[ ! -s "$ppm" ]]; then
+		echo "!! DESKTOP-READY karesi yok (satir gec geldi?) — simdi aliniyor"
+		snapshot "masaustu"
+	fi
 	if [[ -s "$ppm" ]]; then
-		screen_check "$ppm"; rc=$?
-		if (( rc != 0 )); then
-			echo ">> ilk kare gecmedi (kod $rc) — 5 sn sonra ikinci kare"
-			sleep 5
-			snapshot "masaustu"
-			screen_check "$ppm"; rc=$?
-		fi
-		if (( rc == 1 )); then
-			result="BLANK"
-			echo "::error::Masaustu karesi bos ($MODE) — oturum acilmis gorunuyor ama ekranda hicbir sey yok"
-		elif (( rc == 2 )); then
-			result="BLANK"
-			echo "::error::Panelin saat bolgesi bos ($MODE) — panel haritalanmamis ya da picom hayalet cizim"
-		fi
+		python3 "$REPO_ROOT/tools/screen-not-blank.py" "$ppm" \
+			|| echo "::warning::Masaustu karesi bos olcutune takildi ($MODE) — DESKTOP-READY geldigi icin test dusurulmedi"
+		python3 "$REPO_ROOT/tools/screen-clock-visible.py" "$ppm" \
+			|| echo "::warning::Saat bolgesi bos olcutune takildi ($MODE) — DESKTOP-READY geldigi icin test dusurulmedi"
 	else
-		echo "!! masaustu karesi alinamadi, ekran denetimi atlandi"
+		echo "!! masaustu karesi alinamadi, ekran olcumu atlandi"
 	fi
 fi
 

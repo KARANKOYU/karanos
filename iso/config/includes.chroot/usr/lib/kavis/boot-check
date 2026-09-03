@@ -160,6 +160,26 @@ if [ "$panel_up" -eq 1 ]; then
 		# gtk/rsvg kütüphaneleri hariç) — gerçek maliyet ölçüsü.
 		log "PANEL-USS=$(uss_mb "$panel_pid")MB"
 	fi
+	# v0.4-test2 A: "süreç var" ≠ "pencere ekranda". CI karesi panel ve
+	# masaüstü katmanı GÖRÜNÜR olunca alınır; 60 sn içinde haritalanmazsa
+	# gerçek hata (PANEL-NOT-MAPPED). Dış betik DESKTOP-READY satırını
+	# görünce +2 sn bekleyip kareyi alır.
+	mapped=0
+	j=0
+	while [ "$j" -lt 60 ]; do
+		if runuser -u karan -- env DISPLAY=:0 xdotool search --onlyvisible --class kavis-panel >/dev/null 2>&1 \
+			&& runuser -u karan -- env DISPLAY=:0 xdotool search --onlyvisible --class nemo-desktop >/dev/null 2>&1; then
+			mapped=1
+			break
+		fi
+		j=$((j + 1))
+		sleep 1
+	done
+	if [ "$mapped" -eq 1 ]; then
+		log "DESKTOP-READY panel ve masaustu pencereleri gorunur (${j} saniyede)"
+	else
+		fatal "PANEL-NOT-MAPPED panel/masaustu penceresi 60 sn icinde haritalanmadi" "panel-pencere"
+	fi
 else
 	fatal "PANEL-FAIL kavis-panel calismiyor" "panel"
 	echo "--- KAVIS-TANI: panel neden calismiyor ---"
