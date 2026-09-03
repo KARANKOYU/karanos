@@ -119,6 +119,12 @@ fi
 # 55kavis-imlec'te.
 (sleep 2; xsetroot -cursor_name left_ptr) &
 
+# --- XDG autostart (H2) -----------------------------------------------
+# Görev Yöneticisi > Başlangıç'ın yönettiği liste; tek mekanizma.
+if [ -x /usr/lib/kavis/kavis-session-autostart ]; then
+	/usr/lib/kavis/kavis-session-autostart &
+fi
+
 # Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken
 # 10 dakika sonra ekranın kararması kafa karıştırıyor).
 xset s off -dpms &
