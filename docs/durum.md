@@ -382,6 +382,14 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - SIRADAKİ İŞ SÖZÜ (3 Eyl, kullanıcı): Grup F kapanınca (CI +
+>   VirtualBox onayı) Grup G'den ÖNCE kapsamlı bir OPTİMİZASYON TURU
+>   yapılacak — kullanıcının "btw ile dediğim" işi buymuş. Kapsam
+>   önerisi (tur başında kullanıcıya sunulacak): boşta RAM/RSS
+>   (panel+OSD+settings), yoklama maliyetleri (2 sn'lik klavye
+>   enforce, 5-10 sn'lik spawn'lar → daha ucuz yollar), açılış süresi
+>   (SOUND-DELAY sonrası kalan zincir), derleme bayrakları, ISO boyutu
+>   ayıklaması, gereksiz süreç/uyanma sayısı (powertop bakışı).
 > - GRUP F 5. ADIM + DEBUG TARAMASI BİTTİ (3 Eyl): scrot bağı 0210
 >   temizliğinde kalkıyor ve hook kalırsa DERLEMEYİ KIRIYOR (exit 1 =
 >   CI denetimi); Root orta/sağ tık ve çıplak tekerlek zaten temizdi,
