@@ -62,6 +62,9 @@ serial-*.log
 # Vala derleme ara ürünü (dh_auto_clean siler ama derleme sonrası kalır)
 packages/kavis-panel/kavis-panel
 packages/kavis-panel/kavis-snap
+packages/kavis-panel/kavis-osd
+packages/kavis-settings/kavis-settings
+packages/kavis-tools/kavis-tools
 *.ddeb
 
 # Ortak kaynakların derleme kopyaları (madde 61) — kanonik dosyalar
