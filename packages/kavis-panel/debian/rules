@@ -28,12 +28,15 @@ PO_DOSYALAR := $(wildcard po/*.po)
 
 override_dh_auto_build:
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-panel $(KAYNAKLAR)
+	# theme.vala + config.vala (B2): palet kavis.conf'tan, canlı.
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-snap \
-		src/snap.vala src/logic/appinit.vala
+		src/snap.vala src/logic/appinit.vala \
+		src/logic/config.vala src/logic/theme.vala
 	valac $(VALA_PAKETLER) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/brightness.vala \
-		src/logic/volume.vala src/logic/quick.vala
+		src/logic/volume.vala src/logic/quick.vala \
+		src/logic/theme.vala
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin

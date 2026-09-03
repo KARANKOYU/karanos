@@ -25,21 +25,21 @@ namespace Kavis.Ui {
 
         private const string CSS = """
         .kavis-snap-menu {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
           border-radius: 12px;   /* J1 */
         }
         .kavis-snap-menu button.snap-cell {
           background-image: none;
-          background-color: #1D2C38;
-          border: 1px solid #233A45;
+          background-color: @kavis_hover;
+          border: 1px solid @kavis_border;
           border-radius: 4px;
           padding: 0;
           transition: background-color 140ms ease;
         }
         .kavis-snap-menu button.snap-cell:hover {
           background-color: rgba(45, 212, 191, 0.45);
-          border-color: #2DD4BF;
+          border-color: @kavis_teal;
         }
         """;
 

@@ -20,30 +20,30 @@ namespace Kavis.Ui {
 
         private const string CSS = """
         .kavis-picker {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
           border-radius: 12px;   /* J1 */
         }
         .kavis-picker label {
-          color: #E6EDF3;
+          color: @kavis_text;
         }
         .kavis-picker label.dim {
-          color: #8B9BA8;
+          color: @kavis_text2;
         }
         .kavis-picker button {
           background-image: none;
           background-color: transparent;
           border: none;
           border-radius: 8px;
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 4px 8px;
           transition: background-color 140ms ease;
         }
         .kavis-picker button:hover {
-          background-color: rgba(255, 255, 255, 0.09);
+          background-color: @kavis_overlay_hover;
         }
         .kavis-picker button:active {
-          background-color: rgba(255, 255, 255, 0.14);
+          background-color: @kavis_overlay_press;
         }
         /* Sekmeler: aktifin altında turkuaz çizgi. */
         .kavis-picker button.picker-tab {
@@ -51,12 +51,12 @@ namespace Kavis.Ui {
           padding: 6px 10px;
         }
         .kavis-picker button.picker-tab:checked {
-          box-shadow: inset 0 -2px #2DD4BF;
-          background-color: rgba(255, 255, 255, 0.05);
+          box-shadow: inset 0 -2px @kavis_teal;
+          background-color: @kavis_overlay_faint;
         }
         .kavis-picker button.pin-toggle:checked {
           background-color: rgba(45, 212, 191, 0.25);
-          color: #2DD4BF;
+          color: @kavis_teal;
         }
         """;
 

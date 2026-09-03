@@ -300,6 +300,8 @@ namespace Kavis {
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
+    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    Kavis.Theme.install ();
     var daemon = new Kavis.SnapDaemon ();
     daemon.ref ();   /* yaşasın — tek sahibi main döngüsü */
     Gtk.main ();

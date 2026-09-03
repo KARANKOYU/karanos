@@ -71,6 +71,9 @@ packages/kavis-tools/kavis-tools
 # packages/kavis-common/, kopyaları build-packages.sh koyar
 packages/*/src/logic/appinit.vala
 packages/*/src/headerbar.vala
+packages/*/src/theme.vala
+packages/*/src/logic/theme.vala
+packages/kavis-tools/src/config.vala
 packages/*/src/logic/config.vala
 packages/*/src/logic/powerplan.vala
 packages/*/src/logic/brightness.vala

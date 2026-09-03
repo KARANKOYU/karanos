@@ -22,8 +22,8 @@ namespace Kavis.Ui {
            kenarlık ve yumuşak gölge. Gölge iç kutuda; pencere şeffaf
            kalıyor ki gölge kırpılmasın. */
         .kavis-power-menu {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
           border-radius: 10px;
           box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
         }
@@ -37,14 +37,14 @@ namespace Kavis.Ui {
           background-color: transparent;
           border: none;
           border-radius: 6px;
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 9px 12px;
         }
         .kavis-power-menu button:hover {
-          background-color: #1D2C38;
+          background-color: @kavis_hover;
         }
         .kavis-power-menu button:active {
-          background-color: #233A45;
+          background-color: @kavis_border;
         }
         """;
 

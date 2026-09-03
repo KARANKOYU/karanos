@@ -55,6 +55,47 @@ namespace Kavis.Settings.Apply {
     public void theme (string theme_id) {
         string name = (theme_id == "light") ? "Kavis-Light" : "Kavis";
         xsettings_set ("Net/ThemeName", "\"%s\"".printf (name));
+        openbox_theme (name);
+        /* Panel/OSD/menüler kavis.conf'u izler (Theme.install) —
+         * burada ek iş yok; sayfa conf'u zaten yazdı. */
+    }
+
+    /* Openbox reads only rc.xml: ensure a user copy exists (system
+     * copy is the hook-processed /etc/xdg one), swap the theme name,
+     * reconfigure live. */
+    private void openbox_theme (string name) {
+        string user_rc = Path.build_filename (
+            Environment.get_user_config_dir (), "openbox", "rc.xml");
+        string contents;
+        try {
+            FileUtils.get_contents (user_rc, out contents);
+        } catch (Error e) {
+            try {
+                FileUtils.get_contents ("/etc/xdg/openbox/rc.xml",
+                                        out contents);
+            } catch (Error e2) {
+                warning ("kavis-settings: rc.xml yok: %s", e2.message);
+                return;
+            }
+        }
+        try {
+            /* <theme> bloğundaki ilk <name> tema adıdır (0200 hook'u
+             * ile aynı varsayım). */
+            var re = new Regex ("(<theme>\\s*<name>)[^<]*(</name>)",
+                                RegexCompileFlags.DOTALL);
+            contents = re.replace (contents, -1, 0,
+                                   "\\1" + name + "\\2");
+        } catch (RegexError e) {
+            return;
+        }
+        DirUtils.create_with_parents (Path.get_dirname (user_rc), 0755);
+        try {
+            FileUtils.set_contents (user_rc, contents);
+        } catch (Error e) {
+            warning ("kavis-settings: rc.xml yazilamadi: %s", e.message);
+            return;
+        }
+        Run.fire ({ "openbox", "--reconfigure" });
     }
 
     /* percent: 100/125/150/200 → Xft DPI (xsettingsd wants it ×1024). */

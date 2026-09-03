@@ -82,20 +82,21 @@ namespace Kavis.Brand {
      * a light theme ever becomes selectable. True when in doubt — dark
      * is the product default. */
     private bool is_dark_theme () {
-        var settings = Gtk.Settings.get_default ();
-        if (settings == null) {
-            return true;
+        /* B2: tek kaynak kavis.conf (Theme.is_light). Eski GTK ayarı
+         * sorgusu prefer-dark hep açık olduğundan hiç açık demiyordu. */
+        return !Theme.is_light ();
+    }
+
+    /* Repaint an existing logo image for the current theme (the start
+     * button keeps its widget across a live theme switch). */
+    public void refresh_logo (Gtk.Image image, int size) {
+        string path = logo_path ();
+        try {
+            var pixbuf = new Gdk.Pixbuf.from_file_at_size (path, size, size);
+            image.set_from_pixbuf (pixbuf);
+        } catch (Error e) {
+            image.set_from_icon_name ("kavis", Gtk.IconSize.LARGE_TOOLBAR);
         }
-        bool prefer_dark = false;
-        settings.get ("gtk-application-prefer-dark-theme", out prefer_dark);
-        if (prefer_dark) {
-            return true;
-        }
-        string theme = "";
-        settings.get ("gtk-theme-name", out theme);
-        string lower = theme.down ();
-        /* A theme advertising itself as light is the only light signal. */
-        return !("light" in lower) && !("acik" in lower);
     }
 
     /* Path of the logo matching the active theme (task item 1: boot

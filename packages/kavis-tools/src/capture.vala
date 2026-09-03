@@ -421,8 +421,8 @@ namespace Kavis.Tools {
             try {
                 css.load_from_data ("""
                     .kavis-snip-bar {
-                      background-color: #17222C;
-                      border: 1px solid #233A45;
+                      background-color: @kavis_surface;
+                      border: 1px solid @kavis_border;
                       border-radius: 12px;   /* J1 */
                     }
                     .kavis-snip-bar button {
@@ -430,21 +430,21 @@ namespace Kavis.Tools {
                       background-color: transparent;
                       border: none;
                       border-radius: 8px;
-                      color: #E6EDF3;
+                      color: @kavis_text;
                       padding: 4px 10px;
                     }
                     .kavis-snip-bar button:hover {
-                      background-color: #1D2C38;
+                      background-color: @kavis_hover;
                     }
                     .kavis-snip-bar button:checked {
-                      background-color: #2DD4BF;
-                      color: #0D141B;
+                      background-color: @kavis_teal;
+                      color: @kavis_on_teal;
                     }
                     .kavis-snip-bar button:checked label {
-                      color: #0D141B;
+                      color: @kavis_on_teal;
                     }
                     .kavis-snip-bar label {
-                      color: #E6EDF3;
+                      color: @kavis_text;
                     }
                     """, -1);
                 Gtk.StyleContext.add_provider_for_screen (

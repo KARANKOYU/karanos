@@ -9,7 +9,7 @@
  * state-changed sinyali dinlenir (tuşu grab'lamak kilidin kendisiyle
  * yarışırdı). Medya tuşları MPRIS üzerinden çalan oynatıcıya gider.
  *
- * Görsel: ekranın üst ortasında küçük yuvarlak köşeli kutu (#17222C
+ * Görsel: ekranın üst ortasında küçük yuvarlak köşeli kutu (@kavis_surface
  * ~%90), ikon + turkuaz dolgu çubuğu + yüzde; 1 sn sonra kapanır
  * (150 ms solma picom'un genel pencere animasyonundan). Arka arkaya
  * basışta sayaç sıfırlanır, kutu yerinde kalır.
@@ -91,23 +91,23 @@ namespace Kavis.Osd {
 
         private const string CSS = """
         .kavis-osd {
-          background-color: rgba(23, 34, 44, 0.92);
-          border: 1px solid #233A45;
+          background-color: @kavis_surface_acrylic;
+          border: 1px solid @kavis_border;
           border-radius: 12px;
         }
         .kavis-osd label {
-          color: #E6EDF3;
+          color: @kavis_text;
         }
         .kavis-osd levelbar block.filled {
-          background-color: #2DD4BF;
+          background-color: @kavis_teal;
           border-radius: 3px;
         }
         .kavis-osd levelbar block.empty {
-          background-color: #233A45;
+          background-color: @kavis_border;
           border-radius: 3px;
         }
         .kavis-osd levelbar.dim block.filled {
-          background-color: #8B9BA8;
+          background-color: @kavis_text2;
         }
         """;
 
@@ -358,6 +358,8 @@ namespace Kavis.Osd {
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
+    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    Kavis.Theme.install ();
     var daemon = new Kavis.Osd.Daemon ();
     daemon.ref ();   /* yaşam boyu — sinyaller kopmasın */
     Gtk.main ();

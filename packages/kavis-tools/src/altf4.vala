@@ -28,7 +28,7 @@ namespace Kavis.Tools {
     }
 
     /* Power dialog (2D): the Kavis design-language version — no title
-     * bar, centered, 12px corners on #17222C, four big icon buttons
+     * bar, centered, 12px corners on @kavis_surface, four big icon buttons
      * side by side (Sleep / Restart / Shut down / Cancel). Escape
      * closes; the 180 ms open animation is picom's appear preset.
      * SHARED component: Alt+F4 (desktop) and the Ctrl+Alt+Del screen's
@@ -39,27 +39,27 @@ namespace Kavis.Tools {
 
         private const string CSS = """
         .kavis-power-dialog {
-            background-color: #17222C;
-            border: 1px solid #233A45;
+            background-color: @kavis_surface;
+            border: 1px solid @kavis_border;
             border-radius: 12px;
             padding: 16px;
         }
-        .kavis-power-dialog label { color: #E6EDF3; }
+        .kavis-power-dialog label { color: @kavis_text; }
         .kavis-power-dialog button {
             background-image: none;
             background-color: transparent;
             border: none;
             border-radius: 8px;
             box-shadow: none;
-            color: #E6EDF3;
+            color: @kavis_text;
             padding: 12px;
             transition: background-color 140ms ease;
         }
         .kavis-power-dialog button:hover {
-            background-color: rgba(255,255,255,0.08);
+            background-color: @kavis_overlay_hover;
         }
         .kavis-power-dialog button:active {
-            background-color: rgba(255,255,255,0.14);
+            background-color: @kavis_overlay_press;
         }
         """;
 

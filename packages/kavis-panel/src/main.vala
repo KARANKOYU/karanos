@@ -12,6 +12,8 @@ int main (string[] args) {
     Kavis.AppInit.init ();
 
     Gtk.init (ref args);
+    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    Kavis.Theme.install ();
 
     var panel = new Kavis.Ui.Panel ();
     panel.show_all ();

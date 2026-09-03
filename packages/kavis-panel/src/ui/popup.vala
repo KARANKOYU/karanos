@@ -27,8 +27,8 @@ namespace Kavis.Ui {
         /* Tasarım dili (test8 J): popup 12px köşe, iç kenar 16px,
            öğe arası 8px; düğme köşesi 8px (docs/tasarim-dili.md). */
         .kavis-popup {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
           border-radius: 12px;
           box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
         }
@@ -37,10 +37,10 @@ namespace Kavis.Ui {
           box-shadow: none;
         }
         .kavis-popup label {
-          color: #E6EDF3;
+          color: @kavis_text;
         }
         .kavis-popup label.dim {
-          color: #8B9BA8;
+          color: @kavis_text2;
         }
         /* Hover kuralı (sonraki-isler 1): panelle AYNI — beyaz %9,
            basılıyken %14, 140 ms; dinlenmede kenarlık yok. */
@@ -49,38 +49,38 @@ namespace Kavis.Ui {
           background-color: transparent;
           border: none;
           border-radius: 8px;
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 8px 10px;
           transition: background-color 140ms ease;
         }
         .kavis-popup button:hover {
-          background-color: rgba(255, 255, 255, 0.09);
+          background-color: @kavis_overlay_hover;
         }
         .kavis-popup button:active {
-          background-color: rgba(255, 255, 255, 0.14);
+          background-color: @kavis_overlay_press;
         }
         /* Takvim (saat popup'ı): koyu zemin, bugünün günü turkuaz. */
         .kavis-popup calendar {
-          background-color: #17222C;
-          color: #E6EDF3;
+          background-color: @kavis_surface;
+          color: @kavis_text;
           border: none;
           padding: 4px;
         }
         .kavis-popup calendar:selected {
-          background-color: #2DD4BF;
-          color: #0D141B;
+          background-color: @kavis_teal;
+          color: @kavis_on_teal;
           border-radius: 6px;
         }
         .kavis-popup calendar:indeterminate {
-          color: #4A5A66;
+          color: @kavis_text3;
         }
         /* Hızlı ayar kutucukları (test8 B4): 1px kenarlık, 10px köşe,
            ~56px yükseklik, etiket kutucuğun ALTINDA; açıkken turkuaz
            DOLGU ve koyu ikon (marka kuralı). Bölünmüş kutucukta ince
            dikey çizgi, iki parça ayrı hover. */
         .kavis-popup .setting-tile {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
           border-radius: 10px;
         }
         .kavis-popup .setting-tile button {
@@ -89,25 +89,25 @@ namespace Kavis.Ui {
         }
         .kavis-popup .setting-tile button.tile-arrow {
           padding: 16px 9px;
-          border-left: 1px solid #233A45;
+          border-left: 1px solid @kavis_border;
           border-radius: 0 9px 9px 0;
         }
         /* Kaydırıcılar (B4): 6px turkuaz dolgu, 14px yuvarlak tutamaç. */
         .kavis-popup scale trough {
           min-height: 6px;
-          background-color: #233A45;
+          background-color: @kavis_border;
           border: none;
           border-radius: 3px;
         }
         .kavis-popup scale highlight {
-          background-color: #2DD4BF;
+          background-color: @kavis_teal;
           border-radius: 3px;
         }
         .kavis-popup scale slider {
           min-width: 14px;
           min-height: 14px;
           margin: -6px;
-          background-color: #E6EDF3;
+          background-color: @kavis_text;
           border-radius: 50%;
           border: none;
           box-shadow: none;
@@ -118,16 +118,16 @@ namespace Kavis.Ui {
           padding: 8px 14px;
         }
         .kavis-popup .setting-tile.on {
-          background-color: #2DD4BF;
-          border-color: #2DD4BF;
+          background-color: @kavis_teal;
+          border-color: @kavis_teal;
         }
         .kavis-popup .setting-tile.on button {
-          color: #0D141B;
+          color: @kavis_on_teal;
         }
         /* ".kavis-popup label" kuralı etikete doğrudan uygulanır ve
            kalıtımı ezer — ok işareti koyu kalsın diye açık seçici. */
         .kavis-popup .setting-tile.on button label {
-          color: #0D141B;
+          color: @kavis_on_teal;
         }
         .kavis-popup .setting-tile.on button:hover {
           background-color: rgba(13, 20, 27, 0.12);

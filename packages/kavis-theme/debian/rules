@@ -63,6 +63,21 @@ override_dh_auto_install:
 		> $(DEST)/usr/share/themes/Kavis-Light/index.theme
 	install -m644 src/gtk-2.0/gtkrc        $(THEME)/gtk-2.0/gtkrc
 	install -m644 src/openbox-3/themerc    $(THEME)/openbox-3/themerc
+	# Açık openbox teması (B2): aynı themerc, renkler açık palete
+	# eşlenmiş (tasarim-dili.md tablosu); Ayarlar rc.xml'de tema adını
+	# değiştirip openbox --reconfigure çağırır.
+	install -d $(DEST)/usr/share/themes/Kavis-Light/openbox-3
+	sed -e 's/#17222C/#FFFFFF/g' -e 's/#121C26/#E9EDF1/g' \
+	    -e 's/#233A45/#D5DBE1/g' -e 's/#E6EDF3/#1A2430/g' \
+	    -e 's/#8B9BA8/#5C6B78/g' -e 's/#2E3842/#E6EAEE/g' \
+	    -e 's/#374149/#DCE1E6/g' -e 's/#2A333C/#E6EAEE/g' \
+	    -e 's/#333D47/#DCE1E6/g' -e 's/#6E8A92/#A0ACB8/g' \
+	    -e 's/#3C4E5A/#C0C8D0/g' -e 's/#55677A/#A0ACB8/g' \
+	    -e 's/#0D141B/#0D141B/g' \
+	    src/openbox-3/themerc \
+	    > $(DEST)/usr/share/themes/Kavis-Light/openbox-3/themerc
+	install -m644 src/openbox-3/*.xbm \
+	    $(DEST)/usr/share/themes/Kavis-Light/openbox-3/
 	# İnce başlık düğmesi ikonları (sonraki-isler 3): — ☐ ✕ ve geri
 	# yükleme; openbox bunları tema dizininden adla bulur.
 	install -m644 src/openbox-3/*.xbm      $(THEME)/openbox-3/

@@ -48,6 +48,35 @@ Sınırlar (bilinçli kabul):
 Sıkışıklık yok — kullanıcı ferah hissetmeli. Yeni bir widget bu
 değerlerin dışına çıkacaksa sebebi commit mesajında yazılır.
 
+## Açık tema paleti (B2, 3 Eyl 2026)
+
+Tek kaynak `packages/kavis-common/theme.vala` (@kavis_* adları; her
+bileşen CSS'i bu adları kullanır, hex yazılmaz). GTK uygulamaları için
+aynı değerler `gtk-light.css`'te, openbox için `Kavis-Light/themerc`
+(rules'ta themerc'den sed ile türetilir). Geçiş canlı: kavis.conf
+`[appearance] theme` değişince palet sağlayıcısı yerinde yenilenir.
+
+| Rol | Koyu | Açık |
+|---|---|---|
+| Zemin (masaüstü/arka plan) | #0D141B | #F3F5F7 |
+| Panel / görev çubuğu | #121C26 | #E9EDF1 |
+| Yüzey (pencere, menü) | #17222C | #FFFFFF |
+| Kart (ayar grubu) | #1C2833 | #FFFFFF |
+| Yüzey hover | #1D2C38 | #EEF1F4 |
+| Kenarlık | #233A45 | #D5DBE1 |
+| Ana metin | #E6EDF3 | #1A2430 |
+| İkincil metin | #8B9BA8 | #5C6B78 |
+| Soluk metin (takvim dış günler) | #4A5A66 | #A0ACB8 |
+| Vurgu | #2DD4BF (aynı) | #2DD4BF (aynı) |
+| Vurgu üstü metin | #0D141B | #0D141B |
+| Hover / basılı örtüsü | beyaz %9 / %14 | siyah %6 / %10 |
+| Kart kenarlığı | beyaz %8 | siyah %10 |
+| Panel akriliği | rgba(18,28,38,.85) | rgba(233,237,241,.85) |
+| Karartma (genel bakış, Ctrl+Alt+Del) | rgba(13,20,27,.92) | rgba(243,245,247,.92) |
+
+Başarı/uyarı/hata renkleri iki temada aynı. Kapat düğmesi hover'ı
+(#C42B1C) iki temada aynı.
+
 ## Başlık çubuğu (v0.4-test1 A kararı, 3 Eyl 2026 — 1B'yi GÜNCELLER)
 
 KARAR: **çift katman.** Kavis'in kendi uygulamaları (Ayarlar, Görev

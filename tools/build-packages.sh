@@ -65,6 +65,8 @@ prepare_sources() {
 			packages/kavis-panel/src/logic/powerplan.vala
 		install -m644 packages/kavis-common/brightness.vala \
 			packages/kavis-panel/src/logic/brightness.vala
+		install -m644 packages/kavis-common/theme.vala \
+			packages/kavis-panel/src/logic/theme.vala
 		# Çeviriler (Grup D işi c): po/ kanonik, panel derlemede
 		# msgfmt ile .mo üretir ve kavis.mo'yu paket olarak taşır.
 		rm -rf packages/kavis-panel/po
@@ -82,6 +84,8 @@ prepare_sources() {
 			packages/kavis-settings/src/logic/powerplan.vala
 		install -m644 packages/kavis-common/brightness.vala \
 			packages/kavis-settings/src/logic/brightness.vala
+		install -m644 packages/kavis-common/theme.vala \
+			packages/kavis-settings/src/logic/theme.vala
 		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src
@@ -89,6 +93,11 @@ prepare_sources() {
 			packages/kavis-tools/src/appinit.vala
 		install -m644 packages/kavis-common/headerbar.vala \
 			packages/kavis-tools/src/headerbar.vala
+		# Palet (B2): tema kavis.conf'tan okunur — config.vala da gerek.
+		install -m644 packages/kavis-common/config.vala \
+			packages/kavis-tools/src/config.vala
+		install -m644 packages/kavis-common/theme.vala \
+			packages/kavis-tools/src/theme.vala
 		# Güç eylemleri (6d): Ctrl+Alt+Del ekranı panelin güç
 		# menüsüyle aynı logind komutlarını kullanır.
 		install -m644 packages/kavis-common/power.vala \

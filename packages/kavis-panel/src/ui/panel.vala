@@ -40,12 +40,12 @@ namespace Kavis.Ui {
            GPU'da picom blur'unu değerlendirecek; saydamlık o güne
            kadarki 'akrilik' payı. Kompozitörsüz düz renge dönülür. */
         .kavis-panel.acrylic {
-          background-color: rgba(18, 28, 38, 0.85);
-          border-top: 1px solid rgba(35, 58, 69, 0.9);
+          background-color: @kavis_panel_acrylic;
+          border-top: 1px solid @kavis_border_acrylic;
         }
         .kavis-panel {
-          background-color: #121C26;
-          border-top: 1px solid #233A45;
+          background-color: @kavis_panel;
+          border-top: 1px solid @kavis_border;
         }
         /* Hover kuralı (sonraki-isler 1): panelde tıklanabilir her
            şey aynı kutu — beyaz %9, basılıyken %14, 6px köşe, 140 ms;
@@ -57,24 +57,24 @@ namespace Kavis.Ui {
           border-radius: 8px;   /* J1: düğme köşesi tek değer */
           background-image: none;
           background-color: transparent;
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 0 10px;
           transition: background-color 140ms ease;
         }
         .kavis-panel button:hover {
-          background-color: rgba(255, 255, 255, 0.09);
+          background-color: @kavis_overlay_hover;
         }
         .kavis-panel button:active {
-          background-color: rgba(255, 255, 255, 0.14);
+          background-color: @kavis_overlay_press;
         }
         /* Açık popup'ı olan gösterge: kutu, popup kapanana dek kalır. */
         .kavis-panel button.popup-open {
-          background-color: rgba(255, 255, 255, 0.09);
+          background-color: @kavis_overlay_hover;
         }
         /* Etkin öğe (sanal masaüstü düğmeleri): altında turkuaz şerit. */
         .kavis-panel button.active-item {
-          background-color: rgba(255, 255, 255, 0.09);
-          box-shadow: inset 0 -3px #2DD4BF;
+          background-color: @kavis_overlay_hover;
+          box-shadow: inset 0 -3px @kavis_teal;
         }
         /* Pencere düğmeleri (Windows 11 tarzı): yalnız ikon; etkin
            pencerenin göstergesi tam genişlik şerit değil, düğmenin
@@ -92,10 +92,10 @@ namespace Kavis.Ui {
         /* Yuva çizgileri (sonraki-isler 2): etkin turkuaz, çalışan
            ama etkin olmayan soluk; çalışmayan sabitlide çizgi yok. */
         .kavis-panel .underline.on {
-          background-color: #2DD4BF;
+          background-color: @kavis_teal;
         }
         .kavis-panel .underline.idle {
-          background-color: rgba(139, 155, 168, 0.75);
+          background-color: @kavis_underline_idle;
         }
         .kavis-panel button.start {
           padding: 0 12px;
@@ -107,11 +107,11 @@ namespace Kavis.Ui {
           padding: 0;
         }
         .kavis-panel label.clock {
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 0 12px;
         }
         .kavis-panel label.indicator {
-          color: #8B9BA8;
+          color: @kavis_text2;
           padding: 0 8px;
         }
         /* Gösterge düğmeleri (Aşama 4): etiketlerin kendi iç boşluğu
@@ -123,8 +123,8 @@ namespace Kavis.Ui {
           padding: 0 2px;
         }
         .kavis-start-menu {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
         }
         """;
 
@@ -139,6 +139,7 @@ namespace Kavis.Ui {
         private Gtk.Box root_box;
         private StartMenu start_menu;
         private int logged_start_width = 0;
+        private Gtk.Image start_logo;
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
         private Gtk.Box right_box;
@@ -351,13 +352,17 @@ namespace Kavis.Ui {
              * option) it is icon-only with the label in the tooltip. */
             bool centered =
                 config.alignment == PanelConfig.Alignment.CENTER;
+            start_logo = Brand.logo_image (24);
+            /* B2: tema canlı değişince logo da (koyu/açık K) değişir. */
+            Theme.events ().changed.connect ((light) => {
+                Brand.refresh_logo (start_logo, 24);
+            });
             if (centered || config.vertical) {
-                start_button.add (Brand.logo_image (24));
+                start_button.add (start_logo);
                 start_button.set_tooltip_text (_("Start"));
             } else {
                 var start_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-                start_row.pack_start (Brand.logo_image (24),
-                                      false, false, 0);
+                start_row.pack_start (start_logo, false, false, 0);
                 var start_label = new Gtk.Label (_("Start"));
                 /* 4A: uzun dillerde metin KIRPILMAZ — düğme metne göre
                  * büyür, pencere listesi daralır (update_button_widths

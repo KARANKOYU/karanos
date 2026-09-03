@@ -16,35 +16,35 @@ namespace Kavis.Ui {
 
         private const string CSS = """
         .kavis-overview {
-          background-color: rgba(13, 20, 27, 0.92);
+          background-color: @kavis_backdrop;
           padding: 48px;
         }
         .kavis-overview .desktop-card {
-          background-color: #17222C;
-          border: 1px solid #233A45;
+          background-color: @kavis_surface;
+          border: 1px solid @kavis_border;
           border-radius: 10px;
           padding: 10px;
         }
         .kavis-overview .desktop-card.current {
-          border-color: #2DD4BF;
+          border-color: @kavis_teal;
         }
         .kavis-overview label {
-          color: #E6EDF3;
+          color: @kavis_text;
         }
         .kavis-overview label.dim {
-          color: #8B9BA8;
+          color: @kavis_text2;
         }
         .kavis-overview button {
           background-image: none;
           background-color: transparent;
           border: none;
           border-radius: 6px;
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 6px 8px;
           transition: background-color 180ms ease;
         }
         .kavis-overview button:hover {
-          background-color: #1D2C38;
+          background-color: @kavis_hover;
         }
         """;
 

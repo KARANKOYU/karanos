@@ -15,26 +15,26 @@ namespace Kavis.Tools {
 
         private const string CSS = """
         .kavis-secure.backdrop-layer {
-          background-color: rgba(13, 20, 27, 0.92);
+          background-color: @kavis_backdrop;
         }
         .kavis-secure label {
-          color: #E6EDF3;
+          color: @kavis_text;
         }
         .kavis-secure button {
           background-image: none;
           background-color: transparent;
           border: none;
           border-radius: 8px;
-          color: #E6EDF3;
+          color: @kavis_text;
           padding: 14px 28px;
           font-size: 18px;
           transition: background-color 140ms ease;
         }
         .kavis-secure button:hover {
-          background-color: rgba(255, 255, 255, 0.09);
+          background-color: @kavis_overlay_hover;
         }
         .kavis-secure button:active {
-          background-color: rgba(255, 255, 255, 0.14);
+          background-color: @kavis_overlay_press;
         }
         """;
 

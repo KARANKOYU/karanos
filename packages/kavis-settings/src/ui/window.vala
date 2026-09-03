@@ -16,14 +16,14 @@ namespace Kavis.Settings {
 
         private const string CSS = """
         .kavis-settings-sidebar {
-            background-color: #121C26;
+            background-color: @kavis_panel;
             padding: 8px 0;
         }
         .kavis-settings-sidebar list {
             background-color: transparent;
         }
         .kavis-settings-sidebar row {
-            color: #E6EDF3;
+            color: @kavis_text;
         }
         .kavis-settings-sidebar row {
             border-radius: 6px;
@@ -31,22 +31,22 @@ namespace Kavis.Settings {
             margin: 1px 8px;
         }
         .kavis-settings-sidebar row:hover {
-            background-color: rgba(255,255,255,0.08);
+            background-color: @kavis_overlay_hover;
         }
         .kavis-settings-sidebar row:selected {
-            background-color: rgba(255,255,255,0.08);
-            box-shadow: inset 3px 0 0 #2DD4BF;
+            background-color: @kavis_overlay_hover;
+            box-shadow: inset 3px 0 0 @kavis_teal;
         }
         .kavis-settings-content {
-            background-color: #17222C;
-            color: #E6EDF3;
+            background-color: @kavis_surface;
+            color: @kavis_text;
         }
         .kavis-settings-title {
             font-size: 20px;
             font-weight: bold;
         }
         .kavis-accent-swatch {
-            background-color: #2DD4BF;
+            background-color: @kavis_teal;
             border-radius: 6px;
             min-width: 40px;
             min-height: 20px;

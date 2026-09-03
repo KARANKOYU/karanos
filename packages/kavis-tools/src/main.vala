@@ -9,6 +9,8 @@
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
+    /* Palet (B2): bileşen CSS'leri @kavis_* adlarını buradan alır. */
+    Kavis.Theme.install ();
 
     string tool = (args.length > 1) ? args[1] : "tasks";
     Gtk.Window window;
