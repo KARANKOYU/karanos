@@ -498,6 +498,17 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       squashfs'i aç → @users'a DOKUNMA → ilk açılışta paket/flatpak
       listesini geri kur, bulunamayanları LİSTELE → fstab/GRUB/EFI
       yenile, eski girdi kalmaz.
+    - Alt birimler: @ (sistem, yenilenir), @users (dokunulmaz),
+      @flatpak (/var/lib/flatpak, korunur), @old-* (otomatik temizlik).
+    - /etc'den kaydedilip geri konanlar: hostname, timezone,
+      default/keyboard, NetworkManager/system-connections (Wi-Fi
+      şifreleri).
+    - @old-* varken GRUB F3'te "önceki sisteme dön".
+    - YAPMAYACAĞIMIZ: eski @ üstüne kopyalama (artık bırakır);
+      kullanıcıya "hangi dosyaları koruyayım" diye sorma.
+    - Büyük sürüm geçişleri (0.3→0.4) de aynı mekanizmayı
+      kullanabilir — madde 26 (güncelleme) ve 27 (USB'den güncelleme)
+      ile ilişkili.
 70. **KİLİT EKRANI (2026-09-03 eki, Grup F sonu).** Tetikleyiciler:
     Win+L (kısayol madde gelince rc.xml'e geri bağlanır — şimdilik
     listede yok), kapak kapanınca, boşta N dakika sonra (Ayarlar >
@@ -521,17 +532,28 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     bağı). Hakkında > Kopyala ile aynı bilgi kümesi (kavis-common
     SysInfo). CI: QEMU'da `kavisfetch --pipe` çıktısı seri günlüğe,
     ad + logo satırı varsa FETCH-OK.
-    - Alt birimler: @ (sistem, yenilenir), @users (dokunulmaz),
-      @flatpak (/var/lib/flatpak, korunur), @old-* (otomatik temizlik).
-    - /etc'den kaydedilip geri konanlar: hostname, timezone,
-      default/keyboard, NetworkManager/system-connections (Wi-Fi
-      şifreleri).
-    - @old-* varken GRUB F3'te "önceki sisteme dön".
-    - YAPMAYACAĞIMIZ: eski @ üstüne kopyalama (artık bırakır);
-      kullanıcıya "hangi dosyaları koruyayım" diye sorma.
-    - Büyük sürüm geçişleri (0.3→0.4) de aynı mekanizmayı
-      kullanabilir — madde 26 (güncelleme) ve 27 (USB'den güncelleme)
-      ile ilişkili.
+
+72. **SAĞLAMLIK DENETİMLERİ + KAVIS SELFTEST (2026-09-03 eki, Grup F
+    sonu / CI).** Tam metin docs/kararlar.md 9; özet:
+    - CI denetimleri: DPKG-VERIFY-OK (`dpkg -V`, Debian dosyasına
+      dokunulmaz — override /etc/kavis, /usr/share/kavis, /etc/xdg),
+      haftalık cron (pazartesi 03:00 UTC, kırmızıysa otomatik issue),
+      DEPS-RANGE-OK (picom/tilix/nemo/openbox/plymouth/lightdm/gtk3
+      için >= ve << sınırı), sürüm kilidi raporu docs/surumler/,
+      SERVICES-OK / JOURNAL-OK (eşik 60) / COREDUMP-OK, açılış süresi
+      + RAM/ISO regresyon WARN'ları, TR+EN %100 çeviri, kaynak kod
+      kuralları (shellcheck/vala 0 uyarı, set -eu), kurtarma testi.
+      Küçük olanlar (dpkg-verify, servis, journal, coredump, cron +
+      issue, deps-range) hemen; kalanı grup kapanışında.
+    - kavis-selftest: gerçek oturumda xdotool/XTest + libwnck ile
+      YAML senaryoları (tests/ui/<madde-no>-<ad>.yaml) koşan Vala
+      ikilisi; her adımda kare/pencere listesi/journal/RAM; anormallik
+      yakalama (coredump, critical/segfault, donma, süreç ölümü, RAM
+      sıçraması, bilinmeyen pencere); Ayarlar > Sistem > "Sistemi test
+      et" + kayıt modu; CI'da SELFTEST-OK/FAIL + artifact. Kapsam
+      kuralı: her madde için en az bir senaryo, docs/test-kapsami.md
+      CI'da üretilir, senaryosuz madde kırmızı. Kod ve ilk 5 senaryo
+      Grup F kapanışında.
 
 ## Yapılış sırası (gruplar)
 
@@ -547,7 +569,9 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
 - **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29, 61, 62
 - **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44, 63, 64
 - **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50,
-  70 (kilit ekranı — grup sonu), 71 (fastfetch — grup sonu)
+  70 (kilit ekranı — grup sonu), 71 (fastfetch — grup sonu), 72
+  (sağlamlık denetimleri + selftest — grup sonu; CI'ın küçük
+  denetimleri 3 Eyl'de girdi)
 - **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11, 65 (CachyOS
   incelemesi — Grup H'nin girdisi, H başlamadan hazır olur) + aşağıdaki
   "Grup G ek maddesi" (userns açılışı + telafi önlemleri)
@@ -598,3 +622,7 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
 - Aynı işlemin iki kez çalışması gibi hatalardan kaçınılır.
 - Hızlı yol varsa o seçilir, yavaş dil kullanılmaz.
 - Her grubun sonunda öz gözden geçirme yapılır ve bulunanlar söylenir.
+- Debian paketinin dosyasına dokunulmaz (`dpkg -V` temiz); override
+  /etc/kavis, /usr/share/kavis, /etc/xdg altında (madde 72).
+- Yeni madde, tests/ui/<no>-<ad>.yaml selftest senaryosu eklenmeden
+  "bitti" sayılmaz (madde 72; selftest Grup F kapanışında gelince).
