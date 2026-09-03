@@ -16,6 +16,7 @@ Bir gruba başlamadan önce ilgili özet(ler) okunur:
 | `calamares.md` | 16, 27C, 51A | Grup I (disk düzeni kararından ÖNCE) |
 | `mintdrivers.md` | 35 | Grup I |
 | `mintupdate.md` | 26 | Grup J |
+| `pardus.md` | 12/41, 26, 51, 16/20/33, 15/24 (Pardus'un 6 aracı: mağaza, güncelleyici, .deb kurucu, güç, boot-repair, welcome) | Grup G/J girdisi |
 | `mintinstall.md` | 12, 41, 23 | Grup G |
 | `virtualbox.md` | açılış deneyimi, 38, 35 | VirtualBox el testinden önce; Grup F (günlük tarama) |
 | `grup-d-taramasi.md` | 6, 37, 7, 29 | Grup D (madde 59 taraması: openbox snap, bildirim, pano, flameshot) |
