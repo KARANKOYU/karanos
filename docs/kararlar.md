@@ -228,7 +228,14 @@ Günlükler'de "Selftest" süzgeci. "Hata bildir": klasörü zip'ler,
 kullanıcı adı/IP/Wi-Fi adı/hostname temizler, GitHub issue ya da
 panoya.
 
-**Sıra.** Docs şimdi; CI'ın küçük denetimleri (DPKG-VERIFY, SERVICES,
-JOURNAL, COREDUMP, haftalık cron + issue, DEPS-RANGE) hemen; selftest
-kodu ve ilk 5 senaryo (açılış, panel, pencere/snap, ayarlar tema,
-görev yöneticisi) Grup F kapanışında.
+**Sıra (3 Eyl güncellemesi: selftest hemen başladı, Grup F sonu
+beklenmedi).** CI'ın küçük denetimleri girdi; kavis-selftest çekirdeği
++ ilk 5 senaryo (tests/ui: 01-acilis, 03-panel, 06-pencere-snap,
+09-ayarlar-tema, 39-gorev-yoneticisi) + run.log/report.json/html
+yazıldı; boot-check DESKTOP-READY sonrası `kavis-selftest --all`
+koşturur (SELFTEST-OK/FAIL). Henüz yok: Ayarlar > Sistem "Sistemi test
+et" düğmesi, kayıt modu, docs/test-kapsami.md üretimi, rapor
+artifact'ı (seri günlükte yalnız run.log satırları; klasörün dışarı
+çıkması virtfs ister), rc.xml kısayollarından otomatik senaryo. Senaryo
+biçimi YAML alt kümesi: `name/title/madde/allowed` + `steps:` listesi,
+adım = `do` / `expect` / `timeout` / `note` / `shot`.

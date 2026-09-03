@@ -552,8 +552,9 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       sıçraması, bilinmeyen pencere); Ayarlar > Sistem > "Sistemi test
       et" + kayıt modu; CI'da SELFTEST-OK/FAIL + artifact. Kapsam
       kuralı: her madde için en az bir senaryo, docs/test-kapsami.md
-      CI'da üretilir, senaryosuz madde kırmızı. Kod ve ilk 5 senaryo
-      Grup F kapanışında.
+      CI'da üretilir, senaryosuz madde kırmızı. Çekirdek + ilk 5
+      senaryo 3 Eyl'de girdi (packages/kavis-selftest, tests/ui);
+      kalan: Ayarlar düğmesi, kayıt modu, kapsam tablosu, artifact.
 
 73. **TUVAL — nesne düzenleme ve bağlamsal üst çubuk (2026-09-03 eki,
     13b-EK).** Tasarım docs/tuval-tasarimi.md: her nesne (fırça darbesi
