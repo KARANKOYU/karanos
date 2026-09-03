@@ -1,0 +1,119 @@
+# Sonraki tur — "devam" denince ilk iş bu
+
+3 Eylül 2026 sonunda yazıldı. Kullanıcı gitti; oturum burada durdu.
+Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
+İngilizce (CLAUDE.md dil kuralı), push kullanıcı isteyince.
+
+## 0. Bu turda yarım kalanlar (önce bunlar)
+
+- **F1 / F2 / F4 ajanları çalışıyordu**, çıktıları commit EDİLMEDİ.
+  Çalışma ağacında duran değişiklikler:
+  - F1 (Hakkında hiyerarşisi): `packages/kavis-common/sysinfo.vala`,
+    `packages/kavis-settings/src/ui/page_system.vala`
+  - F2 (çözünürlük + yenileme hızı listeleri):
+    `packages/kavis-settings/src/logic/xrandr_info.vala`,
+    `packages/kavis-settings/src/ui/page_display.vala`
+  - F4 (dil açılır listesi + tam klavye düzeni listesi):
+    `packages/kavis-settings/src/ui/page_keyboard.vala`,
+    `packages/kavis-settings/src/logic/langs.vala`,
+    `packages/kavis-panel/src/logic/keyboard.vala`,
+    `packages/kavis-panel/src/ui/indicators.vala`
+  İlk iş: `git status` ile bu dosyaları gözden geçir, derle
+  (`tools/build-packages.sh`), Xvfb/VM'de doğrula, madde başına ayrı
+  commit at. Yarım/bozuk bir şey varsa o dosyayı `git checkout` ile
+  geri al ve maddeyi sıfırdan yap.
+- **Selftest senaryoları 03/06/09/39 VM'de koştu ve geçti** (40 adımın
+  38'i); kalan 2 düşüş test2 ISO'suna özgü (B1 GRUB gizli ve
+  /run/kavis/boot-check.log v0.4-test3 ISO'sunda gelecek).
+
+## 1. Selftest eksikleri (madde 72)
+
+- Ayarlar > Sistem'e "Sistemi test et" düğmesi (uyarı → koşu → "Raporu
+  aç" / "Hata bildir").
+- Kayıt modu: kullanıcının tıklama/tuşları YAML senaryosuna dönüşür.
+- `docs/test-kapsami.md` üretimi (madde → senaryo tablosu); senaryosuz
+  madde CI'da kırmızı.
+- Rapor artifact'ı: koşu klasörünün VM dışına çıkması (virtfs ya da
+  seri günlüğe base64 — karar verilecek).
+- rc.xml'deki her kısayoldan otomatik senaryo üretimi.
+
+## 2. A–J turunun kalanı
+
+- **F3** ölçek: %125'te yazı devasa, hizalar kayıyor. GDK_SCALE tam
+  sayı + GDK_DPI_SCALE/xrandr --scale; 100/125/150/175/200 VM'de tek
+  tek denenecek. Yüzde biçimi locale'e uyacak (EN "125%", TR "%125").
+- **G1–G6** Görev Yöneticisi: ayrı `kavis-taskmanager` ikilisi + kendi
+  ikonu (turkuaz, düz, sütunlu); "End task" düğmesi yerine sağ tık
+  menüsü + Delete/Shift+Delete; CPU yüzdesi tüm çekirdeklere göre
+  normalize (toplam = süreçler toplamı); sıralanan sütunda ▲/▼;
+  Performans > CPU çekirdek ızgarası, Memory DDR/MHz/CL/yuva;
+  Başlangıç listesinde sistem zorunluları görünmeyecek, hepsi
+  varsayılan kapalı.
+- **H1** Nemo başlığı tam yol, yol çubuğunda "Home" + tooltip tam yol.
+- **H4** Firefox koyu temada açılacak (policies.json/user.js), tema
+  değişince Firefox da değişecek.
+- **H5** "Tilix" adı hiçbir yerde görünmeyecek: WM_CLASS eşlemesi +
+  .desktop + `com.gexperts.Tilix window-title/app-title`.
+- **H6** Kate Kavis profili (araç çubuğu gizli, Kavis renk şeması,
+  yazı tipi 11, kenar çubuğu kapalı, tek sekme, CSD başlık).
+- **H7** Masaüstü varsayılan ikonları: Files, Firefox, Settings, Task
+  Manager, Terminal (Trash yok).
+- **I** Emoji seçici: glif en az 24 px, 8 sütun, kategoriler (Emoji
+  alt grupları, Kaomoji, Semboller, Son kullanılanlar, Pano geçmişi),
+  arama tüm sekmelerde, S/M/L boyut ayarı sağ üstte.
+- **J** Her düzeltme VM'de doğrulanacak (Xvfb yetmez), docs/durum.md
+  güncel, etiket **v0.4-test3** (etiket commit'inde `[skip ci]` YOK).
+- H2/H3 (şablonlar) ve F5 (Windows sürüm adı yasağı + CI koruması)
+  3 Eyl'de bitti.
+
+## 3. RAM temizliği (A–J eki)
+
+1. Görev Yöneticisi Memory sütunu **USS** (smaps_rollup Private_*)
+   göstersin; RSS "Gelişmiş sütunlar"da. Toplam satırı `free`'nin
+   "used" değeri.
+2. lxpolkit, nemo-desktop, kavis-tools, kavis-osd, kavis-snap USS
+   ölçülüp tablo raporlanacak. lxpolkit USS > 15 MB ise kavis-polkit
+   (Vala/GTK, ~200 satır) yazılıp değiştirilecek. nemo-desktop USS >
+   30 MB ise sebebi bulunacak.
+   **3 Eyl ölçümü (QEMU, boşta):** kavis-panel 36 MB (RSS 64),
+   nemo-desktop 43 MB (eşik aşıldı → sebep aranacak), lxpolkit 11 MB
+   (eşik altında → kalıyor), kavis-snap 4, kavis-osd 4, openbox 4,
+   picom 2, xcape 0. Boşta MEM-USED ≈ 570–600 MB (hedef < 380 MB).
+3. kavis-tools 67 MB RSS: emoji seçici + hesap makinesi + ekran
+   görüntüsü tek süreçte mi, kullanılmayan pencereler bellekte mi —
+   lazy oluştur, USS hedefi < 10 MB.
+4. Print applet olduğu gibi kalır (karar).
+5. Hedef: masaüstü boşta `free` "used" < 380 MB (CI MEM-USED), tablo
+   docs/durum.md'ye.
+6. **Açık soru:** elle `pkill` + yeniden başlatma sonrası VM'de İKİ
+   `kavis-panel` süreci görüldü (biri PPID 1). Ürün hatası mı, elle
+   başlatmanın izi mi — bulunacak.
+
+## 4. Yeni kararlar (3 Eyl akşamı, kullanıcı notu — henüz YAPILMADI)
+
+- **Kısayollar gruplanacak.** rc.xml ve Ayarlar'daki kısayol listesi
+  düz liste olmayacak: "Sistem", "Pencere", "Masaüstü", "Uygulama",
+  "Medya/Fn" gibi gruplar. Fn+F2 türü kombinasyonlar **varsayılan**
+  olarak gelecek ama kullanıcı ne yaptığını değiştirebilecek
+  (yeniden atama + varsayılana dön).
+- **Ayarlar bölümleri hiyerarşik olacak.** Örnek: System > System
+  info, System backup, System restore. Bu düzen yalnız System'de
+  değil, TÜM bölümlerde geçerli (alt bölümler + katlanabilir gruplar).
+  F1'in Hakkında hiyerarşisi bu düzenin ilk parçası.
+- **Ayar araması gerçekten iyi olacak.** "light" yazınca System/dark/
+  light gibi ilgili her ayar çıkacak: başlık + açıklama + alt bölüm
+  adı + eşanlamlılar üzerinden arama, bulanık eşleşme, sonuçta hangi
+  bölümde olduğu yazacak. (Bugünkü bulanık arama yalnız başlıklara
+  bakıyor.)
+
+## 5. Bugün biten işler (bağlam)
+
+- Kod tabanı tamamen İngilizce (`7a382b9`, 229 dosya) + CLAUDE.md dil
+  kuralı; Türkçe yalnız po/tr.po ve docs/.
+- kavis-selftest çekirdeği + 5 senaryo + boot-check entegrasyonu.
+- Madde 72 CI sağlamlık denetimleri (dpkg -V, servis/journal/coredump,
+  DEPS-RANGE, haftalık cron + issue).
+- Debug turu: snap gravity ve unsnap boyutu, Win toggle yarışı, picom
+  SIGUSR1 yanlış dosya, flash zamanlayıcısı, ✕ ipucu, valac uyarıları
+  26 → 2, preview oturum veri yolu olmadan pencere açmıyordu.
+- Tuval (13b-EK) tasarımı `docs/tuval-tasarimi.md` + madde 73.

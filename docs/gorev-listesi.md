@@ -565,6 +565,19 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     Önceki Tuval tasarımı depoda yok — bulununca belgeye eklenecek.
     Grubu: Grup F sonrası (karar bekliyor).
 
+74. **KISAYOL GRUPLARI + AYAR HİYERARŞİSİ + GERÇEK AYAR ARAMASI
+    (2026-09-03 akşam eki).** Üç parça, tam metin
+    docs/sonraki-tur.md 4:
+    - Kısayollar gruplanır (Sistem / Pencere / Masaüstü / Uygulama /
+      Medya-Fn). Fn+F2 gibi kombinasyonlar varsayılan gelir ama
+      kullanıcı yeniden atayabilir ve varsayılana döndürebilir.
+    - Ayarlar bölümleri hiyerarşik: System > System info / System
+      backup / System restore gibi alt bölümler; düzen TÜM bölümlerde
+      geçerli (F1'in Hakkında hiyerarşisi ilk parçası).
+    - Ayar araması başlık + açıklama + alt bölüm adı + eşanlamlı
+      üzerinden bulanık arar; "light" yazınca tema/karanlık-aydınlık
+      ayarları da çıkar, sonuçta bölüm adı görünür.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,
