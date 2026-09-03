@@ -54,7 +54,7 @@ namespace Kavis.Ui {
 
         private Gtk.Box box;
         private bool composited;
-        private int margin;
+        private new int margin;
         private bool gtk_grabbed = false;
 
         public PowerMenu () {

@@ -163,7 +163,7 @@ namespace Kavis.Ui {
         }
         """;
 
-        private unowned Wnck.Screen screen;
+        private new unowned Wnck.Screen screen;
         private PanelConfig config;
         private FileMonitor? config_monitor = null;
         private int thickness;

@@ -48,7 +48,7 @@ namespace Kavis.Ui {
         }
         """;
 
-        private unowned Wnck.Screen screen;
+        private new unowned Wnck.Screen screen;
         private Gtk.Box cards_box;
         private bool gtk_grabbed = false;
         private static bool css_loaded = false;

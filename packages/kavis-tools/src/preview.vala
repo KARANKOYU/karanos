@@ -167,8 +167,13 @@ namespace Kavis.Tools {
         /* ---- images ---------------------------------------------- */
 
         private Gtk.Widget build_image (string path, string ctype) {
-            var screen_h = Gdk.Screen.get_default ().get_height ();
-            var screen_w = Gdk.Screen.get_default ().get_width ();
+            /* Gdk.Screen.get_width/height 3.22'den beri eski; birincil
+             * monitörün geometrisi (çok monitörde de doğru). */
+            var display = Gdk.Display.get_default ();
+            var monitor = display.get_primary_monitor () ?? display.get_monitor (0);
+            var geo = monitor.get_geometry ();
+            var screen_h = geo.height;
+            var screen_w = geo.width;
             int max_w = (int) (screen_w * 0.8);
             int max_h = (int) (screen_h * 0.8);
             try {

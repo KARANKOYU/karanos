@@ -30,8 +30,10 @@ namespace Kavis.PickerData {
               "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ☮️ ✝️ ☪️ 🕉️ ☸️ ✡️ 🔯 🕎 ☯️ ☦️ 🛐 ⛎ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ 🆔 ⚛️ ☢️ ☣️ 📴 📳 🈶 🈚 🈸 🈺 🈷️ ✴️ 🆚 💮 🉐 ㊙️ ㊗️ 🈴 🈵 🈹 🈲 🅰️ 🅱️ 🆎 🆑 🅾️ 🆘 ❌ ⭕ 🛑 ⛔ 📛 🚫 💯 💢 ♨️ 🚷 🚯 🚳 🚱 🔞 📵 🚭 ❗ ❕ ❓ ❔ ‼️ ⁉️ 🔅 🔆 〽️ ⚠️ 🚸 🔱 ⚜️ 🔰 ♻️ ✅ 🈯 💹 ❇️ ✳️ ❎ 🌐 💠 Ⓜ️ 🌀 💤 🏧 🚾 ♿ 🅿️ 🈳 🈂️ 🛂 🛃 🛄 🛅 🚹 🚺 🚼 🚻 🚮 🎦 📶 🈁 🔣 ℹ️ 🔤 🔡 🔠 🆖 🆗 🆙 🆒 🆕 🆓 0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟" },
     };
 
-    /* xgettext markers (N_ const başlatıcıda duramaz). */
-    private void emoji_markers () {
+    /* xgettext markers (N_ const başlatıcıda duramaz). public: yalnız
+     * xgettext okusun diye vardır; private olsaydı valac "never used"
+     * derdi. */
+    public void emoji_markers () {
         N_("Smileys"); N_("People"); N_("Nature"); N_("Food");
         N_("Travel"); N_("Objects"); N_("Symbols");
     }
@@ -51,7 +53,7 @@ namespace Kavis.PickerData {
           "( ͡° ͜ʖ ͡°) (•_•) (⌐■_■) ( ˘▽˘)っ♨ ( ･ω･)ﾉ (ง •̀_•́)ง" },
     };
 
-    private void kaomoji_markers () {
+    public void kaomoji_markers () {
         N_("Happy"); N_("Sad"); N_("Angry"); N_("Surprised");
         N_("Love"); N_("Other");
     }
@@ -71,7 +73,7 @@ namespace Kavis.PickerData {
           "⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁺ ⁻ ⁿ ₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉ ₊ ₋" },
     };
 
-    private void symbol_markers () {
+    public void symbol_markers () {
         N_("Currency"); N_("Arrows"); N_("Punctuation"); N_("Math");
         N_("Accented letters"); N_("Super/subscript");
     }

@@ -1165,7 +1165,7 @@ namespace Kavis.Tools {
     private class RecorderBar : Gtk.Window {
 
         private Pid ffmpeg_pid;
-        private string path;
+        private new string path;
         private Gtk.Label counter;
         private int seconds = 0;
         private uint tick = 0;

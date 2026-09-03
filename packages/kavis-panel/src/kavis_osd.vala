@@ -111,7 +111,7 @@ namespace Kavis.Osd {
         }
         """;
 
-        private Gtk.Image icon;
+        private new Gtk.Image icon;
         private Gtk.LevelBar bar;
         private Gtk.Label text_label;
         private uint hide_timer = 0;

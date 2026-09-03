@@ -63,7 +63,7 @@ namespace Kavis {
 
         private uint32 next_id = 1;
 
-        public uint32 notify (string app_name, uint32 replaces_id,
+        public new uint32 notify (string app_name, uint32 replaces_id,
                               string app_icon, string summary, string body,
                               string[] actions,
                               HashTable<string, Variant> hints,

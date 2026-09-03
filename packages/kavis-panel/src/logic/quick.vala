@@ -366,16 +366,6 @@ namespace Kavis.Quick {
         return backlight_dir () != null;
     }
 
-    private int read_int_file (string path) {
-        string contents;
-        try {
-            FileUtils.get_contents (path, out contents);
-        } catch (Error e) {
-            return -1;
-        }
-        return int.parse (contents.strip ());
-    }
-
     /* 3C: ortak backend'e delege — donanım yoksa xrandr yazılım
      * parlaklığı, değer kavis.conf'ta; kaydırıcı artık HEP görünür. */
     public int brightness_percent () {

@@ -62,7 +62,7 @@ namespace Kavis.Ui {
                 Markup.escape_text (text)));
         }
 
-        public void set_state (bool enabled) {
+        public new void set_state (bool enabled) {
             state = enabled;
             unowned Gtk.StyleContext context = frame.get_style_context ();
             if (enabled) {

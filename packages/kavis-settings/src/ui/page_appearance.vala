@@ -156,7 +156,7 @@ namespace Kavis.Settings.Pages {
         private const int H = 112;
         private const double R = 8;
         private Gdk.Pixbuf? pixbuf = null;
-        private string path;
+        private new string path;
         private bool selected;
 
         public Thumbnail (string path, bool selected) {
