@@ -407,27 +407,316 @@ namespace Kavis.SysInfo {
         return "";
     }
 
-    /* --- About page ---------------------------------------------------- */
+    /* --- About page ----------------------------------------------------
+     *
+     * The About page is hierarchical (feedback F1): one group of facts
+     * per hardware area, each group behind its own disclosure row. The
+     * groups are built here so that the page and the "Copy details"
+     * button always show the SAME set of values.
+     *
+     * A value that cannot be read is returned as an empty string; the
+     * caller turns it into DASH. Nothing here asks for a password.
+     */
 
-    public Fact[] collect () {
+    /* Placeholder for a value this machine does not expose. */
+    public const string DASH = "—";
+
+    /* A class, not a struct: a struct holding an array copies the
+     * array pointer only. */
+    public class Group : GLib.Object {
+        public string title;
+        public Fact[] facts;
+
+        public Group (string title, Fact[] facts) {
+            this.title = title;
+            this.facts = facts;
+        }
+    }
+
+    private string or_dash (string value) {
+        return (value.strip () == "" || value == "?") ? DASH : value;
+    }
+
+    private string mhz_text (int mhz) {
+        return (mhz > 0) ? "%.2f GHz".printf (mhz / 1000.0) : DASH;
+    }
+
+    /* "32K" / "1024K" / "16M" (sysfs cache size) -> KB. */
+    private int64 cache_kb (string size) {
+        string s = size.strip ();
+        if (s == "") {
+            return 0;
+        }
+        int64 value = int64.parse (s);
+        if (s.has_suffix ("M")) {
+            return value * 1024;
+        }
+        if (s.has_suffix ("G")) {
+            return value * 1024 * 1024;
+        }
+        return value;   /* K, or a bare number of KB */
+    }
+
+    /* Per-level cache of cpu0. L1 has two entries (data +
+     * instruction), so the sizes are summed per level. */
+    public string cpu_cache () {
+        int64[] level_kb = new int64[4];
+        bool any = false;
+        for (int i = 0; i < 16; i++) {
+            string dir =
+                "/sys/devices/system/cpu/cpu0/cache/index%d".printf (i);
+            string level = read_file (dir + "/level");
+            int64 kb = cache_kb (read_file (dir + "/size"));
+            if (level == "" || kb <= 0) {
+                continue;
+            }
+            int index = int.parse (level) - 1;
+            if (index < 0 || index >= level_kb.length) {
+                continue;
+            }
+            level_kb[index] += kb;
+            any = true;
+        }
+        if (!any) {
+            return "";
+        }
+        var text = new StringBuilder ();
+        for (int i = 0; i < level_kb.length; i++) {
+            if (level_kb[i] <= 0) {
+                continue;
+            }
+            if (text.len > 0) {
+                text.append ("   ");
+            }
+            text.append_printf ("L%d %s", i + 1,
+                                format_bytes ((uint64) level_kb[i] * 1024));
+        }
+        return text.str;
+    }
+
+    /* Nominal (base) clock: intel_pstate's base_frequency, else the
+     * "@ 3.60GHz" tail of the model name. 0 when neither exists. */
+    public int cpu_nominal_mhz () {
+        int64 khz = read_int64 (
+            "/sys/devices/system/cpu/cpu0/cpufreq/base_frequency");
+        if (khz > 0) {
+            return (int) (khz / 1000);
+        }
+        string model = cpu_model ();
+        int at = model.last_index_of ("@");
+        if (at < 0) {
+            return 0;
+        }
+        string tail = model.substring (at + 1).strip ().down ();
+        double ghz = double.parse (tail.replace ("ghz", "").strip ());
+        return (ghz > 0) ? (int) (ghz * 1000) : 0;
+    }
+
+    /* Kernel driver bound to the first render card ("amdgpu", "i915",
+     * "virtio-pci", "vmwgfx"...). Empty when nothing is bound. */
+    public string gpu_driver () {
+        for (int card = 0; card < 8; card++) {
+            string link = "/sys/class/drm/card%d/device/driver"
+                .printf (card);
+            if (!FileUtils.test (link, FileTest.EXISTS)) {
+                continue;
+            }
+            try {
+                return Path.get_basename (FileUtils.read_link (link));
+            } catch (FileError e) { }
+        }
+        return "";
+    }
+
+    /* --- dmidecode (needs root) ----------------------------------------
+     *
+     * /dev/mem and /sys/firmware/dmi/tables are both root-only, so this
+     * fails for a normal session and every field stays empty — a status
+     * page must not pop a password prompt. In a VM the DMI memory
+     * records are usually missing even for root.
+     */
+    public void memory_dmi (out string type, out string speed,
+                            out string latency, out int slots_used,
+                            out int slots_total) {
+        type = ""; speed = ""; latency = "";
+        slots_used = 0; slots_total = 0;
+        string? output = capture ({ "dmidecode", "-t", "memory" });
+        if (output == null) {
+            output = capture ({ "/usr/sbin/dmidecode", "-t", "memory" });
+        }
+        if (output == null) {
+            return;
+        }
+        bool populated = false;
+        foreach (unowned string raw in output.split ("\n")) {
+            string line = raw.strip ();
+            if (line == "Memory Device") {
+                slots_total++;
+                populated = false;
+                continue;
+            }
+            int colon = line.index_of (":");
+            if (colon <= 0) {
+                continue;
+            }
+            string key = line.substring (0, colon).strip ();
+            string value = line.substring (colon + 1).strip ();
+            switch (key) {
+            case "Size":
+                if (value != "" && !value.has_prefix ("No Module")) {
+                    slots_used++;
+                    populated = true;
+                }
+                break;
+            case "Type":
+                if (populated && type == "" && value.has_prefix ("DDR")) {
+                    type = value;
+                }
+                break;
+            case "Configured Memory Speed":
+            case "Speed":
+                if (populated && speed == "" && value != ""
+                    && !value.has_prefix ("Unknown")) {
+                    speed = value;
+                }
+                break;
+            /* Not in SMBIOS type 17 today; parsed anyway so a firmware
+             * that does report it lands in the right row. */
+            case "CAS Latency":
+            case "Configured CAS Latency":
+                if (populated && latency == "") {
+                    latency = value;
+                }
+                break;
+            }
+        }
+    }
+
+    /* Filesystems mounted from this disk's partitions ("ext4",
+     * "ext4, vfat"). Empty when nothing of it is mounted. */
+    public string disk_filesystem (string name) {
+        var seen = new StringBuilder ();
+        foreach (unowned string line in read_file ("/proc/mounts").split ("\n")) {
+            string[] f = line.split (" ");
+            if (f.length < 3 || !f[0].has_prefix ("/dev/" + name)) {
+                continue;
+            }
+            if (seen.str.contains (f[2])) {
+                continue;
+            }
+            if (seen.len > 0) {
+                seen.append (", ");
+            }
+            seen.append (f[2]);
+        }
+        return seen.str;
+    }
+
+    public Fact[] os_facts () {
         Fact[] result = {};
         result += Fact () {
             label = _("Version"),
             value = "%s %s".printf (os_release_value ("NAME"),
                                     os_release_value ("VERSION_ID")) };
-        result += Fact () { label = _("Kernel"), value = kernel () };
+        result += Fact () { label = _("Kernel"), value = or_dash (kernel ()) };
         result += Fact () { label = _("Desktop"),
                             value = "%s (Openbox)".printf (os_release_value ("NAME")) };
-        result += Fact () { label = _("Processor"), value = cpu_model () };
-        result += Fact () { label = _("Memory"), value = mem_total () };
-        result += Fact () { label = _("Graphics"), value = gpu_model () };
+        result += Fact () { label = _("Hostname"),
+                            value = Environment.get_host_name () };
         string b = board ();
         if (b != "") {
             result += Fact () { label = _("Motherboard"), value = b };
         }
-        result += Fact () { label = _("Disk"), value = disk_usage () };
-        result += Fact () { label = _("Hostname"),
-                            value = Environment.get_host_name () };
         return result;
+    }
+
+    public Fact[] cpu_facts () {
+        int cores, threads;
+        cpu_topology (out cores, out threads);
+        int nominal = cpu_nominal_mhz ();
+        int max = cpu_base_mhz ();     /* cpuinfo_max_freq = turbo ceiling */
+        Fact[] result = {};
+        result += Fact () { label = _("Model"), value = or_dash (cpu_model ()) };
+        result += Fact () { label = _("Cores / threads"),
+                            value = "%d / %d".printf (cores, threads) };
+        result += Fact () { label = _("Base frequency"),
+                            value = mhz_text (nominal) };
+        result += Fact () { label = _("Turbo frequency"),
+                            value = mhz_text (max) };
+        result += Fact () { label = _("Cache"),
+                            value = or_dash (cpu_cache ()) };
+        return result;
+    }
+
+    public Fact[] gpu_facts () {
+        int busy;
+        int64 vram_used, vram_total;
+        double temp;
+        gpu_stats (out busy, out vram_used, out vram_total, out temp);
+        Fact[] result = {};
+        result += Fact () { label = _("Model"), value = or_dash (gpu_model ()) };
+        result += Fact () { label = _("Driver"),
+                            value = or_dash (gpu_driver ()) };
+        result += Fact () { label = _("Video memory"),
+                            value = (vram_total > 0)
+                                ? format_bytes ((uint64) vram_total) : DASH };
+        return result;
+    }
+
+    public Fact[] memory_facts () {
+        string type, speed, latency;
+        int used, total;
+        memory_dmi (out type, out speed, out latency, out used, out total);
+        Fact[] result = {};
+        result += Fact () { label = _("Total"), value = or_dash (mem_total ()) };
+        result += Fact () { label = _("Type"), value = or_dash (type) };
+        result += Fact () { label = _("Speed"), value = or_dash (speed) };
+        result += Fact () { label = _("CAS latency"),
+                            value = or_dash (latency) };
+        result += Fact () { label = _("Slots in use"),
+                            value = (total > 0)
+                                ? "%d / %d".printf (used, total) : DASH };
+        return result;
+    }
+
+    public Fact[] disk_facts () {
+        Fact[] result = {};
+        Disk[] all = disks ();
+        bool many = all.length > 1;
+        foreach (unowned Disk d in all) {
+            string prefix = many ? d.name + " — " : "";
+            result += Fact () { label = prefix + _("Model"),
+                                value = or_dash (d.model) };
+            result += Fact () { label = prefix + _("Capacity"),
+                                value = (d.size > 0)
+                                    ? format_bytes (d.size) : DASH };
+            result += Fact () { label = prefix + _("File system"),
+                                value = or_dash (disk_filesystem (d.name)) };
+        }
+        result += Fact () { label = _("Usage"), value = or_dash (disk_usage ()) };
+        return result;
+    }
+
+    /* Every group in page order. */
+    public Group[] collect () {
+        return {
+            new Group (_("System"), os_facts ()),
+            new Group (_("Processor"), cpu_facts ()),
+            new Group (_("Graphics"), gpu_facts ()),
+            new Group (_("Memory"), memory_facts ()),
+            new Group (_("Disk"), disk_facts ())
+        };
+    }
+
+    /* One plain-text block for the Copy details button. */
+    public string report (Group[] groups) {
+        var text = new StringBuilder ();
+        foreach (unowned Group g in groups) {
+            text.append_printf ("%s\n", g.title);
+            foreach (unowned Fact f in g.facts) {
+                text.append_printf ("  %s: %s\n", f.label, f.value);
+            }
+        }
+        return text.str;
     }
 }

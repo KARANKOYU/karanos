@@ -51,6 +51,18 @@ namespace Kavis.Settings {
             border-radius: 8px;
             padding: 12px 16px;
         }
+        /* About page disclosure header (F1): a plain button inside the
+         * card — no frame of its own, the card is the visual. */
+        .kavis-disclosure {
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            min-height: 0;
+        }
+        .kavis-disclosure:hover label {
+            color: @kavis_teal;
+        }
         .kavis-key {
             background-color: @kavis_overlay_hover;
             border: 1px solid @kavis_card_border;
@@ -130,7 +142,9 @@ namespace Kavis.Settings {
                   + _("Automatically hide the taskbar") + "\n"
                   + _("Pinned apps") },
                 { "system", "computer-symbolic", _("System"),
-                  _("About") + "\n" + _("Copy details") }
+                  _("About") + "\n" + _("Copy details") + "\n"
+                  + _("Processor") + "\n" + _("Graphics") + "\n"
+                  + _("Memory") + "\n" + _("Disk") }
             };
 
             var provider = new Gtk.CssProvider ();
