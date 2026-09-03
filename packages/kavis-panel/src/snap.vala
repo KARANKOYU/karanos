@@ -58,6 +58,7 @@ namespace Kavis {
         private bool button_was_down = false;
         private bool dragging = false;
         private bool restored_this_drag = false;
+        private Gdk.Rectangle unsnap_size = { 0, 0, 0, 0 };
         private unowned Wnck.Window? drag_window = null;
         private Gdk.Rectangle press_geometry;
         private int press_x = 0;
@@ -233,6 +234,21 @@ namespace Kavis {
             return true;
         }
 
+        /* Move/resize by FRAME rectangle (root coordinates). libwnck
+         * always converts the frame rectangle to client coordinates by
+         * adding the frame extents and passes the gravity through; with
+         * NorthWest gravity openbox then treats that client position as
+         * the frame origin once more, so a snapped openbox-decorated
+         * window landed one title height too low (Xvfb harness, debug
+         * turu — CSD windows have no extents, the VM Tilix test could
+         * not show it). STATIC gravity makes openbox take the converted
+         * pair as client coordinates: frame lands exactly at fx,fy. */
+        private void set_frame_geometry (Wnck.Window w,
+                                         Wnck.WindowMoveResizeMask mask,
+                                         int fx, int fy, int fw, int fh) {
+            w.set_geometry (Wnck.WindowGravity.STATIC, mask, fx, fy, fw, fh);
+        }
+
         /* Topmost normal window whose frame contains the point. */
         private unowned Wnck.Window? window_at (int x, int y) {
             unowned List<Wnck.Window> stacked = screen.get_windows_stacked ();
@@ -341,7 +357,11 @@ namespace Kavis {
                 Gdk.Rectangle? old = saved.lookup (xid);
                 if (old != null) {
                     saved.remove (xid);
-                    drag_window.set_geometry (Wnck.WindowGravity.NORTHWEST,
+                    /* Sürükleme sırasında dener (W11 gibi elde küçülsün);
+                     * openbox kendi taşıması sürerken bunu yok sayıyor
+                     * (Xvfb harnesi), o yüzden end_drag bir daha uygular. */
+                    unsnap_size = { 0, 0, old.width, old.height };
+                    drag_window.set_geometry (Wnck.WindowGravity.STATIC,
                         Wnck.WindowMoveResizeMask.WIDTH
                         | Wnck.WindowMoveResizeMask.HEIGHT,
                         0, 0, old.width, old.height);
@@ -386,7 +406,7 @@ namespace Kavis {
             }
             intended_x = x - (int) (grab_ratio * ww);
             intended_y = y - grab_dy;
-            drag_window.set_geometry (Wnck.WindowGravity.NORTHWEST,
+            set_frame_geometry (drag_window,
                 Wnck.WindowMoveResizeMask.X | Wnck.WindowMoveResizeMask.Y,
                 intended_x - bias_x, intended_y - bias_y, 0, 0);
         }
@@ -481,9 +501,16 @@ namespace Kavis {
                 if (zone != Zone.NONE) {
                     apply_zone ();
                 } else {
+                    if (restored_this_drag && unsnap_size.width > 0) {
+                        drag_window.set_geometry (Wnck.WindowGravity.STATIC,
+                            Wnck.WindowMoveResizeMask.WIDTH
+                            | Wnck.WindowMoveResizeMask.HEIGHT,
+                            0, 0, unsnap_size.width, unsnap_size.height);
+                    }
                     clamp_to_screen (drag_window);
                 }
             }
+            unsnap_size = { 0, 0, 0, 0 };
             drag_window = null;
             dragging = false;
             taking_over = false;
@@ -508,7 +535,7 @@ namespace Kavis {
             }
             Gdk.Rectangle r = zone_rect (zone, wa);
             drag_window.unmaximize ();
-            drag_window.set_geometry (Wnck.WindowGravity.NORTHWEST,
+            set_frame_geometry (drag_window,
                 Wnck.WindowMoveResizeMask.X | Wnck.WindowMoveResizeMask.Y
                 | Wnck.WindowMoveResizeMask.WIDTH
                 | Wnck.WindowMoveResizeMask.HEIGHT,
@@ -555,7 +582,7 @@ namespace Kavis {
                 nx = wa.x + wa.width - KEEP_INSIDE;
             }
             if (nx != wx || ny != wy) {
-                w.set_geometry (Wnck.WindowGravity.NORTHWEST,
+                set_frame_geometry (w,
                     Wnck.WindowMoveResizeMask.X
                     | Wnck.WindowMoveResizeMask.Y, nx, ny, 0, 0);
             }
