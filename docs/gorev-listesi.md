@@ -498,6 +498,18 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       squashfs'i aç → @users'a DOKUNMA → ilk açılışta paket/flatpak
       listesini geri kur, bulunamayanları LİSTELE → fstab/GRUB/EFI
       yenile, eski girdi kalmaz.
+70. **KİLİT EKRANI (2026-09-03 eki, Grup F sonu).** Tetikleyiciler:
+    Win+L (kısayol madde gelince rc.xml'e geri bağlanır — şimdilik
+    listede yok), kapak kapanınca, boşta N dakika sonra (Ayarlar >
+    Güç). Davranış: parolalı hesapta parola ister; parolasız (canlı /
+    tek kullanıcılı otomatik giriş) hesapta yalnız perde — tık/tuşla
+    açılır; ekran kapalıyken DPMS. Görünüm tasarım diline uyar: duvar
+    kâğıdı bulanık/karartılmış, ortada saat + tarih (locale biçimi),
+    altta parola kutusu, 12px köşe, 180 ms geçiş. Uygulama kendi
+    süreci (kavis-tools lock), X'te XGrabKeyboard/Pointer + tüm
+    monitörleri kaplayan override-redirect pencere; oturum
+    kilitliyken bildirim içerikleri gizli. Karar (kararlar.md 7 ile
+    uyum): dil/klavye kilit ekranında da değiştirilebilir.
     - Alt birimler: @ (sistem, yenilenir), @users (dokunulmaz),
       @flatpak (/var/lib/flatpak, korunur), @old-* (otomatik temizlik).
     - /etc'den kaydedilip geri konanlar: hostname, timezone,
@@ -523,7 +535,8 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
   D'ye geçmeden yapılır)
 - **GRUP D** — masaüstü deneyimi: 4, 5, 6, 55, 37, 7, 29, 61, 62
 - **GRUP E** — temel uygulamalar: 39, 36, 40, 42, 43, 44, 63, 64
-- **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50
+- **GRUP F** — ayarlar ve sistem: 9, 10, 38, 34, 51, 52, 45, 49, 50,
+  70 (kilit ekranı — grup sonu)
 - **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11, 65 (CachyOS
   incelemesi — Grup H'nin girdisi, H başlamadan hazır olur) + aşağıdaki
   "Grup G ek maddesi" (userns açılışı + telafi önlemleri)

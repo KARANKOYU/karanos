@@ -650,12 +650,9 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
-- Karar (v0.4-test2 E, 3 Eyl): nemo kenar çubuğundaki "Network"
-  BAŞLIĞI kaldırılamıyor — nemo-places-sidebar.c add_heading koşulsuz,
-  gsettings yalnız daraltıyor (network-expanded=false uygulandı).
-  Tamamen kaldırmak = nemo'ya kaynak yaması + paketi kendimiz derlemek
-  (CI'ya ~10 dk, her nemo güncellemesinde bakım). En hafif yol seçildi:
-  daraltılmış. İstersen yama yolunu açarım.
+- KARAR VERİLDİ (E, 3 Eyl, kullanıcı): nemo Network bölümü
+  DARALTILMIŞ açılır, nemo yaması YOK (File System kararıyla aynı
+  çizgi). Kapandı.
 
 - Karar (v0.4-test2 A, 3 Eyl): güç diyaloğuna CSD başlık çubuğu
   EKLENMEDİ — kullanıcı A listesinde saymıştı ama 2D tasarımı
