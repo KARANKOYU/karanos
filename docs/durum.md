@@ -382,6 +382,30 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - v0.4-test1 VM GERİ BİLDİRİM TURU A–H BİTTİ (3 Eyl), H'de DUR:
+>   A 36e6d38 CSD başlık çubuğu (kavis-common/headerbar.vala) +
+>   themerc 35px/16px xbm; B1 956dc8b; B2 1ca8259 palet tek kaynak
+>   theme.vala, 11 dosyada 101 hex → @kavis_*, openbox Kavis-Light,
+>   canlı geçiş; B3 09488d8 picom SIGUSR1; B4 a36b8ed kartlar;
+>   B5/B8 29d8947 küçük resimler + RSS ölçümü (yığın 3.3 MB, gerisi
+>   gtk/rsvg sayfaları); B6 2087615 dil zinciri (locale dosyası,
+>   pkexec set-locale + polkit, panel restart — execv comm='exe' hatası
+>   bulunup düzeltildi); B7 ac7b35c rozetler; C1-C3 af80d73 kavis-snap
+>   yeniden (işaretçi altındaki pencere, büyütülmüş sürükleme
+>   takeover, başlık ekranda); C4 b935abf Win/Win+E/I/R/Shift+S
+>   bağları + xcape Super_L→XF86Launch5 + tools/check-keybinds.sh
+>   (24/24) + CI KEYBIND adımı; C5 f03751a imleç ortamı; D 237ab9c;
+>   E b2d210e (yalnız daraltma); F1 7170240; F2 a83e456; G 80ba546
+>   spinner; H4 c61dcd8 SysInfo ortak; H1 59eb091 sekmeler+Performans;
+>   H2 84e1a8a Başlangıç + kavis-session-autostart; H3 8ef0e30
+>   Günlükler. KALAN: I (Shift ile zorla kapat), J (CI: panel-xx '…'
+>   denetimi, SETTINGS-OK 25 MB eşiği), etiket v0.4-test2.
+>   VM'DE DOĞRULANACAK: CSD/SSD başlıklar gerçek temayla; açık tema
+>   (xsettingsd + nemo-desktop yazıları); köşe kaydırıcısı siyah kare
+>   yok mu; dil değişimi (locale-gen + bildirim); snap sol/sağ/üst +
+>   büyütülmüş sürükleme + başlık sınırı; Win tuşu (xcape) ve Win+E/I;
+>   imleç; ✕ masaüstü; spinner; Görev Yöneticisi sekmeleri gerçek
+>   donanım (sıcaklık, GPU) ve journal (adm grubu).
 > - SIRADAKİ İŞ SÖZÜ (3 Eyl, kullanıcı): Grup F kapanınca (CI +
 >   VirtualBox onayı) Grup G'den ÖNCE kapsamlı bir OPTİMİZASYON TURU
 >   yapılacak — kullanıcının "btw ile dediğim" işi buymuş. Kapsam
@@ -625,6 +649,13 @@ yok (Unicode ad veritabanı gerek).
   "zaten var, yenisi gerekmez" diye okunur.
 
 ### ONAY BEKLEYEN KARARLAR
+
+- Karar (v0.4-test2 E, 3 Eyl): nemo kenar çubuğundaki "Network"
+  BAŞLIĞI kaldırılamıyor — nemo-places-sidebar.c add_heading koşulsuz,
+  gsettings yalnız daraltıyor (network-expanded=false uygulandı).
+  Tamamen kaldırmak = nemo'ya kaynak yaması + paketi kendimiz derlemek
+  (CI'ya ~10 dk, her nemo güncellemesinde bakım). En hafif yol seçildi:
+  daraltılmış. İstersen yama yolunu açarım.
 
 - Karar (v0.4-test2 A, 3 Eyl): güç diyaloğuna CSD başlık çubuğu
   EKLENMEDİ — kullanıcı A listesinde saymıştı ama 2D tasarımı
