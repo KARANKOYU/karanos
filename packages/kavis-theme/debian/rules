@@ -119,7 +119,7 @@ override_dh_auto_install:
 		echo "[Icon Theme]"; \
 		echo "Name=Kavis"; \
 		echo "Comment=Kavis simgeleri"; \
-		echo "Inherits=Adwaita,hicolor"; \
+		echo "Inherits=Papirus-Dark,Adwaita,hicolor"; \
 		printf "Directories=scalable/apps"; \
 		for s in $(ICON_SIZES); do printf ",%sx%s/apps" $$s $$s; done; \
 		echo ""; \

@@ -74,6 +74,12 @@ command-not-found
 apt-file
 gettext-base
 
+# --- Web tarayıcısı (4C: varsayılan sabitli Firefox) ---
+# firefox-esr: bakımı Debian'da — güvenlik yamaları apt'tan gelir,
+# sürüm sıçramaları yaşanmaz. l10n-tr: ürünün ilk dili Türkçe.
+firefox-esr
+firefox-esr-l10n-tr
+
 # --- USB güvenli kullanım (madde 63) ---
 # psmisc: fuser — çıkarılamayan USB'yi hangi uygulamanın tuttuğunu
 # söylemek için.

@@ -17,11 +17,12 @@ Depends:
  ${misc:Depends},
  adwaita-icon-theme,
  hicolor-icon-theme,
+ papirus-icon-theme,
 Description: Kavis görünümü — GTK teması, simgeler, imleçler, duvar kağıtları
  Kavis'in kimliğini taşıyan görsel dosyalar:
  .
   * GTK3 teması (açık ve koyu), GTK2 uyumu ve Openbox pencere teması
-  * K logosundan türetilen simge teması (Adwaita'yı miras alır)
+  * K logosundan türetilen simge teması (Papirus-Dark + Adwaita mirası)
   * Turkuaz vurgulu XCursor imleç teması
   * Marka renklerinde duvar kağıtları
   * /etc/os-release içinde dağıtım kimliği
