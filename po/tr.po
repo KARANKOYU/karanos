@@ -8,12 +8,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 
-
-
 msgid "Graphics"
 msgstr "Grafik"
-
-
 
 
 msgid "System"
@@ -615,14 +611,8 @@ msgstr "Koyu"
 msgid "Light"
 msgstr "Açık"
 
-msgid "Same as system"
-msgstr "Sistemle uyumlu"
-
 msgid "Theme"
 msgstr "Tema"
-
-msgid "Dark is the default; System follows the distribution default for now"
-msgstr "Varsayılan koyu; Sistem seçeneği şimdilik dağıtım varsayılanını izler"
 
 msgid "Off"
 msgstr "Kapalı"
@@ -833,3 +823,7 @@ msgstr "Yeni masaüstü"
 
 msgid "Desktop has windows — move or close them first"
 msgstr "Masaüstünde pencere var — önce taşıyın ya da kapatın"
+
+
+msgid "Dark is the default"
+msgstr "Koyu varsayılandır"

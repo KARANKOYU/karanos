@@ -10,19 +10,20 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        /* Tema: koyu (varsayılan) / açık / sistem. */
+        /* Tema: koyu (varsayılan) / açık. "Sistemle uyumlu" KALKTI
+         * (B1): sistem zaten biziz, üçüncü bir kaynak yok. Eski
+         * conf'taki "system" koyuya düşer. */
         var theme = new Gtk.ComboBoxText ();
         theme.append ("dark", _("Dark"));
         theme.append ("light", _("Light"));
-        theme.append ("system", _("Same as system"));
-        theme.active_id = conf_get ("appearance", "theme", "dark");
+        string saved = conf_get ("appearance", "theme", "dark");
+        theme.active_id = (saved == "light") ? "light" : "dark";
         theme.changed.connect (() => {
             conf_set ("appearance", "theme", theme.active_id);
             Apply.theme (theme.active_id);
         });
         body.pack_start (row (_("Theme"),
-            _("Dark is the default; System follows the distribution default for now"),
-            theme), false, false, 0);
+            _("Dark is the default"), theme), false, false, 0);
 
         /* Köşe yuvarlaklığı (pencere köşeleri, picom). */
         var radius = new Gtk.Scale.with_range (

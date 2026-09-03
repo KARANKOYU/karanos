@@ -438,14 +438,11 @@ msgstr "⟪Dark··⟫"
 msgid "Light"
 msgstr "⟪Light··⟫"
 
-msgid "Same as system"
-msgstr "⟪Same as system·····⟫"
-
 msgid "Theme"
 msgstr "⟪Theme··⟫"
 
-msgid "Dark is the default; System follows the distribution default for now"
-msgstr "⟪Dark is the default; System follows the distribution default for now···························⟫"
+msgid "Dark is the default"
+msgstr "⟪Dark is the default·······⟫"
 
 msgid "Off"
 msgstr "⟪Off··⟫"
