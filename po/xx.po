@@ -684,6 +684,12 @@ msgstr "⟪Taskbar··⟫"
 msgid "Find a setting"
 msgstr "⟪Find a setting·····⟫"
 
+msgid "Hold Shift: close without asking"
+msgstr "⟪Hold Shift: close without asking············⟫"
+
+msgid "Force shut down"
+msgstr "⟪Force shut down······⟫"
+
 msgid "Calculator"
 msgstr "⟪Calculator····⟫"
 

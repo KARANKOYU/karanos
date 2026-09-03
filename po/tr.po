@@ -986,3 +986,10 @@ msgstr "Başlangıç"
 
 msgid "Logs"
 msgstr "Günlükler"
+
+
+msgid "Hold Shift: close without asking"
+msgstr "Shift ile: sormadan kapat"
+
+msgid "Force shut down"
+msgstr "Zorla kapat"

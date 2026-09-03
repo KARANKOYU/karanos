@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 11:05+0000\n"
+"POT-Creation-Date: 2026-09-03 11:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -320,110 +320,110 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:487
+#: packages/kavis-panel/src/ui/panel.vala:490
 #: packages/kavis-settings/src/ui/page_keyboard.vala:126
 msgid "Show desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1110
+#: packages/kavis-panel/src/ui/panel.vala:1113
 #, c-format
 msgid "Open %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1126
+#: packages/kavis-panel/src/ui/panel.vala:1129
 #: packages/kavis-panel/src/ui/start_menu.vala:215
 msgid "Unpin from taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1127
+#: packages/kavis-panel/src/ui/panel.vala:1130
 #: packages/kavis-panel/src/ui/start_menu.vala:215
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1143
+#: packages/kavis-panel/src/ui/panel.vala:1146
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1143
+#: packages/kavis-panel/src/ui/panel.vala:1146
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1239
+#: packages/kavis-panel/src/ui/panel.vala:1242
 #: packages/kavis-settings/src/ui/page_taskbar.vala:21
 #: packages/kavis-settings/src/ui/window.vala:127
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1247
+#: packages/kavis-panel/src/ui/panel.vala:1250
 #: packages/kavis-settings/src/ui/page_taskbar.vala:13
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1247
+#: packages/kavis-panel/src/ui/panel.vala:1250
 #: packages/kavis-settings/src/ui/page_taskbar.vala:14
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1248
+#: packages/kavis-panel/src/ui/panel.vala:1251
 #: packages/kavis-settings/src/ui/page_taskbar.vala:15
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1248
+#: packages/kavis-panel/src/ui/panel.vala:1251
 #: packages/kavis-settings/src/ui/page_taskbar.vala:16
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1269
+#: packages/kavis-panel/src/ui/panel.vala:1272
 #: packages/kavis-settings/src/ui/page_taskbar.vala:32
 #: packages/kavis-settings/src/ui/window.vala:127
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1277
+#: packages/kavis-panel/src/ui/panel.vala:1280
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1277
+#: packages/kavis-panel/src/ui/panel.vala:1280
 #: packages/kavis-settings/src/ui/page_taskbar.vala:26
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1277
+#: packages/kavis-panel/src/ui/panel.vala:1280
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1300
+#: packages/kavis-panel/src/ui/panel.vala:1303
 #: packages/kavis-settings/src/ui/page_taskbar.vala:41
 #: packages/kavis-settings/src/ui/window.vala:128
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1307
+#: packages/kavis-panel/src/ui/panel.vala:1310
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1307
+#: packages/kavis-panel/src/ui/panel.vala:1310
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1330
+#: packages/kavis-panel/src/ui/panel.vala:1333
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1335
+#: packages/kavis-panel/src/ui/panel.vala:1338
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1373
+#: packages/kavis-panel/src/ui/panel.vala:1376
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1390
+#: packages/kavis-panel/src/ui/panel.vala:1393
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1392
+#: packages/kavis-panel/src/ui/panel.vala:1395
 #: packages/kavis-tools/src/securemenu.vala:87
 #: packages/kavis-tools/src/tasks.vala:34
 #: packages/kavis-tools/src/tasks.vala:37
@@ -504,7 +504,7 @@ msgid "Delete"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:520
-#: packages/kavis-tools/src/altf4.vala:111
+#: packages/kavis-tools/src/altf4.vala:116
 #: packages/kavis-tools/src/logs.vala:134
 msgid "Cancel"
 msgstr ""
@@ -520,18 +520,18 @@ msgid "Lock"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:119
-#: packages/kavis-tools/src/altf4.vala:99
+#: packages/kavis-tools/src/altf4.vala:104
 msgid "Sleep"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:121
 #: packages/kavis-tools/src/altf4.vala:67
-#: packages/kavis-tools/src/altf4.vala:107
+#: packages/kavis-tools/src/altf4.vala:112
 msgid "Shut down"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:123
-#: packages/kavis-tools/src/altf4.vala:103
+#: packages/kavis-tools/src/altf4.vala:108
 msgid "Restart"
 msgstr ""
 
@@ -1078,6 +1078,14 @@ msgstr ""
 
 #: packages/kavis-settings/src/ui/window.vala:155
 msgid "Find a setting"
+msgstr ""
+
+#: packages/kavis-tools/src/altf4.vala:99
+msgid "Hold Shift: close without asking"
+msgstr ""
+
+#: packages/kavis-tools/src/altf4.vala:122
+msgid "Force shut down"
 msgstr ""
 
 #: packages/kavis-tools/src/calc.vala:14

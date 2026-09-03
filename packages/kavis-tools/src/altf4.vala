@@ -91,9 +91,14 @@ namespace Kavis.Tools {
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             } catch (Error e) { }
 
+            var outer = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
+            outer.get_style_context ().add_class ("kavis-power-dialog");
+            add (outer);
             var card = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
-            card.get_style_context ().add_class ("kavis-power-dialog");
-            add (card);
+            outer.pack_start (card, false, false, 0);
+            var hint = new Gtk.Label (_("Hold Shift: close without asking"));
+            hint.get_style_context ().add_class ("dim-label");
+            outer.pack_start (hint, false, false, 0);
 
             card.pack_start (power_button (
                 "weather-clear-night-symbolic", _("Sleep"), () => {
@@ -110,6 +115,14 @@ namespace Kavis.Tools {
             card.pack_start (power_button (
                 "window-close-symbolic", _("Cancel"), () => { }),
                 false, false, 0);
+            /* I (v0.4-test1): kaydedilmemiş belge diyalogları kapatmayı
+             * durdurabilir — Shift basılı tıklama ya da bu düğme önce
+             * tüm pencereleri kill eder, sonra kapatır. */
+            card.pack_start (power_button (
+                "process-stop-symbolic", _("Force shut down"), () => {
+                    kill_all_windows ();
+                    Power.shutdown ();
+                }), false, false, 0);
 
             key_press_event.connect ((event) => {
                 if (event.keyval == Gdk.Key.Escape) {
@@ -121,6 +134,27 @@ namespace Kavis.Tools {
         }
 
         private delegate void PowerAction ();
+
+        /* Normal/diyalog pencerelerin sahibi süreçlere SIGKILL: panel,
+         * masaüstü katmanı ve bu diyalog hariç. Kapatma zaten
+         * geliyor; nazik kapanışı beklememek kullanıcının tercihi. */
+        private void kill_all_windows () {
+            unowned Wnck.Screen screen = Wnck.Screen.get_default ();
+            screen.force_update ();
+            int self = (int) Posix.getpid ();
+            foreach (unowned Wnck.Window w in screen.get_windows ()) {
+                var type = w.get_window_type ();
+                if (type == Wnck.WindowType.DOCK
+                    || type == Wnck.WindowType.DESKTOP) {
+                    continue;
+                }
+                int pid = w.get_pid ();
+                if (pid <= 1 || pid == self) {
+                    continue;
+                }
+                Posix.kill ((Posix.pid_t) pid, Posix.Signal.KILL);
+            }
+        }
 
         /* One big icon button: icon on top, label below (~110px). */
         private Gtk.Button power_button (string icon_name, string text,
@@ -136,6 +170,13 @@ namespace Kavis.Tools {
             column.set_size_request (96, -1);
             button.add (column);
             button.clicked.connect (() => {
+                /* Shift basılıyken: önce her pencereyi öldür, sonra
+                 * eylem — soru soran uygulama kalmaz. */
+                Gdk.ModifierType state;
+                if (Gtk.get_current_event_state (out state)
+                    && (state & Gdk.ModifierType.SHIFT_MASK) != 0) {
+                    kill_all_windows ();
+                }
                 action ();
                 destroy ();
             });
