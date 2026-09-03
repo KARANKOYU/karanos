@@ -59,10 +59,10 @@ imza_ham  = Image("made-by-karan.png");
 ipucu_ham = Image("acilis-ipuclari.png");
 # Boşlukla atlanınca ipuçlarının yerine geçen tek satır (madde 6
 # düzeltmesi): görsel karşılık — splash erken kapanmaz, retain sürer.
-baslat_ham = Image("baslatiliyor.png");
-# G: 8 karelik spinner (12 px, turkuaz) — "Starting…" ile birlikte
-# belirir, X gelene kadar döner (donmuş ekran izlenimi olmasın).
-SPINNER_PX = 12;
+# G/B2: 8 karelik spinner (24 px, turkuaz) — müzik bitince imzanın
+# ALTINDA, ortada belirir ve X gelene kadar döner; "Starting…" yazısı
+# kalktı (halka yeter), ipucu satırı da o anda söner.
+SPINNER_PX = 24;
 spinner_kare = 0;
 while (spinner_kare < 8)
   {
@@ -117,9 +117,6 @@ ipucu_h = ipucu_ham.GetHeight() * ipucu_olcek;
 ipucu = ipucu_ham.Scale(ipucu_w, ipucu_h);
 
 # "Başlatılıyor…" aynı ölçekle küçültülür — yazı boyu ipuçlarıyla aynı.
-baslat_w = baslat_ham.GetWidth() * ipucu_olcek;
-baslat_h = baslat_ham.GetHeight() * ipucu_olcek;
-baslat = baslat_ham.Scale(baslat_w, baslat_h);
 
 # --- yerleşim --------------------------------------------------------
 # Logo + ad + imza bloğu dikeyde ortalanır (blok, ipuçlarından bağımsız)
@@ -162,6 +159,7 @@ ipucu_sprite.SetOpacity(0);
 # --- durum -----------------------------------------------------------
 kare = 0;
 hint_degisti = 0;
+ipucu_gizli = 0;
 
 # Sprite'tan opaklık geri okunamadığı için kendimiz tutuyoruz.
 logo_opak = BASLANGIC_OPAK;
@@ -199,6 +197,7 @@ fun Refresh()
     logo_sprite.SetOpacity(logo_opak);
     ad_sprite.SetOpacity(ad_opak);
     imza_sprite.SetOpacity(imza_opak);
+    if (ipucu_gizli == 1) { ipucu_opak = 0; }
     ipucu_sprite.SetOpacity(ipucu_opak);
     parlama_sprite.SetOpacity(parlama_opak);
     if (spinner_acik == 1)
@@ -214,14 +213,11 @@ fun IpucunuDegistir()
     if (hint_degisti == 0)
       {
         hint_degisti = 1;
-        ipucu_sprite.SetImage(baslat);
-        ipucu_sprite.SetPosition((ekran_w - baslat_w) / 2,
-                                 ekran_h - baslat_h - (ekran_h * 0.05),
-                                 2);
-        # spinner metnin hemen sağında, dikeyde ortalı
-        spinner_sprite.SetPosition((ekran_w - baslat_w) / 2 + baslat_w + 8,
-                                   ekran_h - baslat_h - (ekran_h * 0.05)
-                                     + (baslat_h - SPINNER_PX) / 2,
+        # ipucu satırı söner (Refresh ipucu_gizli'ye bakar), spinner
+        # imzanın altında ortada belirir.
+        ipucu_gizli = 1;
+        spinner_sprite.SetPosition((ekran_w - SPINNER_PX) / 2,
+                                   imza_y + imza_h + bosluk2,
                                    2);
         spinner_acik = 1;
       }

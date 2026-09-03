@@ -42,7 +42,6 @@ override_dh_auto_install:
 	# sonuç her makinede aynı.
 	rsvg-convert -w 800 -o $(TEMA)/made-by-karan.png src/made-by-karan.svg
 	rsvg-convert -w 900 -o $(TEMA)/acilis-ipuclari.png src/acilis-ipuclari.svg
-	rsvg-convert -w 900 -o $(TEMA)/baslatiliyor.png src/baslatiliyor.svg
 	# G (v0.4-test1): "Starting…" yanında dönen halka — 8 kare, script
 	# 12 px'e ölçekler. Kareler derlemede üretilir (depoya ikili girmez).
 	python3 tools/gen-spinner.py debian/spinner
