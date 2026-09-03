@@ -60,6 +60,19 @@ ipucu_ham = Image("acilis-ipuclari.png");
 # Boşlukla atlanınca ipuçlarının yerine geçen tek satır (madde 6
 # düzeltmesi): görsel karşılık — splash erken kapanmaz, retain sürer.
 baslat_ham = Image("baslatiliyor.png");
+# G: 8 karelik spinner (12 px, turkuaz) — "Starting…" ile birlikte
+# belirir, X gelene kadar döner (donmuş ekran izlenimi olmasın).
+SPINNER_PX = 12;
+spinner_kare = 0;
+while (spinner_kare < 8)
+  {
+    spinner_ham = Image("spinner-" + spinner_kare + ".png");
+    spinner[spinner_kare] = spinner_ham.Scale(SPINNER_PX, SPINNER_PX);
+    spinner_kare = spinner_kare + 1;
+  }
+spinner_sprite = Sprite(spinner[0]);
+spinner_sprite.SetOpacity(0);
+spinner_acik = 0;
 
 # Logo ekranın en fazla dörtte birini kaplasın; küçük ekranda taşmasın,
 # büyük ekranda kaybolmasın.
@@ -188,6 +201,12 @@ fun Refresh()
     imza_sprite.SetOpacity(imza_opak);
     ipucu_sprite.SetOpacity(ipucu_opak);
     parlama_sprite.SetOpacity(parlama_opak);
+    if (spinner_acik == 1)
+      {
+        # her 6 karede bir adım (≈ 50 fps'te tam tur 1 sn)
+        spinner_sprite.SetImage(spinner[Math.Int(kare / 6) % 8]);
+        spinner_sprite.SetOpacity(IPUCU_OPAK);
+      }
   }
 
 fun IpucunuDegistir()
@@ -199,6 +218,12 @@ fun IpucunuDegistir()
         ipucu_sprite.SetPosition((ekran_w - baslat_w) / 2,
                                  ekran_h - baslat_h - (ekran_h * 0.05),
                                  2);
+        # spinner metnin hemen sağında, dikeyde ortalı
+        spinner_sprite.SetPosition((ekran_w - baslat_w) / 2 + baslat_w + 8,
+                                   ekran_h - baslat_h - (ekran_h * 0.05)
+                                     + (baslat_h - SPINNER_PX) / 2,
+                                   2);
+        spinner_acik = 1;
       }
   }
 

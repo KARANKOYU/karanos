@@ -43,6 +43,13 @@ override_dh_auto_install:
 	rsvg-convert -w 800 -o $(TEMA)/made-by-karan.png src/made-by-karan.svg
 	rsvg-convert -w 900 -o $(TEMA)/acilis-ipuclari.png src/acilis-ipuclari.svg
 	rsvg-convert -w 900 -o $(TEMA)/baslatiliyor.png src/baslatiliyor.svg
+	# G (v0.4-test1): "Starting…" yanında dönen halka — 8 kare, script
+	# 12 px'e ölçekler. Kareler derlemede üretilir (depoya ikili girmez).
+	python3 tools/gen-spinner.py debian/spinner
+	set -e; for n in 0 1 2 3 4 5 6 7; do \
+		rsvg-convert -w 48 -h 48 -o $(TEMA)/spinner-$$n.png debian/spinner/spinner-$$n.svg; \
+	done
+	rm -rf debian/spinner
 
 	# Ürün adı tek kaynaktan: os-release NAME değeri Türkçe kurallarla
 	# büyük harfe çevrilir (i→İ; Python'un upper()'ı bunu bilmez) ve
