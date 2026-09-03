@@ -559,6 +559,25 @@ namespace Kavis.Tools {
             if (path != null) {
                 uri = File.new_for_commandline_arg (path).get_uri ();
             }
+            /* No session bus (a bare X session, a broken user bus):
+             * single-instance handling is impossible, so show the file
+             * here instead of exiting without a window. Checked before
+             * own_name because its name-lost callback cannot receive a
+             * null connection (debug pass 3 Sep). */
+            DBusConnection? bus = null;
+            try {
+                bus = Bus.get_sync (BusType.SESSION);
+            } catch (Error e) {
+                warning ("kavis-tools: preview without a session bus: %s",
+                         e.message);
+            }
+            if (bus == null) {
+                if (uri != null) {
+                    app.show_uri (uri, false);
+                }
+                Gtk.main ();
+                return 0;
+            }
             Bus.own_name (BusType.SESSION, "org.nemo.Preview",
                 BusNameOwnerFlags.NONE,
                 (conn) => {
@@ -576,11 +595,11 @@ namespace Kavis.Tools {
                         app.show_uri (uri, false);
                     }
                 },
-                () => {
-                    /* Name taken: an instance is already running. */
+                (conn, name) => {
+                    /* Name taken: an instance is already running —
+                     * forward the file to it and exit. */
                     if (uri != null) {
                         try {
-                            var conn = Bus.get_sync (BusType.SESSION);
                             conn.call_sync ("org.nemo.Preview",
                                 "/org/nemo/Preview", "org.nemo.Preview",
                                 "ShowFile",
