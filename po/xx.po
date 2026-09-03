@@ -63,6 +63,36 @@ msgstr "⟪Accented letters······⟫"
 msgid "Super/subscript"
 msgstr "⟪Super/subscript······⟫"
 
+msgid "%s used of %s"
+msgstr "⟪%s used of %s·····⟫"
+
+msgid "Version"
+msgstr "⟪Version··⟫"
+
+msgid "Kernel"
+msgstr "⟪Kernel··⟫"
+
+msgid "Desktop"
+msgstr "⟪Desktop··⟫"
+
+msgid "Processor"
+msgstr "⟪Processor···⟫"
+
+msgid "Memory"
+msgstr "⟪Memory··⟫"
+
+msgid "Graphics"
+msgstr "⟪Graphics···⟫"
+
+msgid "Motherboard"
+msgstr "⟪Motherboard····⟫"
+
+msgid "Disk"
+msgstr "⟪Disk··⟫"
+
+msgid "Hostname"
+msgstr "⟪Hostname···⟫"
+
 msgid "Caps Lock on"
 msgstr "⟪Caps Lock on····⟫"
 
@@ -414,33 +444,6 @@ msgstr "⟪Language changed······⟫"
 msgid "Sign out and back in for the change to take full effect."
 msgstr "⟪Sign out and back in for the change to take full effect.······················⟫"
 
-msgid "%s used of %s"
-msgstr "⟪%s used of %s·····⟫"
-
-msgid "Version"
-msgstr "⟪Version··⟫"
-
-msgid "Kernel"
-msgstr "⟪Kernel··⟫"
-
-msgid "Desktop"
-msgstr "⟪Desktop··⟫"
-
-msgid "Processor"
-msgstr "⟪Processor···⟫"
-
-msgid "Memory"
-msgstr "⟪Memory··⟫"
-
-msgid "Graphics"
-msgstr "⟪Graphics···⟫"
-
-msgid "Disk"
-msgstr "⟪Disk··⟫"
-
-msgid "Hostname"
-msgstr "⟪Hostname···⟫"
-
 msgid "Dark"
 msgstr "⟪Dark··⟫"
 
@@ -738,6 +741,42 @@ msgstr "⟪Stop··⟫"
 msgid "Screen recording saved"
 msgstr "⟪Screen recording saved········⟫"
 
+msgid "Session"
+msgstr "⟪Session··⟫"
+
+msgid "Kavis components"
+msgstr "⟪Kavis components······⟫"
+
+msgid "All levels"
+msgstr "⟪All levels····⟫"
+
+msgid "Errors"
+msgstr "⟪Errors··⟫"
+
+msgid "Warnings and errors"
+msgstr "⟪Warnings and errors·······⟫"
+
+msgid "Info and above"
+msgstr "⟪Info and above·····⟫"
+
+msgid "Refresh"
+msgstr "⟪Refresh··⟫"
+
+msgid "Save to file"
+msgstr "⟪Save to file····⟫"
+
+msgid "Copy"
+msgstr "⟪Copy··⟫"
+
+msgid "Could not read the journal (is the user in the adm group?)."
+msgstr "⟪Could not read the journal (is the user in the adm group?).·······················⟫"
+
+msgid "No Kavis component logs in this session."
+msgstr "⟪No Kavis component logs in this session.················⟫"
+
+msgid "Save log"
+msgstr "⟪Save log···⟫"
+
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "⟪usage: kavis-tools open-with <file>··············⟫\n"
 
@@ -764,6 +803,69 @@ msgstr "⟪Other applications·······⟫"
 
 msgid "Store app coming soon"
 msgstr "⟪Store app coming soon········⟫"
+
+msgid "CPU"
+msgstr "⟪CPU··⟫"
+
+msgid "GPU"
+msgstr "⟪GPU··⟫"
+
+msgid "Model"
+msgstr "⟪Model··⟫"
+
+msgid "Cores / threads"
+msgstr "⟪Cores / threads······⟫"
+
+msgid "Base speed"
+msgstr "⟪Base speed····⟫"
+
+msgid "Current speed"
+msgstr "⟪Current speed·····⟫"
+
+msgid "Temperature"
+msgstr "⟪Temperature····⟫"
+
+msgid "Up time"
+msgstr "⟪Up time··⟫"
+
+msgid "Processes / threads"
+msgstr "⟪Processes / threads·······⟫"
+
+msgid "In use"
+msgstr "⟪In use··⟫"
+
+msgid "Cached"
+msgstr "⟪Cached··⟫"
+
+msgid "Swap"
+msgstr "⟪Swap··⟫"
+
+msgid "Speed / type"
+msgstr "⟪Speed / type····⟫"
+
+msgid "Capacity"
+msgstr "⟪Capacity···⟫"
+
+msgid "Read"
+msgstr "⟪Read··⟫"
+
+msgid "Write"
+msgstr "⟪Write··⟫"
+
+msgid "IP address"
+msgstr "⟪IP address····⟫"
+
+msgid "Receive"
+msgstr "⟪Receive··⟫"
+
+msgid "Send"
+msgstr "⟪Send··⟫"
+
+msgid "Usage"
+msgstr "⟪Usage··⟫"
+
+msgid "Video memory"
+msgstr "⟪Video memory····⟫"
 
 msgid "Showing the first part of a large file"
 msgstr "⟪Showing the first part of a large file···············⟫"
@@ -810,14 +912,35 @@ msgstr "⟪Deeper NTFS repair needs Windows: run chkdsk /f there.·······�
 msgid "Sign out"
 msgstr "⟪Sign out···⟫"
 
+msgid "Apps that start with your session. Turn one off to skip it next time."
+msgstr "⟪Apps that start with your session. Turn one off to skip it next time.···························⟫"
+
+msgid "Add"
+msgstr "⟪Add··⟫"
+
+msgid "User"
+msgstr "⟪User··⟫"
+
+msgid "Remove"
+msgstr "⟪Remove··⟫"
+
+msgid "Choose an app to start with your session"
+msgstr "⟪Choose an app to start with your session················⟫"
+
+msgid "Processes"
+msgstr "⟪Processes···⟫"
+
+msgid "Startup"
+msgstr "⟪Startup··⟫"
+
+msgid "Logs"
+msgstr "⟪Logs··⟫"
+
 msgid "End task"
 msgstr "⟪End task···⟫"
 
 msgid "Name"
 msgstr "⟪Name··⟫"
-
-msgid "CPU"
-msgstr "⟪CPU··⟫"
 
 msgid "Ending this system process may cause problems. Continue?"
 msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"

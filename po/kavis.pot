@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 10:56+0000\n"
+"POT-Creation-Date: 2026-09-03 11:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,6 +113,52 @@ msgstr ""
 msgid "Super/subscript"
 msgstr ""
 
+#: packages/kavis-common/sysinfo.vala:357
+#, c-format
+msgid "%s used of %s"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:414
+msgid "Version"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:417
+msgid "Kernel"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:418
+msgid "Desktop"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:420
+msgid "Processor"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:421
+#: packages/kavis-tools/src/perf.vala:119
+#: packages/kavis-tools/src/tasks.vala:100
+msgid "Memory"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:422
+msgid "Graphics"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:425
+#: packages/kavis-tools/src/perf.vala:239
+msgid "Motherboard"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:427
+#: packages/kavis-tools/src/perf.vala:121
+#: packages/kavis-tools/src/tasks.vala:102
+msgid "Disk"
+msgstr ""
+
+#: packages/kavis-common/sysinfo.vala:428
+msgid "Hostname"
+msgstr ""
+
 #: packages/kavis-panel/src/kavis_osd.vala:257
 msgid "Caps Lock on"
 msgstr ""
@@ -146,6 +192,9 @@ msgstr ""
 #: packages/kavis-panel/src/logic/apps.vala:24
 #: packages/kavis-settings/src/ui/page_keyboard.vala:114
 #: packages/kavis-settings/src/ui/window.vala:131
+#: packages/kavis-tools/src/logs.vala:25
+#: packages/kavis-tools/src/startup.vala:139
+#, c-format
 msgid "System"
 msgstr ""
 
@@ -418,6 +467,7 @@ msgid "Clipboard history"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:178
+#: packages/kavis-tools/src/logs.vala:40
 msgid "Search"
 msgstr ""
 
@@ -455,10 +505,12 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:520
 #: packages/kavis-tools/src/altf4.vala:111
+#: packages/kavis-tools/src/logs.vala:134
 msgid "Cancel"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:521
+#: packages/kavis-tools/src/logs.vala:135
 msgid "Save"
 msgstr ""
 
@@ -564,6 +616,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/quick_settings.vala:506
 #: packages/kavis-settings/src/ui/page_power.vala:77
 #: packages/kavis-settings/src/ui/window.vala:120
+#: packages/kavis-tools/src/tasks.vala:57
 msgid "Performance"
 msgstr ""
 
@@ -665,45 +718,6 @@ msgstr ""
 
 #: packages/kavis-settings/src/logic/apply.vala:133
 msgid "Sign out and back in for the change to take full effect."
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:86
-#, c-format
-msgid "%s used of %s"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:99
-msgid "Version"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:102
-msgid "Kernel"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:103
-msgid "Desktop"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:106
-msgid "Processor"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:107
-#: packages/kavis-tools/src/tasks.vala:82
-msgid "Memory"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:108
-msgid "Graphics"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:109
-#: packages/kavis-tools/src/tasks.vala:84
-msgid "Disk"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/sysinfo.vala:110
-msgid "Hostname"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:17
@@ -1054,6 +1068,7 @@ msgid "Keyboard & Language"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/window.vala:123
+#: packages/kavis-tools/src/perf.vala:124
 msgid "Network"
 msgstr ""
 
@@ -1143,6 +1158,54 @@ msgstr ""
 msgid "Screen recording saved"
 msgstr ""
 
+#: packages/kavis-tools/src/logs.vala:26
+msgid "Session"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:27
+msgid "Kavis components"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:32
+msgid "All levels"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:33
+msgid "Errors"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:34
+msgid "Warnings and errors"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:35
+msgid "Info and above"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:45
+msgid "Refresh"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:48
+msgid "Save to file"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:51
+msgid "Copy"
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:92
+msgid "Could not read the journal (is the user in the adm group?)."
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:112
+msgid "No Kavis component logs in this session."
+msgstr ""
+
+#: packages/kavis-tools/src/logs.vala:132
+msgid "Save log"
+msgstr ""
+
 #: packages/kavis-tools/src/main.vala:79
 #, c-format
 msgid "usage: kavis-tools open-with <file>\n"
@@ -1188,6 +1251,91 @@ msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:209
 msgid "Store app coming soon"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:118
+#: packages/kavis-tools/src/tasks.vala:98
+msgid "CPU"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:126
+msgid "GPU"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:232
+msgid "Model"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:233
+msgid "Cores / threads"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:234
+msgid "Base speed"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:235
+msgid "Current speed"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:236
+msgid "Temperature"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:237
+msgid "Up time"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:238
+msgid "Processes / threads"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:240
+msgid "In use"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:241
+msgid "Cached"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:242
+msgid "Swap"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:243
+msgid "Speed / type"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:244
+msgid "Capacity"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:245
+msgid "Read"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:246
+msgid "Write"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:247
+msgid "IP address"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:248
+msgid "Receive"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:249
+msgid "Send"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:250
+msgid "Usage"
+msgstr ""
+
+#: packages/kavis-tools/src/perf.vala:251
+msgid "Video memory"
 msgstr ""
 
 #: packages/kavis-tools/src/preview.vala:437
@@ -1263,19 +1411,48 @@ msgstr ""
 msgid "Sign out"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:49
+#: packages/kavis-tools/src/startup.vala:39
+msgid "Apps that start with your session. Turn one off to skip it next time."
+msgstr ""
+
+#: packages/kavis-tools/src/startup.vala:44
+msgid "Add"
+msgstr ""
+
+#: packages/kavis-tools/src/startup.vala:139
+#, c-format
+msgid "User"
+msgstr ""
+
+#: packages/kavis-tools/src/startup.vala:148
+msgid "Remove"
+msgstr ""
+
+#: packages/kavis-tools/src/startup.vala:198
+msgid "Choose an app to start with your session"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:56
+msgid "Processes"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:58
+msgid "Startup"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:59
+msgid "Logs"
+msgstr ""
+
+#: packages/kavis-tools/src/tasks.vala:67
 msgid "End task"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:78
+#: packages/kavis-tools/src/tasks.vala:96
 msgid "Name"
 msgstr ""
 
-#: packages/kavis-tools/src/tasks.vala:80
-msgid "CPU"
-msgstr ""
-
-#: packages/kavis-tools/src/tasks.vala:128
+#: packages/kavis-tools/src/tasks.vala:146
 msgid "Ending this system process may cause problems. Continue?"
 msgstr ""
 

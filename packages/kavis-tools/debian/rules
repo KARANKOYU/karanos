@@ -10,7 +10,7 @@ DEST := debian/kavis-tools
 
 # gstreamer-1.0: hızlı önizlemenin video/ses oynatıcısı (madde 36).
 VALA_PAKETLER := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
-                 --pkg posix --pkg gstreamer-1.0
+                 --pkg posix --pkg gstreamer-1.0 --pkg gio-unix-2.0
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm \
                -X -DGETTEXT_PACKAGE='"kavis"'
 

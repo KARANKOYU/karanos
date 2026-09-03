@@ -156,7 +156,9 @@ decoration {
 /* Adwaita `list row:selected` rengi derlenmiş CSS'te sabit mavi —
  * özgüllüğü genel :selected kuralını eziyor; açıkça turkuaz. */
 list row:selected,
-list row:selected:hover {
+list row:selected:hover,
+stacksidebar row:selected,
+stacksidebar row:selected:hover {
 	background-color: @kavis_teal;
 	color: #FFFFFF;
 }

@@ -862,3 +862,127 @@ msgstr "Masaüstünü kapat"
 
 msgid "Windows are open"
 msgstr "Pencereler açık"
+
+
+msgid "Motherboard"
+msgstr "Anakart"
+
+msgid "Session"
+msgstr "Oturum"
+
+msgid "Kavis components"
+msgstr "Kavis bileşenleri"
+
+msgid "All levels"
+msgstr "Tüm seviyeler"
+
+msgid "Errors"
+msgstr "Hatalar"
+
+msgid "Warnings and errors"
+msgstr "Uyarılar ve hatalar"
+
+msgid "Info and above"
+msgstr "Bilgi ve üstü"
+
+msgid "Refresh"
+msgstr "Yenile"
+
+msgid "Save to file"
+msgstr "Dosyaya kaydet"
+
+msgid "Copy"
+msgstr "Kopyala"
+
+msgid "Could not read the journal (is the user in the adm group?)."
+msgstr "Günlük okunamadı (kullanıcı adm grubunda mı?)."
+
+msgid "No Kavis component logs in this session."
+msgstr "Bu oturumda Kavis bileşen günlüğü yok."
+
+msgid "Save log"
+msgstr "Günlüğü kaydet"
+
+msgid "GPU"
+msgstr "GPU"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Cores / threads"
+msgstr "Çekirdek / iş parçacığı"
+
+msgid "Base speed"
+msgstr "Temel hız"
+
+msgid "Current speed"
+msgstr "Anlık hız"
+
+msgid "Temperature"
+msgstr "Sıcaklık"
+
+msgid "Up time"
+msgstr "Çalışma süresi"
+
+msgid "Processes / threads"
+msgstr "Süreç / iş parçacığı"
+
+msgid "In use"
+msgstr "Kullanımda"
+
+msgid "Cached"
+msgstr "Önbellek"
+
+msgid "Swap"
+msgstr "Takas"
+
+msgid "Speed / type"
+msgstr "Hız / tür"
+
+msgid "Capacity"
+msgstr "Kapasite"
+
+msgid "Read"
+msgstr "Okuma"
+
+msgid "Write"
+msgstr "Yazma"
+
+msgid "IP address"
+msgstr "IP adresi"
+
+msgid "Receive"
+msgstr "Alım"
+
+msgid "Send"
+msgstr "Gönderim"
+
+msgid "Usage"
+msgstr "Kullanım"
+
+msgid "Video memory"
+msgstr "Görüntü belleği"
+
+msgid "Apps that start with your session. Turn one off to skip it next time."
+msgstr "Oturumunuzla başlayan uygulamalar. Kapattığınız bir sonraki açılışta başlamaz."
+
+msgid "Add"
+msgstr "Ekle"
+
+msgid "User"
+msgstr "Kullanıcı"
+
+msgid "Remove"
+msgstr "Kaldır"
+
+msgid "Choose an app to start with your session"
+msgstr "Oturumunuzla başlayacak uygulamayı seçin"
+
+msgid "Processes"
+msgstr "Süreçler"
+
+msgid "Startup"
+msgstr "Başlangıç"
+
+msgid "Logs"
+msgstr "Günlükler"

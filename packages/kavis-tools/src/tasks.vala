@@ -39,7 +39,25 @@ namespace Kavis.Tools {
 
             var root = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
             root.set_border_width (10);
-            add (root);
+            /* H (v0.4-test1): W11 gibi solda gezinti — Süreçler /
+             * Performans / Başlangıç / Günlükler. Stack görünmeyen
+             * sayfayı unmap eder: Performans ölçümü kapalıyken durur. */
+            var stack = new Gtk.Stack ();
+            stack.transition_type = Gtk.StackTransitionType.CROSSFADE;
+            stack.transition_duration = 140;
+            var sidebar = new Gtk.StackSidebar ();
+            sidebar.stack = stack;
+            sidebar.set_size_request (160, -1);
+            sidebar.get_style_context ().add_class ("kavis-tasks-nav");
+            var layout = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+            layout.pack_start (sidebar, false, false, 0);
+            layout.pack_start (stack, true, true, 0);
+            add (layout);
+            stack.add_titled (root, "processes", _("Processes"));
+            stack.add_titled (new PerformancePage (), "performance", _("Performance"));
+            stack.add_titled (new StartupPage (), "startup", _("Startup"));
+            stack.add_titled (new LogsPage (), "logs", _("Logs"));
+            set_default_size (860, 560);
 
             var top = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             search = new Gtk.SearchEntry ();
