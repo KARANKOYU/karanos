@@ -1,0 +1,1785 @@
+{
+ "format": 1,
+ "updated": "2026-09-03",
+ "categories": [
+  {
+   "id": "internet",
+   "name": "İnternet",
+   "name_en": "Internet"
+  },
+  {
+   "id": "communication",
+   "name": "İletişim",
+   "name_en": "Communication"
+  },
+  {
+   "id": "office",
+   "name": "Ofis",
+   "name_en": "Office"
+  },
+  {
+   "id": "media",
+   "name": "Medya",
+   "name_en": "Media"
+  },
+  {
+   "id": "graphics",
+   "name": "Grafik",
+   "name_en": "Graphics"
+  },
+  {
+   "id": "development",
+   "name": "Geliştirme",
+   "name_en": "Development"
+  },
+  {
+   "id": "games",
+   "name": "Oyun",
+   "name_en": "Games"
+  },
+  {
+   "id": "education",
+   "name": "Eğitim",
+   "name_en": "Education"
+  },
+  {
+   "id": "system",
+   "name": "Sistem araçları",
+   "name_en": "System tools"
+  },
+  {
+   "id": "security",
+   "name": "Güvenlik araçları",
+   "name_en": "Security tools"
+  },
+  {
+   "id": "drivers",
+   "name": "Sürücüler",
+   "name_en": "Drivers"
+  },
+  {
+   "id": "toolbox",
+   "name": "Toolbox (1.0 sonrası)",
+   "name_en": "Toolbox (post-1.0)"
+  }
+ ],
+ "apps": [
+  {
+   "id": "firefox",
+   "name": "Firefox",
+   "summary": "Web browser",
+   "summary_tr": "Web tarayıcısı",
+   "category": "internet",
+   "icon": "firefox-esr",
+   "featured": true,
+   "sources": {
+    "apt": "firefox-esr",
+    "flathub": "org.mozilla.firefox"
+   }
+  },
+  {
+   "id": "chrome",
+   "name": "Google Chrome",
+   "summary": "Google's web browser",
+   "summary_tr": "Google'ın web tarayıcısı",
+   "category": "internet",
+   "icon": "google-chrome",
+   "featured": false,
+   "sources": {
+    "flathub": "com.google.Chrome",
+    "official": {
+     "url": "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb",
+     "type": "deb",
+     "version_check": "https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/stable/versions",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "chromium",
+   "name": "Chromium",
+   "summary": "Open-source web browser",
+   "summary_tr": "Açık kaynak web tarayıcısı",
+   "category": "internet",
+   "icon": "chromium",
+   "featured": false,
+   "sources": {
+    "apt": "chromium",
+    "flathub": "org.chromium.Chromium"
+   }
+  },
+  {
+   "id": "brave",
+   "name": "Brave",
+   "summary": "Privacy-focused browser",
+   "summary_tr": "Gizlilik odaklı tarayıcı",
+   "category": "internet",
+   "icon": "brave-browser",
+   "featured": false,
+   "sources": {
+    "flathub": "com.brave.Browser",
+    "official": {
+     "url": "https://dl.brave.com/install.sh",
+     "type": "sh",
+     "version_check": "https://api.github.com/repos/brave/brave-browser/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "thunderbird",
+   "name": "Thunderbird",
+   "summary": "E-mail client",
+   "summary_tr": "E-posta istemcisi",
+   "category": "internet",
+   "icon": "thunderbird",
+   "featured": false,
+   "sources": {
+    "apt": "thunderbird",
+    "flathub": "org.mozilla.thunderbird"
+   }
+  },
+  {
+   "id": "qbittorrent",
+   "name": "qBittorrent",
+   "summary": "BitTorrent client",
+   "summary_tr": "BitTorrent istemcisi",
+   "category": "internet",
+   "icon": "qbittorrent",
+   "featured": false,
+   "sources": {
+    "apt": "qbittorrent",
+    "flathub": "org.qbittorrent.qBittorrent"
+   }
+  },
+  {
+   "id": "filezilla",
+   "name": "FileZilla",
+   "summary": "FTP/SFTP client",
+   "summary_tr": "FTP/SFTP istemcisi",
+   "category": "internet",
+   "icon": "filezilla",
+   "featured": false,
+   "sources": {
+    "apt": "filezilla",
+    "flathub": "org.filezillaproject.Filezilla"
+   }
+  },
+  {
+   "id": "transmission",
+   "name": "Transmission",
+   "summary": "Lightweight BitTorrent client",
+   "summary_tr": "Hafif BitTorrent istemcisi",
+   "category": "internet",
+   "icon": "transmission",
+   "featured": false,
+   "sources": {
+    "apt": "transmission-gtk",
+    "flathub": "com.transmissionbt.Transmission"
+   }
+  },
+  {
+   "id": "discord",
+   "name": "Discord",
+   "summary": "Voice and text chat",
+   "summary_tr": "Sesli ve yazılı sohbet",
+   "category": "communication",
+   "icon": "discord",
+   "featured": true,
+   "sources": {
+    "flathub": "com.discordapp.Discord",
+    "official": {
+     "url": "https://discord.com/api/download?platform=linux&format=deb",
+     "type": "deb",
+     "version_check": "https://discord.com/api/download?platform=linux&format=deb",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "telegram",
+   "name": "Telegram",
+   "summary": "Messaging app",
+   "summary_tr": "Mesajlaşma uygulaması",
+   "category": "communication",
+   "icon": "telegram",
+   "featured": false,
+   "sources": {
+    "flathub": "org.telegram.desktop",
+    "official": {
+     "url": "https://telegram.org/dl/desktop/linux",
+     "type": "tar",
+     "version_check": "https://api.github.com/repos/telegramdesktop/tdesktop/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "zoom",
+   "name": "Zoom",
+   "summary": "Video meetings",
+   "summary_tr": "Görüntülü toplantı",
+   "category": "communication",
+   "icon": "Zoom",
+   "featured": false,
+   "sources": {
+    "flathub": "us.zoom.Zoom",
+    "official": {
+     "url": "https://zoom.us/client/latest/zoom_amd64.deb",
+     "type": "deb",
+     "version_check": "https://zoom.us/rest/download?os=linux",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "signal",
+   "name": "Signal",
+   "summary": "Private messenger",
+   "summary_tr": "Gizlilik odaklı mesajlaşma",
+   "category": "communication",
+   "icon": "signal-desktop",
+   "featured": false,
+   "sources": {
+    "flathub": "org.signal.Signal",
+    "official": {
+     "url": "https://updates.signal.org/desktop/apt",
+     "type": "deb",
+     "version_check": "https://updates.signal.org/desktop/apt/dists/xenial/main/binary-amd64/Packages",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "slack",
+   "name": "Slack",
+   "summary": "Team communication",
+   "summary_tr": "Ekip iletişimi",
+   "category": "communication",
+   "icon": "slack",
+   "featured": false,
+   "sources": {
+    "flathub": "com.slack.Slack",
+    "official": {
+     "url": "https://slack.com/downloads/linux",
+     "type": "deb",
+     "version_check": "https://slack.com/release-notes/linux",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "teams",
+   "name": "Teams for Linux",
+   "summary": "Unofficial Microsoft Teams wrapper",
+   "summary_tr": "Resmî olmayan Microsoft Teams sarmalayıcısı",
+   "category": "communication",
+   "icon": "teams-for-linux",
+   "featured": false,
+   "sources": {
+    "flathub": "com.github.IsmaelMartinez.teams_for_linux"
+   }
+  },
+  {
+   "id": "element",
+   "name": "Element",
+   "summary": "Matrix chat client",
+   "summary_tr": "Matrix sohbet istemcisi",
+   "category": "communication",
+   "icon": "element",
+   "featured": false,
+   "sources": {
+    "flathub": "im.riot.Riot"
+   }
+  },
+  {
+   "id": "libreoffice",
+   "name": "LibreOffice",
+   "summary": "Office suite",
+   "summary_tr": "Ofis paketi",
+   "category": "office",
+   "icon": "libreoffice-startcenter",
+   "featured": true,
+   "sources": {
+    "apt": "libreoffice",
+    "flathub": "org.libreoffice.LibreOffice"
+   }
+  },
+  {
+   "id": "onlyoffice",
+   "name": "OnlyOffice",
+   "summary": "MS Office compatible suite",
+   "summary_tr": "MS Office uyumlu ofis paketi",
+   "category": "office",
+   "icon": "onlyoffice-desktopeditors",
+   "featured": false,
+   "sources": {
+    "flathub": "org.onlyoffice.desktopeditors",
+    "official": {
+     "url": "https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb",
+     "type": "deb",
+     "version_check": "https://api.github.com/repos/ONLYOFFICE/DesktopEditors/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "obsidian",
+   "name": "Obsidian",
+   "summary": "Markdown knowledge base",
+   "summary_tr": "Markdown not ve bilgi tabanı",
+   "category": "office",
+   "icon": "obsidian",
+   "featured": false,
+   "sources": {
+    "flathub": "md.obsidian.Obsidian",
+    "official": {
+     "url": "https://obsidian.md/download",
+     "type": "deb",
+     "version_check": "https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "joplin",
+   "name": "Joplin",
+   "summary": "Note taking and to-do",
+   "summary_tr": "Not ve yapılacaklar",
+   "category": "office",
+   "icon": "joplin",
+   "featured": false,
+   "sources": {
+    "flathub": "net.cozic.joplin_desktop",
+    "official": {
+     "url": "https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh",
+     "type": "sh",
+     "version_check": "https://api.github.com/repos/laurent22/joplin/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "xournalpp",
+   "name": "Xournal++",
+   "summary": "Handwriting and PDF annotation",
+   "summary_tr": "El yazısı ve PDF işaretleme",
+   "category": "office",
+   "icon": "com.github.xournalpp.xournalpp",
+   "featured": false,
+   "sources": {
+    "apt": "xournalpp",
+    "flathub": "com.github.xournalpp.xournalpp"
+   }
+  },
+  {
+   "id": "okular",
+   "name": "Okular",
+   "summary": "Document viewer",
+   "summary_tr": "Belge görüntüleyici",
+   "category": "office",
+   "icon": "okular",
+   "featured": false,
+   "sources": {
+    "apt": "okular",
+    "flathub": "org.kde.okular"
+   }
+  },
+  {
+   "id": "vlc",
+   "name": "VLC",
+   "summary": "Plays everything",
+   "summary_tr": "Her formatı oynatır",
+   "category": "media",
+   "icon": "vlc",
+   "featured": true,
+   "sources": {
+    "apt": "vlc",
+    "flathub": "org.videolan.VLC"
+   }
+  },
+  {
+   "id": "mpv",
+   "name": "mpv",
+   "summary": "Minimal video player",
+   "summary_tr": "Sade video oynatıcı",
+   "category": "media",
+   "icon": "mpv",
+   "featured": false,
+   "sources": {
+    "apt": "mpv",
+    "flathub": "io.mpv.Mpv"
+   }
+  },
+  {
+   "id": "spotify",
+   "name": "Spotify",
+   "summary": "Music streaming",
+   "summary_tr": "Müzik akışı",
+   "category": "media",
+   "icon": "spotify-client",
+   "featured": true,
+   "sources": {
+    "flathub": "com.spotify.Client",
+    "official": {
+     "url": "https://repository.spotify.com/pool/non-free/s/spotify-client/",
+     "type": "deb",
+     "version_check": "https://repository.spotify.com/dists/stable/non-free/binary-amd64/Packages",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "audacity",
+   "name": "Audacity",
+   "summary": "Audio editor",
+   "summary_tr": "Ses düzenleyici",
+   "category": "media",
+   "icon": "audacity",
+   "featured": false,
+   "sources": {
+    "apt": "audacity",
+    "flathub": "org.audacityteam.Audacity"
+   }
+  },
+  {
+   "id": "obs",
+   "name": "OBS Studio",
+   "summary": "Screen recording and streaming",
+   "summary_tr": "Ekran kaydı ve yayın",
+   "category": "media",
+   "icon": "com.obsproject.Studio",
+   "featured": false,
+   "sources": {
+    "apt": "obs-studio",
+    "flathub": "com.obsproject.Studio"
+   }
+  },
+  {
+   "id": "kdenlive",
+   "name": "Kdenlive",
+   "summary": "Video editor",
+   "summary_tr": "Video düzenleyici",
+   "category": "media",
+   "icon": "kdenlive",
+   "featured": false,
+   "sources": {
+    "apt": "kdenlive",
+    "flathub": "org.kde.kdenlive"
+   }
+  },
+  {
+   "id": "shotcut",
+   "name": "Shotcut",
+   "summary": "Simple video editor",
+   "summary_tr": "Basit video düzenleyici",
+   "category": "media",
+   "icon": "shotcut",
+   "featured": false,
+   "sources": {
+    "apt": "shotcut",
+    "flathub": "org.shotcut.Shotcut"
+   }
+  },
+  {
+   "id": "handbrake",
+   "name": "HandBrake",
+   "summary": "Video converter",
+   "summary_tr": "Video dönüştürücü",
+   "category": "media",
+   "icon": "fr.handbrake.ghb",
+   "featured": false,
+   "sources": {
+    "apt": "handbrake",
+    "flathub": "fr.handbrake.ghb"
+   }
+  },
+  {
+   "id": "gimp",
+   "name": "GIMP",
+   "summary": "Image editor",
+   "summary_tr": "Görsel düzenleyici",
+   "category": "graphics",
+   "icon": "gimp",
+   "featured": true,
+   "sources": {
+    "apt": "gimp",
+    "flathub": "org.gimp.GIMP"
+   }
+  },
+  {
+   "id": "inkscape",
+   "name": "Inkscape",
+   "summary": "Vector graphics",
+   "summary_tr": "Vektör çizim",
+   "category": "graphics",
+   "icon": "org.inkscape.Inkscape",
+   "featured": false,
+   "sources": {
+    "apt": "inkscape",
+    "flathub": "org.inkscape.Inkscape"
+   }
+  },
+  {
+   "id": "krita",
+   "name": "Krita",
+   "summary": "Digital painting",
+   "summary_tr": "Dijital boyama",
+   "category": "graphics",
+   "icon": "krita",
+   "featured": false,
+   "sources": {
+    "apt": "krita",
+    "flathub": "org.kde.krita"
+   }
+  },
+  {
+   "id": "blender",
+   "name": "Blender",
+   "summary": "3D creation suite",
+   "summary_tr": "3B üretim paketi",
+   "category": "graphics",
+   "icon": "blender",
+   "featured": true,
+   "sources": {
+    "apt": "blender",
+    "flathub": "org.blender.Blender"
+   }
+  },
+  {
+   "id": "darktable",
+   "name": "darktable",
+   "summary": "RAW photo workflow",
+   "summary_tr": "RAW fotoğraf işleme",
+   "category": "graphics",
+   "icon": "darktable",
+   "featured": false,
+   "sources": {
+    "apt": "darktable",
+    "flathub": "org.darktable.Darktable"
+   }
+  },
+  {
+   "id": "vscode",
+   "name": "Visual Studio Code",
+   "summary": "Code editor",
+   "summary_tr": "Kod editörü",
+   "category": "development",
+   "icon": "com.visualstudio.code",
+   "featured": true,
+   "sources": {
+    "flathub": "com.visualstudio.code",
+    "official": {
+     "url": "https://update.code.visualstudio.com/latest/linux-deb-x64/stable",
+     "type": "deb",
+     "version_check": "https://update.code.visualstudio.com/api/releases/stable",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "vscodium",
+   "name": "VSCodium",
+   "summary": "VS Code without telemetry",
+   "summary_tr": "Telemetrisiz VS Code",
+   "category": "development",
+   "icon": "vscodium",
+   "featured": false,
+   "sources": {
+    "flathub": "com.vscodium.codium",
+    "official": {
+     "url": "https://api.github.com/repos/VSCodium/vscodium/releases/latest",
+     "type": "deb",
+     "version_check": "https://api.github.com/repos/VSCodium/vscodium/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "kate",
+   "name": "Kate",
+   "summary": "Advanced text editor",
+   "summary_tr": "Gelişmiş metin editörü",
+   "category": "development",
+   "icon": "kate",
+   "featured": false,
+   "sources": {
+    "apt": "kate",
+    "flathub": "org.kde.kate"
+   }
+  },
+  {
+   "id": "neovim",
+   "name": "Neovim",
+   "summary": "Modern Vim",
+   "summary_tr": "Modern Vim",
+   "category": "development",
+   "icon": "nvim",
+   "featured": false,
+   "sources": {
+    "apt": "neovim",
+    "flathub": "io.neovim.nvim"
+   }
+  },
+  {
+   "id": "git",
+   "name": "Git",
+   "summary": "Version control",
+   "summary_tr": "Sürüm denetimi",
+   "category": "development",
+   "icon": "git",
+   "featured": false,
+   "sources": {
+    "apt": "git"
+   }
+  },
+  {
+   "id": "docker",
+   "name": "Docker",
+   "summary": "Containers",
+   "summary_tr": "Konteynerler",
+   "category": "development",
+   "icon": "docker",
+   "featured": false,
+   "sources": {
+    "apt": "docker.io"
+   }
+  },
+  {
+   "id": "python",
+   "name": "Python 3",
+   "summary": "Python interpreter",
+   "summary_tr": "Python yorumlayıcısı",
+   "category": "development",
+   "icon": "python3",
+   "featured": false,
+   "sources": {
+    "apt": "python3"
+   }
+  },
+  {
+   "id": "nodejs",
+   "name": "Node.js",
+   "summary": "JavaScript runtime",
+   "summary_tr": "JavaScript çalışma ortamı",
+   "category": "development",
+   "icon": "nodejs",
+   "featured": false,
+   "sources": {
+    "apt": "nodejs"
+   }
+  },
+  {
+   "id": "java",
+   "name": "Java (OpenJDK)",
+   "summary": "Java development kit",
+   "summary_tr": "Java geliştirme kiti",
+   "category": "development",
+   "icon": "java",
+   "featured": false,
+   "sources": {
+    "apt": "default-jdk"
+   }
+  },
+  {
+   "id": "arduino",
+   "name": "Arduino IDE",
+   "summary": "Microcontroller programming",
+   "summary_tr": "Mikrodenetleyici programlama",
+   "category": "development",
+   "icon": "arduino",
+   "featured": false,
+   "sources": {
+    "apt": "arduino",
+    "flathub": "cc.arduino.IDE2"
+   }
+  },
+  {
+   "id": "platformio",
+   "name": "PlatformIO",
+   "summary": "Embedded development platform",
+   "summary_tr": "Gömülü geliştirme platformu",
+   "category": "development",
+   "icon": "platformio",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://raw.githubusercontent.com/platformio/platformio-core-installer/master/get-platformio.py",
+     "type": "sh",
+     "version_check": "https://api.github.com/repos/platformio/platformio-core/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "godot",
+   "name": "Godot",
+   "summary": "Game engine",
+   "summary_tr": "Oyun motoru",
+   "category": "development",
+   "icon": "godot",
+   "featured": false,
+   "sources": {
+    "apt": "godot3",
+    "flathub": "org.godotengine.Godot"
+   }
+  },
+  {
+   "id": "unityhub",
+   "name": "Unity Hub",
+   "summary": "Unity engine manager",
+   "summary_tr": "Unity motor yöneticisi",
+   "category": "development",
+   "icon": "unityhub",
+   "featured": false,
+   "sources": {
+    "flathub": "com.unity.UnityHub",
+    "official": {
+     "url": "https://hub.unity3d.com/linux/repos/deb",
+     "type": "deb",
+     "version_check": "https://hub.unity3d.com/linux/repos/deb/dists/stable/main/binary-amd64/Packages",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "steam",
+   "name": "Steam",
+   "summary": "Game store and launcher",
+   "summary_tr": "Oyun mağazası ve başlatıcısı",
+   "category": "games",
+   "icon": "steam",
+   "featured": true,
+   "sources": {
+    "apt": "steam-installer",
+    "flathub": "com.valvesoftware.Steam",
+    "official": {
+     "url": "https://cdn.fastly.steamstatic.com/client/installer/steam.deb",
+     "type": "deb",
+     "version_check": "https://repo.steampowered.com/steam/dists/stable/steam/binary-amd64/Packages",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "lutris",
+   "name": "Lutris",
+   "summary": "Game manager for all stores",
+   "summary_tr": "Tüm mağazalar için oyun yöneticisi",
+   "category": "games",
+   "icon": "lutris",
+   "featured": false,
+   "sources": {
+    "apt": "lutris",
+    "flathub": "net.lutris.Lutris"
+   }
+  },
+  {
+   "id": "heroic",
+   "name": "Heroic",
+   "summary": "Epic and GOG launcher",
+   "summary_tr": "Epic ve GOG başlatıcısı",
+   "category": "games",
+   "icon": "heroic",
+   "featured": false,
+   "sources": {
+    "flathub": "com.heroicgameslauncher.hgl"
+   }
+  },
+  {
+   "id": "minecraft",
+   "name": "Minecraft Launcher",
+   "summary": "Official Minecraft launcher",
+   "summary_tr": "Resmî Minecraft başlatıcısı",
+   "category": "games",
+   "icon": "minecraft-launcher",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://launcher.mojang.com/download/Minecraft.deb",
+     "type": "deb",
+     "version_check": "https://www.minecraft.net/en-us/download",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "prism",
+   "name": "Prism Launcher",
+   "summary": "Minecraft instance manager",
+   "summary_tr": "Minecraft örnek yöneticisi",
+   "category": "games",
+   "icon": "org.prismlauncher.PrismLauncher",
+   "featured": false,
+   "sources": {
+    "flathub": "org.prismlauncher.PrismLauncher"
+   }
+  },
+  {
+   "id": "retroarch",
+   "name": "RetroArch",
+   "summary": "Emulator frontend",
+   "summary_tr": "Emülatör arayüzü",
+   "category": "games",
+   "icon": "retroarch",
+   "featured": false,
+   "sources": {
+    "apt": "retroarch",
+    "flathub": "org.libretro.RetroArch"
+   }
+  },
+  {
+   "id": "wine",
+   "name": "Wine",
+   "summary": "Run Windows programs",
+   "summary_tr": "Windows programlarını çalıştırır",
+   "category": "games",
+   "icon": "wine",
+   "featured": false,
+   "sources": {
+    "apt": "wine"
+   }
+  },
+  {
+   "id": "protonup",
+   "name": "ProtonUp-Qt",
+   "summary": "Manage Proton versions",
+   "summary_tr": "Proton sürümleri yönetimi",
+   "category": "games",
+   "icon": "net.davidotek.pupgui2",
+   "featured": false,
+   "sources": {
+    "flathub": "net.davidotek.pupgui2"
+   }
+  },
+  {
+   "id": "geogebra",
+   "name": "GeoGebra",
+   "summary": "Interactive mathematics",
+   "summary_tr": "Etkileşimli matematik",
+   "category": "education",
+   "icon": "geogebra",
+   "featured": false,
+   "sources": {
+    "apt": "geogebra",
+    "flathub": "org.geogebra.GeoGebra"
+   }
+  },
+  {
+   "id": "anki",
+   "name": "Anki",
+   "summary": "Flashcard learning",
+   "summary_tr": "Kartlarla ezber",
+   "category": "education",
+   "icon": "anki",
+   "featured": false,
+   "sources": {
+    "flathub": "net.ankiweb.Anki",
+    "official": {
+     "url": "https://api.github.com/repos/ankitects/anki/releases/latest",
+     "type": "tar",
+     "version_check": "https://api.github.com/repos/ankitects/anki/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "stellarium",
+   "name": "Stellarium",
+   "summary": "Planetarium",
+   "summary_tr": "Gökyüzü simülatörü",
+   "category": "education",
+   "icon": "stellarium",
+   "featured": false,
+   "sources": {
+    "apt": "stellarium",
+    "flathub": "org.stellarium.Stellarium"
+   }
+  },
+  {
+   "id": "kalzium",
+   "name": "Kalzium",
+   "summary": "Periodic table (KDE Edu)",
+   "summary_tr": "Periyodik tablo (KDE Edu)",
+   "category": "education",
+   "icon": "kalzium",
+   "featured": false,
+   "sources": {
+    "apt": "kalzium"
+   }
+  },
+  {
+   "id": "marble",
+   "name": "Marble",
+   "summary": "Virtual globe (KDE Edu)",
+   "summary_tr": "Sanal yerküre (KDE Edu)",
+   "category": "education",
+   "icon": "marble",
+   "featured": false,
+   "sources": {
+    "apt": "marble"
+   }
+  },
+  {
+   "id": "kstars",
+   "name": "KStars",
+   "summary": "Astronomy (KDE Edu)",
+   "summary_tr": "Astronomi (KDE Edu)",
+   "category": "education",
+   "icon": "kstars",
+   "featured": false,
+   "sources": {
+    "apt": "kstars"
+   }
+  },
+  {
+   "id": "gcompris",
+   "name": "GCompris",
+   "summary": "Educational games for kids",
+   "summary_tr": "Çocuklar için eğitici oyunlar",
+   "category": "education",
+   "icon": "gcompris-qt",
+   "featured": false,
+   "sources": {
+    "apt": "gcompris-qt",
+    "flathub": "org.kde.gcompris"
+   }
+  },
+  {
+   "id": "scratch",
+   "name": "Scratch",
+   "summary": "Visual programming for kids",
+   "summary_tr": "Çocuklar için görsel programlama",
+   "category": "education",
+   "icon": "scratch",
+   "featured": false,
+   "sources": {
+    "flathub": "edu.mit.Scratch"
+   }
+  },
+  {
+   "id": "turbowarp",
+   "name": "TurboWarp",
+   "summary": "Faster Scratch",
+   "summary_tr": "Hızlandırılmış Scratch",
+   "category": "education",
+   "icon": "org.turbowarp.TurboWarp",
+   "featured": false,
+   "sources": {
+    "flathub": "org.turbowarp.TurboWarp"
+   }
+  },
+  {
+   "id": "gparted",
+   "name": "GParted",
+   "summary": "Partition editor",
+   "summary_tr": "Bölüm düzenleyici",
+   "category": "system",
+   "icon": "gparted",
+   "featured": false,
+   "sources": {
+    "apt": "gparted"
+   }
+  },
+  {
+   "id": "timeshift",
+   "name": "Timeshift",
+   "summary": "System snapshots",
+   "summary_tr": "Sistem anlık görüntüleri",
+   "category": "system",
+   "icon": "timeshift",
+   "featured": false,
+   "sources": {
+    "apt": "timeshift"
+   }
+  },
+  {
+   "id": "htop",
+   "name": "htop",
+   "summary": "Process viewer",
+   "summary_tr": "Süreç görüntüleyici",
+   "category": "system",
+   "icon": "htop",
+   "featured": false,
+   "sources": {
+    "apt": "htop"
+   }
+  },
+  {
+   "id": "btop",
+   "name": "btop",
+   "summary": "Resource monitor",
+   "summary_tr": "Kaynak izleyici",
+   "category": "system",
+   "icon": "btop",
+   "featured": false,
+   "sources": {
+    "apt": "btop"
+   }
+  },
+  {
+   "id": "bleachbit",
+   "name": "BleachBit",
+   "summary": "Disk cleaner",
+   "summary_tr": "Disk temizleyici",
+   "category": "system",
+   "icon": "bleachbit",
+   "featured": false,
+   "sources": {
+    "apt": "bleachbit"
+   }
+  },
+  {
+   "id": "gnome-disks",
+   "name": "GNOME Disks",
+   "summary": "Disk management",
+   "summary_tr": "Disk yönetimi",
+   "category": "system",
+   "icon": "gnome-disk-utility",
+   "featured": false,
+   "sources": {
+    "apt": "gnome-disk-utility"
+   }
+  },
+  {
+   "id": "etcher",
+   "name": "balenaEtcher",
+   "summary": "Write ISO to USB",
+   "summary_tr": "ISO'yu USB'ye yazar",
+   "category": "system",
+   "icon": "balena-etcher",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://api.github.com/repos/balena-io/etcher/releases/latest",
+     "type": "appimage",
+     "version_check": "https://api.github.com/repos/balena-io/etcher/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "ventoy",
+   "name": "Ventoy",
+   "summary": "Multi-ISO USB drive",
+   "summary_tr": "Çok ISO'lu USB bellek",
+   "category": "system",
+   "icon": "ventoy",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://api.github.com/repos/ventoy/Ventoy/releases/latest",
+     "type": "tar",
+     "version_check": "https://api.github.com/repos/ventoy/Ventoy/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "cpu-x",
+   "name": "CPU-X",
+   "summary": "Hardware info",
+   "summary_tr": "Donanım bilgisi",
+   "category": "system",
+   "icon": "cpu-x",
+   "featured": false,
+   "sources": {
+    "apt": "cpu-x",
+    "flathub": "io.github.thetumultuousunicornofdarkness.cpu-x"
+   }
+  },
+  {
+   "id": "nmap",
+   "name": "Nmap",
+   "summary": "Network scanner",
+   "summary_tr": "Ağ tarayıcı",
+   "category": "security",
+   "icon": "nmap",
+   "featured": false,
+   "sources": {
+    "apt": "nmap"
+   }
+  },
+  {
+   "id": "wireshark",
+   "name": "Wireshark",
+   "summary": "Packet analyzer",
+   "summary_tr": "Paket çözümleyici",
+   "category": "security",
+   "icon": "wireshark",
+   "featured": false,
+   "sources": {
+    "apt": "wireshark",
+    "flathub": "org.wireshark.Wireshark"
+   }
+  },
+  {
+   "id": "tcpdump",
+   "name": "tcpdump",
+   "summary": "CLI packet capture",
+   "summary_tr": "Komut satırı paket yakalama",
+   "category": "security",
+   "icon": "tcpdump",
+   "featured": false,
+   "sources": {
+    "apt": "tcpdump"
+   }
+  },
+  {
+   "id": "masscan",
+   "name": "masscan",
+   "summary": "Fast port scanner",
+   "summary_tr": "Hızlı port tarayıcı",
+   "category": "security",
+   "icon": "masscan",
+   "featured": false,
+   "sources": {
+    "apt": "masscan"
+   }
+  },
+  {
+   "id": "netcat",
+   "name": "netcat",
+   "summary": "TCP/UDP swiss army knife",
+   "summary_tr": "TCP/UDP çakısı",
+   "category": "security",
+   "icon": "netcat",
+   "featured": false,
+   "sources": {
+    "apt": "netcat-openbsd"
+   }
+  },
+  {
+   "id": "burpsuite",
+   "name": "Burp Suite Community",
+   "summary": "Web security testing",
+   "summary_tr": "Web güvenlik testi",
+   "category": "security",
+   "icon": "burpsuite",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://portswigger.net/burp/releases/startdownload?product=community&type=Linux",
+     "type": "sh",
+     "version_check": "https://portswigger.net/burp/releases",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "zaproxy",
+   "name": "ZAP",
+   "summary": "Web app scanner",
+   "summary_tr": "Web uygulama tarayıcısı",
+   "category": "security",
+   "icon": "org.zaproxy.ZAP",
+   "featured": false,
+   "sources": {
+    "flathub": "org.zaproxy.ZAP",
+    "official": {
+     "url": "https://api.github.com/repos/zaproxy/zaproxy/releases/latest",
+     "type": "sh",
+     "version_check": "https://api.github.com/repos/zaproxy/zaproxy/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "sqlmap",
+   "name": "sqlmap",
+   "summary": "SQL injection testing",
+   "summary_tr": "SQL enjeksiyon testi",
+   "category": "security",
+   "icon": "sqlmap",
+   "featured": false,
+   "sources": {
+    "apt": "sqlmap"
+   }
+  },
+  {
+   "id": "nikto",
+   "name": "Nikto",
+   "summary": "Web server scanner",
+   "summary_tr": "Web sunucu tarayıcısı",
+   "category": "security",
+   "icon": "nikto",
+   "featured": false,
+   "sources": {
+    "apt": "nikto"
+   }
+  },
+  {
+   "id": "gobuster",
+   "name": "Gobuster",
+   "summary": "Directory/DNS brute force",
+   "summary_tr": "Dizin/DNS kaba kuvvet",
+   "category": "security",
+   "icon": "gobuster",
+   "featured": false,
+   "sources": {
+    "apt": "gobuster"
+   }
+  },
+  {
+   "id": "ffuf",
+   "name": "ffuf",
+   "summary": "Web fuzzer",
+   "summary_tr": "Web fuzz aracı",
+   "category": "security",
+   "icon": "ffuf",
+   "featured": false,
+   "sources": {
+    "apt": "ffuf"
+   }
+  },
+  {
+   "id": "wfuzz",
+   "name": "Wfuzz",
+   "summary": "Web fuzzer",
+   "summary_tr": "Web fuzz aracı",
+   "category": "security",
+   "icon": "wfuzz",
+   "featured": false,
+   "sources": {
+    "apt": "wfuzz"
+   }
+  },
+  {
+   "id": "john",
+   "name": "John the Ripper",
+   "summary": "Password auditing",
+   "summary_tr": "Parola denetimi",
+   "category": "security",
+   "icon": "john",
+   "featured": false,
+   "sources": {
+    "apt": "john"
+   }
+  },
+  {
+   "id": "hashcat",
+   "name": "hashcat",
+   "summary": "GPU password recovery",
+   "summary_tr": "GPU ile parola kurtarma",
+   "category": "security",
+   "icon": "hashcat",
+   "featured": false,
+   "sources": {
+    "apt": "hashcat"
+   }
+  },
+  {
+   "id": "hydra",
+   "name": "Hydra",
+   "summary": "Login brute force",
+   "summary_tr": "Oturum kaba kuvvet",
+   "category": "security",
+   "icon": "hydra",
+   "featured": false,
+   "sources": {
+    "apt": "hydra"
+   }
+  },
+  {
+   "id": "hashid",
+   "name": "hashID",
+   "summary": "Hash identifier",
+   "summary_tr": "Hash tanımlayıcı",
+   "category": "security",
+   "icon": "hashid",
+   "featured": false,
+   "sources": {
+    "apt": "hashid"
+   }
+  },
+  {
+   "id": "aircrack",
+   "name": "Aircrack-ng",
+   "summary": "Wi-Fi security auditing",
+   "summary_tr": "Wi-Fi güvenlik denetimi",
+   "category": "security",
+   "icon": "aircrack-ng",
+   "featured": false,
+   "sources": {
+    "apt": "aircrack-ng"
+   }
+  },
+  {
+   "id": "kismet",
+   "name": "Kismet",
+   "summary": "Wireless sniffer",
+   "summary_tr": "Kablosuz dinleyici",
+   "category": "security",
+   "icon": "kismet",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://www.kismetwireless.net/repos/apt/release/trixie",
+     "type": "deb",
+     "version_check": "https://www.kismetwireless.net/packages/",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "reaver",
+   "name": "Reaver",
+   "summary": "WPS attack tool",
+   "summary_tr": "WPS saldırı aracı",
+   "category": "security",
+   "icon": "reaver",
+   "featured": false,
+   "sources": {
+    "apt": "reaver"
+   }
+  },
+  {
+   "id": "wifite",
+   "name": "Wifite",
+   "summary": "Automated Wi-Fi auditing",
+   "summary_tr": "Otomatik Wi-Fi denetimi",
+   "category": "security",
+   "icon": "wifite",
+   "featured": false,
+   "sources": {
+    "apt": "wifite"
+   }
+  },
+  {
+   "id": "ghidra",
+   "name": "Ghidra",
+   "summary": "Reverse engineering suite",
+   "summary_tr": "Tersine mühendislik paketi",
+   "category": "security",
+   "icon": "ghidra",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest",
+     "type": "tar",
+     "version_check": "https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "radare2",
+   "name": "radare2",
+   "summary": "Reverse engineering framework",
+   "summary_tr": "Tersine mühendislik çatısı",
+   "category": "security",
+   "icon": "radare2",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://api.github.com/repos/radareorg/radare2/releases/latest",
+     "type": "deb",
+     "version_check": "https://api.github.com/repos/radareorg/radare2/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "binwalk",
+   "name": "Binwalk",
+   "summary": "Firmware analysis",
+   "summary_tr": "Firmware analizi",
+   "category": "security",
+   "icon": "binwalk",
+   "featured": false,
+   "sources": {
+    "apt": "binwalk"
+   }
+  },
+  {
+   "id": "gdb",
+   "name": "GDB",
+   "summary": "GNU debugger",
+   "summary_tr": "GNU hata ayıklayıcı",
+   "category": "security",
+   "icon": "gdb",
+   "featured": false,
+   "sources": {
+    "apt": "gdb"
+   }
+  },
+  {
+   "id": "strace",
+   "name": "strace",
+   "summary": "System call tracer",
+   "summary_tr": "Sistem çağrısı izleyici",
+   "category": "security",
+   "icon": "strace",
+   "featured": false,
+   "sources": {
+    "apt": "strace"
+   }
+  },
+  {
+   "id": "ltrace",
+   "name": "ltrace",
+   "summary": "Library call tracer",
+   "summary_tr": "Kitaplık çağrısı izleyici",
+   "category": "security",
+   "icon": "ltrace",
+   "featured": false,
+   "sources": {
+    "apt": "ltrace"
+   }
+  },
+  {
+   "id": "autopsy",
+   "name": "Autopsy",
+   "summary": "Digital forensics GUI",
+   "summary_tr": "Adli bilişim arayüzü",
+   "category": "security",
+   "icon": "autopsy",
+   "featured": false,
+   "sources": {
+    "apt": "autopsy"
+   }
+  },
+  {
+   "id": "sleuthkit",
+   "name": "The Sleuth Kit",
+   "summary": "Forensics toolkit",
+   "summary_tr": "Adli bilişim araç seti",
+   "category": "security",
+   "icon": "sleuthkit",
+   "featured": false,
+   "sources": {
+    "apt": "sleuthkit"
+   }
+  },
+  {
+   "id": "foremost",
+   "name": "Foremost",
+   "summary": "File carving",
+   "summary_tr": "Dosya kurtarma",
+   "category": "security",
+   "icon": "foremost",
+   "featured": false,
+   "sources": {
+    "apt": "foremost"
+   }
+  },
+  {
+   "id": "testdisk",
+   "name": "TestDisk",
+   "summary": "Partition recovery",
+   "summary_tr": "Bölüm kurtarma",
+   "category": "security",
+   "icon": "testdisk",
+   "featured": false,
+   "sources": {
+    "apt": "testdisk"
+   }
+  },
+  {
+   "id": "volatility",
+   "name": "Volatility 3",
+   "summary": "Memory forensics",
+   "summary_tr": "Bellek adli analizi",
+   "category": "toolbox",
+   "icon": "volatility",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  },
+  {
+   "id": "metasploit",
+   "name": "Metasploit",
+   "summary": "Exploitation framework",
+   "summary_tr": "Sömürü çatısı",
+   "category": "toolbox",
+   "icon": "metasploit",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  },
+  {
+   "id": "theharvester",
+   "name": "theHarvester",
+   "summary": "OSINT gathering",
+   "summary_tr": "OSINT toplama",
+   "category": "toolbox",
+   "icon": "theharvester",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  },
+  {
+   "id": "recon-ng",
+   "name": "Recon-ng",
+   "summary": "Reconnaissance framework",
+   "summary_tr": "Keşif çatısı",
+   "category": "security",
+   "icon": "recon-ng",
+   "featured": false,
+   "sources": {
+    "apt": "recon-ng"
+   }
+  },
+  {
+   "id": "sherlock",
+   "name": "Sherlock",
+   "summary": "Username search across sites",
+   "summary_tr": "Sitelerde kullanıcı adı arama",
+   "category": "security",
+   "icon": "sherlock",
+   "featured": false,
+   "sources": {
+    "apt": "sherlock"
+   }
+  },
+  {
+   "id": "spiderfoot",
+   "name": "SpiderFoot",
+   "summary": "OSINT automation",
+   "summary_tr": "OSINT otomasyonu",
+   "category": "toolbox",
+   "icon": "spiderfoot",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  },
+  {
+   "id": "tor",
+   "name": "Tor",
+   "summary": "Anonymity network",
+   "summary_tr": "Anonimlik ağı",
+   "category": "security",
+   "icon": "tor",
+   "featured": false,
+   "sources": {
+    "apt": "tor"
+   }
+  },
+  {
+   "id": "torbrowser",
+   "name": "Tor Browser",
+   "summary": "Anonymous browsing",
+   "summary_tr": "Anonim gezinme",
+   "category": "security",
+   "icon": "torbrowser",
+   "featured": false,
+   "sources": {
+    "apt": "torbrowser-launcher",
+    "flathub": "org.torproject.torbrowser-launcher"
+   }
+  },
+  {
+   "id": "proxychains",
+   "name": "ProxyChains",
+   "summary": "Route apps through proxies",
+   "summary_tr": "Uygulamaları vekilden geçirir",
+   "category": "security",
+   "icon": "proxychains",
+   "featured": false,
+   "sources": {
+    "apt": "proxychains4"
+   }
+  },
+  {
+   "id": "veracrypt",
+   "name": "VeraCrypt",
+   "summary": "Disk encryption",
+   "summary_tr": "Disk şifreleme",
+   "category": "security",
+   "icon": "veracrypt",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest",
+     "type": "deb",
+     "version_check": "https://api.github.com/repos/veracrypt/VeraCrypt/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "keepassxc",
+   "name": "KeePassXC",
+   "summary": "Password manager",
+   "summary_tr": "Parola yöneticisi",
+   "category": "security",
+   "icon": "keepassxc",
+   "featured": true,
+   "sources": {
+    "apt": "keepassxc",
+    "flathub": "org.keepassxc.KeePassXC"
+   }
+  },
+  {
+   "id": "gnupg",
+   "name": "GnuPG",
+   "summary": "Encryption and signing",
+   "summary_tr": "Şifreleme ve imzalama",
+   "category": "security",
+   "icon": "gnupg",
+   "featured": false,
+   "sources": {
+    "apt": "gnupg"
+   }
+  },
+  {
+   "id": "cryptsetup",
+   "name": "cryptsetup",
+   "summary": "LUKS disk encryption",
+   "summary_tr": "LUKS disk şifreleme",
+   "category": "security",
+   "icon": "cryptsetup",
+   "featured": false,
+   "sources": {
+    "apt": "cryptsetup"
+   }
+  },
+  {
+   "id": "nvidia",
+   "name": "NVIDIA sürücüsü",
+   "summary": "Proprietary NVIDIA driver",
+   "summary_tr": "Kapalı kaynak NVIDIA sürücüsü",
+   "category": "drivers",
+   "icon": "nvidia",
+   "featured": false,
+   "sources": {
+    "apt": "nvidia-driver"
+   }
+  },
+  {
+   "id": "broadcom",
+   "name": "Broadcom Wi-Fi",
+   "summary": "Broadcom STA wireless driver",
+   "summary_tr": "Broadcom STA kablosuz sürücüsü",
+   "category": "drivers",
+   "icon": "network-wireless",
+   "featured": false,
+   "sources": {
+    "apt": "broadcom-sta-dkms"
+   }
+  },
+  {
+   "id": "realtek",
+   "name": "Realtek firmware",
+   "summary": "Realtek Wi-Fi/Ethernet firmware",
+   "summary_tr": "Realtek Wi-Fi/Ethernet firmware'i",
+   "category": "drivers",
+   "icon": "network-wired",
+   "featured": false,
+   "sources": {
+    "apt": "firmware-realtek"
+   }
+  },
+  {
+   "id": "cups-filters",
+   "name": "Yazıcı temel paketi",
+   "summary": "Printer driver base",
+   "summary_tr": "Yazıcı sürücü tabanı",
+   "category": "drivers",
+   "icon": "printer",
+   "featured": false,
+   "sources": {
+    "apt": "cups-filters"
+   }
+  },
+  {
+   "id": "hplip",
+   "name": "HP yazıcılar",
+   "summary": "HP printer drivers",
+   "summary_tr": "HP yazıcı sürücüleri",
+   "category": "drivers",
+   "icon": "printer",
+   "featured": false,
+   "sources": {
+    "apt": "hplip"
+   }
+  },
+  {
+   "id": "gutenprint",
+   "name": "Gutenprint",
+   "summary": "Wide printer support",
+   "summary_tr": "Geniş yazıcı desteği",
+   "category": "drivers",
+   "icon": "printer",
+   "featured": false,
+   "sources": {
+    "apt": "printer-driver-gutenprint"
+   }
+  },
+  {
+   "id": "sane",
+   "name": "Tarayıcı desteği",
+   "summary": "Scanner drivers (SANE)",
+   "summary_tr": "Tarayıcı sürücüleri (SANE)",
+   "category": "drivers",
+   "icon": "scanner",
+   "featured": false,
+   "sources": {
+    "apt": "sane-airscan"
+   }
+  },
+  {
+   "id": "xpadneo",
+   "name": "Xbox kolu",
+   "summary": "Xbox controller driver (xpadneo)",
+   "summary_tr": "Xbox oyun kolu sürücüsü (xpadneo)",
+   "category": "drivers",
+   "icon": "input-gaming",
+   "featured": false,
+   "sources": {
+    "official": {
+     "url": "https://api.github.com/repos/atar-axis/xpadneo/releases/latest",
+     "type": "sh",
+     "version_check": "https://api.github.com/repos/atar-axis/xpadneo/releases/latest",
+     "sha256": ""
+    }
+   }
+  },
+  {
+   "id": "distrobox",
+   "name": "Distrobox",
+   "summary": "Run other distros in containers",
+   "summary_tr": "Konteynerde başka dağıtımlar",
+   "category": "toolbox",
+   "icon": "distrobox",
+   "featured": false,
+   "sources": {
+    "apt": "distrobox"
+   },
+   "toolbox": true
+  },
+  {
+   "id": "kali-box",
+   "name": "Kali konteyneri",
+   "summary": "Kali tools via distrobox",
+   "summary_tr": "Distrobox ile Kali araçları",
+   "category": "toolbox",
+   "icon": "kali",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  },
+  {
+   "id": "ubuntu-box",
+   "name": "Ubuntu konteyneri",
+   "summary": "Ubuntu via distrobox",
+   "summary_tr": "Distrobox ile Ubuntu",
+   "category": "toolbox",
+   "icon": "ubuntu",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  },
+  {
+   "id": "arch-box",
+   "name": "Arch konteyneri",
+   "summary": "Arch via distrobox",
+   "summary_tr": "Distrobox ile Arch",
+   "category": "toolbox",
+   "icon": "arch",
+   "featured": false,
+   "sources": {},
+   "toolbox": true
+  }
+ ]
+}
