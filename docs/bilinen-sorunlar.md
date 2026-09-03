@@ -73,13 +73,21 @@ Reddit'te paylaşılan 232-240 MB boşta RAM rakamı artık geçerli değil;
 güncel ölçüm ~300 MB (canlı oturum, overlay dahil). Düzeltmeyi Enes
 yapacak — bu satır yalnızca hatırlatma, kod/doküman işi çıkarmaz.
 
-## 9. kavis-snap sürüklemesi Xvfb'de doğrulanamadı → VirtualBox el testi
+## 9. kavis-snap sürüklemesi Xvfb'de doğrulanamadı → ÇÖZÜLDÜ (3 Eyl, debug turu)
 
-Xvfb+openbox, XTEST kaynaklı başlık çubuğu sürüklemesini işletmedi;
-kavis-snap testi `xdotool windowmove` taklidiyle yapıldı (daemon
-"tuş basılıyken etkin pencere hareket etti mi"ye baktığı için mantık
-doğrulandı). GERÇEK fareyle kenar/köşe yapıştırma + unsnap + önizleme
-VirtualBox el testinde doğrulanacak.
+(3 Eyl 2026: iki kök sebep bulundu ve kapatıldı — (1) Wnck'nin
+geometrisi openbox'ın etkileşimli taşıması sırasında donuk kalıyor,
+daemon "çerçeve oynadı mı"yı hiç göremiyordu; çerçeve konumu artık
+X'ten okunuyor. (2) libwnck + NorthWest gravity çerçeve payını iki kez
+uygulatıyor, çerçeveli pencere bir başlık yüksekliği aşağı yerleşiyordu;
+STATIC gravity'ye geçildi. Xvfb'de gerçek sürükleme ÇALIŞIYOR; eski
+başarısızlık XTEST değil, `xdotool windowmove` taklidinin openbox
+taşımasını hiç devreye sokmamasıydı. Şimdi `tools/check-snap.sh` CI'da
+başlığa basıp fareyi sürükler (SNAP-OK); QEMU VM'de Tilix ve Nemo ile
+sağ/sol/üst kenar + köşe doğrulandı. Kayıt tarihçe için.)
+
+Xvfb+openbox, XTEST kaynaklı başlık çubuğu sürüklemesini işletmedi
+sanılmıştı; kavis-snap testi `xdotool windowmove` taklidiyle yapıldı.
 
 ## 10. Hızlı yakalamanın pano kopyası 60 saniyeyle sınırlı → ÇÖZÜLDÜ (sonraki-isler 5)
 

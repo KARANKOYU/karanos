@@ -9,6 +9,74 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 3 Eylül 2026 (v0.4-test2 VM turu + debug turu)
+
+Yeni oturum önce bunu okur; 2 Eylül kaydı altta aynen duruyor.
+
+## Yapılanlar (v0.4-test2 → v0.4-test3 adayı)
+
+- **Tur A–E (kullanıcı geri bildirimi, 2. tur):** A CI karesi
+  DESKTOP-READY ile; B1 GRUB gizli (Shift menü); B2 spinner 24 px
+  imzanın altında; C1 sabit ✕ (son masaüstünü kapatır); C2 Win toggle;
+  C3 dikey panel şeridi; C4 150 ms tık parlaması; C5 "Windows 10/11"
+  metinleri kalktı; **C6 popup animasyonu picom 12 pencere kurallarıyla**
+  (panelde kod yok: `rules` bloğunda `class_g = 'kavis-panel' &&
+  override_redirect` için slide-in/out | appear | (); yön panel
+  konumundan, süre Animation speed'den; kural sistemi açıkken eski
+  `*-exclude` listeleri yok sayıldığı için gölge/köşe dışlamaları da
+  kurala taşındı); D1/D2 kaydırıcı hizası + Overlay balonu; **E1 snap
+  kök sebebi** (aşağıda); E2 her pencerede 46 px başlık (openbox
+  padding.height 16, headerbar min-height 46).
+- **Madde 72 (kararlar.md 9):** sağlamlık denetimleri + selftest kararı;
+  CI'a SERVICES/JOURNAL/COREDUMP/DPKG-VERIFY/BOOT-TIME, DEPS-RANGE,
+  haftalık cron + issue girdi. Kalanı Grup F kapanışında.
+- **Debug turu bulguları (hepsi düzeltildi):** snap yerleşimi çerçeve
+  payı kadar aşağıdaydı (libwnck+NorthWest çift pay → STATIC gravity);
+  unsnap boyutu openbox taşıması sürerken uygulanmıyordu (bırakışta
+  tekrar); Win tuşu menüyü kapatıp xcape'in XF86Launch5'iyle yeniden
+  açıyordu (Super basılışında değil, XF86Launch5/bırakılıştan 200 ms
+  sonra kapanıyor); picom şablonla başladıysa SIGUSR1 kullanıcı
+  kopyasını okumuyordu (ilk değişiklikte bir kez yeniden başlar);
+  flash() closure'ı serbest StyleContext'e dokunabilirdi; ✕ ipucu
+  donuktu; valac 26 → 2 uyarı (kalan ikisi set_wmclass, bilinçli).
+  Sızıntı: 40 popup döngüsünde panel USS 9 → 9 MB. Uygulama taraması:
+  CRITICAL yok.
+- **Yeni test altyapısı:** `tools/check-snap.sh` (CI SNAP-OK, gerçek
+  openbox sürüklemesi), `panel-screenshot.sh` HIZLI/BASILI/DONGU
+  kipleri, kavis-snap `KAVIS_SNAP_DEBUG=1`.
+
+## VM'de doğrulama yöntemi (Codespace'te, VirtualBox olmadan)
+
+QEMU TCG (KVM yok, ~80 % CPU — iş bitince `stop`/kapat), test2 ISO,
+`-usb -device usb-tablet` (mutlak işaretçi), `-qmp`/`-monitor` unix
+soketleri. Fare/klavye QMP `input-send-event`/`send-key` ile (US
+düzenine geçilmeli, TR'de karakterler kayıyor; modifier takılırsa
+release olayı gönder), kare HMP `screendump`. Konuk → ev sahibi veri:
+`curl -T - 10.0.2.2:8000/<ad>` (ev sahibinde chunked kabul eden küçük
+PUT sunucusu), ev sahibi → konuk: aynı sunucudan `curl -O` ile .deb,
+`sudo dpkg -i`. Bir tıklamanın sonucu 10–30 sn gecikebilir; kısa
+beklemelerle "çalışmıyor" deme. Snap/E2/C1–C3/C6/Win toggle bu yolla
+doğrulandı; ekran görüntüleri /tmp/kavis-vm.
+
+## E1 kök sebebi (kayıt)
+
+kavis-snap "sürükleme"yi çerçeve konumunun basıştan beri ≥ 8 px
+oynamasıyla anlıyordu ve konumu Wnck'nin önbelleğinden okuyordu.
+Openbox etkileşimli taşıma boyunca istemciye ConfigureNotify
+göndermiyor; Wnck düğme bırakılana kadar basıştaki değeri veriyor →
+daemon her bırakışta dragging=false. Xvfb testleri pencereyi xdotool
+ile taşıdığı için bunu hiç görmedi; VirtualBox/edge-warp/XI2 şüpheleri
+yanlıştı. Çözüm: XQueryTree + XGetWindowAttributes +
+XTranslateCoordinates ile her yoklamada sunucudan okumak.
+
+## Sonraki adımlar
+
+Tur F1–F5, G1–G6, H1–H7, I (kullanıcı "devam" deyince); J: durum.md,
+v0.4-test3 etiketi ([skip ci] YOK). JOURNAL-OK eşiği ilk gerçek
+koşunun JOURNAL-ERRORS değerine göre daraltılacak.
+
+---
+
 # OTURUM DURUMU — 2 Eylül 2026 (devir teslim kaydı)
 
 Bu bölüm bağlam sıfırlanmadan önce yazıldı. Yeni oturum YALNIZ bu
