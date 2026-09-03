@@ -129,7 +129,9 @@ headerbar {
 	background-color: @kavis_surface;
 	border-bottom: 1px solid @kavis_border;
 	color: @kavis_text;
-	min-height: 32px;
+	/* E2 (test2): 46 px — Tilix'in çubuğuyla ve openbox başlığıyla
+	   (themerc padding.height 16) aynı boy; düğmeler 46×32 ortalı. */
+	min-height: 46px;
 	padding: 0 0 0 8px;
 }
 headerbar:backdrop {

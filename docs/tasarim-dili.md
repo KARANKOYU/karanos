@@ -103,7 +103,7 @@ SSD / themerc eşleme:
 
 | Öğe | Değer |
 |---|---|
-| Başlık yüksekliği | ~35px (font 10 + padding.height 11) — CSD ile eşit |
+| Başlık yüksekliği | 46px her yerde (test2 E2): openbox font 10 + padding.height 16 + 1px kenarlık; CSD headerbar min-height 46px; Tilix'in çubuğu referans |
 | Düğme sırası | – ☐ ✕ sağda; ikon + başlık solda (NLIMC) |
 | Düğme ikonu | 16px xbm, 12px glif — GTK sembolik ikonlarla aynı optik boy |
 | Kapat hover / basılı | #C42B1C / #A02316, beyaz ✕ (CSD ile aynı) |

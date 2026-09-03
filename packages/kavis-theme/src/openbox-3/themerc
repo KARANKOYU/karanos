@@ -17,9 +17,11 @@
 # --- kenarlar --------------------------------------------------------
 border.width: 1
 padding.width: 8
-# Başlık yüksekliği GTK HeaderBar'la eşit (geri bildirim A): yazı
-# (~13px) + 2×11 iç boşluk ≈ 35px — Tilix'in CSD çubuğuyla aynı boy.
-padding.height: 11
+# Başlık yüksekliği Tilix'in CSD çubuğuyla ve Kavis uygulamalarının
+# GtkHeaderBar'ıyla (gtk.css min-height 46px) aynı: yazı (~13px) +
+# 2×16 iç boşluk + 1px kenarlık = 46px (test2 E2; Xvfb'de
+# _NET_FRAME_EXTENTS ile ölçüldü, 11 → 36px'ti).
+padding.height: 16
 window.handle.width: 0
 window.client.padding.width: 0
 window.client.padding.height: 0
