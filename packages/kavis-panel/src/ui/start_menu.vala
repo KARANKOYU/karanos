@@ -338,7 +338,16 @@ namespace Kavis.Ui {
         }
 
         private bool on_key_press (Gdk.EventKey event) {
-            if (event.keyval == Gdk.Key.Escape) {
+            /* C2 (v0.4-test2): menü açıkken klavye bizde (seat grab) —
+             * xcape'in ürettiği XF86Launch5, Super'in kendisi ya da
+             * Ctrl+Esc openbox'a ulaşmaz; toggle'ın kapanış yarısı
+             * burada. Tuş tekrarı yok sayılır (is_modifier/repeat). */
+            if (event.keyval == Gdk.Key.Escape
+                || event.keyval == 0x1008FF45  /* XF86Launch5 — gdk vapi'de yok */
+                || event.keyval == Gdk.Key.Super_L
+                || event.keyval == Gdk.Key.Super_R
+                || (event.keyval == Gdk.Key.Escape
+                    && (event.state & Gdk.ModifierType.CONTROL_MASK) != 0)) {
                 dismiss ();
                 return true;
             }
