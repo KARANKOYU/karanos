@@ -49,12 +49,6 @@ msgstr "Temizle"
 msgid "Keyboard layout"
 msgstr "Klavye düzeni"
 
-msgid "Turkish Q"
-msgstr "Türkçe Q"
-
-msgid "English (US)"
-msgstr "İngilizce (ABD)"
-
 msgid "Volume"
 msgstr "Ses seviyesi"
 
@@ -689,8 +683,8 @@ msgstr "%%%d çevrildi — eksikler İngilizce görünür"
 msgid "Layout"
 msgstr "Düzen"
 
-msgid "One global layout for every window"
-msgstr "Her pencere için tek genel düzen"
+msgid "One global layout for every window; right-click the taskbar indicator to switch between the ones you have used"
+msgstr "Her pencere için tek genel düzen; görev çubuğundaki göstergeye sağ tıklayıp kullandığınız düzenler arasında geçiş yapabilirsiniz"
 
 msgid "Shortcuts"
 msgstr "Kısayollar"
@@ -1010,3 +1004,72 @@ msgstr "Açılır pencere animasyonu"
 
 msgid "Start menu, quick settings and notifications"
 msgstr "Başlat menüsü, hızlı ayarlar ve bildirimler"
+
+# Ayarlar > Sistem > Hakkında (F1)
+msgid "Base frequency"
+msgstr "Temel frekans"
+
+msgid "Turbo frequency"
+msgstr "Turbo frekans"
+
+msgid "Cache"
+msgstr "Önbellek"
+
+msgid "Driver"
+msgstr "Sürücü"
+
+msgid "Total"
+msgstr "Toplam"
+
+msgid "Type"
+msgstr "Tür"
+
+msgid "Speed"
+msgstr "Hız"
+
+msgid "CAS latency"
+msgstr "CAS gecikmesi"
+
+msgid "Slots in use"
+msgstr "Kullanılan yuva"
+
+msgid "File system"
+msgstr "Dosya sistemi"
+
+# Ayarlar > Ekran (F2): çözünürlük + yenileme hızı ayrı listeler
+msgid "Resolution"
+msgstr "Çözünürlük"
+
+msgid "Refresh rate"
+msgstr "Yenileme hızı"
+
+msgid "%s (native)"
+msgstr "%s (doğal)"
+
+msgid "%s Hz"
+msgstr "%s Hz"
+
+msgid "Custom…"
+msgstr "Özel…"
+
+msgid "All resolutions"
+msgstr "Tüm çözünürlükler"
+
+msgid "Apply"
+msgstr "Uygula"
+
+msgid "Unknown"
+msgstr "Bilinmiyor"
+
+# Ayarlar > Klavye ve Dil (F4): açılır dil/düzen listeleri, arama kutulu
+msgid "Display language"
+msgstr "Görüntüleme dili"
+
+msgid "Endonym and how much of the interface is translated"
+msgstr "Dilin kendi adı ve arayüzün ne kadarının çevrildiği"
+
+msgid "Search languages"
+msgstr "Dil ara"
+
+msgid "Search layouts"
+msgstr "Düzen ara"

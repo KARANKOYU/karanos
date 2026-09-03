@@ -75,23 +75,71 @@ msgstr "⟪Kernel··⟫"
 msgid "Desktop"
 msgstr "⟪Desktop··⟫"
 
-msgid "Processor"
-msgstr "⟪Processor···⟫"
-
-msgid "Memory"
-msgstr "⟪Memory··⟫"
-
-msgid "Graphics"
-msgstr "⟪Graphics···⟫"
+msgid "Hostname"
+msgstr "⟪Hostname···⟫"
 
 msgid "Motherboard"
 msgstr "⟪Motherboard····⟫"
 
+msgid "Model"
+msgstr "⟪Model··⟫"
+
+msgid "Cores / threads"
+msgstr "⟪Cores / threads······⟫"
+
+msgid "Base frequency"
+msgstr "⟪Base frequency·····⟫"
+
+msgid "Turbo frequency"
+msgstr "⟪Turbo frequency······⟫"
+
+msgid "Cache"
+msgstr "⟪Cache··⟫"
+
+msgid "Driver"
+msgstr "⟪Driver··⟫"
+
+msgid "Video memory"
+msgstr "⟪Video memory····⟫"
+
+msgid "Total"
+msgstr "⟪Total··⟫"
+
+msgid "Type"
+msgstr "⟪Type··⟫"
+
+msgid "Speed"
+msgstr "⟪Speed··⟫"
+
+msgid "CAS latency"
+msgstr "⟪CAS latency····⟫"
+
+msgid "Slots in use"
+msgstr "⟪Slots in use····⟫"
+
+msgid "Capacity"
+msgstr "⟪Capacity···⟫"
+
+msgid "File system"
+msgstr "⟪File system····⟫"
+
+msgid "Usage"
+msgstr "⟪Usage··⟫"
+
+msgid "System"
+msgstr "⟪System··⟫"
+
+msgid "Processor"
+msgstr "⟪Processor···⟫"
+
+msgid "Graphics"
+msgstr "⟪Graphics···⟫"
+
+msgid "Memory"
+msgstr "⟪Memory··⟫"
+
 msgid "Disk"
 msgstr "⟪Disk··⟫"
-
-msgid "Hostname"
-msgstr "⟪Hostname···⟫"
 
 msgid "Caps Lock on"
 msgstr "⟪Caps Lock on····⟫"
@@ -110,9 +158,6 @@ msgstr "⟪%d%%··⟫"
 
 msgid "Apps"
 msgstr "⟪Apps··⟫"
-
-msgid "System"
-msgstr "⟪System··⟫"
 
 msgid "%s tools"
 msgstr "⟪%s tools···⟫"
@@ -143,12 +188,6 @@ msgstr "⟪Clear··⟫"
 
 msgid "Keyboard layout"
 msgstr "⟪Keyboard layout······⟫"
-
-msgid "Turkish Q"
-msgstr "⟪Turkish Q···⟫"
-
-msgid "English (US)"
-msgstr "⟪English (US)····⟫"
 
 msgid "Network, sound, battery"
 msgstr "⟪Network, sound, battery·········⟫"
@@ -510,8 +549,8 @@ msgstr "⟪Accent color····⟫"
 msgid "Teal — fixed in this release"
 msgstr "⟪Teal — fixed in this release···········⟫"
 
-msgid "Resolution and refresh rate"
-msgstr "⟪Resolution and refresh rate··········⟫"
+msgid "Resolution"
+msgstr "⟪Resolution····⟫"
 
 msgid "No display information available"
 msgstr "⟪No display information available············⟫"
@@ -524,6 +563,27 @@ msgstr "⟪Text and interface size·········⟫"
 
 msgid "Warmer colors in the evening (4500K)"
 msgstr "⟪Warmer colors in the evening (4500K)··············⟫"
+
+msgid "Refresh rate"
+msgstr "⟪Refresh rate····⟫"
+
+msgid "%s (native)"
+msgstr "⟪%s (native)····⟫"
+
+msgid "%s Hz"
+msgstr "⟪%s Hz··⟫"
+
+msgid "Custom…"
+msgstr "⟪Custom…··⟫"
+
+msgid "Unknown"
+msgstr "⟪Unknown··⟫"
+
+msgid "All resolutions"
+msgstr "⟪All resolutions······⟫"
+
+msgid "Apply"
+msgstr "⟪Apply··⟫"
 
 msgid "Keep these display settings?"
 msgstr "⟪Keep these display settings?···········⟫"
@@ -540,17 +600,26 @@ msgstr "⟪Reverting in %d seconds·········⟫"
 msgid "Language"
 msgstr "⟪Language···⟫"
 
+msgid "Search languages"
+msgstr "⟪Search languages······⟫"
+
 msgid "%d%% translated — untranslated parts appear in English"
 msgstr "⟪%d%% translated — untranslated parts appear in English·····················⟫"
 
 msgid "Applying…"
 msgstr "⟪Applying…···⟫"
 
+msgid "Display language"
+msgstr "⟪Display language······⟫"
+
+msgid "Endonym and how much of the interface is translated"
+msgstr "⟪Endonym and how much of the interface is translated····················⟫"
+
+msgid "Search layouts"
+msgstr "⟪Search layouts·····⟫"
+
 msgid "Layout"
 msgstr "⟪Layout··⟫"
-
-msgid "One global layout for every window"
-msgstr "⟪One global layout for every window·············⟫"
 
 msgid "Shortcuts"
 msgstr "⟪Shortcuts···⟫"
@@ -680,6 +749,9 @@ msgstr "⟪Appearance····⟫"
 
 msgid "Display"
 msgstr "⟪Display··⟫"
+
+msgid "Resolution and refresh rate"
+msgstr "⟪Resolution and refresh rate··········⟫"
 
 msgid "Sound"
 msgstr "⟪Sound··⟫"
@@ -828,12 +900,6 @@ msgstr "⟪CPU··⟫"
 msgid "GPU"
 msgstr "⟪GPU··⟫"
 
-msgid "Model"
-msgstr "⟪Model··⟫"
-
-msgid "Cores / threads"
-msgstr "⟪Cores / threads······⟫"
-
 msgid "Base speed"
 msgstr "⟪Base speed····⟫"
 
@@ -861,9 +927,6 @@ msgstr "⟪Swap··⟫"
 msgid "Speed / type"
 msgstr "⟪Speed / type····⟫"
 
-msgid "Capacity"
-msgstr "⟪Capacity···⟫"
-
 msgid "Read"
 msgstr "⟪Read··⟫"
 
@@ -878,12 +941,6 @@ msgstr "⟪Receive··⟫"
 
 msgid "Send"
 msgstr "⟪Send··⟫"
-
-msgid "Usage"
-msgstr "⟪Usage··⟫"
-
-msgid "Video memory"
-msgstr "⟪Video memory····⟫"
 
 msgid "Showing the first part of a large file"
 msgstr "⟪Showing the first part of a large file···············⟫"
