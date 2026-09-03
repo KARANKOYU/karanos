@@ -611,20 +611,25 @@ else
 fi
 
 # 11d) dpkg -V: Kavis'in değiştirdiği Debian paket dosyası olmasın.
-# Conffile'lar (2. sütun 'c') serbest — sayısı loglanır; gerisi hata.
-# Tüm dosyaların md5'i alınır, 300 sn'de bitmezse WARN (kırmızı değil).
-dpkg_cikti=$(timeout 300 dpkg -V 2>/dev/null)
+# Conffile'lar (2. sütun 'c') serbest — sayısı loglanır. 9995-cleanup
+# hook'unun bilerek sildiği belge/man/locale dosyaları "missing" çıkar
+# (3 Eyl kalibrasyonu: hepsi /usr/share/doc, man/<dil>, doc-base) —
+# onlar sayılır, hata değil. Gerisi (değişmiş ya da başka yerde eksik)
+# hata. Tüm dosyaların md5'i alınır (KVM'li CI'da dakikalar, TCG'de
+# ~10 dk); 300 sn'de bitmezse WARN (kırmızı değil), düşük öncelikle.
+dpkg_cikti=$(timeout 300 nice -n 19 ionice -c 3 dpkg -V 2>/dev/null)
 dpkg_rc=$?
 if [ "$dpkg_rc" -eq 124 ]; then
 	log "DPKG-VERIFY-WARN 300 sn'de bitmedi"
 else
 	conffile_sayi=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 == "c"' | wc -l)
-	degisen=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 != "c"')
+	beklenen_eksik=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/")' | wc -l)
+	degisen=$(printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 != "c" && !($1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/"))')
 	printf '%s\n' "$dpkg_cikti" | awk 'NF && $2 == "c" {print $NF}' | head -30 | while IFS= read -r satir; do
 		log "DPKG-CONFFILE ${satir}"
 	done
 	if [ -z "$degisen" ]; then
-		log "DPKG-VERIFY-OK conffile=${conffile_sayi}"
+		log "DPKG-VERIFY-OK conffile=${conffile_sayi} temizlik-eksik=${beklenen_eksik}"
 	else
 		printf '%s\n' "$degisen" | head -30 | while IFS= read -r satir; do
 			log "DPKG-VERIFY-DIFF ${satir}"
