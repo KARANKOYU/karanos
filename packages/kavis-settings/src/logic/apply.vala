@@ -165,10 +165,15 @@ namespace Kavis.Settings.Apply {
                      e.message);
             return;
         }
-        /* picom yeniden yükleme bilmiyor: öldür, kullanıcı kopyasıyla
-         * yeniden başlat (autostart'la aynı satır). */
+        /* B3: canlı uygulama. D-Bus opts_set corner_radius'u
+         * KAPSAMIYOR (picom dbus.c: yalnız fade/vsync/unredir), o yüzden
+         * belgeli yol SIGUSR1: picom kendini yeniden başlatır, aynı
+         * süreç conf'u tekrar okur — süreç ölmediği için 300 ms'lik
+         * siyah kare yok. Yalnız kaydırıcı bırakılınca çağrılır. picom
+         * hiç çalışmıyorsa (VM'de kapatılmış) kullanıcı kopyasıyla
+         * başlatılır. */
         Run.fire ({ "sh", "-c",
-            "pkill -x picom; sleep 0.3; "
+            "pkill -USR1 -x picom || "
             + "picom --backend xrender --config '" + user_conf
             + "' -b" });
     }
