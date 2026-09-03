@@ -168,6 +168,18 @@ jobs:
           sleep 1
           openbox & sleep 1
           xsetroot -solid '#3a6b8a'
+          # 4A: önce EN koşusu — Start ETİKETİ genişliğini stderr'e
+          # yazar (start-genislik=NN); xx koşusuyla karşılaştırılır.
+          dbus-run-session -- sh -c '
+            LANG=en_US.UTF-8 LANGUAGE=en kavis-panel 2> panel-en.log &
+            sleep 4
+            pgrep -x kavis-panel > /dev/null || {
+              echo "::error::kavis-panel (EN) ayakta degil"
+              cat panel-en.log; exit 1
+            }
+          '
+          pkill -x kavis-panel || true
+          sleep 1
           dbus-run-session -- sh -c '
             LANG=en_US.UTF-8 LANGUAGE=xx kavis-panel 2> panel-xx.log &
             sleep 4
@@ -178,6 +190,19 @@ jobs:
             ffmpeg -loglevel quiet -f x11grab -video_size 1280x800 \
               -i :99 -frames:v 1 -y panel-xx.ppm
           '
+          # 4A denetimi: xx sahte dili metni ~2 kat uzatır — düğme EN'e
+          # göre en az %30 büyümediyse metin bir yerde kırpılıyor
+          # demektir. Yerleşim ayarı testi kırmasın: WARN, FAIL değil.
+          en_w=$(grep -o 'start-genislik=[0-9]*' panel-en.log \
+                 | tail -1 | cut -d= -f2)
+          xx_w=$(grep -o 'start-genislik=[0-9]*' panel-xx.log \
+                 | tail -1 | cut -d= -f2)
+          echo "Start etiket genisligi: EN=${en_w:-?}px xx=${xx_w:-?}px"
+          if [ -z "${en_w:-}" ] || [ -z "${xx_w:-}" ]; then
+            echo "::warning::I18N-WIDTH-WARN: start-genislik logu eksik (EN=${en_w:-yok} xx=${xx_w:-yok})"
+          elif [ "$xx_w" -lt $((en_w * 13 / 10)) ]; then
+            echo "::warning::I18N-WIDTH-WARN: xx Start etiketi ${xx_w}px, EN ${en_w}px — %30'dan az buyume, metin kirpiliyor olabilir"
+          fi
           python3 tools/screen-not-blank.py panel-xx.ppm || {
             echo "::error::panel-xx karesi bos/simsiyah"
             cat panel-xx.log || true

@@ -138,6 +138,7 @@ namespace Kavis.Ui {
          * saydam çıkıyordu ("duvar kağıdına karışıyor" hatası). */
         private Gtk.Box root_box;
         private StartMenu start_menu;
+        private int logged_start_width = 0;
         private Gtk.ScrolledWindow window_scroll;
         private Gtk.Box window_box;
         private Gtk.Box right_box;
@@ -357,10 +358,24 @@ namespace Kavis.Ui {
                 var start_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
                 start_row.pack_start (Brand.logo_image (24),
                                       false, false, 0);
-                start_row.pack_start (
-                    new Gtk.Label (_("Start")),
-                    false, false, 0);
+                var start_label = new Gtk.Label (_("Start"));
+                /* 4A: uzun dillerde metin KIRPILMAZ — düğme metne göre
+                 * büyür, pencere listesi daralır (update_button_widths
+                 * start_extent'i zaten düşüyor). */
+                start_label.set_ellipsize (Pango.EllipsizeMode.NONE);
+                start_row.pack_start (start_label, false, false, 0);
                 start_button.add (start_row);
+                /* 4A CI denetimi: ETİKET genişliği stderr'e yazılır
+                 * (düğme genişliği logo+padding yüzünden büyümeyi
+                 * sulandırır); iş akışı EN/xx koşularını karşılaştırıp
+                 * I18N-WIDTH-WARN üretir. */
+                start_label.size_allocate.connect ((alloc) => {
+                    if (alloc.width != logged_start_width) {
+                        logged_start_width = alloc.width;
+                        printerr ("kavis-panel: start-genislik=%d\n",
+                                  alloc.width);
+                    }
+                });
             }
             start_button.clicked.connect (on_start_clicked);
 
