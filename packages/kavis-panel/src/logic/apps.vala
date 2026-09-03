@@ -71,6 +71,13 @@ namespace Kavis.Apps {
         if (id.has_prefix ("kavis-")) {
             return "Kavis";
         }
+        /* F2: araç niteliğinde ama kategorisi Utility olanlar Sistem'e
+         * (Disk Kullanım Çözümleyici, Belge Tarayıcı). */
+        if (id == "org.gnome.baobab.desktop"
+            || id == "simple-scan.desktop"
+            || id == "org.gnome.SimpleScan.desktop") {
+            return "System";
+        }
         string raw = (desktop != null)
             ? (desktop.get_categories () ?? "") : "";
         foreach (unowned string c in raw.split (";")) {
