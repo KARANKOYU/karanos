@@ -69,6 +69,36 @@ ile taşıdığı için bunu hiç görmedi; VirtualBox/edge-warp/XI2 şüpheleri
 yanlıştı. Çözüm: XQueryTree + XGetWindowAttributes +
 XTranslateCoordinates ile her yoklamada sunucudan okumak.
 
+## Kod tabanı İngilizce (3 Eyl, `7a382b9`)
+
+Yeni kural CLAUDE.md'de: identifier/yorum/log/CI çıktısı/commit mesajı
+İngilizce; Türkçe yalnız `po/tr.po` ve `docs/`. 229 dosya çevrildi, tek
+commit. Yeniden adlandırmalar: hook adları (0210-openbox-keybinds,
+9600-grub-branding, …), boot varlıkları (boot-hints.png,
+product-name.png, grub-background.png, grub-theme/), duvar kâğıtları
+(kavis-night, kavis-plain), tools betikleri (gen-translation-table.py,
+sample-window.py, …), senaryolar (tests/ui/01-boot, 06-window-snap,
+09-settings-theme, 39-task-manager; `madde:` → `item:`), ortam
+değişkenleri (KAVIS_ARCH, KAVIS_LOGO_DIR, START_MENU/CALENDAR/POWER/
+QUICK/HOLD/CYCLES), boot.conf anahtarları (PLAY_MUSIC, WAIT_FOR_MUSIC),
+picom işaretleri (popup-animation-begin/-end), CI yapıtları
+(diag-<mode>-<profile>, panel-xx-screen), profil değerleri
+(default/low/wide), panel log satırı (start-width/start-clipped).
+KAVIS-CHECK **tokenları değişmedi** — yalnız token sonrası serbest
+metin İngilizce, böylece duman testi ve boot-check okuyucuları aynen
+eşleşiyor. gettext msgid'leri bit bit aynı; po/tr.po dokunulmadı.
+
+## Selftest 5 senaryo koşusu (3 Eyl, QEMU)
+
+40 adım, 38 geçti, 2 kaldı — ikisi de test2 ISO'suna özgü (B1 GRUB
+gizli ve /run/kavis/boot-check.log v0.4-test3 ISO'sunda gelecek).
+Gerçek makinede yeşil olanlar: Başlat tık/Win toggle/Ctrl+Esc/dış
+tıklama/takvim; snap sol yarı + sağ üst + sağ alt köşe + Win+ok +
+büyütme + geri çekme; tema koyu↔açık canlı geçiş; Ayarlar ve Görev
+Yöneticisi aç/kapat. Yeni journal hatası 0, koşu RAM +33 MB (kare
+alma). En yavaş adımlar TCG'de uygulama açılışları (nemo 19 s,
+kavis-tools 16 s, kavis-settings 13 s).
+
 ## Selftest ilk koşu (3 Eyl, QEMU, test2 ISO'su + yeni paketler)
 
 `kavis-selftest --scenario 01-boot`: 10 adım, 8 geçti, 2 kaldı —
