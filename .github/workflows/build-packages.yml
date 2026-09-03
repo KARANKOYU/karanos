@@ -197,11 +197,14 @@ jobs:
                  | tail -1 | cut -d= -f2)
           xx_w=$(grep -o 'start-genislik=[0-9]*' panel-xx.log \
                  | tail -1 | cut -d= -f2)
-          echo "Start etiket genisligi: EN=${en_w:-?}px xx=${xx_w:-?}px"
-          if [ -z "${en_w:-}" ] || [ -z "${xx_w:-}" ]; then
-            echo "::warning::I18N-WIDTH-WARN: start-genislik logu eksik (EN=${en_w:-yok} xx=${xx_w:-yok})"
-          elif [ "$xx_w" -lt $((en_w * 13 / 10)) ]; then
-            echo "::warning::I18N-WIDTH-WARN: xx Start etiketi ${xx_w}px, EN ${en_w}px — %30'dan az buyume, metin kirpiliyor olabilir"
+          xx_cut=$(grep -o 'start-kirpik=[0-9]' panel-xx.log | tail -1 | cut -d= -f2)
+          echo "Start etiket genisligi: EN=${en_w:-?}px xx=${xx_w:-?}px kirpik=${xx_cut:-?}"
+          # J: '··' xx dolgusudur, tasma degil — olcu Pango'nun gercek
+          # '…' kirpmasi (start-kirpik). Genislik yalniz bilgi.
+          if [ -z "${xx_cut:-}" ]; then
+            echo "::warning::I18N-WIDTH-WARN: start-kirpik logu eksik"
+          elif [ "$xx_cut" = "1" ]; then
+            echo "::warning::I18N-WIDTH-WARN: xx Start etiketi '…' ile kirpildi (${xx_w}px, EN ${en_w}px)"
           fi
           python3 tools/screen-not-blank.py panel-xx.ppm || {
             echo "::error::panel-xx karesi bos/simsiyah"

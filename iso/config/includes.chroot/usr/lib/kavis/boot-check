@@ -20,6 +20,13 @@ fatal() {
 	olumcul="${olumcul} ${2}"
 }
 
+# USS (MB): /proc/PID/smaps_rollup Private_Clean + Private_Dirty — süreç
+# ölünce en az bu kadar RAM boşalır; paylaşılan kütüphane sayfaları yok.
+uss_mb() {
+	awk '/^Private_(Clean|Dirty):/ { s += $2 } END { printf "%d", s / 1024 }' \
+		"/proc/$1/smaps_rollup" 2>/dev/null || echo 0
+}
+
 # 0) Canlı kullanıcı oluşturuldu mu
 # live-config bu kullanıcıyı user-setup ile yaratıyor. Paket eksikse
 # kullanıcı hiç oluşmuyor ve oturum açılamıyor — bu kontrol o durumu
@@ -149,6 +156,9 @@ if [ "$panel_up" -eq 1 ]; then
 		panel_rss_kb=$(awk '/^VmRSS:/ { print $2 }' "/proc/$panel_pid/status")
 		log "PANEL-EXE=$panel_exe"
 		log "PANEL-RSS=$((panel_rss_kb / 1024))MB"
+		# J (v0.4-test1): USS = yalnız bu sürece ait sayfalar (paylaşılan
+		# gtk/rsvg kütüphaneleri hariç) — gerçek maliyet ölçüsü.
+		log "PANEL-USS=$(uss_mb "$panel_pid")MB"
 	fi
 else
 	fatal "PANEL-FAIL kavis-panel calismiyor" "panel"
@@ -482,7 +492,13 @@ if command -v kavis-settings >/dev/null 2>&1; then
 		if [ -n "$settings_pid" ]; then
 			settings_rss_kb=$(awk '/^VmRSS:/ { print $2 }' \
 				"/proc/$settings_pid/status")
-			log "SETTINGS-OK pencere acildi, RSS=$((settings_rss_kb / 1024))MB"
+			settings_uss=$(uss_mb "$settings_pid")
+			log "SETTINGS-OK pencere acildi, RSS=$((settings_rss_kb / 1024))MB USS=${settings_uss}MB"
+			# J: hedef USS <= 10 MB, üstü UYARI (RSS paylaşılan
+			# kütüphaneleri sayar, hedef için anlamsızdı).
+			if [ "$settings_uss" -gt 10 ]; then
+				log "SETTINGS-USS-WARN ${settings_uss}MB > 10MB"
+			fi
 		else
 			log "SETTINGS-OK pencere acildi"
 		fi

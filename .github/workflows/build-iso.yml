@@ -367,7 +367,7 @@ jobs:
             echo "|---|---|"
             grep -o 'KAVIS-CHECK: [A-Z-]*=\?[^\r]*' "$seri" \
               | sed 's/^KAVIS-CHECK: //' \
-              | grep -E '^(RESULT|MEM-USED|BOOT-MODE|SECURE-BOOT|FAILED-CHECKS|SPLASH-TIMING|SOUND-DELAY)' \
+              | grep -E '^(RESULT|MEM-USED|BOOT-MODE|SECURE-BOOT|FAILED-CHECKS|SPLASH-TIMING|SOUND-DELAY|PANEL-RSS|PANEL-USS|SETTINGS)' \
               | sed 's/^\([A-Z-]*\)=\?/| \1 | /; s/$/ |/' || true
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"

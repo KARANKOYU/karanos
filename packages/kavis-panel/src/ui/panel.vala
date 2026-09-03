@@ -412,8 +412,11 @@ namespace Kavis.Ui {
                 start_label.size_allocate.connect ((alloc) => {
                     if (alloc.width != logged_start_width) {
                         logged_start_width = alloc.width;
-                        printerr ("kavis-panel: start-genislik=%d\n",
-                                  alloc.width);
+                        /* J: xx dolgusundaki '··' taşma değil; gerçek
+                         * kırpma Pango'nun '…' koyup koymadığıdır. */
+                        printerr ("kavis-panel: start-genislik=%d start-kirpik=%d\n",
+                                  alloc.width,
+                                  start_label.get_layout ().is_ellipsized () ? 1 : 0);
                     }
                 });
             }
