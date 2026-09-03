@@ -113,7 +113,6 @@ namespace Kavis.Settings.Pages {
         body.pack_start (group (_("Shortcuts")), false, false, 0);
         body.pack_start (group (_("System")), false, false, 0);
         add_shortcut (body, "Win", _("Start menu"));
-        add_shortcut (body, "Win+L", _("Lock"));
         add_shortcut (body, "Ctrl+Alt+Del", _("Security screen"));
         add_shortcut (body, "Win+V", _("Clipboard history"));
         add_shortcut (body, "Win+.", _("Emoji and more"));
