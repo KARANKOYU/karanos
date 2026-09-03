@@ -382,6 +382,20 @@ almak (indirme yöneticisi madde 23 gelince).
 
 > **GÜNCELLEME (2 Eyl, öğleden sonra):** Aşağıdaki 1-5 kayıtları
 > tarihli hâliyle duruyor; GERÇEK durum şu:
+> - OPTİMİZASYON + HATA TARAMASI (3 Eyl, v0.4-test2 sonrası):
+>   628f816 Görev Yöneticisi Süreçler yeniden — üstte toplamlar
+>   (CPU % · Bellek kullanılan/toplam · N süreç), sütun başlıklarında
+>   yüzde, süreç başına tek /proc/PID/stat okuması, ad exe'den bir kez,
+>   yerinde satır güncelleme, çekirdek iş parçacıkları gizli, Delete/
+>   Shift+Delete; ölçüm 20 sn'de 8 jiffy (~%0,4), RSS 40 MB. Bulunan
+>   hata: cmdline "\0" split'i GLib-CRITICAL (düzeltildi).
+>   a026f1f klavye göstergesi: 2 sn'lik setxkbmap yoklaması → GDK
+>   keys_changed olayı + 30 sn emniyet (dakikada 60 alt süreç → ~0).
+>   Boşta 60 sn ölçümü (Xvfb): panel 3 jiffy (RSS 38 MB), kavis-snap
+>   5 jiffy (80 ms yoklama — XI2 vapi yok, maliyet zaten %0,08),
+>   kavis-osd 0. Panel/Ayarlar/Görev Yöneticisi G_DEBUG=fatal-criticals
+>   altında etkileşim turunu (menü, takvim, seçici, +/✕, 8 ayar sayfası,
+>   4 sekme) çökmeden geçti.
 > - v0.4-test2 KIRMIZI → KÖK SEBEP (3 Eyl): 5/5 profil "masaustu
 >   karesi bos" — gerçek sebep EKRAN-TANI değil SAAT-TANI: duvar kâğıdı
 >   çizilmiş (2063 renk, sapma 11.5), PANEL YOK; +3 sn'lik "son" karede
