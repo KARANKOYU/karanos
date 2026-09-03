@@ -69,11 +69,33 @@ ile taşıdığı için bunu hiç görmedi; VirtualBox/edge-warp/XI2 şüpheleri
 yanlıştı. Çözüm: XQueryTree + XGetWindowAttributes +
 XTranslateCoordinates ile her yoklamada sunucudan okumak.
 
+## Selftest ilk koşu (3 Eyl, QEMU, test2 ISO'su + yeni paketler)
+
+`kavis-selftest --scenario 01-acilis`: 10 adım, 8 geçti, 2 kaldı —
+ikisi de ISO sürümüne bağlı (test2'de B1 GRUB gizli ve boot-check'in
+/run/kavis/boot-check.log'u yok; v0.4-test3 ISO'sunda geçmeli). Koşu
+~20 sn, RAM +25 MB (kare alma), journal yeni hata 0. Yerel Xvfb
+denemesi (panel-screenshot.sh SELFTEST=1) motoru doğruladı; oradaki
+düşüşler ortam kaynaklı (xcape/kısayol/Ayarlar yok). İlk 4 senaryo
+dışındakiler (03/06/09/39) VM'de henüz koşmadı — sıradaki adım.
+
+**Ölçülen USS tablosu (VM, boşta, processes-010.txt):** kavis-panel
+36 MB (RSS 64; Xvfb'de 9 MB — fark ikon/thumbnail önbelleği, RAM
+turunda bakılacak), nemo-desktop 43 MB (eşik 30 → sebep aranacak),
+lxpolkit 11 MB (eşik 15 → kalır), kavis-snap 4, kavis-osd 4, openbox 4,
+picom 2, xcape 0. Boşta MEM-USED ≈ 570-600 MB (TCG, hedef 380).
+Not: elle `pkill` + yeniden başlatma sonrası iki kavis-panel süreci
+görüldü (biri PPID 1) — ürün hatası mı yoksa elle başlatmanın izi mi,
+RAM turunda kapatılacak.
+
 ## Sonraki adımlar
 
-Tur F1–F5, G1–G6, H1–H7, I (kullanıcı "devam" deyince); J: durum.md,
-v0.4-test3 etiketi ([skip ci] YOK). JOURNAL-OK eşiği ilk gerçek
-koşunun JOURNAL-ERRORS değerine göre daraltılacak.
+1) Selftest 03/06/09/39 VM'de koşup düzeltmeler; 2) tur F1–F5, G1–G6,
+H1–H7, I (snap ve dikey panel artık selftest senaryosuyla); 3) RAM
+temizliği (USS sütunu, nemo-desktop/lxpolkit/kavis-tools ölçümleri,
+hedef used < 380 MB) + sağlam debug; 4) J: durum.md, v0.4-test3
+etiketi ([skip ci] YOK). Bu oturumda push yapılmadı (kullanıcı
+"push yok" dedi); son push 9f09abc.
 
 ---
 
