@@ -112,6 +112,15 @@ namespace Kavis.Ui {
         .kavis-panel button.flash image {
           -gtk-icon-transform: scale(0.88);
         }
+        /* D2: kaydırıcı değer balonu (hızlı ayarlar), turkuaz üstüne
+           koyu yazı — bindirme çocuğu, yerleşim almaz. */
+        label.kavis-bubble {
+          background-color: @kavis_teal;
+          color: @kavis_on_teal;
+          border-radius: 6px;
+          padding: 0 6px;
+          font-size: 90%;
+        }
         /* Masaüstünü göster şeridi: köşede 8 px'lik W11 kalıntısı —
            yuvarlatma ve iç boşluk almaz. */
         .kavis-panel button.edge {

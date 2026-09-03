@@ -154,6 +154,21 @@ if [[ "${POPUP:-0}" == "1" ]]; then
 	sleep 2
 fi
 
+# HIZLI=1: hızlı ayarlar göstergesine (saatin solu) tıkla, popup açık
+# hâlde çek. BASILI="x y" verilirse o noktada fareyi basılı tut (kaydırıcı
+# değer balonu, test2 D2); ekran görüntüsünden sonra bırakılır.
+if [[ "${HIZLI:-0}" == "1" ]]; then
+	genislik=$(xdotool getdisplaygeometry | cut -d' ' -f1)
+	yukseklik=$(xdotool getdisplaygeometry | cut -d' ' -f2)
+	xdotool mousemove $((genislik - ${HIZLI_X:-110})) $((yukseklik - 22)) click 1
+	sleep 2
+	if [[ -n "${BASILI:-}" ]]; then
+		# shellcheck disable=SC2086
+		xdotool mousemove $BASILI mousedown 1
+		sleep 1
+	fi
+fi
+
 # GUC=1: baslat menusundeki guc dugmesine de bas, popup acik kalsin.
 # Guc dugmesi menunun sol alt kosesinde (menu x=0'dan basliyor).
 if [[ "${GUC:-0}" == "1" ]]; then
@@ -175,6 +190,10 @@ pb = Gdk.pixbuf_get_from_window(win, 0, 0, w, h)
 pb.savev(sys.argv[1], "png", [], [])
 print(f"ekran goruntusu: {sys.argv[1]} ({w}x{h})")
 PY
+
+if [[ -n "${BASILI:-}" ]]; then
+	xdotool mouseup 1
+fi
 
 if [[ -s "$ROOT/panel.log" ]]; then
 	echo "--- panel gunlugu ---"

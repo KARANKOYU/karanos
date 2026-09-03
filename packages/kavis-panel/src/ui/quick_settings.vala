@@ -306,7 +306,7 @@ namespace Kavis.Ui {
                     Brightness.hardware ()
                     ? _("Brightness (backlight)")
                     : _("Brightness (software — no backlight hardware)"));
-                attach_value_bubble (brightness_slider);
+                var brightness_box = with_value_bubble (brightness_slider);
                 brightness_slider.value_changed.connect (() => {
                     if (updating) {
                         return;
@@ -323,7 +323,7 @@ namespace Kavis.Ui {
                         return Source.REMOVE;
                     });
                 });
-                row_box.pack_start (brightness_slider, true, true, 0);
+                row_box.pack_start (brightness_box, true, true, 0);
                 if (Volume.available () && Quick.sound_output_available ()) {
                     /* D1: ses satırındaki "›" ile aynı boyda görünmez
                      * yer tutucu — kaydırıcılar aynı x'te bitsin. */
@@ -358,7 +358,7 @@ namespace Kavis.Ui {
                 volume_slider.set_draw_value (false);
                 volume_slider.set_tooltip_text (
                     _("Volume"));
-                attach_value_bubble (volume_slider);
+                var volume_box = with_value_bubble (volume_slider);
                 volume_slider.value_changed.connect (() => {
                     if (updating) {
                         return;
@@ -373,7 +373,7 @@ namespace Kavis.Ui {
                         return Source.REMOVE;
                     });
                 });
-                row_box.pack_start (volume_slider, true, true, 0);
+                row_box.pack_start (volume_box, true, true, 0);
                 if (Quick.sound_output_available ()) {
                     var arrow = new Gtk.Button.with_label ("›");
                     arrow.set_relief (Gtk.ReliefStyle.NONE);
@@ -662,17 +662,68 @@ namespace Kavis.Ui {
         /* 3C: sürüklerken kaydırıcının üstünde değer balonu ("90") —
          * GTK3'te hazır balon yok, en hafifi draw_value'yu yalnız
          * basılıyken açmak. */
-        private void attach_value_bubble (Gtk.Scale scale) {
+        /* D2 (test2): the drag-time value bubble is an overlay child, so
+         * it takes no layout space and showing it cannot shift the row
+         * (draw_value used to add a text line above the trough while
+         * pressed). The scale keeps a constant top margin as room for
+         * the bubble; the bubble follows the knob via get_slider_range. */
+        private const int BUBBLE_ROOM = 18;
+
+        private Gtk.Widget with_value_bubble (Gtk.Scale scale) {
             scale.set_digits (0);
-            scale.set_value_pos (Gtk.PositionType.TOP);
+            scale.set_draw_value (false);
+            scale.set_margin_top (BUBBLE_ROOM);
+            var overlay = new Gtk.Overlay ();
+            overlay.add (scale);
+            var bubble = new Gtk.Label ("");
+            bubble.get_style_context ().add_class ("kavis-bubble");
+            bubble.set_halign (Gtk.Align.START);
+            bubble.set_valign (Gtk.Align.START);
+            bubble.set_no_show_all (true);
+            overlay.add_overlay (bubble);
+            overlay.set_overlay_pass_through (bubble, true);
             scale.button_press_event.connect (() => {
-                scale.set_draw_value (true);
+                /* Önce göster: gizli widget'ın tercih edilen genişliği
+                 * 0 döner, konum yanlış çıkar. */
+                bubble.show ();
+                place_bubble (scale, bubble);
                 return false;
             });
             scale.button_release_event.connect (() => {
-                scale.set_draw_value (false);
+                bubble.hide ();
                 return false;
             });
+            scale.value_changed.connect (() => {
+                if (bubble.get_visible ()) {
+                    place_bubble (scale, bubble);
+                }
+            });
+            return overlay;
+        }
+
+        /* Center the bubble over the knob, clamped to the scale. The
+         * knob position is derived from the value, not from
+         * get_slider_range: on a click that jumps the knob the range
+         * still reports the OLD position until the next allocation. */
+        private const int KNOB_W = 14;
+
+        private void place_bubble (Gtk.Scale scale, Gtk.Label bubble) {
+            bubble.set_text ("%d%%".printf ((int) scale.get_value ()));
+            var adj = scale.get_adjustment ();
+            double span = adj.get_upper () - adj.get_lower ();
+            double frac = span > 0
+                ? (scale.get_value () - adj.get_lower ()) / span : 0;
+            int travel = scale.get_allocated_width () - KNOB_W;
+            int knob_start = (int) (frac * travel);
+            int knob_end = knob_start + KNOB_W;
+            /* Tercih edilen genişlik kenar boşluğunu da sayar — önce
+             * sıfırla, yoksa balon her ölçümde biraz daha sağa kayar. */
+            bubble.set_margin_start (0);
+            int min_w, nat_w;
+            bubble.get_preferred_width (out min_w, out nat_w);
+            int x = (knob_start + knob_end) / 2 - nat_w / 2;
+            int limit = scale.get_allocated_width () - nat_w;
+            bubble.set_margin_start (int.max (0, int.min (x, limit)));
         }
 
         /* Fn tuşlarıyla aynı OSD'yi göster (kavis-osd ayrı süreç). */
