@@ -7,6 +7,7 @@
 # 2. msgcmp: has tr.po translated every msgid (missing-key scan).
 # 3. msgfmt --check: syntax + format strings of every po file.
 # 4. Is xx.po in sync with the pot (was the generator re-run).
+# 5. No "Windows 10/11" in user-visible strings (feedback F5).
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
@@ -42,6 +43,13 @@ cp po/xx.po "$fresh/old-xx.po"
 python3 tools/gen-xx-po.py >/dev/null
 if ! diff -q "$fresh/old-xx.po" po/xx.po >/dev/null; then
 	echo "ERROR: xx.po was stale — commit the output of tools/gen-xx-po.py" >&2
+	fail=1
+fi
+
+# 5. No Windows version names in user-visible strings (feedback C5/F5):
+# the desktop may look like Windows, but it never names a version.
+if grep -nE 'msgid .*(Windows (10|11)|W10|W11)' po/kavis.pot; then
+	echo "ERROR: a user-visible string names a Windows version (feedback F5)" >&2
 	fail=1
 fi
 
