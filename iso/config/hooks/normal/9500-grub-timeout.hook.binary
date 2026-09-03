@@ -46,14 +46,23 @@ echo "I: GRUB yapilandirmasi bulundu: $CFG"
 cat >> "$CFG" <<'EOF'
 
 ### Kavis ###
-# Menü 10 saniye görünür, sonra ilk girdi (Live system) kendiliğinden açılır.
+# B1 (v0.4-test2): menü VARSAYILAN GİZLİ — Windows gibi doğrudan açılır.
+# Shift basılı tutulursa (keystatus) menü gelir ve bekler; gelince F3
+# gelişmiş alt menüyü açar (9601). keystatus'un çalışmadığı bazı UEFI
+# firmware'lerinde yedek yol: 1 sn'lik gizli sayaçta ESC/F4 menüyü
+# gösterir. timeout=0 seçilmedi: o zaman ESC penceresi de kalmazdı.
 set default=0
-set timeout=10
+if keystatus --shift; then
+set timeout=-1
+set timeout_style=menu
+else
+set timeout=1
+set timeout_style=hidden
+fi
 # H3a (test8): GRUB'un framebuffer'ı çekirdeğe DEVREDİLİR — mod
 # değişimi olmaz, GRUB'un son karesi Plymouth başlayana kadar kalır;
 # GRUB→çekirdek arasındaki siyah ekran kapanır.
 set gfxpayload=keep
-set timeout_style=menu
 
 # GRUB çıktısını seri porta da ver — CI'daki QEMU testi menüyü görebilsin.
 # Seri portu olmayan gerçek donanımda `serial` komutu başarısız olur ve
@@ -64,9 +73,10 @@ if serial --unit=0 --speed=115200; then
 fi
 EOF
 
-if grep -q '^set timeout=10$' "$CFG" \
+if grep -q '^set timeout=1$' "$CFG" \
+	&& grep -q '^set timeout_style=hidden$' "$CFG" \
 	&& grep -q '^set gfxpayload=keep$' "$CFG"; then
-	echo "I: GRUB menusune timeout=10, gfxpayload=keep ve seri konsol eklendi"
+	echo "I: GRUB menusu gizli (timeout=1 hidden, Shift ile menu), gfxpayload=keep ve seri konsol eklendi"
 else
 	echo "E: yazma basarisiz gorunuyor, $CFG icinde timeout yok" >&2
 	exit 1

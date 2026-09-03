@@ -189,7 +189,7 @@ jobs:
           echo "------------------------------------"
           hata=0
           if grep -q '^set timeout=' grubcheck/config.cfg; then
-            echo "✓ set timeout var — menü kendiliğinden açılacak"
+            echo "✓ set timeout var — menü kendiliğinden açılacak (B1: gizli, Shift ile görünür)"
           else
             echo "::error::GRUB config.cfg içinde 'set timeout' YOK. ISO menüde takılır."
             hata=1
