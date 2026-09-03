@@ -39,6 +39,8 @@ namespace Kavis.Theme {
         @define-color kavis_border_acrylic  rgba(35, 58, 69, 0.9);
         @define-color kavis_backdrop        rgba(13, 20, 27, 0.92);
         @define-color kavis_underline_idle  rgba(139, 155, 168, 0.75);
+        @define-color kavis_menu_category   #8FA1B3;
+        @define-color kavis_menu_hover      rgba(255, 255, 255, 0.10);
     """;
 
     private const string LIGHT = """
@@ -63,6 +65,8 @@ namespace Kavis.Theme {
         @define-color kavis_border_acrylic  rgba(213, 219, 225, 0.9);
         @define-color kavis_backdrop        rgba(243, 245, 247, 0.92);
         @define-color kavis_underline_idle  rgba(92, 107, 120, 0.75);
+        @define-color kavis_menu_category   #5C6B78;
+        @define-color kavis_menu_hover      rgba(0, 0, 0, 0.06);
     """;
 
     private Gtk.CssProvider? provider = null;

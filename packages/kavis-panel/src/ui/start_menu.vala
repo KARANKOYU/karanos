@@ -165,7 +165,7 @@ namespace Kavis.Ui {
             var label = new Gtk.Label (null);
             label.set_xalign (0);
             label.set_markup ("<b>%s</b>".printf (Markup.escape_text (name)));
-            label.get_style_context ().add_class ("dim-label");
+            label.get_style_context ().add_class ("category");
             label.set_margin_top (10);
             label.set_margin_start (6);
             label.set_margin_bottom (2);
@@ -189,6 +189,7 @@ namespace Kavis.Ui {
             var label = new Gtk.Label (app.name);
             label.set_xalign (0);
             label.set_ellipsize (Pango.EllipsizeMode.END);
+            label.get_style_context ().add_class ("app-name");
             box.pack_start (label, true, true, 0);
             button.add (box);
             button.clicked.connect (() => on_app_chosen (app));

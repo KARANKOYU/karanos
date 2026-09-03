@@ -126,6 +126,20 @@ namespace Kavis.Ui {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
         }
+        /* F1 (v0.4-test1): adlar soluktu — açık metin, kategori
+           başlığı ayrı ton, hover satırı %10 örtü. Kontrast koyu
+           temada 13:1 / 6:1. */
+        .kavis-start-menu label.app-name {
+          color: @kavis_text;
+          opacity: 1;
+        }
+        .kavis-start-menu label.category {
+          color: @kavis_menu_category;
+          opacity: 1;
+        }
+        .kavis-start-menu button:hover {
+          background-color: @kavis_menu_hover;
+        }
         """;
 
         private unowned Wnck.Screen screen;
