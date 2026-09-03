@@ -14,6 +14,8 @@ namespace Kavis {
 
         [DBus (visible = false)]
         public signal void overview_requested ();
+        /* C4: Win / Win+R — baslat menusu (search=true: arama odakli). */
+        public signal void start_menu_requested (bool search);
         [DBus (visible = false)]
         public signal void clipboard_requested ();
         /* Win+sayı (sonraki-isler 2): soldan N. görev çubuğu yuvası. */
@@ -28,6 +30,10 @@ namespace Kavis {
 
         public void show_overview () throws Error {
             overview_requested ();
+        }
+
+        public void show_start_menu (bool search) throws Error {
+            start_menu_requested (search);
         }
 
         public void activate_slot (int number, bool new_window)

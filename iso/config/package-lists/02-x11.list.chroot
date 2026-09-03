@@ -101,3 +101,8 @@ udisks2
 # Donmuş kare + karartma + seçiciler artık kavis-tools'un kendi kodu
 # (flameshot ve slop çıkarıldı); ffmpeg x11grab video kaydı için kalır.
 ffmpeg
+
+# C4 (v0.4-test1): Win tuşuna tek başına basınca başlat menüsü —
+# openbox modifier'ı tek başına bağlayamaz; xcape Super_L dokunuşunu
+# F13'e çevirir, rc.xml F13'ü panele iletir.
+xcape

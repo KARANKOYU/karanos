@@ -70,6 +70,13 @@ if command -v kavis-panel >/dev/null 2>&1; then
 	) &
 fi
 
+# --- Win tuşu (C4) ---------------------------------------------------
+# Tek başına Super_L dokunuşu → XF86Launch5 (rc.xml: başlat menüsü). Chord'lar
+# (Win+E...) etkilenmez; -t 300: 300 ms'den uzun basış dokunuş sayılmaz.
+if command -v xcape >/dev/null 2>&1; then
+	xcape -t 300 -e 'Super_L=XF86Launch5' &
+fi
+
 # --- Kenara yapıştırma (madde 6) -------------------------------------
 # Sürükle-kenara-yapıştır; klavye kısayolları openbox'ın kendi işi
 # (0210 hook'u). Panelle aynı paketten gelir.
@@ -106,6 +113,11 @@ fi
 if command -v nemo-desktop >/dev/null 2>&1; then
 	GDK_GL=disable nemo-desktop &
 fi
+# C5: kök pencere imleci nemo-desktop AÇILDIKTAN sonra bir kez daha —
+# masaüstü katmanı kök imlecini devralır; erken ayarlanmışsa ve tema
+# geç geldiyse I-beam/çarpı takılı kalıyordu. XCURSOR_THEME Xsession.d
+# 55kavis-imlec'te.
+(sleep 2; xsetroot -cursor_name left_ptr) &
 
 # Ekran koruyucu/DPMS canlı modda kapalı kalsın (USB'den denerken
 # 10 dakika sonra ekranın kararması kafa karıştırıyor).

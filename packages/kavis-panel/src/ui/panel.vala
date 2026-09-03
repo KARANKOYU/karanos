@@ -216,6 +216,10 @@ namespace Kavis.Ui {
                 PanelBus.service.clipboard_requested.connect (() => {
                     picker.open ("clipboard");
                 });
+                PanelBus.service.start_menu_requested.connect ((search) => {
+                    /* Açıksa kapat, kapalıysa aç (Win tuşu W11 gibi). */
+                    on_start_clicked (start_button);
+                });
                 PanelBus.service.picker_requested.connect ((page) => {
                     picker.open (page);
                 });

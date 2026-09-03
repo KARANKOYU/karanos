@@ -210,6 +210,16 @@ jobs:
           }
           ffmpeg -loglevel quiet -i panel-xx.ppm -y panel-xx.png
           test -s panel-xx.png
+      # C4 (v0.4-test1): her Kavis kısayolu gerçek rc.xml + 0210 hook'u
+      # ile Xvfb'de basılır; beklenen eylem 2 sn içinde olmadıysa
+      # KEYBIND-FAIL ve adım kırmızı. Tablo job summary'de.
+      - name: KEYBIND — kısayol denetimi
+        run: |
+          set -eu
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y -qq --no-install-recommends xterm > /dev/null
+          DISPLAY_NO=77 tools/check-keybinds.sh /etc/xdg/openbox/rc.xml
+
       - name: xx ekran görüntüsünü yükle
         uses: actions/upload-artifact@v7
         with:

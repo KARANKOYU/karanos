@@ -114,3 +114,22 @@ için duruyor.)
 
 Aranabilirlik Unicode ad veritabanı (TR+EN adlar) ister; v1 bilerek
 kategori+tıkla ile sınırlı. Veri seti kararıyla birlikte eklenecek.
+
+## VirtualBox'ta Win (Super) kısayolları (3 Eyl 2026, v0.4-test1 C4)
+
+Kavis'in W- (Win) bağları openbox'ta çalışıyor (CI KEYBIND tablosu +
+Xvfb doğrulaması). VirtualBox'ta Windows ana makinesi Win tuşunu
+klavye yakalanmadıysa kendine alır (Başlat menüsü açılır, konuk
+görmez); "Giriş > Klavye > Klavye Otomatik Yakalama" açıkken ve VM
+penceresi tıklanmışken konuğa geçer. Alternatif kanıt: VM içinde
+`xev` ile Super_L basımının geldiğini görmek.
+
+## VirtualBox'ta imleç şekli takılı kalıyor (C5 şüphesi)
+
+Metin kutusundan çıkınca I-beam kalması VirtualBox'ın konuk imleç
+şekli senkronunda (guest additions yokken) bilinen bir belirti.
+Kavis tarafında alınan önlemler: XCURSOR_THEME/SIZE ortamı
+(Xsession.d/55kavis-imlec), kök imlecin nemo-desktop sonrası yeniden
+ayarlanması, GTK settings.ini imleç adı. Gerçek donanımda yeniden
+görülürse konu Kavis'te demektir — kararlar.md 6 (guest-utils) da
+bu belirtiyi kapatabilir.

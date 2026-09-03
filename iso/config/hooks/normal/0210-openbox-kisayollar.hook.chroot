@@ -65,11 +65,22 @@ awk '
 		skip = 1; end_tag = "</mousebind>"; next
 	}
 	ctx == "Titlebar" && /<mousebind button="Left" action="Drag">/ {
+		# C3 (v0.4-test1): buyutulmus pencerede openbox HICBIR SEY
+		# yapmaz — surüklemeyi kavis-snap ustlenir (geri yukleyip
+		# isaretcinin altina koyar, W11). Normal pencerede Move.
 		print "    <mousebind button=\"Left\" action=\"Drag\">"
-		print "      <action name=\"Unmaximize\"/>"
-		print "      <action name=\"Move\"/>"
+		print "      <action name=\"If\">"
+		print "        <maximized>yes</maximized>"
+		print "        <then/>"
+		print "        <else><action name=\"Move\"/></else>"
+		print "      </action>"
 		print "    </mousebind>"
 		skip = 1; end_tag = "</mousebind>"; next
+	}
+	# C4: stok W-e (Debian: terminal/dosya yoneticisi) bizim W-e ile
+	# BIRLIKTE kosardi (I1 dersi) — kaldir.
+	/<keybind key="W-e">/ {
+		skip = 1; end_tag = "</keybind>"; next
 	}
 	{ print }
 ' "$RC" > "$RC.temiz"
@@ -212,6 +223,35 @@ cat > "$SNIPPET" <<'EOF'
     <keybind key="W-S-c">
       <action name="Execute">
         <command>kavis-tools capture --color</command>
+      </action>
+    </keybind>
+    <!-- C4 (v0.4-test1): Windows karsiliklari. Win tek basina: xcape
+         Super_L dokunusunu XF86Launch5'e cevirir (autostart), XF86Launch5 baslat
+         menusunu acar; Win+harf kisayollari Super'i modifier olarak
+         gorur, xcape bunlara dokunmaz. -->
+    <keybind key="XF86Launch5">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false</command>
+      </action>
+    </keybind>
+    <keybind key="W-r">
+      <action name="Execute">
+        <command>gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu true</command>
+      </action>
+    </keybind>
+    <keybind key="W-e">
+      <action name="Execute">
+        <command>nemo</command>
+      </action>
+    </keybind>
+    <keybind key="W-i">
+      <action name="Execute">
+        <command>kavis-settings</command>
+      </action>
+    </keybind>
+    <keybind key="W-S-s">
+      <action name="Execute">
+        <command>kavis-tools capture</command>
       </action>
     </keybind>
 EOF
