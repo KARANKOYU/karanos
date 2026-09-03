@@ -112,9 +112,13 @@ namespace Kavis.Settings.Pages {
         int remaining = 15;
         dialog.secondary_text =
             _("Reverting in %d seconds").printf (remaining);
-        uint timer = Timeout.add_seconds (1, () => {
+        uint timer = 0;
+        timer = Timeout.add_seconds (1, () => {
             remaining--;
             if (remaining <= 0) {
+                /* Kaynak kendini kaldırıyor: aşağıdaki remove geçersiz
+                 * id'ye koşup GLib uyarısı basmasın. */
+                timer = 0;
                 dialog.response (Gtk.ResponseType.CANCEL);
                 return Source.REMOVE;
             }
@@ -123,7 +127,9 @@ namespace Kavis.Settings.Pages {
             return Source.CONTINUE;
         });
         int response = dialog.run ();
-        Source.remove (timer);
+        if (timer != 0) {
+            Source.remove (timer);
+        }
         dialog.destroy ();
         return response == Gtk.ResponseType.OK;
     }
