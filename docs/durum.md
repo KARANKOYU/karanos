@@ -626,10 +626,15 @@ yok (Unicode ad veritabanı gerek).
 
 ### ONAY BEKLEYEN KARARLAR
 
-- KARAR VERİLDİ (1B, 3 Eyl): başlık düğmeleri Openbox themerc'te
-  KALIYOR (Seçenek A) — CSD demosu (46×32 W11 düğmeleri) gösterildi,
-  kullanıcı A'yı seçti. Sınırlar tasarim-dili.md'ye işlendi; GTK CSD
-  istisna kaydı kapandı.
+- Karar (v0.4-test2 A, 3 Eyl): güç diyaloğuna CSD başlık çubuğu
+  EKLENMEDİ — kullanıcı A listesinde saymıştı ama 2D tasarımı
+  kenarlıksız/ekran ortası bir katman (W11 güç ekranı gibi başlıksız);
+  başlık çubuğu o tasarıma aykırı olurdu. En hafif yol: dışarıda
+  bırakıldı. İstenirse tek satırla eklenir (headerbar.vala hazır).
+
+- ESKİDİ (v0.4-test2 A bunu değiştirdi): 1B "yalnız themerc" kararı.
+  Yeni karar tasarim-dili.md "Başlık çubuğu" bölümünde — kavis
+  uygulamaları CSD (Tilix görünümü), SSD themerc birebir eşleme.
 
 - Karar (1A, madde 51): kapak kapatma / otomatik uyku süreleri
   logind (HandleLidSwitch, IdleAction) yani root yapılandırması
