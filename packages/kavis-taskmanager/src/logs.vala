@@ -6,7 +6,7 @@
  * in the background.
  */
 
-namespace Kavis.Tools {
+namespace Kavis.TaskManager {
 
     public class LogsPage : Gtk.Box {
 

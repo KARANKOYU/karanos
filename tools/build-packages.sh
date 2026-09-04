@@ -100,6 +100,24 @@ prepare_sources() {
 		install -m644 packages/kavis-common/sysinfo.vala \
 			packages/kavis-settings/src/logic/sysinfo.vala
 		;;
+	kavis-taskmanager)
+		# G1: the task manager is its own package now. It needs the
+		# same shared sources kavis-tools used to give it — canonical
+		# copies in packages/kavis-common/, copies gitignored.
+		install -d packages/kavis-taskmanager/src
+		install -m644 packages/kavis-common/appinit.vala \
+			packages/kavis-taskmanager/src/appinit.vala
+		install -m644 packages/kavis-common/headerbar.vala \
+			packages/kavis-taskmanager/src/headerbar.vala
+		# Palette (B2): the theme is read from kavis.conf — config.vala needed too.
+		install -m644 packages/kavis-common/config.vala \
+			packages/kavis-taskmanager/src/config.vala
+		install -m644 packages/kavis-common/theme.vala \
+			packages/kavis-taskmanager/src/theme.vala
+		# H4: the hardware/system reader is shared with Settings.
+		install -m644 packages/kavis-common/sysinfo.vala \
+			packages/kavis-taskmanager/src/sysinfo.vala
+		;;
 	kavis-tools)
 		install -d packages/kavis-tools/src
 		install -m644 packages/kavis-common/appinit.vala \
@@ -111,8 +129,6 @@ prepare_sources() {
 			packages/kavis-tools/src/config.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-tools/src/theme.vala
-		install -m644 packages/kavis-common/sysinfo.vala \
-			packages/kavis-tools/src/sysinfo.vala
 		# fastfetch DE line (item 71): product name from os-release.
 		install -m644 packages/kavis-theme/src/os-release \
 			packages/kavis-tools/fastfetch/os-release

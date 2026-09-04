@@ -74,7 +74,8 @@ packages/*/src/headerbar.vala
 packages/*/src/theme.vala
 packages/*/src/logic/theme.vala
 packages/kavis-tools/src/config.vala
-packages/kavis-tools/src/sysinfo.vala
+packages/kavis-taskmanager/src/config.vala
+packages/kavis-taskmanager/src/sysinfo.vala
 packages/kavis-settings/src/logic/sysinfo.vala
 packages/*/src/logic/config.vala
 packages/*/src/logic/powerplan.vala
@@ -91,3 +92,4 @@ packages/kavis-settings/kavis-settings
 packages/kavis-tools/fastfetch/os-release
 packages/kavis-selftest/scenarios/
 packages/kavis-selftest/kavis-selftest
+packages/kavis-taskmanager/kavis-taskmanager

@@ -33,10 +33,11 @@ Depends:
  gstreamer1.0-gtk3,
  gstreamer1.0-libav,
  gstreamer1.0-alsa,
-Description: Kavis small tools — task manager, calculator, emoji
- One binary, three tools (madde 7): `kavis-tools tasks` process list
- (CPU/RAM/disk, termination), `kavis-tools calc` calculator,
- `kavis-tools emoji` emoji picker.
+Description: Kavis small tools — calculator, emoji, capture, preview
+ One binary, several tools (madde 7): `kavis-tools calc` calculator,
+ `kavis-tools emoji` emoji picker, screen capture, quick preview and
+ the session dialogs. The task manager moved to its own package,
+ kavis-taskmanager (feedback G1).
  .
  Written in Vala; the texts come from the docs/kavis-arayuz-metinleri.md
  tables, the shared startup and text table are taken from kavis-common

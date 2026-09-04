@@ -12,7 +12,7 @@
  * user override when it only existed to hide, else Hidden=false.
  */
 
-namespace Kavis.Tools {
+namespace Kavis.TaskManager {
 
     public class StartupPage : Gtk.Box {
 

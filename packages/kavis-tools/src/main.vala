@@ -1,9 +1,13 @@
 /* kavis-tools entry point (madde 7).
  *
- * One binary, three small tools: `tasks` (task manager), `calc`
- * (calculator), `emoji` (emoji picker). One binary keeps packaging,
- * the shared string table and the GTK startup (madde 61) in one
- * place; each tool is its own window class in its own file.
+ * One binary for the small tools: `calc` (calculator), `emoji` (emoji
+ * picker), the capture flow, the previewer and the session dialogs.
+ * One binary keeps packaging, the shared string table and the GTK
+ * startup (madde 61) in one place; each tool is its own window class
+ * in its own file.
+ *
+ * The task manager left in feedback G1: it is a full application with
+ * four pages, so it became the separate kavis-taskmanager binary.
  */
 
 int main (string[] args) {
@@ -12,7 +16,10 @@ int main (string[] args) {
     /* Palette (B2): component CSS takes the @kavis_* names from here. */
     Kavis.Theme.install ();
 
-    string tool = (args.length > 1) ? args[1] : "tasks";
+    /* No default tool since G1: the task manager used to be it, and a
+     * bare `kavis-tools` silently opening some other window would be a
+     * surprise. Without a subcommand, print the usage line. */
+    string tool = (args.length > 1) ? args[1] : "";
     Gtk.Window window;
     switch (tool) {
     case "calc":
@@ -96,11 +103,8 @@ int main (string[] args) {
          * without a file comes from D-Bus activation. */
         return Kavis.Tools.Preview.run (
             (args.length > 2) ? args[2] : null);
-    case "tasks":
-        window = new Kavis.Tools.TaskManagerWindow ();
-        break;
     default:
-        stderr.printf (_("usage: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"));
+        stderr.printf (_("usage: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"));
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

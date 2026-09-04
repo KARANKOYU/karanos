@@ -1,0 +1,8 @@
+kavis-taskmanager (1.0) unstable; urgency=medium
+
+  * Split out of kavis-tools (feedback G1): the task manager is its own
+    binary, .desktop entry and icon instead of `kavis-tools tasks`.
+  * The "End task" button is gone (feedback G2); a right-click menu and
+    Delete / Shift+Delete replace it.
+
+ -- Karan <farukyildiz3207@gmail.com>  Fri, 04 Sep 2026 12:00:00 +0300

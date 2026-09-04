@@ -2,20 +2,20 @@
 name: 39-task-manager
 title: Task Manager
 item: 39
-allowed: [kavis-tools]
+allowed: [kavis-taskmanager]
 steps:
-  - do: launch kavis-tools tasks
-    expect: window kavis-tools visible
+  - do: launch kavis-taskmanager
+    expect: window kavis-taskmanager visible
     timeout: 40000
     shot: true
   - do: wait 1500
-    expect: window kavis-tools focused
+    expect: window kavis-taskmanager focused
     timeout: 5000
   - do: none
-    expect: process kavis-tools running
+    expect: process kavis-taskmanager running
   - do: key ctrl+f
     expect: ok
     note: search box (if any) — no expectation, only the anomaly scan
-  - do: close window kavis-tools
-    expect: window kavis-tools absent
+  - do: close window kavis-taskmanager
+    expect: window kavis-taskmanager absent
     timeout: 8000

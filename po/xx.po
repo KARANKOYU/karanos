@@ -768,6 +768,168 @@ msgstr "⟪Taskbar··⟫"
 msgid "Find a setting"
 msgstr "⟪Find a setting·····⟫"
 
+msgid "Session"
+msgstr "⟪Session··⟫"
+
+msgid "Kavis components"
+msgstr "⟪Kavis components······⟫"
+
+msgid "All levels"
+msgstr "⟪All levels····⟫"
+
+msgid "Errors"
+msgstr "⟪Errors··⟫"
+
+msgid "Warnings and errors"
+msgstr "⟪Warnings and errors·······⟫"
+
+msgid "Info and above"
+msgstr "⟪Info and above·····⟫"
+
+msgid "Refresh"
+msgstr "⟪Refresh··⟫"
+
+msgid "Save to file"
+msgstr "⟪Save to file····⟫"
+
+msgid "Copy"
+msgstr "⟪Copy··⟫"
+
+msgid "Could not read the journal (is the user in the adm group?)."
+msgstr "⟪Could not read the journal (is the user in the adm group?).·······················⟫"
+
+msgid "No Kavis component logs in this session."
+msgstr "⟪No Kavis component logs in this session.················⟫"
+
+msgid "Save log"
+msgstr "⟪Save log···⟫"
+
+msgid "CPU"
+msgstr "⟪CPU··⟫"
+
+msgid "GPU"
+msgstr "⟪GPU··⟫"
+
+msgid "Base speed"
+msgstr "⟪Base speed····⟫"
+
+msgid "Current speed"
+msgstr "⟪Current speed·····⟫"
+
+msgid "Temperature"
+msgstr "⟪Temperature····⟫"
+
+msgid "Up time"
+msgstr "⟪Up time··⟫"
+
+msgid "Processes / threads"
+msgstr "⟪Processes / threads·······⟫"
+
+msgid "In use"
+msgstr "⟪In use··⟫"
+
+msgid "Cached"
+msgstr "⟪Cached··⟫"
+
+msgid "Swap"
+msgstr "⟪Swap··⟫"
+
+msgid "Speed / type"
+msgstr "⟪Speed / type····⟫"
+
+msgid "Read"
+msgstr "⟪Read··⟫"
+
+msgid "Write"
+msgstr "⟪Write··⟫"
+
+msgid "IP address"
+msgstr "⟪IP address····⟫"
+
+msgid "Receive"
+msgstr "⟪Receive··⟫"
+
+msgid "Send"
+msgstr "⟪Send··⟫"
+
+msgid "Apps that start with your session. Turn one off to skip it next time."
+msgstr "⟪Apps that start with your session. Turn one off to skip it next time.···························⟫"
+
+msgid "Add"
+msgstr "⟪Add··⟫"
+
+msgid "User"
+msgstr "⟪User··⟫"
+
+msgid "Remove"
+msgstr "⟪Remove··⟫"
+
+msgid "Choose an app to start with your session"
+msgstr "⟪Choose an app to start with your session················⟫"
+
+msgid "Processes"
+msgstr "⟪Processes···⟫"
+
+msgid "Startup"
+msgstr "⟪Startup··⟫"
+
+msgid "Logs"
+msgstr "⟪Logs··⟫"
+
+msgid "Right-click a process for actions"
+msgstr "⟪Right-click a process for actions·············⟫"
+
+msgid "Name"
+msgstr "⟪Name··⟫"
+
+msgid "End task"
+msgstr "⟪End task···⟫"
+
+msgid "Kill"
+msgstr "⟪Kill··⟫"
+
+msgid "Open file location"
+msgstr "⟪Open file location·······⟫"
+
+msgid "Properties"
+msgstr "⟪Properties····⟫"
+
+msgid "Ending this system process may cause problems. Continue?"
+msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"
+
+msgid "Kill %s (PID %d)?"
+msgstr "⟪Kill %s (PID %d)?······⟫"
+
+msgid "The process is stopped at once. Unsaved work is lost."
+msgstr "⟪The process is stopped at once. Unsaved work is lost.·····················⟫"
+
+msgid "Continue"
+msgstr "⟪Continue···⟫"
+
+msgid "PID"
+msgstr "⟪PID··⟫"
+
+msgid "Command line"
+msgstr "⟪Command line····⟫"
+
+msgid "Working directory"
+msgstr "⟪Working directory······⟫"
+
+msgid "Executable"
+msgstr "⟪Executable····⟫"
+
+msgid "Memory (RSS)"
+msgstr "⟪Memory (RSS)····⟫"
+
+msgid "Memory (USS)"
+msgstr "⟪Memory (USS)····⟫"
+
+msgid "Start time"
+msgstr "⟪Start time····⟫"
+
+msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
+msgstr "⟪CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes·······················⟫"
+
 msgid "Hold Shift: close without asking"
 msgstr "⟪Hold Shift: close without asking············⟫"
 
@@ -831,42 +993,6 @@ msgstr "⟪Stop··⟫"
 msgid "Screen recording saved"
 msgstr "⟪Screen recording saved········⟫"
 
-msgid "Session"
-msgstr "⟪Session··⟫"
-
-msgid "Kavis components"
-msgstr "⟪Kavis components······⟫"
-
-msgid "All levels"
-msgstr "⟪All levels····⟫"
-
-msgid "Errors"
-msgstr "⟪Errors··⟫"
-
-msgid "Warnings and errors"
-msgstr "⟪Warnings and errors·······⟫"
-
-msgid "Info and above"
-msgstr "⟪Info and above·····⟫"
-
-msgid "Refresh"
-msgstr "⟪Refresh··⟫"
-
-msgid "Save to file"
-msgstr "⟪Save to file····⟫"
-
-msgid "Copy"
-msgstr "⟪Copy··⟫"
-
-msgid "Could not read the journal (is the user in the adm group?)."
-msgstr "⟪Could not read the journal (is the user in the adm group?).·······················⟫"
-
-msgid "No Kavis component logs in this session."
-msgstr "⟪No Kavis component logs in this session.················⟫"
-
-msgid "Save log"
-msgstr "⟪Save log···⟫"
-
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "⟪usage: kavis-tools open-with <file>··············⟫\n"
 
@@ -893,54 +1019,6 @@ msgstr "⟪Other applications·······⟫"
 
 msgid "Store app coming soon"
 msgstr "⟪Store app coming soon········⟫"
-
-msgid "CPU"
-msgstr "⟪CPU··⟫"
-
-msgid "GPU"
-msgstr "⟪GPU··⟫"
-
-msgid "Base speed"
-msgstr "⟪Base speed····⟫"
-
-msgid "Current speed"
-msgstr "⟪Current speed·····⟫"
-
-msgid "Temperature"
-msgstr "⟪Temperature····⟫"
-
-msgid "Up time"
-msgstr "⟪Up time··⟫"
-
-msgid "Processes / threads"
-msgstr "⟪Processes / threads·······⟫"
-
-msgid "In use"
-msgstr "⟪In use··⟫"
-
-msgid "Cached"
-msgstr "⟪Cached··⟫"
-
-msgid "Swap"
-msgstr "⟪Swap··⟫"
-
-msgid "Speed / type"
-msgstr "⟪Speed / type····⟫"
-
-msgid "Read"
-msgstr "⟪Read··⟫"
-
-msgid "Write"
-msgstr "⟪Write··⟫"
-
-msgid "IP address"
-msgstr "⟪IP address····⟫"
-
-msgid "Receive"
-msgstr "⟪Receive··⟫"
-
-msgid "Send"
-msgstr "⟪Send··⟫"
 
 msgid "Showing the first part of a large file"
 msgstr "⟪Showing the first part of a large file···············⟫"
@@ -986,42 +1064,6 @@ msgstr "⟪Deeper NTFS repair needs Windows: run chkdsk /f there.·······�
 
 msgid "Sign out"
 msgstr "⟪Sign out···⟫"
-
-msgid "Apps that start with your session. Turn one off to skip it next time."
-msgstr "⟪Apps that start with your session. Turn one off to skip it next time.···························⟫"
-
-msgid "Add"
-msgstr "⟪Add··⟫"
-
-msgid "User"
-msgstr "⟪User··⟫"
-
-msgid "Remove"
-msgstr "⟪Remove··⟫"
-
-msgid "Choose an app to start with your session"
-msgstr "⟪Choose an app to start with your session················⟫"
-
-msgid "Processes"
-msgstr "⟪Processes···⟫"
-
-msgid "Startup"
-msgstr "⟪Startup··⟫"
-
-msgid "Logs"
-msgstr "⟪Logs··⟫"
-
-msgid "End task"
-msgstr "⟪End task···⟫"
-
-msgid "Name"
-msgstr "⟪Name··⟫"
-
-msgid "Ending this system process may cause problems. Continue?"
-msgstr "⟪Ending this system process may cause problems. Continue?······················⟫"
-
-msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
-msgstr "⟪CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes·······················⟫"
 
 msgid "This system uses apt, not %s. See: man apt"
 msgstr "⟪This system uses apt, not %s. See: man apt················⟫"

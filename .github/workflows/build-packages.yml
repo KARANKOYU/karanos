@@ -72,6 +72,8 @@ jobs:
           need "usr/share/icons/Kavis-Cursors/cursors/left_ptr"  1
           need "usr/share/icons/Kavis-Cursors/cursors/"          80
           need "usr/share/icons/Kavis/48x48/apps/kavis.png"    1
+          need "usr/share/icons/Kavis/scalable/apps/kavis-taskmanager.svg" 1
+          need "usr/share/icons/Kavis/24x24/apps/kavis-taskmanager.png"    1
           need "usr/share/backgrounds/kavis/kavis.png"         1
           need "usr/share/kavis/logo/koyu-k-logo.svg"          1
           need "usr/share/kavis/logo/acik-k-logo.svg"          1

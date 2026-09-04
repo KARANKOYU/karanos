@@ -134,6 +134,18 @@ override_dh_auto_install:
 			ln -sf kavis.png $(ICONS)/$${s}x$${s}/apps/$$a.png; \
 		done; \
 	done
+	# Kavis apps with a glyph of their own (feedback G1: the task
+	# manager's teal column chart — the stock utilities-system-monitor
+	# is a green heartbeat that belongs to no palette of ours). Same
+	# structure as the logo: one SVG source, rendered to every size.
+	set -e; for f in src/icons/*.svg; do \
+		n=$$(basename $$f .svg); \
+		install -m644 $$f $(ICONS)/scalable/apps/$$n.svg; \
+		for s in $(ICON_SIZES); do \
+			rsvg-convert -w $$s -h $$s \
+				-o $(ICONS)/$${s}x$${s}/apps/$$n.png $$f; \
+		done; \
+	done
 	{ \
 		echo "[Icon Theme]"; \
 		echo "Name=Kavis"; \

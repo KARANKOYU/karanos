@@ -47,8 +47,6 @@ override_dh_auto_install:
 	install -d $(DEST)/usr/share/dbus-1/services
 	install -m644 desktop/org.nemo.Preview.service \
 		$(DEST)/usr/share/dbus-1/services/org.nemo.Preview.service
-	install -m644 desktop/kavis-tasks.desktop \
-		$(DEST)/usr/share/applications/kavis-tasks.desktop
 	install -m644 desktop/kavis-calc.desktop \
 		$(DEST)/usr/share/applications/kavis-calc.desktop
 	install -m644 desktop/kavis-emoji.desktop \

@@ -220,6 +220,12 @@ cat > "$SNIPPET" <<'EOF'
         <command>kavis-tools secure-menu</command>
       </action>
     </keybind>
+    <!-- Ctrl+Shift+Esc (feedback G1): Windows' task manager shortcut -->
+    <keybind key="C-S-Escape">
+      <action name="Execute">
+        <command>kavis-taskmanager</command>
+      </action>
+    </keybind>
     <!-- Color picker (next-tasks 5c): direct color mode -->
     <keybind key="W-S-c">
       <action name="Execute">

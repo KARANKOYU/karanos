@@ -7,7 +7,7 @@
  * All readers live in Kavis.SysInfo (shared with Settings > About).
  */
 
-namespace Kavis.Tools {
+namespace Kavis.TaskManager {
 
     /* 60-sample line graph, teal on the card surface. */
     public class Graph : Gtk.DrawingArea {

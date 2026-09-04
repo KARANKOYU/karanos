@@ -1481,11 +1481,11 @@ namespace Kavis.Ui {
 
             /* Shortcuts. If the target app is not installed yet the
              * item stays greyed out — kavis-settings arrives in Grup F,
-             * kavis-tools in madde 7. */
+             * kavis-taskmanager in feedback G1. */
             menu.append (launcher_item (N_("Display settings"),
                 "kavis-settings", { "kavis-settings", "display" }));
             menu.append (launcher_item (N_("Task Manager"),
-                "kavis-tools", { "kavis-tools", "tasks" }));
+                "kavis-taskmanager", { "kavis-taskmanager" }));
 
             /* Leak guard: the menu is destroyed on close (via Idle,
 

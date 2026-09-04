@@ -84,11 +84,11 @@ namespace Kavis.Tools {
             /* "Switch user": not drawn until the multi-user system
              * (2.0) lands. */
             column.pack_start (action_button (
-                "utilities-system-monitor-symbolic", _("Task Manager"),
+                "kavis-taskmanager", _("Task Manager"),
                 () => {
                     try {
                         Process.spawn_async (null,
-                            { "kavis-tools", "tasks" }, null,
+                            { "kavis-taskmanager" }, null,
                             SpawnFlags.SEARCH_PATH, null, null);
                     } catch (Error e) { }
                 }), false, false, 0);

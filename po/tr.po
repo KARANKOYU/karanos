@@ -299,6 +299,48 @@ msgstr "Son kullanılanlar"
 msgid "End task"
 msgstr "Görevi sonlandır"
 
+msgid "Kill"
+msgstr "Zorla sonlandır"
+
+msgid "Open file location"
+msgstr "Dosya konumunu aç"
+
+msgid "Properties"
+msgstr "Özellikler"
+
+msgid "Right-click a process for actions"
+msgstr "İşlemler için bir sürece sağ tıklayın"
+
+msgid "Kill %s (PID %d)?"
+msgstr "%s (PID %d) zorla sonlandırılsın mı?"
+
+msgid "The process is stopped at once. Unsaved work is lost."
+msgstr "Süreç anında durdurulur, kaydedilmemiş çalışmalar kaybolur."
+
+msgid "Continue"
+msgstr "Devam et"
+
+msgid "PID"
+msgstr "PID"
+
+msgid "Command line"
+msgstr "Komut satırı"
+
+msgid "Working directory"
+msgstr "Çalışma dizini"
+
+msgid "Executable"
+msgstr "Çalıştırılabilir dosya"
+
+msgid "Memory (RSS)"
+msgstr "Bellek (RSS)"
+
+msgid "Memory (USS)"
+msgstr "Bellek (USS)"
+
+msgid "Start time"
+msgstr "Başlangıç zamanı"
+
 msgid "Name"
 msgstr "Ad"
 
@@ -461,8 +503,8 @@ msgstr "%s aç"
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "kullanım: kavis-tools open-with <dosya>\n"
 
-msgid "usage: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
-msgstr "kullanım: kavis-tools [tasks|calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
+msgid "usage: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
+msgstr "kullanım: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
 
 msgid "Showing the first part of a large file"
 msgstr "Büyük dosyanın yalnız baş kısmı gösteriliyor"

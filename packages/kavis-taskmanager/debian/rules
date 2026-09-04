@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+# kavis-taskmanager — Vala, GTK3 (feedback G1: split out of kavis-tools).
+# appinit/headerbar/config/theme/sysinfo come from the canonical copies
+# in packages/kavis-common (placed by build-packages.sh); translations
+# come from the gettext "kavis" domain, whose .mo files kavis-panel
+# ships (Depends).
+
+export DH_VERBOSE = 1
+
+DEST := debian/kavis-taskmanager
+
+VALA_PKGS := --pkg gtk+-3.0 --pkg posix --pkg gio-unix-2.0
+VALA_CFLAGS := -X -O2 -X -w -X -lm -X -DGETTEXT_PACKAGE='"kavis"'
+
+SOURCES := $(wildcard src/*.vala)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	valac $(VALA_PKGS) $(VALA_CFLAGS) -o kavis-taskmanager $(SOURCES)
+
+override_dh_auto_install:
+	install -d $(DEST)/usr/bin
+	install -m755 kavis-taskmanager $(DEST)/usr/bin/kavis-taskmanager
+	install -d $(DEST)/usr/share/applications
+	install -m644 desktop/kavis-taskmanager.desktop \
+		$(DEST)/usr/share/applications/kavis-taskmanager.desktop
+
+override_dh_auto_clean:
+	rm -f kavis-taskmanager
+	dh_auto_clean

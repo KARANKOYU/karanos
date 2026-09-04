@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Task Manager
+Name[tr]=Görev Yöneticisi
+Comment=Processes, performance, startup apps and logs
+Comment[tr]=Süreçler, performans, başlangıç uygulamaları ve günlükler
+Exec=kavis-taskmanager
+Icon=kavis-taskmanager
+Terminal=false
+StartupWMClass=kavis-taskmanager
+Categories=System;Monitor;
+Keywords=process;cpu;memory;performance;startup;log;

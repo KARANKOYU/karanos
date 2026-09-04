@@ -50,7 +50,7 @@ sh "$T/hook.sh" >/dev/null || { echo "ERROR: 0210 hook failed" >&2; exit 2; }
 
 # --- stub commands ----------------------------------------------------
 mkdir -p "$T/bin"
-for cmd in gdbus nemo kavis-settings kavis-tools; do
+for cmd in gdbus nemo kavis-settings kavis-tools kavis-taskmanager; do
 	cat > "$T/bin/$cmd" <<EOS
 #!/bin/sh
 echo "$cmd \$*" >> "$LOG"
@@ -140,6 +140,7 @@ check "PrtSc → capture"         Print       'log_has "kavis-tools capture$"'
 check "Ctrl+PrtSc → quick"      ctrl+Print  'log_has "capture --quick"'
 check "Alt+F4 → kavis-tools alt-f4" alt+F4  'log_has "alt-f4"'
 check "Ctrl+Alt+Del → security" ctrl+alt+Delete 'log_has "secure-menu"'
+check "Ctrl+Shift+Esc → task manager" ctrl+shift+Escape 'log_has "^kavis-taskmanager"'
 check "Win+1 → slot 1"          super+1     'log_has "ActivateSlot 1 false"'
 check "Win+Shift+1 → slot 1 new" super+shift+1 'log_has "ActivateSlot 1 true"'
 check "Volume+ → OSD"           XF86AudioRaiseVolume 'log_has VolumeUp'

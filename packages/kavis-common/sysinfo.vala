@@ -3,7 +3,7 @@
  * same data from the same place).
  *
  * THIS IS THE CANONICAL COPY — build-packages.sh copies it
- * (kavis-settings src/logic, kavis-tools src); the copies are in
+ * (kavis-settings src/logic, kavis-taskmanager src); the copies are in
  * .gitignore.
  *
  * Everything comes from /proc, /sys and a few always-present tools

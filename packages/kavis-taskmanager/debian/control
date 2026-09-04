@@ -1,0 +1,28 @@
+Source: kavis-taskmanager
+Section: utils
+Priority: optional
+Maintainer: Karan <farukyildiz3207@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ valac,
+ libgtk-3-dev,
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/KARANKOYU/karanos
+
+Package: kavis-taskmanager
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ kavis-theme,
+ kavis-panel,
+Description: Kavis task manager
+ Processes, Performance, Startup and Logs in one window (feedback G1:
+ its own application, no longer a kavis-tools subcommand).
+ .
+ The process list reads /proc directly — one file per process per
+ tick — and offers end task, kill, open file location and a properties
+ dialog from the right-click menu. The Performance page reuses the
+ hardware readers shared with Settings; Startup manages the XDG
+ autostart entries; Logs is a journalctl viewer.
