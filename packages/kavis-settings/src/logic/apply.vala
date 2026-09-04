@@ -98,6 +98,80 @@ namespace Kavis.Settings.Apply {
         Run.fire ({ "openbox", "--reconfigure" });
     }
 
+    /* ~/.xsessionrc is shared by the language and the scale settings,
+     * so neither may rewrite the whole file. Everything Kavis owns
+     * lives between two markers; lines outside them are kept. */
+    private const string ENV_BEGIN = "# --- Kavis settings (do not edit) ---";
+    private const string ENV_END = "# --- end Kavis settings ---";
+
+    private void session_env_set (string[] assignments) {
+        string path = Path.build_filename (Environment.get_home_dir (),
+                                           ".xsessionrc");
+        string contents = "";
+        try {
+            FileUtils.get_contents (path, out contents);
+        } catch (Error e) { }
+        var kept = new StringBuilder ();
+        var mine = new HashTable<string, string> (str_hash, str_equal);
+        string[] order = {};
+        bool inside = false;
+        foreach (unowned string line in contents.split ("\n")) {
+            if (line.strip () == ENV_BEGIN) {
+                inside = true;
+                continue;
+            }
+            if (line.strip () == ENV_END) {
+                inside = false;
+                continue;
+            }
+            if (inside) {
+                /* "export NAME=value" — remember what is already set. */
+                string body = line.strip ();
+                if (body.has_prefix ("export ")) {
+                    body = body.substring (7);
+                }
+                int eq = body.index_of ("=");
+                if (eq > 0) {
+                    string key = body.substring (0, eq);
+                    if (mine.lookup (key) == null) {
+                        order += key;
+                    }
+                    mine.insert (key, body.substring (eq + 1));
+                }
+                continue;
+            }
+            if (line.strip () != "") {
+                kept.append (line);
+                kept.append_c ('\n');
+            }
+        }
+        foreach (unowned string a in assignments) {
+            int eq = a.index_of ("=");
+            if (eq > 0) {
+                string key = a.substring (0, eq);
+                if (mine.lookup (key) == null) {
+                    order += key;
+                }
+                mine.insert (key, a.substring (eq + 1));
+            }
+        }
+        var text = new StringBuilder ();
+        text.append (kept.str);
+        text.append (ENV_BEGIN);
+        text.append_c ('\n');
+        foreach (unowned string key in order) {
+            text.append_printf ("export %s=%s\n", key, mine.lookup (key));
+        }
+        text.append (ENV_END);
+        text.append_c ('\n');
+        try {
+            FileUtils.set_contents (path, text.str);
+        } catch (Error e) {
+            warning ("kavis-settings: could not write ~/.xsessionrc: %s",
+                     e.message);
+        }
+    }
+
     /* System language (B6). Order matters: files first (every Kavis
      * process reads ~/.config/kavis/locale in AppInit, the panel
      * restarts on the kavis.conf change), then the root part through
@@ -139,9 +213,27 @@ namespace Kavis.Settings.Apply {
     }
 
     /* percent: 100/125/150/200 → Xft DPI (xsettingsd wants it ×1024). */
+    /* Scale (feedback F3). Two mechanisms, the same split GNOME uses:
+     * the WINDOW scale is an integer (GTK can only draw at 1x or 2x),
+     * the rest is text DPI. Feeding the whole factor into Xft/DPI alone
+     * made 125% look enormous while icons and paddings stayed put, so
+     * the layout drifted. Values are in 1024ths, as the XSETTINGS spec
+     * requires. Non-GTK apps (Qt: Kate) read environment variables, so
+     * the same factor is written to the Kavis block of ~/.xsessionrc
+     * for the next session — X has no way to change their scale live. */
     public void scale (int percent) {
-        int dpi = 96 * percent / 100;
-        xsettings_set ("Xft/DPI", (dpi * 1024).to_string ());
+        int window_factor = percent >= 200 ? 2 : 1;
+        int total_dpi = 96 * percent / 100;
+        int unscaled_dpi = total_dpi / window_factor;
+        xsettings_set ("Gdk/WindowScalingFactor", window_factor.to_string ());
+        xsettings_set ("Gdk/UnscaledDPI", (unscaled_dpi * 1024).to_string ());
+        xsettings_set ("Xft/DPI", (total_dpi * 1024).to_string ());
+        session_env_set ({
+            "GDK_SCALE=%d".printf (window_factor),
+            "GDK_DPI_SCALE=%.3f".printf (
+                (double) percent / 100.0 / window_factor),
+            "QT_SCALE_FACTOR=%.3f".printf ((double) percent / 100.0)
+        });
     }
 
     /* Night light: xsct is on the ISO (madde 10). 6500K = neutral. */

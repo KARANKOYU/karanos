@@ -34,6 +34,31 @@ namespace Kavis.Ui {
         private const int UNDERLINE_WIDTH = 16;
         private const int UNDERLINE_HEIGHT = 3;
 
+        /* F3: every pixel metric above is written for 100%. At a bigger
+         * display scale GTK grows the text but not our hand-drawn
+         * geometry, so icons and the underline have to follow — MINUS
+         * the part GTK already applies itself. Above 200% the window
+         * scale factor is 2 and every logical pixel is drawn twice, so
+         * scaling by the full percentage on top of it made the strip
+         * twice as tall as it should be (measured: 176 px instead of
+         * 88). Only the fractional remainder belongs to us. */
+        private int effective_scale () {
+            int factor = 1;
+            var display = Gdk.Display.get_default ();
+            if (display != null) {
+                var monitor = display.get_primary_monitor ()
+                    ?? display.get_monitor (0);
+                if (monitor != null) {
+                    factor = int.max (1, monitor.get_scale_factor ());
+                }
+            }
+            return config.scale_percent / factor;
+        }
+
+        private int scaled (int px) {
+            return px * effective_scale () / 100;
+        }
+
         private const string CSS = """
         /* Acrylic (madde 4): with a compositor the panel is slightly
            translucent — the wallpaper shows through. Blur is
@@ -200,7 +225,7 @@ namespace Kavis.Ui {
         private GenericArray<TaskSlot> slots =
             new GenericArray<TaskSlot> ();
         private int current_button_width = 0;
-        private int current_icon_size = ICON_NORMAL;
+        private int current_icon_size = ICON_NORMAL;   /* scaled on first layout */
         private bool width_update_pending = false;
 
         public Panel () {
@@ -230,7 +255,7 @@ namespace Kavis.Ui {
             load_css ();
 
             config = PanelConfig.get_default ();
-            thickness = config.thickness.pixels ();
+            thickness = config.thickness.pixels (effective_scale ());
             /* Popups open on the side away from the panel. */
             PanelPopup.panel_position = config.position;
 
@@ -343,11 +368,13 @@ namespace Kavis.Ui {
                     || fresh.thickness != config.thickness
                     || fresh.alignment != config.alignment
                     || fresh.monitor != config.monitor
+                    || fresh.scale_percent != config.scale_percent
                     || fresh.autohide != config.autohide) {
                     config.position = fresh.position;
                     config.thickness = fresh.thickness;
                     config.alignment = fresh.alignment;
                     config.monitor = fresh.monitor;
+                    config.scale_percent = fresh.scale_percent;
                     config.autohide = fresh.autohide;
                     restart_self ();
                 } else {
@@ -871,8 +898,8 @@ namespace Kavis.Ui {
                 }
             }
 
-            int icon_size = (width >= COMPACT_THRESHOLD)
-                ? ICON_NORMAL : ICON_COMPACT;
+            int icon_size = (width >= scaled (COMPACT_THRESHOLD))
+                ? scaled (ICON_NORMAL) : scaled (ICON_COMPACT);
             if (icon_size != current_icon_size) {
                 current_icon_size = icon_size;
                 refresh_icons ();
@@ -896,19 +923,19 @@ namespace Kavis.Ui {
             slot.image.set_valign (Gtk.Align.CENTER);
             slot.image.set_halign (Gtk.Align.CENTER);
             set_slot_image (slot, current_icon_size > 0
-                            ? current_icon_size : ICON_NORMAL);
+                            ? current_icon_size : scaled (ICON_NORMAL));
 
             if (config.vertical) {
                 slot.underline_row = new Gtk.Box (Gtk.Orientation.VERTICAL, 3);
                 slot.underline_row.set_valign (Gtk.Align.CENTER);
-                slot.underline_row.set_size_request (UNDERLINE_HEIGHT, -1);
+                slot.underline_row.set_size_request (scaled (UNDERLINE_HEIGHT), -1);
                 column.pack_start (slot.underline_row, false, false, 0);
                 column.pack_start (slot.image, true, true, 0);
             } else {
                 column.pack_start (slot.image, true, true, 0);
                 slot.underline_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 3);
                 slot.underline_row.set_halign (Gtk.Align.CENTER);
-                slot.underline_row.set_size_request (-1, UNDERLINE_HEIGHT);
+                slot.underline_row.set_size_request (-1, scaled (UNDERLINE_HEIGHT));
                 column.pack_end (slot.underline_row, false, false, 0);
             }
 
@@ -1119,17 +1146,17 @@ namespace Kavis.Ui {
                     titles.append (slot.windows[w].get_name () ?? "");
                 }
                 int bars = int.min (2, (int) slot.windows.length);
-                int bar_width = (bars == 2)
-                    ? UNDERLINE_WIDTH / 2 - 2 : UNDERLINE_WIDTH;
+                int bar_width = scaled ((bars == 2)
+                    ? UNDERLINE_WIDTH / 2 - 2 : UNDERLINE_WIDTH);
                 for (int b = 0; b < bars; b++) {
                     var bar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
                     bar.get_style_context ().add_class ("underline");
                     bar.get_style_context ().add_class (
                         any_active ? "on" : "idle");
                     if (config.vertical) {
-                        bar.set_size_request (UNDERLINE_HEIGHT, bar_width);
+                        bar.set_size_request (scaled (UNDERLINE_HEIGHT), bar_width);
                     } else {
-                        bar.set_size_request (bar_width, UNDERLINE_HEIGHT);
+                        bar.set_size_request (bar_width, scaled (UNDERLINE_HEIGHT));
                     }
                     slot.underline_row.pack_start (bar, false, false, 0);
                 }

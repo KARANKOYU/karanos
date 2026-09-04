@@ -53,13 +53,16 @@ namespace Kavis {
             }
 
             /* Panel strip thickness in pixels (height when horizontal,
-             * width when vertical). MEDIUM matches the historical 44. */
-            public int pixels () {
+             * width when vertical). MEDIUM matches the historical 44.
+             * `scale_percent` scales it with the display scale (F3). */
+            public int pixels (int scale_percent = 100) {
+                int base_px;
                 switch (this) {
-                case THIN:  return 36;
-                case THICK: return 52;
-                default:    return 44;
+                case THIN:  base_px = 36; break;
+                case THICK: base_px = 52; break;
+                default:    base_px = 44; break;
                 }
+                return base_px * scale_percent / 100;
             }
         }
 
@@ -91,6 +94,10 @@ namespace Kavis {
          * primary at placement time (never fails hard). */
         public string monitor = "primary";
         public bool autohide = false;
+        /* Display scale in percent ([display] scale, feedback F3). The
+         * panel draws in pixels, so a bigger text DPI alone would leave
+         * the strip and its icons behind and the layout would drift. */
+        public int scale_percent = 100;
         /* Notification-center calendar collapsed state (Grup D fix:
          * remembered across sessions, [clock] group). */
         public bool calendar_collapsed = false;
@@ -149,6 +156,12 @@ namespace Kavis {
             try {
                 config.autohide = file.get_boolean ("taskbar", "autohide");
             } catch (Error e) { }
+            try {
+                config.scale_percent = file.get_integer ("display", "scale");
+            } catch (Error e) { }
+            if (config.scale_percent < 100 || config.scale_percent > 400) {
+                config.scale_percent = 100;
+            }
             try {
                 config.calendar_collapsed =
                     file.get_boolean ("clock", "calendar_collapsed");

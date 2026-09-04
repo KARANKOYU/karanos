@@ -51,11 +51,14 @@ namespace Kavis.Settings.Pages {
         }
 
         /* Scale: Xft/DPI (xsettingsd) — GTK apps pick it up live. */
+        /* F3: the percentage sign follows the locale — "125%" in
+         * English, "%125" in Turkish — so the label is a translatable
+         * format string, not a hardcoded prefix. */
         var scale = new Gtk.ComboBoxText ();
-        scale.append ("100", "%100");
-        scale.append ("125", "%125");
-        scale.append ("150", "%150");
-        scale.append ("200", "%200");
+        int[] steps = { 100, 125, 150, 175, 200 };
+        foreach (int step in steps) {
+            scale.append (step.to_string (), _("%d%%").printf (step));
+        }
         scale.active_id = conf_get_int ("display", "scale", 100)
                               .to_string ();
         scale.changed.connect (() => {
