@@ -46,7 +46,7 @@ override_dh_auto_build:
 		-o kavis-lock \
 		src/kavis_lock.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/theme.vala \
-		src/logic/timefmt.vala
+		src/logic/timefmt.vala src/logic/session.vala
 	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/brightness.vala \

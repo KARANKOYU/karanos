@@ -73,8 +73,14 @@ namespace Kavis {
              * sleeps or blanks while still unlocked is a machine
              * somebody can walk up to. Started once per idle period —
              * kavis-lock refuses a second instance anyway, but asking
-             * every 20 seconds would fill the log. */
-            if (lock_after > 0 && idle >= lock_after * 60) {
+             * every 20 seconds would fill the log.
+             *
+             * Never on a session with no password: locking a live image
+             * that anyone can unlock with one click protects nothing
+             * and puts a lock screen in front of somebody who is trying
+             * the system out. */
+            if (lock_after > 0 && idle >= lock_after * 60
+                && !Session.passwordless ()) {
                 if (!locked) {
                     locked = true;
                     LockWatch.lock_now ();

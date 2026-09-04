@@ -127,6 +127,10 @@ namespace Kavis {
                 card.pack_start (password, false, false, 0);
             }
             card.pack_start (unlock_button, false, false, 0);
+            /* Return must work with no field to type in: with a
+             * password the entry activates the default, without one the
+             * button IS the default, so Enter signs in either way. */
+            unlock_button.set_can_default (true);
 
             error_label = new Gtk.Label ("");
             error_label.get_style_context ().add_class ("kavis-lock-error");
@@ -137,6 +141,7 @@ namespace Kavis {
             add (centre);
 
             draw.connect (on_draw);
+            set_default (unlock_button);
             tick ();
             Timeout.add_seconds (1, () => { tick (); return Source.CONTINUE; });
             /* Escape clears the field rather than closing anything —
@@ -217,7 +222,11 @@ namespace Kavis {
                     true, null, null, null);
                 if (status == Gdk.GrabStatus.SUCCESS) {
                     grabbed_seat = seat;
-                    password.grab_focus ();
+                    if (passwordless) {
+                        unlock_button.grab_focus ();
+                    } else {
+                        password.grab_focus ();
+                    }
                     return true;
                 }
                 Thread.usleep (100000);
@@ -254,41 +263,11 @@ namespace Kavis {
             return Environment.get_user_name ();
         }
 
-        /* A session where the system itself does not ask for a
-         * password: membership of `nopasswdlogin`, which is Debian's
-         * own convention and what lightdm already honours (the live
-         * user is put in it by the bootappend). The lock screen follows
-         * the same rule, so it can never demand something the display
-         * manager did not.
-         *
-         * Reading /etc/shadow was the obvious idea and the wrong one:
-         * a normal user cannot read it, so the answer would always have
-         * been "there is a password" — and on the live image, where the
-         * account has none, PAM would then have refused every attempt
-         * and left the screen locked for good. */
+        /* Whether this session has a password at all — the shared
+         * answer, so the lock screen and the idle watcher cannot
+         * disagree about it. */
         public bool passwordless () {
-            string contents;
-            try {
-                FileUtils.get_contents ("/etc/group", out contents);
-            } catch (Error e) {
-                return false;
-            }
-            string user = Environment.get_user_name ();
-            foreach (unowned string line in contents.split ("\n")) {
-                if (!line.has_prefix ("nopasswdlogin:")) {
-                    continue;
-                }
-                string[] f = line.split (":");
-                if (f.length < 4) {
-                    return false;
-                }
-                foreach (unowned string member in f[3].split (",")) {
-                    if (member.strip () == user) {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return Kavis.Session.passwordless ();
         }
 
         private static int conversation (int num_msg, Pam.Message** msg,

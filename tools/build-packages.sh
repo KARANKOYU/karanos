@@ -87,6 +87,10 @@ prepare_sources() {
 		# Idle screen-off and sleep (item 51): the panel is the watcher.
 		install -m644 packages/kavis-common/idlewatch.vala \
 			packages/kavis-panel/src/logic/idlewatch.vala
+		# Item 70: the lock screen and the idle watcher must agree on
+		# whether this session has a password.
+		install -m644 packages/kavis-common/session.vala \
+			packages/kavis-panel/src/logic/session.vala
 		# F4: the xkeyboard-config catalogue is read by Settings
 		# (full list) and by the panel (the configured layouts).
 		install -m644 packages/kavis-common/xkb.vala \

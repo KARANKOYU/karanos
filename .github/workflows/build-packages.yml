@@ -255,8 +255,8 @@ jobs:
         run: |
           set -eu
           dpkg-deb -x out/packages/kavis-selftest_*.deb /tmp/selftest-root
-          xvfb-run -a /tmp/selftest-root/usr/bin/kavis-selftest \
-            --check --scenarios tests/ui
+          # No display needed: --check reads files and opens no window.
+          /tmp/selftest-root/usr/bin/kavis-selftest --check --scenarios tests/ui
 
       - name: PICOM — compositor config check
         run: |

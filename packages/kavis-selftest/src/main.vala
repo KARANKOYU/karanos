@@ -7,7 +7,19 @@
  * typo in it would otherwise only be discovered in a VM, forty minutes
  * after the mistake; this makes it a push-time check instead. */
 int main (string[] args) {
-    Gtk.init (ref args);
+    /* --check parses scenarios and touches no window, so it must not
+     * need a display: requiring one made it depend on Xvfb and xauth in
+     * CI, which is a lot of moving parts for reading files. Gtk.init
+     * comes after the argument scan for that reason. */
+    bool parse_only = false;
+    foreach (unowned string arg in args) {
+        if (arg == "--check") {
+            parse_only = true;
+        }
+    }
+    if (!parse_only) {
+        Gtk.init (ref args);
+    }
     string? scen_dir = Environment.get_variable ("KAVIS_SELFTEST_DIR")
         ?? "/usr/share/kavis/selftest";
     string? base_dir = null;
@@ -22,6 +34,8 @@ int main (string[] args) {
         case "--shots": shots = true; break;
         case "--quiet": quiet = true; break;
         case "--check": check_only = true; break;
+        /* Gtk.init would normally have eaten these. */
+        case "--display": if (i + 1 < args.length) { i++; } break;
         default:
             stderr.printf ("usage: kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR] [--shots] [--quiet]\n");
             return 2;
