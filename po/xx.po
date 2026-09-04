@@ -561,6 +561,9 @@ msgstr "⟪Accent color····⟫"
 msgid "Teal — fixed in this release"
 msgstr "⟪Teal — fixed in this release···········⟫"
 
+msgid "Arrangement"
+msgstr "⟪Arrangement····⟫"
+
 msgid "Resolution"
 msgstr "⟪Resolution····⟫"
 
@@ -573,8 +576,74 @@ msgstr "⟪Scale··⟫"
 msgid "Text and interface size"
 msgstr "⟪Text and interface size·········⟫"
 
-msgid "Warmer colors in the evening (4500K)"
-msgstr "⟪Warmer colors in the evening (4500K)··············⟫"
+msgid "Warmer colors so the screen is easier on the eyes"
+msgstr "⟪Warmer colors so the screen is easier on the eyes···················⟫"
+
+msgid "Always on"
+msgstr "⟪Always on···⟫"
+
+msgid "Sunset to sunrise"
+msgstr "⟪Sunset to sunrise······⟫"
+
+msgid "Custom hours"
+msgstr "⟪Custom hours····⟫"
+
+msgid "From"
+msgstr "⟪From··⟫"
+
+msgid "to"
+msgstr "⟪to··⟫"
+
+msgid "Hours"
+msgstr "⟪Hours··⟫"
+
+msgid "Warmer"
+msgstr "⟪Warmer··⟫"
+
+msgid "Cooler"
+msgstr "⟪Cooler··⟫"
+
+msgid "%dK"
+msgstr "⟪%dK··⟫"
+
+msgid "Color temperature"
+msgstr "⟪Color temperature······⟫"
+
+msgid "Schedule"
+msgstr "⟪Schedule···⟫"
+
+msgid "Landscape"
+msgstr "⟪Landscape···⟫"
+
+msgid "Portrait (left)"
+msgstr "⟪Portrait (left)······⟫"
+
+msgid "Portrait (right)"
+msgstr "⟪Portrait (right)······⟫"
+
+msgid "Landscape (flipped)"
+msgstr "⟪Landscape (flipped)·······⟫"
+
+msgid "Orientation"
+msgstr "⟪Orientation····⟫"
+
+msgid "Main display"
+msgstr "⟪Main display····⟫"
+
+msgid "Where the taskbar and new windows go"
+msgstr "⟪Where the taskbar and new windows go··············⟫"
+
+msgid "Mirror"
+msgstr "⟪Mirror··⟫"
+
+msgid "Extend"
+msgstr "⟪Extend··⟫"
+
+msgid "Multiple displays"
+msgstr "⟪Multiple displays······⟫"
+
+msgid "Show the same picture everywhere, or spread the desktop across them"
+msgstr "⟪Show the same picture everywhere, or spread the desktop across them··························⟫"
 
 msgid "Refresh rate"
 msgstr "⟪Refresh rate····⟫"

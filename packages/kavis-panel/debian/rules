@@ -35,11 +35,14 @@ override_dh_auto_build:
 		src/snap.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/theme.vala \
 		src/logic/easing.vala
+	# quick.vala's night light toggle writes the shared config and asks
+	# NightLight to apply it, so the OSD binary needs those two too.
 	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/brightness.vala \
 		src/logic/volume.vala src/logic/quick.vala \
-		src/logic/theme.vala
+		src/logic/theme.vala src/logic/sunclock.vala \
+		src/logic/nightlight.vala
 
 override_dh_auto_install:
 	install -d $(DEST)/usr/bin

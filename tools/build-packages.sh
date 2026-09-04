@@ -75,6 +75,12 @@ prepare_sources() {
 		# animates the preview and the settle itself.
 		install -m644 packages/kavis-common/easing.vala \
 			packages/kavis-panel/src/logic/easing.vala
+		# Night light schedule (F-Display): the panel is the one process
+		# that applies it, Settings only writes the config.
+		install -m644 packages/kavis-common/sunclock.vala \
+			packages/kavis-panel/src/logic/sunclock.vala
+		install -m644 packages/kavis-common/nightlight.vala \
+			packages/kavis-panel/src/logic/nightlight.vala
 		# F4: the xkeyboard-config catalogue is read by Settings
 		# (full list) and by the panel (the configured layouts).
 		install -m644 packages/kavis-common/xkb.vala \
@@ -103,6 +109,11 @@ prepare_sources() {
 		# H4: the hardware/system reader is shared by Settings and Task Manager.
 		install -m644 packages/kavis-common/sysinfo.vala \
 			packages/kavis-settings/src/logic/sysinfo.vala
+		# Night light: Settings shows the schedule, the panel applies it.
+		install -m644 packages/kavis-common/sunclock.vala \
+			packages/kavis-settings/src/logic/sunclock.vala
+		install -m644 packages/kavis-common/nightlight.vala \
+			packages/kavis-settings/src/logic/nightlight.vala
 		;;
 	kavis-taskmanager)
 		# G1: the task manager is its own package now. It needs the

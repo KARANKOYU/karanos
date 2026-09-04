@@ -43,7 +43,20 @@ namespace Kavis.Settings.XrandrInfo {
     public struct Output {
         public string name;
         public Mode[] modes;
+        /* F-Display: the layout half of the same xrandr line. A
+         * connected output that is switched off has no geometry, which
+         * is how `active` is told apart from `connected`. */
+        public bool primary;
+        public bool active;
+        public int x;
+        public int y;
+        public int width;    /* as placed on the desktop, after rotation */
+        public int height;
+        public string rotation;   /* normal | left | right | inverted */
     }
+
+    /* xrandr names the rotations; the UI shows them translated. */
+    public const string[] ROTATIONS = { "normal", "left", "right", "inverted" };
 
     /* Connected outputs with their mode lists. */
     public Output[] outputs () {
@@ -54,14 +67,51 @@ namespace Kavis.Settings.XrandrInfo {
         }
         string current_name = "";
         Mode[] modes = {};
+        bool primary = false;
+        bool active = false;
+        int px = 0, py = 0, pw = 0, ph = 0;
+        string rotation = "normal";
         foreach (unowned string line in text.split ("\n")) {
             if (!line.has_prefix (" ") && line.contains (" connected")) {
                 if (current_name != "") {
-                    Output done = { current_name, modes };
+                    Output done = { current_name, modes, primary, active,
+                                    px, py, pw, ph, rotation };
                     result += done;
                 }
                 current_name = line.split (" ")[0];
                 modes = {};
+                primary = line.contains (" primary ");
+                rotation = "normal";
+                active = false;
+                px = py = pw = ph = 0;
+                /* "HDMI-1 connected primary 1920x1080+0+0 left (normal
+                 * left inverted right x axis y axis) 509mm x 286mm" —
+                 * the geometry token and, when the screen is turned, a
+                 * bare rotation word before the parenthesis. */
+                foreach (unowned string token in line.split (" ")) {
+                    if (token.contains ("+") && token.contains ("x")
+                        && !active) {
+                        string[] parts = token.split ("+");
+                        string[] dims = parts[0].split ("x");
+                        if (parts.length == 3 && dims.length == 2
+                            && digits (dims[0]) && digits (dims[1])
+                            && digits (parts[1]) && digits (parts[2])) {
+                            pw = int.parse (dims[0]);
+                            ph = int.parse (dims[1]);
+                            px = int.parse (parts[1]);
+                            py = int.parse (parts[2]);
+                            active = true;
+                        }
+                        continue;
+                    }
+                    if (token == "left" || token == "right"
+                        || token == "inverted") {
+                        rotation = token;
+                    }
+                    if (token.has_prefix ("(")) {
+                        break;   /* the capability list starts here */
+                    }
+                }
                 continue;
             }
             if (current_name == "" || !line.has_prefix ("   ")) {
@@ -131,7 +181,8 @@ namespace Kavis.Settings.XrandrInfo {
             }
         }
         if (current_name != "") {
-            Output done = { current_name, modes };
+            Output done = { current_name, modes, primary, active,
+                            px, py, pw, ph, rotation };
             result += done;
         }
         return result;
@@ -252,6 +303,54 @@ namespace Kavis.Settings.XrandrInfo {
      * output reports no rate: let xrandr pick. */
     public void set_mode (string output, Mode mode) {
         set_resolution (output, mode.width, mode.height, mode.rate);
+    }
+
+    /* --- layout (F-Display) ---------------------------------------
+     *
+     * Every one of these is a single xrandr call. They are separate
+     * functions rather than one "apply the whole layout" because a
+     * failed call must leave the rest of the desktop as it was: xrandr
+     * applies what it can and reports the rest, and a half-applied
+     * multi-monitor layout is how people end up with no picture. */
+
+    public void set_primary (string output) {
+        Run.fire ({ "xrandr", "--output", output, "--primary" });
+    }
+
+    /* Position on the desktop, top-left corner, in pixels. */
+    public void set_position (string output, int x, int y) {
+        Run.fire ({ "xrandr", "--output", output, "--pos",
+                    "%dx%d".printf (x, y) });
+    }
+
+    public void set_rotation (string output, string rotation) {
+        Run.fire ({ "xrandr", "--output", output, "--rotate", rotation });
+    }
+
+    public void set_active (string output, bool on) {
+        Run.fire ({ "xrandr", "--output", output, on ? "--auto" : "--off" });
+    }
+
+    /* Mirror: every other output shows the same picture as the primary
+     * one, at the primary one's position. --same-as is xrandr's own
+     * word for it and it does the scaling itself when the panels do not
+     * share a resolution. */
+    public void mirror (string primary_output, string[] others) {
+        foreach (unowned string other in others) {
+            Run.fire ({ "xrandr", "--output", other, "--auto",
+                        "--same-as", primary_output });
+        }
+    }
+
+    /* Extend: lay the others out in a row to the right of the primary
+     * one, in the order given. */
+    public void extend (string primary_output, string[] others) {
+        string previous = primary_output;
+        foreach (unowned string other in others) {
+            Run.fire ({ "xrandr", "--output", other, "--auto",
+                        "--right-of", previous });
+            previous = other;
+        }
     }
 
     public void set_resolution (string output, int width, int height,

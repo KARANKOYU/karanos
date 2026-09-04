@@ -1194,3 +1194,75 @@ msgstr "Raporu aç"
 
 msgid "CPU %d"
 msgstr "İşlemci %d"
+
+msgid "Arrangement"
+msgstr "Yerleşim"
+
+msgid "Warmer colors so the screen is easier on the eyes"
+msgstr "Ekranı göze daha rahat gelen sıcak renkler"
+
+msgid "Always on"
+msgstr "Her zaman açık"
+
+msgid "Sunset to sunrise"
+msgstr "Gün batımından gün doğumuna"
+
+msgid "Custom hours"
+msgstr "Özel saatler"
+
+msgid "From"
+msgstr "Başlangıç"
+
+msgid "to"
+msgstr "bitiş"
+
+msgid "Hours"
+msgstr "Saatler"
+
+msgid "Warmer"
+msgstr "Daha sıcak"
+
+msgid "Cooler"
+msgstr "Daha soğuk"
+
+msgid "%dK"
+msgstr "%dK"
+
+msgid "Color temperature"
+msgstr "Renk sıcaklığı"
+
+msgid "Schedule"
+msgstr "Zamanlama"
+
+msgid "Landscape"
+msgstr "Yatay"
+
+msgid "Portrait (left)"
+msgstr "Dikey (sola)"
+
+msgid "Portrait (right)"
+msgstr "Dikey (sağa)"
+
+msgid "Landscape (flipped)"
+msgstr "Yatay (ters)"
+
+msgid "Orientation"
+msgstr "Yönlendirme"
+
+msgid "Main display"
+msgstr "Ana ekran"
+
+msgid "Where the taskbar and new windows go"
+msgstr "Görev çubuğunun ve yeni pencerelerin açılacağı ekran"
+
+msgid "Mirror"
+msgstr "Yansıt"
+
+msgid "Extend"
+msgstr "Genişlet"
+
+msgid "Multiple displays"
+msgstr "Birden çok ekran"
+
+msgid "Show the same picture everywhere, or spread the desktop across them"
+msgstr "Hepsinde aynı görüntü, ya da masaüstünü ekranlara yay"

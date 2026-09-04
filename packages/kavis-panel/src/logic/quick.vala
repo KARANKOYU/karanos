@@ -287,28 +287,25 @@ namespace Kavis.Quick {
     }
 
     /* --- Night light (xsct — X colour temperature) --------------------- */
-    /* The state CANNOT be read back from X (xsct writes, never
-     * queries); it is kept in memory for the session. Persistence and
-     * scheduling are the job of madde 10/38. */
-
-    private bool night_on = false;
-    private const string NIGHT_TEMPERATURE = "4500";
+    /* F-Display: the state used to live in this process's memory, so it
+     * forgot itself on logout and the toggle disagreed with Settings.
+     * Both write the same kavis.conf key now and the scheduler in
+     * NightLight applies it; the toggle is the master switch, the
+     * schedule decides when it actually warms the screen. */
 
     public bool night_available () {
         return has_program ("xsct");
     }
 
     public bool night_enabled () {
-        return night_on;
+        return Kavis.NightLight.enabled ();
     }
 
     public void night_set (bool enabled) {
-        night_on = enabled;
-        if (enabled) {
-            run_async ({ "xsct", NIGHT_TEMPERATURE });
-        } else {
-            run_async ({ "xsct" });   /* no argument: back to 6500K */
-        }
+        var file = Kavis.Config.load ();
+        file.set_boolean ("display", "nightlight", enabled);
+        Kavis.Config.save (file);
+        Kavis.NightLight.apply_now ();
     }
 
     /* --- Game Mode (bridge to madde 13) ------------------------------- */

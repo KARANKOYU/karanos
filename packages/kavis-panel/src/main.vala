@@ -18,6 +18,10 @@ int main (string[] args) {
     var panel = new Kavis.Ui.Panel ();
     panel.show_all ();
     panel.refresh_windows ();
+    /* Night light schedule (F-Display): one process applies it, and
+     * the panel is the one that is always running. Settings and the
+     * quick toggle only write kavis.conf. */
+    Kavis.NightLight.start ();
     Gtk.main ();
     return 0;
 }

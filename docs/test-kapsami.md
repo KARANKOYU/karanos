@@ -4,7 +4,7 @@ Bu dosya `tools/gen-test-coverage.py` ile ÜRETİLİR, elle
 düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 `tests/ui/*.yaml` senaryolarının `item:` alanı (karar 9b).
 
-**Kapsam: 5 / 72 madde.**
+**Kapsam: 6 / 72 madde.**
 
 | Madde | Başlık | Senaryo |
 |---|---|---|
@@ -18,7 +18,7 @@ düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 | 7 | Görev yöneticisi + küçük araçlar: | — |
 | 8 | Güvenlik sertleştirme: | — |
 | 9 | Ayarlar iskeleti: | `09-settings-theme` |
-| 10 | Ekran ayarları: | — |
+| 10 | Ekran ayarları: | `10-display` |
 | 11 | Arama çubuğu (Everything mantığı): | — |
 | 12 | Kavis Mağaza: | — |
 | 13 | Oyun Modu (SteamOS tarzı): | — |

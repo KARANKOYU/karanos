@@ -9,7 +9,9 @@ export DH_VERBOSE = 1
 DEST := debian/kavis-settings
 
 VALA_PKGS := --pkg gtk+-3.0 --pkg posix
-VALA_CFLAGS := -X -O2 -X -w -X -DGETTEXT_PACKAGE='"kavis"'
+# -lm: sunclock.vala computes sunrise and sunset with trigonometry,
+# which lives in libm and gcc does not link it by default.
+VALA_CFLAGS := -X -O2 -X -w -X -DGETTEXT_PACKAGE='"kavis"' -X -lm
 
 SOURCES := $(wildcard src/*.vala) $(wildcard src/ui/*.vala) \
              $(wildcard src/logic/*.vala)

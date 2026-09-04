@@ -30,6 +30,20 @@ namespace Kavis.Settings.Pages {
         var page = frame (title, out body);
 
         var outputs = XrandrInfo.outputs ();
+
+        /* Multi-monitor: the arrangement first, because everything
+         * below it is per-output and only makes sense once you know
+         * which screen is which. With one output there is nothing to
+         * arrange, so the whole section is absent rather than showing
+         * a single rectangle nobody can move. */
+        if (outputs.length > 1) {
+            body.pack_start (group (_("Arrangement")), false, false, 0);
+            var layout = new MonitorLayout (outputs);
+            body.pack_start (layout.widget (), false, false, 0);
+            body.pack_start (layout.primary_row (), false, false, 0);
+            body.pack_start (layout.mode_row (), false, false, 0);
+        }
+
         bool any = false;
         foreach (unowned XrandrInfo.Output output in outputs) {
             var modes = XrandrInfo.group (output.modes);
@@ -42,6 +56,7 @@ namespace Kavis.Settings.Pages {
             var rows = new OutputRows (output.name, modes);
             body.pack_start (rows.resolution_row (), false, false, 0);
             body.pack_start (rows.rate_row (), false, false, 0);
+            body.pack_start (rotation_row (output), false, false, 0);
             any = true;
         }
         if (!any) {
@@ -85,18 +100,428 @@ namespace Kavis.Settings.Pages {
             : _("Brightness (software — no backlight hardware)"),
             bright), false, false, 0);
 
-        /* Night light (xsct). */
+        /* Night light. Settings only writes kavis.conf; the panel's
+         * scheduler reads it and runs xsct, so the quick toggle, the
+         * schedule and this page can never disagree. */
         var night = new Gtk.Switch ();
         night.active = conf_get_bool ("display", "nightlight", false);
-        night.notify["active"].connect (() => {
-            conf_set_bool ("display", "nightlight", night.active);
-            Apply.night_light (night.active);
-        });
         body.pack_start (row (_("Night light"),
-            _("Warmer colors in the evening (4500K)"), night),
+            _("Warmer colors so the screen is easier on the eyes"), night),
             false, false, 0);
 
+        var when = new Gtk.ComboBoxText ();
+        when.append ("always", _("Always on"));
+        when.append ("sunset", _("Sunset to sunrise"));
+        when.append ("custom", _("Custom hours"));
+        when.active_id = conf_get ("display", "nightlight_schedule",
+                                   "always");
+        var hours = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+        var from = time_entry ("nightlight_from", "20:00");
+        var to = time_entry ("nightlight_to", "07:00");
+        hours.pack_start (new Gtk.Label (_("From")), false, false, 0);
+        hours.pack_start (from, false, false, 0);
+        hours.pack_start (new Gtk.Label (_("to")), false, false, 0);
+        hours.pack_start (to, false, false, 0);
+        var hours_row = row (_("Hours"), null, hours);
+
+        /* The temperature is shown in kelvin because that is what the
+         * number means and what every other tool calls it; the labels
+         * at the ends say which way is which. */
+        var warmth = new Gtk.Scale.with_range (Gtk.Orientation.HORIZONTAL,
+            NightLight.MIN_TEMPERATURE, NightLight.MAX_TEMPERATURE, 100);
+        warmth.set_size_request (220, -1);
+        warmth.set_value (conf_get_int ("display", "nightlight_temp",
+                                        NightLight.DEFAULT_TEMPERATURE));
+        warmth.add_mark (NightLight.MIN_TEMPERATURE, Gtk.PositionType.BOTTOM,
+                         _("Warmer"));
+        warmth.add_mark (NightLight.MAX_TEMPERATURE, Gtk.PositionType.BOTTOM,
+                         _("Cooler"));
+        /* GTK3's Scale has no format callback; format-value is the
+         * signal that does the same job. */
+        warmth.format_value.connect ((value) => {
+            return _("%dK").printf ((int) value);
+        });
+        warmth.value_changed.connect (() => {
+            conf_set_int ("display", "nightlight_temp",
+                          (int) warmth.get_value ());
+        });
+        var warmth_row = row (_("Color temperature"), null, warmth);
+
+        var schedule_row = row (_("Schedule"), null, when);
+        body.pack_start (schedule_row, false, false, 0);
+        body.pack_start (hours_row, false, false, 0);
+        body.pack_start (warmth_row, false, false, 0);
+
+        /* Only what applies right now is on screen: the custom hours
+         * mean nothing in the other two modes, and nothing at all when
+         * night light is off.
+         *
+         * Applied on `map` as well as right away: the window calls
+         * show_all() on the page when the section is opened, which
+         * reveals every row again, and map fires after that. (Marking
+         * the rows no_show_all instead would keep them hidden but also
+         * leave their contents unshown when they are wanted — the row
+         * would appear as an empty card.) */
+        void sync_night () {
+            bool on = night.active;
+            string mode = when.active_id ?? "always";
+            schedule_row.visible = on;
+            warmth_row.visible = on;
+            hours_row.visible = on && mode == "custom";
+        }
+        night.notify["active"].connect (() => {
+            conf_set_bool ("display", "nightlight", night.active);
+            sync_night ();
+        });
+        when.changed.connect (() => {
+            conf_set ("display", "nightlight_schedule",
+                      when.active_id ?? "always");
+            sync_night ();
+        });
+        sync_night ();
+        page.map.connect (() => sync_night ());
+
         return page;
+    }
+
+    /* A "HH:MM" field backed by one config key. An entry rather than
+     * two spin buttons: typing 22:30 is fewer actions than clicking
+     * eight times, and the value is validated on the way out. */
+    private Gtk.Widget time_entry (string key, string fallback) {
+        var entry = new Gtk.Entry ();
+        entry.set_width_chars (5);
+        entry.set_max_length (5);
+        entry.set_text (conf_get ("display", key, fallback));
+        entry.focus_out_event.connect (() => {
+            string text = entry.get_text ().strip ();
+            string[] parts = text.split (":");
+            bool valid = parts.length == 2
+                && int.parse (parts[0]) >= 0 && int.parse (parts[0]) <= 23
+                && int.parse (parts[1]) >= 0 && int.parse (parts[1]) <= 59
+                && parts[0].length > 0 && parts[1].length > 0;
+            if (valid) {
+                string clean = "%02d:%02d".printf (int.parse (parts[0]),
+                                                   int.parse (parts[1]));
+                entry.set_text (clean);
+                conf_set ("display", key, clean);
+            } else {
+                /* Put back what is stored rather than keeping something
+                 * the scheduler cannot read. */
+                entry.set_text (conf_get ("display", key, fallback));
+            }
+            return false;
+        });
+        return entry;
+    }
+
+    /* Screen rotation. xrandr names the four positions; the labels say
+     * which way the TOP of the picture goes, which is how a person
+     * thinks about a screen they just turned. */
+    private Gtk.Widget rotation_row (XrandrInfo.Output output) {
+        var combo = new Gtk.ComboBoxText ();
+        combo.append ("normal", _("Landscape"));
+        combo.append ("left", _("Portrait (left)"));
+        combo.append ("right", _("Portrait (right)"));
+        combo.append ("inverted", _("Landscape (flipped)"));
+        combo.active_id = output.rotation;
+        string name = output.name;
+        combo.changed.connect (() => {
+            XrandrInfo.set_rotation (name, combo.active_id ?? "normal");
+        });
+        return row (_("Orientation"), null, combo);
+    }
+
+    /* Multi-monitor arrangement: the screens as rectangles you can
+     * drag (F-Display).
+     *
+     * WHY A DRAWING AREA: every desktop does this the same way because
+     * it is the only presentation where the answer to "which one is on
+     * the left" is obvious. A list of coordinates is exact and useless.
+     *
+     * Dropped positions SNAP to the neighbours' edges. Two monitors a
+     * few pixels apart leave a dead strip the pointer cannot cross and
+     * a gap the wallpaper does not cover, and nobody can hit pixel
+     * alignment by hand — so the drop lands on the nearest edge within
+     * a threshold, in the widget's own scale.
+     */
+    private class MonitorLayout : Object {
+
+        private const int PAD = 12;         /* margin inside the canvas */
+        private const int SNAP = 24;        /* snap distance, in canvas px */
+
+        private XrandrInfo.Output[] outputs;
+        private Gtk.DrawingArea area;
+        private Gtk.ComboBoxText primary_combo;
+        private double scale = 0.1;
+        private int drag_index = -1;
+        private double drag_dx;
+        private double drag_dy;
+        /* Desktop coordinates while dragging; committed on release. */
+        private int[] pos_x = {};
+        private int[] pos_y = {};
+
+        public MonitorLayout (XrandrInfo.Output[] outputs) {
+            this.outputs = outputs;
+            foreach (unowned XrandrInfo.Output o in outputs) {
+                pos_x += o.x;
+                pos_y += o.y;
+            }
+            area = new Gtk.DrawingArea ();
+            area.set_size_request (-1, 180);
+            area.add_events (Gdk.EventMask.BUTTON_PRESS_MASK
+                             | Gdk.EventMask.BUTTON_RELEASE_MASK
+                             | Gdk.EventMask.POINTER_MOTION_MASK);
+            area.draw.connect (on_draw);
+            area.button_press_event.connect (on_press);
+            area.motion_notify_event.connect (on_motion);
+            area.button_release_event.connect (on_release);
+
+            primary_combo = new Gtk.ComboBoxText ();
+            foreach (unowned XrandrInfo.Output o in outputs) {
+                primary_combo.append (o.name, o.name);
+                if (o.primary) {
+                    primary_combo.active_id = o.name;
+                }
+            }
+            if (primary_combo.active_id == null && outputs.length > 0) {
+                primary_combo.active_id = outputs[0].name;
+            }
+            primary_combo.changed.connect (() => {
+                string? name = primary_combo.active_id;
+                if (name != null) {
+                    XrandrInfo.set_primary (name);
+                    area.queue_draw ();
+                }
+            });
+        }
+
+        public Gtk.Widget widget () {
+            var frame = new Gtk.Frame (null);
+            frame.add (area);
+            /* The controller lives as long as the widget it drew. */
+            frame.set_data<Object> ("kavis-monitor-layout", this);
+            return frame;
+        }
+
+        public Gtk.Widget primary_row () {
+            return row (_("Main display"),
+                _("Where the taskbar and new windows go"),
+                primary_combo);
+        }
+
+        public Gtk.Widget mode_row () {
+            var box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+            var mirror = new Gtk.Button.with_label (_("Mirror"));
+            var extend = new Gtk.Button.with_label (_("Extend"));
+            mirror.clicked.connect (() => apply_mode (true));
+            extend.clicked.connect (() => apply_mode (false));
+            box.pack_start (mirror, false, false, 0);
+            box.pack_start (extend, false, false, 0);
+            return row (_("Multiple displays"),
+                _("Show the same picture everywhere, or spread the desktop across them"),
+                box);
+        }
+
+        private void apply_mode (bool mirrored) {
+            string main = primary_combo.active_id ?? outputs[0].name;
+            string[] others = {};
+            foreach (unowned XrandrInfo.Output o in outputs) {
+                if (o.name != main) {
+                    others += o.name;
+                }
+            }
+            if (mirrored) {
+                XrandrInfo.mirror (main, others);
+            } else {
+                XrandrInfo.extend (main, others);
+            }
+            /* xrandr has moved the screens; read the new truth back
+             * instead of guessing where they landed. */
+            reload ();
+        }
+
+        private void reload () {
+            outputs = XrandrInfo.outputs ();
+            pos_x = {};
+            pos_y = {};
+            foreach (unowned XrandrInfo.Output o in outputs) {
+                pos_x += o.x;
+                pos_y += o.y;
+            }
+            area.queue_draw ();
+        }
+
+        /* Desktop bounding box of all the active outputs. */
+        private void bounds (out int minx, out int miny,
+                             out int maxx, out int maxy) {
+            minx = 0; miny = 0; maxx = 1; maxy = 1;
+            bool first = true;
+            for (int i = 0; i < outputs.length; i++) {
+                if (!outputs[i].active) {
+                    continue;
+                }
+                int x1 = pos_x[i], y1 = pos_y[i];
+                int x2 = x1 + outputs[i].width, y2 = y1 + outputs[i].height;
+                if (first) {
+                    minx = x1; miny = y1; maxx = x2; maxy = y2;
+                    first = false;
+                    continue;
+                }
+                minx = int.min (minx, x1);
+                miny = int.min (miny, y1);
+                maxx = int.max (maxx, x2);
+                maxy = int.max (maxy, y2);
+            }
+        }
+
+        private bool on_draw (Cairo.Context cr) {
+            int w = area.get_allocated_width ();
+            int h = area.get_allocated_height ();
+            unowned Gtk.StyleContext ctx = area.get_style_context ();
+            Gdk.RGBA fg = ctx.get_color (Gtk.StateFlags.NORMAL);
+
+            int minx, miny, maxx, maxy;
+            bounds (out minx, out miny, out maxx, out maxy);
+            double sx = (double) (w - 2 * PAD) / (maxx - minx);
+            double sy = (double) (h - 2 * PAD) / (maxy - miny);
+            scale = double.min (sx, sy);
+            /* Centre the whole arrangement in the canvas. */
+            double ox = (w - (maxx - minx) * scale) / 2 - minx * scale;
+            double oy = (h - (maxy - miny) * scale) / 2 - miny * scale;
+
+            cr.set_line_width (2);
+            for (int i = 0; i < outputs.length; i++) {
+                if (!outputs[i].active) {
+                    continue;
+                }
+                double x = ox + pos_x[i] * scale;
+                double y = oy + pos_y[i] * scale;
+                double rw = outputs[i].width * scale;
+                double rh = outputs[i].height * scale;
+                bool is_primary = outputs[i].name == primary_combo.active_id;
+                cr.set_source_rgba (fg.red, fg.green, fg.blue,
+                                    (i == drag_index) ? 0.22 : 0.12);
+                cr.rectangle (x, y, rw, rh);
+                cr.fill_preserve ();
+                if (is_primary) {
+                    /* The main display is the teal one — the same accent
+                     * that marks "active" everywhere else. */
+                    cr.set_source_rgb (0.176, 0.831, 0.749);
+                } else {
+                    cr.set_source_rgba (fg.red, fg.green, fg.blue, 0.5);
+                }
+                cr.stroke ();
+
+                cr.set_source_rgba (fg.red, fg.green, fg.blue, 0.9);
+                cr.select_font_face ("sans", Cairo.FontSlant.NORMAL,
+                                     Cairo.FontWeight.NORMAL);
+                cr.set_font_size (12);
+                Cairo.TextExtents ext;
+                cr.text_extents (outputs[i].name, out ext);
+                cr.move_to (x + (rw - ext.width) / 2,
+                            y + (rh + ext.height) / 2);
+                cr.show_text (outputs[i].name);
+            }
+            return true;
+        }
+
+        /* Canvas point → the output under it, topmost last. */
+        private int hit (double px, double py) {
+            int w = area.get_allocated_width ();
+            int h = area.get_allocated_height ();
+            int minx, miny, maxx, maxy;
+            bounds (out minx, out miny, out maxx, out maxy);
+            double ox = (w - (maxx - minx) * scale) / 2 - minx * scale;
+            double oy = (h - (maxy - miny) * scale) / 2 - miny * scale;
+            for (int i = outputs.length - 1; i >= 0; i--) {
+                if (!outputs[i].active) {
+                    continue;
+                }
+                double x = ox + pos_x[i] * scale;
+                double y = oy + pos_y[i] * scale;
+                if (px >= x && px <= x + outputs[i].width * scale
+                    && py >= y && py <= y + outputs[i].height * scale) {
+                    drag_dx = px - x;
+                    drag_dy = py - y;
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private bool on_press (Gdk.EventButton event) {
+            drag_index = hit (event.x, event.y);
+            area.queue_draw ();
+            return true;
+        }
+
+        private bool on_motion (Gdk.EventMotion event) {
+            if (drag_index < 0) {
+                return false;
+            }
+            int w = area.get_allocated_width ();
+            int h = area.get_allocated_height ();
+            int minx, miny, maxx, maxy;
+            bounds (out minx, out miny, out maxx, out maxy);
+            double ox = (w - (maxx - minx) * scale) / 2 - minx * scale;
+            double oy = (h - (maxy - miny) * scale) / 2 - miny * scale;
+            pos_x[drag_index] = (int) ((event.x - drag_dx - ox) / scale);
+            pos_y[drag_index] = (int) ((event.y - drag_dy - oy) / scale);
+            area.queue_draw ();
+            return true;
+        }
+
+        private bool on_release (Gdk.EventButton event) {
+            if (drag_index < 0) {
+                return false;
+            }
+            int i = drag_index;
+            drag_index = -1;
+            snap (i);
+            XrandrInfo.set_position (outputs[i].name, pos_x[i], pos_y[i]);
+            /* xrandr may refuse a position that would leave a hole; the
+             * layout is read back so the picture matches the screens. */
+            reload ();
+            return true;
+        }
+
+        /* Pull the dragged screen onto its neighbours' edges. The
+         * threshold is in canvas pixels so it feels the same however
+         * far the view is zoomed out. */
+        private void snap (int index) {
+            int limit = (int) (SNAP / scale);
+            for (int j = 0; j < outputs.length; j++) {
+                if (j == index || !outputs[j].active) {
+                    continue;
+                }
+                int left = pos_x[j], right = pos_x[j] + outputs[j].width;
+                int top = pos_y[j], bottom = pos_y[j] + outputs[j].height;
+                int my_right = pos_x[index] + outputs[index].width;
+                int my_bottom = pos_y[index] + outputs[index].height;
+                if ((my_right - left).abs () < limit) {
+                    pos_x[index] = left - outputs[index].width;
+                }
+                if ((pos_x[index] - right).abs () < limit) {
+                    pos_x[index] = right;
+                }
+                if ((pos_x[index] - left).abs () < limit) {
+                    pos_x[index] = left;
+                }
+                if ((my_bottom - top).abs () < limit) {
+                    pos_y[index] = top - outputs[index].height;
+                }
+                if ((pos_y[index] - bottom).abs () < limit) {
+                    pos_y[index] = bottom;
+                }
+                if ((pos_y[index] - top).abs () < limit) {
+                    pos_y[index] = top;
+                }
+            }
+            /* Never negative: xrandr places the desktop from 0,0 and a
+             * negative offset silently moves everything else instead. */
+            pos_x[index] = int.max (0, pos_x[index]);
+            pos_y[index] = int.max (0, pos_y[index]);
+        }
     }
 
     /* One output's two combos plus the state they share (which mode is

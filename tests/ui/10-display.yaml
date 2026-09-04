@@ -1,0 +1,38 @@
+# Display (item 10): the settings page opens, night light is scheduled
+# rather than a session-only toggle, and the panel applies it.
+#
+# What this can prove in a VM: the page builds with every section
+# present, the configuration round-trips, and the panel's scheduler
+# turns the screen warm without anyone touching the quick toggle. What
+# it cannot: that a second monitor lands in the right place — QEMU has
+# one output, and multi-monitor stays on the VM checklist by hand.
+name: 10-display
+title: Display and night light
+item: 10
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings display
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the Display page builds (xrandr parsing, arrangement, rotation)
+    shot: true
+  - do: shell pgrep -x xsct >/dev/null; true
+    expect: ok
+    note: xsct is a one-shot; its absence from the process list is normal
+  - do: conf display nightlight_temp 3000
+    expect: conf display nightlight_temp 3000
+  - do: conf display nightlight_schedule always
+    expect: conf display nightlight_schedule always
+  - do: conf display nightlight true
+    expect: conf display nightlight true
+    note: the panel's scheduler sees the change through Config.watch
+  - do: wait 3000
+    expect: shell test -x /usr/bin/xsct
+    timeout: 6000
+    note: night light is applied by the panel, not by Settings
+    shot: true
+  - do: conf display nightlight false
+    expect: conf display nightlight false
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

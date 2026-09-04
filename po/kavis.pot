@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 12:34+0000\n"
+"POT-Creation-Date: 2026-09-04 12:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -271,27 +271,27 @@ msgstr ""
 msgid "Disk"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_osd.vala:261
+#: packages/kavis-panel/src/kavis_osd.vala:278
 msgid "Caps Lock on"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_osd.vala:261
+#: packages/kavis-panel/src/kavis_osd.vala:278
 msgid "Caps Lock off"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_osd.vala:266
+#: packages/kavis-panel/src/kavis_osd.vala:283
 msgid "Num Lock on"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_osd.vala:266
+#: packages/kavis-panel/src/kavis_osd.vala:283
 msgid "Num Lock off"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_osd.vala:279
-#: packages/kavis-panel/src/kavis_osd.vala:292
+#: packages/kavis-panel/src/kavis_osd.vala:296
+#: packages/kavis-panel/src/kavis_osd.vala:309
 #: packages/kavis-panel/src/ui/indicators.vala:234
 #: packages/kavis-panel/src/ui/quick_settings.vala:797
-#: packages/kavis-settings/src/ui/page_display.vala:60
+#: packages/kavis-settings/src/ui/page_display.vala:75
 #, c-format
 msgid "%d%%"
 msgstr ""
@@ -610,7 +610,7 @@ msgid "Delete"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:522
-#: packages/kavis-settings/src/ui/page_display.vala:360
+#: packages/kavis-settings/src/ui/page_display.vala:780
 #: packages/kavis-taskmanager/src/logs.vala:134
 #: packages/kavis-taskmanager/src/tasks.vala:510
 #: packages/kavis-tools/src/altf4.vala:118
@@ -659,7 +659,7 @@ msgid "Airplane mode"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:218
-#: packages/kavis-settings/src/ui/page_display.vala:95
+#: packages/kavis-settings/src/ui/page_display.vala:108
 #: packages/kavis-settings/src/ui/window.vala:126
 msgid "Night light"
 msgstr ""
@@ -687,17 +687,17 @@ msgid "Accessibility"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:299
-#: packages/kavis-settings/src/ui/page_display.vala:82
+#: packages/kavis-settings/src/ui/page_display.vala:97
 msgid "Brightness"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:308
-#: packages/kavis-settings/src/ui/page_display.vala:84
+#: packages/kavis-settings/src/ui/page_display.vala:99
 msgid "Brightness (backlight)"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:309
-#: packages/kavis-settings/src/ui/page_display.vala:85
+#: packages/kavis-settings/src/ui/page_display.vala:100
 msgid "Brightness (software — no backlight hardware)"
 msgstr ""
 
@@ -924,72 +924,165 @@ msgstr ""
 msgid "Teal — fixed in this release"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:48
-#: packages/kavis-settings/src/ui/page_display.vala:151
+#: packages/kavis-settings/src/ui/page_display.vala:40
+msgid "Arrangement"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:63
+#: packages/kavis-settings/src/ui/page_display.vala:571
 msgid "Resolution"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:49
+#: packages/kavis-settings/src/ui/page_display.vala:64
 msgid "No display information available"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:69
+#: packages/kavis-settings/src/ui/page_display.vala:84
 #: packages/kavis-settings/src/ui/window.vala:125
 msgid "Scale"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:70
+#: packages/kavis-settings/src/ui/page_display.vala:85
 msgid "Text and interface size"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:96
-msgid "Warmer colors in the evening (4500K)"
+#: packages/kavis-settings/src/ui/page_display.vala:109
+msgid "Warmer colors so the screen is easier on the eyes"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:158
+#: packages/kavis-settings/src/ui/page_display.vala:113
+msgid "Always on"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:114
+msgid "Sunset to sunrise"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:115
+msgid "Custom hours"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:121
+msgid "From"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:123
+msgid "to"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:125
+msgid "Hours"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:136
+msgid "Warmer"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:138
+msgid "Cooler"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:142
+#, c-format
+msgid "%dK"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:148
+msgid "Color temperature"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:150
+msgid "Schedule"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:217
+msgid "Landscape"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:218
+msgid "Portrait (left)"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:219
+msgid "Portrait (right)"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:220
+msgid "Landscape (flipped)"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:226
+msgid "Orientation"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:302
+msgid "Main display"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:303
+msgid "Where the taskbar and new windows go"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:309
+msgid "Mirror"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:310
+msgid "Extend"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:315
+msgid "Multiple displays"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:316
+msgid "Show the same picture everywhere, or spread the desktop across them"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_display.vala:578
 msgid "Refresh rate"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:211
+#: packages/kavis-settings/src/ui/page_display.vala:631
 #, c-format
 msgid "%s (native)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:217
+#: packages/kavis-settings/src/ui/page_display.vala:637
 #, c-format
 msgid "%s Hz"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:228
+#: packages/kavis-settings/src/ui/page_display.vala:648
 msgid "Custom…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:244
+#: packages/kavis-settings/src/ui/page_display.vala:664
 msgid "Unknown"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:358
+#: packages/kavis-settings/src/ui/page_display.vala:778
 msgid "All resolutions"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:361
+#: packages/kavis-settings/src/ui/page_display.vala:781
 msgid "Apply"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:448
+#: packages/kavis-settings/src/ui/page_display.vala:868
 msgid "Keep these display settings?"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:449
+#: packages/kavis-settings/src/ui/page_display.vala:869
 msgid "Revert"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:450
+#: packages/kavis-settings/src/ui/page_display.vala:870
 msgid "Keep"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:453
-#: packages/kavis-settings/src/ui/page_display.vala:465
+#: packages/kavis-settings/src/ui/page_display.vala:873
+#: packages/kavis-settings/src/ui/page_display.vala:885
 #, c-format
 msgid "Reverting in %d seconds"
 msgstr ""
