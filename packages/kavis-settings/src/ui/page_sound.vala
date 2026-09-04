@@ -8,6 +8,9 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
+        var out_block = subsection (body, "output",
+            Catalog.sub_title ("sound", "output"));
+
         /* Output device. */
         var cards = Audio.cards ();
         var device = new Gtk.ComboBoxText ();
@@ -18,7 +21,7 @@ namespace Kavis.Settings.Pages {
         device.changed.connect (() => {
             Audio.set_default_card (int.parse (device.active_id ?? "0"));
         });
-        body.pack_start (row (_("Output device"),
+        out_block.pack_start (row (_("Output device"),
             _("Applies to newly started applications"), device),
             false, false, 0);
 
@@ -30,8 +33,11 @@ namespace Kavis.Settings.Pages {
         volume.value_changed.connect (() => {
             Audio.set_volume ((int) volume.get_value ());
         });
-        body.pack_start (row (_("Master volume"), null, volume),
-                         false, false, 0);
+        out_block.pack_start (row (_("Master volume"), null, volume),
+                              false, false, 0);
+
+        var sys_block = subsection (body, "system",
+            Catalog.sub_title ("sound", "system"));
 
         /* System sounds (kavis.conf [sounds] — the panel reads it live). */
         var sounds = new Gtk.Switch ();
@@ -39,7 +45,7 @@ namespace Kavis.Settings.Pages {
         sounds.notify["active"].connect (() => {
             conf_set_bool ("sounds", "enabled", sounds.active);
         });
-        body.pack_start (row (_("System sounds"),
+        sys_block.pack_start (row (_("System sounds"),
             _("Device plug, notification and error sounds"), sounds),
             false, false, 0);
 

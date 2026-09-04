@@ -135,6 +135,19 @@ else
 fi
 
 echo
+echo "==> Settings index and shortcut catalogue (item 74)"
+# Two declarative tables that are only useful while they still agree
+# with the code beside them; the drift they guard against had already
+# happened once (the Settings shortcut list said Ctrl+Win+arrows while
+# the openbox hook bound Ctrl+Alt+arrows).
+if out=$(tools/check-settings-index.py 2>&1); then
+	ok "$out"
+else
+	printf '%s\n' "$out"
+	bad "the Settings index or the shortcut catalogue has drifted"
+fi
+
+echo
 echo "==> Hand-placed asset files"
 [[ -f assets/logo/koyu-k-logo.svg ]] && ok "assets/logo/koyu-k-logo.svg" \
 	|| bad "assets/logo/koyu-k-logo.svg missing"

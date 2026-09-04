@@ -65,11 +65,14 @@ namespace Kavis.Settings.Pages {
             page = frame_widget;
             frame_widget.set_data<Object> ("kavis-hardware-page", this);
 
+            var tests = subsection (body, "tests",
+                Catalog.sub_title ("hardware", "tests"));
+
             summary = new Gtk.Label (
                 _("Nothing has been tested yet."));
             summary.set_xalign (0);
             summary.get_style_context ().add_class ("dim-label");
-            body.pack_start (summary, false, false, 0);
+            tests.pack_start (summary, false, false, 0);
 
             var actions = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             var run_all = new Gtk.Button.with_label (_("Test everything"));
@@ -79,12 +82,12 @@ namespace Kavis.Settings.Pages {
             open_report.clicked.connect (() => save_report ());
             actions.pack_start (run_all, false, false, 0);
             actions.pack_start (open_report, false, false, 0);
-            body.pack_start (row (_("Hardware test"),
+            tests.pack_start (row (_("Hardware test"),
                 _("Each check reports on its own; the report collects them"),
                 actions), false, false, 0);
 
             foreach (Entry entry in entries ()) {
-                body.pack_start (check_row (entry), false, false, 0);
+                tests.pack_start (check_row (entry), false, false, 0);
             }
             return frame_widget;
         }

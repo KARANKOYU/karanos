@@ -16,6 +16,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  kavis-panel,
+ openbox,
  x11-xserver-utils,
  xkb-data,
  network-manager,

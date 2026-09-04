@@ -525,6 +525,282 @@ msgstr "⟪Language changed······⟫"
 msgid "Sign out and back in for the change to take full effect."
 msgstr "⟪Sign out and back in for the change to take full effect.······················⟫"
 
+msgid "Theme and color"
+msgstr "⟪Theme and color······⟫"
+
+msgid "Effects"
+msgstr "⟪Effects··⟫"
+
+msgid "Wallpaper"
+msgstr "⟪Wallpaper···⟫"
+
+msgid "Screen"
+msgstr "⟪Screen··⟫"
+
+msgid "Arrangement"
+msgstr "⟪Arrangement····⟫"
+
+msgid "Output"
+msgstr "⟪Output··⟫"
+
+msgid "System sounds"
+msgstr "⟪System sounds·····⟫"
+
+msgid "Language"
+msgstr "⟪Language···⟫"
+
+msgid "Shortcuts"
+msgstr "⟪Shortcuts···⟫"
+
+msgid "Power mode"
+msgstr "⟪Power mode····⟫"
+
+msgid "Screen and sleep"
+msgstr "⟪Screen and sleep······⟫"
+
+msgid "Now"
+msgstr "⟪Now··⟫"
+
+msgid "Wired"
+msgstr "⟪Wired··⟫"
+
+msgid "VPN"
+msgstr "⟪VPN··⟫"
+
+msgid "DNS privacy"
+msgstr "⟪DNS privacy····⟫"
+
+msgid "Layout"
+msgstr "⟪Layout··⟫"
+
+msgid "Pinned apps"
+msgstr "⟪Pinned apps····⟫"
+
+msgid "Tests"
+msgstr "⟪Tests··⟫"
+
+msgid "About"
+msgstr "⟪About··⟫"
+
+msgid "Self test"
+msgstr "⟪Self test···⟫"
+
+msgid "Theme"
+msgstr "⟪Theme··⟫"
+
+msgid "Dark or light, the whole desktop"
+msgstr "⟪Dark or light, the whole desktop············⟫"
+
+msgid "Accent color"
+msgstr "⟪Accent color····⟫"
+
+msgid "The teal of the brand"
+msgstr "⟪The teal of the brand········⟫"
+
+msgid "Corner roundness"
+msgstr "⟪Corner roundness······⟫"
+
+msgid "How round window corners are"
+msgstr "⟪How round window corners are···········⟫"
+
+msgid "Animation speed"
+msgstr "⟪Animation speed······⟫"
+
+msgid "How fast windows open and close"
+msgstr "⟪How fast windows open and close············⟫"
+
+msgid "Popup animation"
+msgstr "⟪Popup animation······⟫"
+
+msgid "How the panel's popups appear"
+msgstr "⟪How the panel's popups appear···········⟫"
+
+msgid "Transparency effects"
+msgstr "⟪Transparency effects········⟫"
+
+msgid "Blur behind the taskbar and menus"
+msgstr "⟪Blur behind the taskbar and menus·············⟫"
+
+msgid "The desktop background"
+msgstr "⟪The desktop background········⟫"
+
+msgid "Resolution"
+msgstr "⟪Resolution····⟫"
+
+msgid "How many pixels the screen shows"
+msgstr "⟪How many pixels the screen shows············⟫"
+
+msgid "Refresh rate"
+msgstr "⟪Refresh rate····⟫"
+
+msgid "How many times a second the screen redraws"
+msgstr "⟪How many times a second the screen redraws················⟫"
+
+msgid "Scale"
+msgstr "⟪Scale··⟫"
+
+msgid "How large everything is drawn"
+msgstr "⟪How large everything is drawn···········⟫"
+
+msgid "Orientation"
+msgstr "⟪Orientation····⟫"
+
+msgid "Rotate the screen"
+msgstr "⟪Rotate the screen······⟫"
+
+msgid "How bright the screen is"
+msgstr "⟪How bright the screen is·········⟫"
+
+msgid "Main display"
+msgstr "⟪Main display····⟫"
+
+msgid "Which screen the taskbar is on"
+msgstr "⟪Which screen the taskbar is on············⟫"
+
+msgid "Multiple displays"
+msgstr "⟪Multiple displays······⟫"
+
+msgid "Mirror or extend"
+msgstr "⟪Mirror or extend······⟫"
+
+msgid "Warmer colors after sunset"
+msgstr "⟪Warmer colors after sunset··········⟫"
+
+msgid "Color temperature"
+msgstr "⟪Color temperature······⟫"
+
+msgid "How warm the night colors are"
+msgstr "⟪How warm the night colors are···········⟫"
+
+msgid "Schedule"
+msgstr "⟪Schedule···⟫"
+
+msgid "Sunset to sunrise, or hours you choose"
+msgstr "⟪Sunset to sunrise, or hours you choose···············⟫"
+
+msgid "Where sound comes out"
+msgstr "⟪Where sound comes out········⟫"
+
+msgid "Master volume"
+msgstr "⟪Master volume·····⟫"
+
+msgid "How loud everything is"
+msgstr "⟪How loud everything is········⟫"
+
+msgid "The sounds the desktop itself makes"
+msgstr "⟪The sounds the desktop itself makes··············⟫"
+
+msgid "Display language"
+msgstr "⟪Display language······⟫"
+
+msgid "The language of the interface"
+msgstr "⟪The language of the interface···········⟫"
+
+msgid "Which letters the keys type"
+msgstr "⟪Which letters the keys type··········⟫"
+
+msgid "Every key combination, and how to change one"
+msgstr "⟪Every key combination, and how to change one·················⟫"
+
+msgid "Efficiency, balanced or performance"
+msgstr "⟪Efficiency, balanced or performance··············⟫"
+
+msgid "Lock the screen after"
+msgstr "⟪Lock the screen after········⟫"
+
+msgid "Idle time before the screen locks"
+msgstr "⟪Idle time before the screen locks·············⟫"
+
+msgid "Turn off screen after"
+msgstr "⟪Turn off screen after········⟫"
+
+msgid "Idle time before the screen goes dark"
+msgstr "⟪Idle time before the screen goes dark··············⟫"
+
+msgid "Sleep after"
+msgstr "⟪Sleep after····⟫"
+
+msgid "Idle time before the machine sleeps"
+msgstr "⟪Idle time before the machine sleeps··············⟫"
+
+msgid "Warn me at"
+msgstr "⟪Warn me at····⟫"
+
+msgid "A notification when the charge drops this low"
+msgstr "⟪A notification when the charge drops this low··················⟫"
+
+msgid "When I close the lid"
+msgstr "⟪When I close the lid········⟫"
+
+msgid "What closing the lid does"
+msgstr "⟪What closing the lid does··········⟫"
+
+msgid "Sleep or hibernate"
+msgstr "⟪Sleep or hibernate·······⟫"
+
+msgid "Sleep or hibernate right now"
+msgstr "⟪Sleep or hibernate right now···········⟫"
+
+msgid "Turn wireless on or off"
+msgstr "⟪Turn wireless on or off·········⟫"
+
+msgid "Available networks"
+msgstr "⟪Available networks·······⟫"
+
+msgid "Networks in range"
+msgstr "⟪Networks in range······⟫"
+
+msgid "Wi-Fi actions"
+msgstr "⟪Wi-Fi actions·····⟫"
+
+msgid "Saved networks and the hotspot"
+msgstr "⟪Saved networks and the hotspot············⟫"
+
+msgid "The cable connection, and manual IP"
+msgstr "⟪The cable connection, and manual IP··············⟫"
+
+msgid "Import and use a VPN profile"
+msgstr "⟪Import and use a VPN profile···········⟫"
+
+msgid "Encrypted DNS"
+msgstr "⟪Encrypted DNS·····⟫"
+
+msgid "DNS over TLS, and which resolver"
+msgstr "⟪DNS over TLS, and which resolver············⟫"
+
+msgid "Which edge the taskbar is on"
+msgstr "⟪Which edge the taskbar is on···········⟫"
+
+msgid "How tall the taskbar is"
+msgstr "⟪How tall the taskbar is·········⟫"
+
+msgid "Centred or to the left"
+msgstr "⟪Centred or to the left········⟫"
+
+msgid "Automatically hide the taskbar"
+msgstr "⟪Automatically hide the taskbar············⟫"
+
+msgid "The taskbar gets out of the way"
+msgstr "⟪The taskbar gets out of the way············⟫"
+
+msgid "Which apps sit on the taskbar"
+msgstr "⟪Which apps sit on the taskbar···········⟫"
+
+msgid "Hardware test"
+msgstr "⟪Hardware test·····⟫"
+
+msgid "Nine checks: does this machine work"
+msgstr "⟪Nine checks: does this machine work··············⟫"
+
+msgid "What this machine is"
+msgstr "⟪What this machine is········⟫"
+
+msgid "Automatic interface test"
+msgstr "⟪Automatic interface test·········⟫"
+
+msgid "Kavis tests its own interface and writes a report"
+msgstr "⟪Kavis tests its own interface and writes a report···················⟫"
+
 msgid "Passed"
 msgstr "⟪Passed··⟫"
 
@@ -615,9 +891,6 @@ msgstr "⟪Silence recorded — the microphone may be muted or not connected··
 msgid "Sound picked up, peak %d%%"
 msgstr "⟪Sound picked up, peak %d%%··········⟫"
 
-msgid "Hardware test"
-msgstr "⟪Hardware test·····⟫"
-
 msgid "Everything passed."
 msgstr "⟪Everything passed.·······⟫"
 
@@ -633,14 +906,134 @@ msgstr "⟪Result··⟫"
 msgid "Detail"
 msgstr "⟪Detail··⟫"
 
+msgid "Window"
+msgstr "⟪Window··⟫"
+
+msgid "Virtual desktops"
+msgstr "⟪Virtual desktops······⟫"
+
+msgid "Media and Fn keys"
+msgstr "⟪Media and Fn keys······⟫"
+
+msgid "Start menu"
+msgstr "⟪Start menu····⟫"
+
+msgid "Start menu (second key)"
+msgstr "⟪Start menu (second key)·········⟫"
+
+msgid "Run"
+msgstr "⟪Run··⟫"
+
+msgid "Security screen"
+msgstr "⟪Security screen······⟫"
+
+msgid "Lock screen"
+msgstr "⟪Lock screen····⟫"
+
+msgid "Snap to the left half"
+msgstr "⟪Snap to the left half········⟫"
+
+msgid "Snap to the right half"
+msgstr "⟪Snap to the right half········⟫"
+
+msgid "Maximize"
+msgstr "⟪Maximize···⟫"
+
+msgid "Restore or minimize"
+msgstr "⟪Restore or minimize·······⟫"
+
+msgid "Snap layouts"
+msgstr "⟪Snap layouts····⟫"
+
+msgid "Close window / power dialog"
+msgstr "⟪Close window / power dialog··········⟫"
+
+msgid "Switch windows"
+msgstr "⟪Switch windows·····⟫"
+
+msgid "Task view"
+msgstr "⟪Task view···⟫"
+
+msgid "Next desktop"
+msgstr "⟪Next desktop····⟫"
+
+msgid "Previous desktop"
+msgstr "⟪Previous desktop······⟫"
+
+msgid "Screenshot"
+msgstr "⟪Screenshot····⟫"
+
+msgid "Screenshot (second key)"
+msgstr "⟪Screenshot (second key)·········⟫"
+
+msgid "Screenshot without asking"
+msgstr "⟪Screenshot without asking··········⟫"
+
+msgid "Color picker"
+msgstr "⟪Color picker····⟫"
+
+msgid "Files"
+msgstr "⟪Files··⟫"
+
+msgid "Open pinned app 1…10"
+msgstr "⟪Open pinned app 1…10········⟫"
+
+msgid "Volume up"
+msgstr "⟪Volume up···⟫"
+
+msgid "Volume down"
+msgstr "⟪Volume down····⟫"
+
+msgid "Brightness up"
+msgstr "⟪Brightness up·····⟫"
+
+msgid "Brightness down"
+msgstr "⟪Brightness down······⟫"
+
+msgid "Play / pause"
+msgstr "⟪Play / pause····⟫"
+
+msgid "Next track"
+msgstr "⟪Next track····⟫"
+
+msgid "Previous track"
+msgstr "⟪Previous track·····⟫"
+
+msgid "Space"
+msgstr "⟪Space··⟫"
+
+msgid "Enter"
+msgstr "⟪Enter··⟫"
+
+msgid "Volume up key"
+msgstr "⟪Volume up key·····⟫"
+
+msgid "Volume down key"
+msgstr "⟪Volume down key······⟫"
+
+msgid "Mute key"
+msgstr "⟪Mute key···⟫"
+
+msgid "Brightness up key"
+msgstr "⟪Brightness up key······⟫"
+
+msgid "Brightness down key"
+msgstr "⟪Brightness down key·······⟫"
+
+msgid "Play key"
+msgstr "⟪Play key···⟫"
+
+msgid "Next track key"
+msgstr "⟪Next track key·····⟫"
+
+msgid "Previous track key"
+msgstr "⟪Previous track key·······⟫"
+
 msgid "Dark"
 msgstr "⟪Dark··⟫"
 
 msgid "Light"
 msgstr "⟪Light··⟫"
-
-msgid "Theme"
-msgstr "⟪Theme··⟫"
 
 msgid "Dark is the default"
 msgstr "⟪Dark is the default·······⟫"
@@ -666,44 +1059,17 @@ msgstr "⟪Grow··⟫"
 msgid "Fade"
 msgstr "⟪Fade··⟫"
 
-msgid "Corner roundness"
-msgstr "⟪Corner roundness······⟫"
+msgid "Teal — fixed in this release"
+msgstr "⟪Teal — fixed in this release···········⟫"
 
 msgid "Window corners; popups keep the design values"
 msgstr "⟪Window corners; popups keep the design values··················⟫"
 
-msgid "Animation speed"
-msgstr "⟪Animation speed······⟫"
-
-msgid "Popup animation"
-msgstr "⟪Popup animation······⟫"
-
 msgid "Start menu, quick settings and notifications"
 msgstr "⟪Start menu, quick settings and notifications·················⟫"
 
-msgid "Transparency effects"
-msgstr "⟪Transparency effects········⟫"
-
-msgid "Wallpaper"
-msgstr "⟪Wallpaper···⟫"
-
-msgid "Accent color"
-msgstr "⟪Accent color····⟫"
-
-msgid "Teal — fixed in this release"
-msgstr "⟪Teal — fixed in this release···········⟫"
-
-msgid "Arrangement"
-msgstr "⟪Arrangement····⟫"
-
-msgid "Resolution"
-msgstr "⟪Resolution····⟫"
-
 msgid "No display information available"
 msgstr "⟪No display information available············⟫"
-
-msgid "Scale"
-msgstr "⟪Scale··⟫"
 
 msgid "Text and interface size"
 msgstr "⟪Text and interface size·········⟫"
@@ -738,12 +1104,6 @@ msgstr "⟪Cooler··⟫"
 msgid "%dK"
 msgstr "⟪%dK··⟫"
 
-msgid "Color temperature"
-msgstr "⟪Color temperature······⟫"
-
-msgid "Schedule"
-msgstr "⟪Schedule···⟫"
-
 msgid "Landscape"
 msgstr "⟪Landscape···⟫"
 
@@ -756,12 +1116,6 @@ msgstr "⟪Portrait (right)······⟫"
 msgid "Landscape (flipped)"
 msgstr "⟪Landscape (flipped)·······⟫"
 
-msgid "Orientation"
-msgstr "⟪Orientation····⟫"
-
-msgid "Main display"
-msgstr "⟪Main display····⟫"
-
 msgid "Where the taskbar and new windows go"
 msgstr "⟪Where the taskbar and new windows go··············⟫"
 
@@ -771,14 +1125,8 @@ msgstr "⟪Mirror··⟫"
 msgid "Extend"
 msgstr "⟪Extend··⟫"
 
-msgid "Multiple displays"
-msgstr "⟪Multiple displays······⟫"
-
 msgid "Show the same picture everywhere, or spread the desktop across them"
 msgstr "⟪Show the same picture everywhere, or spread the desktop across them··························⟫"
-
-msgid "Refresh rate"
-msgstr "⟪Refresh rate····⟫"
 
 msgid "%s (native)"
 msgstr "⟪%s (native)····⟫"
@@ -833,9 +1181,6 @@ msgstr "⟪Records three seconds and measures the level············�
 
 msgid "Finds and opens the device"
 msgstr "⟪Finds and opens the device··········⟫"
-
-msgid "Screen"
-msgstr "⟪Screen··⟫"
 
 msgid "Full-screen colours for dead pixels and tint"
 msgstr "⟪Full-screen colours for dead pixels and tint·················⟫"
@@ -948,9 +1293,6 @@ msgstr "⟪No··⟫"
 msgid "Yes"
 msgstr "⟪Yes··⟫"
 
-msgid "Language"
-msgstr "⟪Language···⟫"
-
 msgid "Search languages"
 msgstr "⟪Search languages······⟫"
 
@@ -960,68 +1302,41 @@ msgstr "⟪%d%% translated — untranslated parts appear in English······�
 msgid "Applying…"
 msgstr "⟪Applying…···⟫"
 
-msgid "Display language"
-msgstr "⟪Display language······⟫"
-
 msgid "Endonym and how much of the interface is translated"
 msgstr "⟪Endonym and how much of the interface is translated····················⟫"
 
 msgid "Search layouts"
 msgstr "⟪Search layouts·····⟫"
 
-msgid "Layout"
-msgstr "⟪Layout··⟫"
+msgid "The shortcut list is missing from this system"
+msgstr "⟪The shortcut list is missing from this system··················⟫"
 
-msgid "Shortcuts"
-msgstr "⟪Shortcuts···⟫"
+msgid "Reset every shortcut"
+msgstr "⟪Reset every shortcut········⟫"
 
-msgid "Start menu"
-msgstr "⟪Start menu····⟫"
+msgid "Change"
+msgstr "⟪Change··⟫"
 
-msgid "Security screen"
-msgstr "⟪Security screen······⟫"
+msgid "Back to %s"
+msgstr "⟪Back to %s····⟫"
 
-msgid "Window"
-msgstr "⟪Window··⟫"
+msgid "Changed from %s"
+msgstr "⟪Changed from %s······⟫"
 
-msgid "Close window / power dialog"
-msgstr "⟪Close window / power dialog··········⟫"
+msgid "The shortcut could not be applied: %s"
+msgstr "⟪The shortcut could not be applied: %s··············⟫"
 
-msgid "Switch windows"
-msgstr "⟪Switch windows·····⟫"
+msgid "Change shortcut"
+msgstr "⟪Change shortcut······⟫"
 
-msgid "Snap left / right"
-msgstr "⟪Snap left / right······⟫"
+msgid "Press the new combination for “%s”."
+msgstr "⟪Press the new combination for “%s”.··············⟫"
 
-msgid "Maximize / restore"
-msgstr "⟪Maximize / restore·······⟫"
+msgid "Esc cancels. The keys are taken as they are pressed."
+msgstr "⟪Esc cancels. The keys are taken as they are pressed.····················⟫"
 
-msgid "Snap layouts"
-msgstr "⟪Snap layouts····⟫"
-
-msgid "Virtual desktops"
-msgstr "⟪Virtual desktops······⟫"
-
-msgid "Previous / next desktop"
-msgstr "⟪Previous / next desktop·········⟫"
-
-msgid "Task view"
-msgstr "⟪Task view···⟫"
-
-msgid "Screenshot"
-msgstr "⟪Screenshot····⟫"
-
-msgid "Color picker"
-msgstr "⟪Color picker····⟫"
-
-msgid "Files"
-msgstr "⟪Files··⟫"
-
-msgid "Run"
-msgstr "⟪Run··⟫"
-
-msgid "Open pinned app"
-msgstr "⟪Open pinned app······⟫"
+msgid "%s is already “%s”. Change that one first."
+msgstr "⟪%s is already “%s”. Change that one first.················⟫"
 
 msgid "Network"
 msgstr "⟪Network··⟫"
@@ -1029,17 +1344,11 @@ msgstr "⟪Network··⟫"
 msgid "NetworkManager is not installed"
 msgstr "⟪NetworkManager is not installed············⟫"
 
-msgid "Available networks"
-msgstr "⟪Available networks·······⟫"
-
 msgid "Scan again"
 msgstr "⟪Scan again····⟫"
 
 msgid "Hotspot…"
 msgstr "⟪Hotspot…···⟫"
-
-msgid "Wi-Fi actions"
-msgstr "⟪Wi-Fi actions·····⟫"
 
 msgid "Share this machine's connection over Wi-Fi"
 msgstr "⟪Share this machine's connection over Wi-Fi················⟫"
@@ -1077,9 +1386,6 @@ msgstr "⟪Hotspot not started·······⟫"
 msgid "A hotspot needs a name and a password of at least 8 characters."
 msgstr "⟪A hotspot needs a name and a password of at least 8 characters.·························⟫"
 
-msgid "Wired"
-msgstr "⟪Wired··⟫"
-
 msgid "IP and DNS…"
 msgstr "⟪IP and DNS…····⟫"
 
@@ -1103,9 +1409,6 @@ msgstr "⟪DNS servers····⟫"
 
 msgid "Could not save the addresses"
 msgstr "⟪Could not save the addresses···········⟫"
-
-msgid "VPN"
-msgstr "⟪VPN··⟫"
 
 msgid "VPN “%s”"
 msgstr "⟪VPN “%s”···⟫"
@@ -1137,35 +1440,14 @@ msgstr "⟪VPN profiles····⟫"
 msgid "Could not import the profile"
 msgstr "⟪Could not import the profile···········⟫"
 
-msgid "DNS privacy"
-msgstr "⟪DNS privacy····⟫"
-
 msgid "Off (use the network's DNS)"
 msgstr "⟪Off (use the network's DNS)··········⟫"
-
-msgid "Encrypted DNS"
-msgstr "⟪Encrypted DNS·····⟫"
 
 msgid "Send DNS queries over TLS to a chosen resolver instead of the network's"
 msgstr "⟪Send DNS queries over TLS to a chosen resolver instead of the network's····························⟫"
 
-msgid "Lock the screen after"
-msgstr "⟪Lock the screen after········⟫"
-
-msgid "Turn off screen after"
-msgstr "⟪Turn off screen after········⟫"
-
-msgid "Sleep after"
-msgstr "⟪Sleep after····⟫"
-
 msgid "Never"
 msgstr "⟪Never··⟫"
-
-msgid "Warn me at"
-msgstr "⟪Warn me at····⟫"
-
-msgid "A notification when the charge drops this low"
-msgstr "⟪A notification when the charge drops this low··················⟫"
 
 msgid "Hibernate"
 msgstr "⟪Hibernate···⟫"
@@ -1175,18 +1457,6 @@ msgstr "⟪Lock the screen······⟫"
 
 msgid "Do nothing"
 msgstr "⟪Do nothing····⟫"
-
-msgid "When I close the lid"
-msgstr "⟪When I close the lid········⟫"
-
-msgid "Power mode"
-msgstr "⟪Power mode····⟫"
-
-msgid "Now"
-msgstr "⟪Now··⟫"
-
-msgid "Sleep or hibernate"
-msgstr "⟪Sleep or hibernate·······⟫"
 
 msgid "%d minute"
 msgstr "⟪%d minute···⟫"
@@ -1203,29 +1473,14 @@ msgstr "⟪Clocks follow the load········⟫"
 msgid "Applies to newly started applications"
 msgstr "⟪Applies to newly started applications··············⟫"
 
-msgid "Master volume"
-msgstr "⟪Master volume·····⟫"
-
-msgid "System sounds"
-msgstr "⟪System sounds·····⟫"
-
 msgid "Device plug, notification and error sounds"
 msgstr "⟪Device plug, notification and error sounds················⟫"
-
-msgid "About"
-msgstr "⟪About··⟫"
 
 msgid "Copy details"
 msgstr "⟪Copy details····⟫"
 
-msgid "Self test"
-msgstr "⟪Self test···⟫"
-
 msgid "Test this system"
 msgstr "⟪Test this system······⟫"
-
-msgid "Automatic interface test"
-msgstr "⟪Automatic interface test·········⟫"
 
 msgid "Runs the interface through its own checks and writes a report"
 msgstr "⟪Runs the interface through its own checks and writes a report························⟫"
@@ -1248,12 +1503,6 @@ msgstr "⟪Large··⟫"
 msgid "Start button and window list placement"
 msgstr "⟪Start button and window list placement···············⟫"
 
-msgid "Automatically hide the taskbar"
-msgstr "⟪Automatically hide the taskbar············⟫"
-
-msgid "Pinned apps"
-msgstr "⟪Pinned apps····⟫"
-
 msgid "Default set"
 msgstr "⟪Default set····⟫"
 
@@ -1266,23 +1515,20 @@ msgstr "⟪Appearance····⟫"
 msgid "Display"
 msgstr "⟪Display··⟫"
 
-msgid "Resolution and refresh rate"
-msgstr "⟪Resolution and refresh rate··········⟫"
-
 msgid "Sound"
 msgstr "⟪Sound··⟫"
 
 msgid "Keyboard & Language"
 msgstr "⟪Keyboard & Language·······⟫"
 
-msgid "Saved networks"
-msgstr "⟪Saved networks·····⟫"
-
 msgid "Taskbar"
 msgstr "⟪Taskbar··⟫"
 
 msgid "Find a setting"
 msgstr "⟪Find a setting·····⟫"
+
+msgid "Nothing matches “%s”"
+msgstr "⟪Nothing matches “%s”········⟫"
 
 msgid "Session"
 msgstr "⟪Session··⟫"

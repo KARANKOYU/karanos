@@ -38,6 +38,9 @@ override_dh_auto_install:
 	install -m755 scripts/set-dns $(DEST)/usr/lib/kavis/set-dns
 	# Hardware test (item 50): SMART health needs the raw device.
 	install -m755 scripts/hw-report $(DEST)/usr/lib/kavis/hw-report
+	# Reassigned shortcuts (item 74): rebuilds the user's rc.xml from
+	# the system one. NOT root — it writes under ~/.config.
+	install -m755 scripts/set-shortcuts $(DEST)/usr/lib/kavis/set-shortcuts
 	install -m644 polkit/org.kavis.settings.policy \
 		$(DEST)/usr/share/polkit-1/actions/org.kavis.settings.policy
 

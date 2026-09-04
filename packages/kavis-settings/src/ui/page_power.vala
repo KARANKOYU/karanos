@@ -26,28 +26,40 @@ namespace Kavis.Settings.Pages {
         var page = frame (title, out body);
 
         bool battery = Hw.has_battery ();
+        var mode = subsection (body, "mode",
+                               Catalog.sub_title ("power", "mode"));
+        var timeouts = subsection (body, "timeouts",
+                                   Catalog.sub_title ("power", "timeouts"));
         if (battery) {
-            body.pack_start (group (_("When plugged in")),
+            /* A laptop answers every question twice — once on the
+             * cable, once on the battery — so the two sets sit under
+             * their own headings inside the sub-section. */
+            mode.pack_start (group (_("When plugged in")),
                              false, false, 0);
-            body.pack_start (plan_list (true), false, false, 0);
-            body.pack_start (timeout_row (_("Lock the screen after"),
+            mode.pack_start (plan_list (true), false, false, 0);
+            mode.pack_start (group (_("On battery")), false, false, 0);
+            mode.pack_start (plan_list (false), false, false, 0);
+
+            timeouts.pack_start (group (_("When plugged in")),
+                                 false, false, 0);
+            timeouts.pack_start (timeout_row (_("Lock the screen after"),
                                           "lock_after", true), false, false, 0);
-            body.pack_start (timeout_row (_("Turn off screen after"),
+            timeouts.pack_start (timeout_row (_("Turn off screen after"),
                                           "screen_off", true), false, false, 0);
-            body.pack_start (timeout_row (_("Sleep after"),
+            timeouts.pack_start (timeout_row (_("Sleep after"),
                                           "sleep_after", true), false, false, 0);
-            body.pack_start (group (_("On battery")), false, false, 0);
-            body.pack_start (plan_list (false), false, false, 0);
-            body.pack_start (timeout_row (_("Lock the screen after"),
+            timeouts.pack_start (group (_("On battery")), false, false, 0);
+            timeouts.pack_start (timeout_row (_("Lock the screen after"),
                                           "lock_after", false), false, false, 0);
-            body.pack_start (timeout_row (_("Turn off screen after"),
+            timeouts.pack_start (timeout_row (_("Turn off screen after"),
                                           "screen_off", false), false, false, 0);
-            body.pack_start (timeout_row (_("Sleep after"),
+            timeouts.pack_start (timeout_row (_("Sleep after"),
                                           "sleep_after", false), false, false, 0);
 
             /* Low battery warning: the panel watches the charge and
              * shows a notification once per discharge below this. */
-            body.pack_start (group (_("Battery")), false, false, 0);
+            var battery_block = subsection (body, "battery",
+                Catalog.sub_title ("power", "battery"));
             var low = new Gtk.ComboBoxText ();
             low.append ("0", _("Never"));
             foreach (int step in new int[] { 5, 10, 15, 20, 25 }) {
@@ -59,7 +71,7 @@ namespace Kavis.Settings.Pages {
                 conf_set_int ("power", "low_battery",
                               int.parse (low.active_id ?? "0"));
             });
-            body.pack_start (row (_("Warn me at"),
+            battery_block.pack_start (row (_("Warn me at"),
                 _("A notification when the charge drops this low"), low),
                 false, false, 0);
 
@@ -76,17 +88,16 @@ namespace Kavis.Settings.Pages {
                 conf_set ("power", "lid", action);
                 PowerPlan.apply_lid (action);
             });
-            body.pack_start (row (_("When I close the lid"), null, lid),
-                             false, false, 0);
+            battery_block.pack_start (row (_("When I close the lid"),
+                                           null, lid), false, false, 0);
         } else {
             /* Desktop: one list, and no lid or battery questions. */
-            body.pack_start (group (_("Power mode")), false, false, 0);
-            body.pack_start (plan_list (true), false, false, 0);
-            body.pack_start (timeout_row (_("Lock the screen after"),
+            mode.pack_start (plan_list (true), false, false, 0);
+            timeouts.pack_start (timeout_row (_("Lock the screen after"),
                                           "lock_after", true), false, false, 0);
-            body.pack_start (timeout_row (_("Turn off screen after"),
+            timeouts.pack_start (timeout_row (_("Turn off screen after"),
                                           "screen_off", true), false, false, 0);
-            body.pack_start (timeout_row (_("Sleep after"),
+            timeouts.pack_start (timeout_row (_("Sleep after"),
                                           "sleep_after", true), false, false, 0);
         }
 
@@ -94,7 +105,8 @@ namespace Kavis.Settings.Pages {
          * when it can actually work: without enough swap the machine
          * refuses at the last moment, and a button that fails silently
          * is worse than one that is not there. */
-        body.pack_start (group (_("Now")), false, false, 0);
+        var now = subsection (body, "now",
+                             Catalog.sub_title ("power", "now"));
         var actions = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
         var sleep_now = new Gtk.Button.with_label (_("Sleep"));
         sleep_now.clicked.connect (() => {
@@ -108,7 +120,7 @@ namespace Kavis.Settings.Pages {
             });
             actions.pack_start (hibernate_now, false, false, 0);
         }
-        body.pack_start (row (_("Sleep or hibernate"),
+        now.pack_start (row (_("Sleep or hibernate"),
             hibernate_possible ()
                 ? _("Sleep keeps the session in memory; hibernate writes it to disk and powers off")
                 : _("Hibernate needs a swap area at least as large as the memory in this machine"),

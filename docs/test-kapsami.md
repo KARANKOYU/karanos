@@ -89,3 +89,4 @@ yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 
 - madde 60: `60-popup-dismiss`
 - madde 72: `72-selftest`
+- madde 74: `74-shortcuts`

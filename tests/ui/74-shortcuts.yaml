@@ -1,0 +1,80 @@
+# Shortcut catalogue and reassignment (item 74).
+#
+# The point of the catalogue is that ONE file decides what the bindings
+# are: the openbox hook writes rc.xml from it, Settings shows it, and
+# tools/gen-keybind-scenario.py turns it into 06-shortcuts. This
+# scenario checks the other half — that a user can move a shortcut and
+# that the session actually obeys the new key.
+#
+# Win+E → Win+Y is used because Win+Y is bound to nothing, so a window
+# appearing proves the new binding and not a leftover of the old one.
+name: 74-shortcuts
+title: Shortcuts — catalogue and reassignment
+item: 74
+allowed: [nemo, kavis-settings]
+steps:
+  - do: shell test -f /usr/share/kavis/shortcuts.list
+    expect: ok
+    note: the single source the hook, Settings and the generator read
+  - do: shell grep -q 'key=.W-e.' /etc/xdg/openbox/rc.xml
+    expect: ok
+    note: the hook put the catalogue's default into the system rc.xml
+  - do: shell test ! -e "$HOME/.config/openbox/rc.xml"
+    expect: ok
+    note: >
+      nothing reassigned yet, so there is no user copy at all — that is
+      what makes a later system update reach the user
+
+  - do: conf shortcuts files W-y
+    expect: conf shortcuts files W-y
+    note: what Settings > Keyboard writes when the key is changed
+  - do: shell /usr/lib/kavis/set-shortcuts
+    expect: ok
+    timeout: 20000
+    note: rebuilds the user rc.xml from the system one and reloads openbox
+  - do: shell grep -q 'key=.W-y.' "$HOME/.config/openbox/rc.xml"
+    expect: ok
+    note: the new key is in the user copy
+  - do: shell test "$(grep -c 'key=.W-e.' "$HOME/.config/openbox/rc.xml")" = 0
+    expect: ok
+    note: >
+      and the old one is gone. Counted rather than negated: a bare "!"
+      in front of the command is what broke the editors scenario
+  - do: key super+y
+    expect: window nemo visible
+    timeout: 40000
+    note: openbox obeys the reassignment — Files opens on the new key
+    shot: true
+  - do: close window nemo
+    expect: window nemo absent
+    timeout: 8000
+
+  - do: shell sed -i '/^files=/d' "$HOME/.config/kavis/kavis.conf"
+    expect: ok
+    note: undo the override the way the Reset button does
+  - do: shell /usr/lib/kavis/set-shortcuts
+    expect: ok
+    timeout: 20000
+  - do: shell test ! -e "$HOME/.config/openbox/rc.xml"
+    expect: ok
+    note: >
+      with no overrides left the copy is DELETED, not left as a frozen
+      snapshot of the system file
+
+  - do: launch kavis-settings keyboard
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the shortcut list is built from the catalogue, grouped
+    shot: true
+  - do: type light
+    expect: ok
+    note: >
+      the search box has the focus on open; "light" has to reach both
+      the theme switch and Night light, which is the whole reason the
+      index carries synonyms
+  - do: wait 1500
+    expect: ok
+    shot: true
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

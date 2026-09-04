@@ -37,12 +37,16 @@ namespace Kavis.Settings.Pages {
          * arrange, so the whole section is absent rather than showing
          * a single rectangle nobody can move. */
         if (outputs.length > 1) {
-            body.pack_start (group (_("Arrangement")), false, false, 0);
+            var arrangement = subsection (body, "arrangement",
+                Catalog.sub_title ("display", "arrangement"));
             var layout = new MonitorLayout (outputs);
-            body.pack_start (layout.widget (), false, false, 0);
-            body.pack_start (layout.primary_row (), false, false, 0);
-            body.pack_start (layout.mode_row (), false, false, 0);
+            arrangement.pack_start (layout.widget (), false, false, 0);
+            arrangement.pack_start (layout.primary_row (), false, false, 0);
+            arrangement.pack_start (layout.mode_row (), false, false, 0);
         }
+
+        var screen_block = subsection (body, "screen",
+            Catalog.sub_title ("display", "screen"));
 
         bool any = false;
         foreach (unowned XrandrInfo.Output output in outputs) {
@@ -51,16 +55,17 @@ namespace Kavis.Settings.Pages {
                 continue;
             }
             if (outputs.length > 1) {
-                body.pack_start (group (output.name), false, false, 0);
+                screen_block.pack_start (group (output.name),
+                                         false, false, 0);
             }
             var rows = new OutputRows (output.name, modes);
-            body.pack_start (rows.resolution_row (), false, false, 0);
-            body.pack_start (rows.rate_row (), false, false, 0);
-            body.pack_start (rotation_row (output), false, false, 0);
+            screen_block.pack_start (rows.resolution_row (), false, false, 0);
+            screen_block.pack_start (rows.rate_row (), false, false, 0);
+            screen_block.pack_start (rotation_row (output), false, false, 0);
             any = true;
         }
         if (!any) {
-            body.pack_start (row (_("Resolution"),
+            screen_block.pack_start (row (_("Resolution"),
                 _("No display information available"), null),
                 false, false, 0);
         }
@@ -81,7 +86,7 @@ namespace Kavis.Settings.Pages {
             conf_set_int ("display", "scale", percent);
             Apply.scale (percent);
         });
-        body.pack_start (row (_("Scale"),
+        screen_block.pack_start (row (_("Scale"),
             _("Text and interface size"), scale), false, false, 0);
 
         /* Brightness (3C): the SAME data as the quick-settings slider —
@@ -94,7 +99,7 @@ namespace Kavis.Settings.Pages {
         bright.value_changed.connect (() => {
             Brightness.set_percent ((int) bright.get_value ());
         });
-        body.pack_start (row (_("Brightness"),
+        screen_block.pack_start (row (_("Brightness"),
             Brightness.hardware ()
             ? _("Brightness (backlight)")
             : _("Brightness (software — no backlight hardware)"),
@@ -103,9 +108,11 @@ namespace Kavis.Settings.Pages {
         /* Night light. Settings only writes kavis.conf; the panel's
          * scheduler reads it and runs xsct, so the quick toggle, the
          * schedule and this page can never disagree. */
+        var night_block = subsection (body, "nightlight",
+            Catalog.sub_title ("display", "nightlight"));
         var night = new Gtk.Switch ();
         night.active = conf_get_bool ("display", "nightlight", false);
-        body.pack_start (row (_("Night light"),
+        night_block.pack_start (row (_("Night light"),
             _("Warmer colors so the screen is easier on the eyes"), night),
             false, false, 0);
 
@@ -148,9 +155,9 @@ namespace Kavis.Settings.Pages {
         var warmth_row = row (_("Color temperature"), null, warmth);
 
         var schedule_row = row (_("Schedule"), null, when);
-        body.pack_start (schedule_row, false, false, 0);
-        body.pack_start (hours_row, false, false, 0);
-        body.pack_start (warmth_row, false, false, 0);
+        night_block.pack_start (schedule_row, false, false, 0);
+        night_block.pack_start (hours_row, false, false, 0);
+        night_block.pack_start (warmth_row, false, false, 0);
 
         /* Only what applies right now is on screen: the custom hours
          * mean nothing in the other two modes, and nothing at all when

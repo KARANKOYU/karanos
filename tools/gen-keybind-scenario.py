@@ -1,100 +1,70 @@
 #!/usr/bin/env python3
-"""Generate tests/ui/06-shortcuts.yaml from the openbox keybind hook.
+"""Generate tests/ui/06-shortcuts.yaml from the shortcut catalogue.
 
-Decision 9b: "every keybind in rc.xml turns into a scenario". The hook
-`iso/config/hooks/normal/0210-openbox-keybinds.hook.chroot` is the single
-place the shortcuts are defined, so the scenario is generated from it and
-cannot fall behind.
+Decision 9b: "every keybind turns into a scenario". Item 74 moved the
+bindings out of the openbox hook and into
+`iso/config/includes.chroot/usr/share/kavis/shortcuts.list`, which is
+now the single source for the hook, for Settings > Keyboard and for
+this generator — so the scenario cannot fall behind, and neither can
+the list the user sees.
 
-tools/check-keybinds.sh already presses every shortcut under Xvfb with a
-stub for each command. This scenario is the other half: the same keys in
-a REAL session, where a shortcut can fail for reasons Xvfb never shows —
-that is exactly how the snap bug survived two green CI runs. Where the
-effect is observable the step asserts it; otherwise the step still runs
-and the selftest's own anomaly detection (crash, freeze, a process
-dying, an unknown window) covers it.
+tools/check-keybinds.sh already presses every shortcut under Xvfb with
+a stub for each command. This scenario is the other half: the same keys
+in a REAL session, where a shortcut can fail for reasons Xvfb never
+shows — that is exactly how the snap bug survived two green CI runs.
+Where the effect is observable the step asserts it; otherwise the step
+still runs and the selftest's own anomaly detection (crash, freeze, a
+process dying, an unknown window) covers it.
 
 Usage: tools/gen-keybind-scenario.py [--check]
 """
-import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-HOOK = ROOT / "iso" / "config" / "hooks" / "normal" / "0210-openbox-keybinds.hook.chroot"
+CATALOG = (ROOT / "iso" / "config" / "includes.chroot" / "usr" / "share"
+           / "kavis" / "shortcuts.list")
 OUTPUT = ROOT / "tests" / "ui" / "06-shortcuts.yaml"
 
 # openbox modifier letters → xdotool key names
 MODIFIERS = {"W": "super", "C": "ctrl", "A": "alt", "S": "shift"}
-KEYS = {"period": "period", "Escape": "Escape", "Delete": "Delete",
-        "Tab": "Tab", "Left": "Left", "Right": "Right", "Up": "Up",
-        "Down": "Down", "Print": "Print"}
+NAMED_KEYS = {"period", "Escape", "Delete", "Tab", "Left", "Right",
+              "Up", "Down", "Print"}
 
-# What the selftest can observe for a given shortcut. Anything absent
-# runs with `expect: ok` — the anomaly checks still apply.
+# What the selftest can observe, by catalogue id. Anything absent runs
+# with `expect: ok` — the anomaly checks still apply.
 EXPECTATIONS = {
-    "W-Left":  ("geometry nemo left-half", "snap to the left half"),
-    "W-Right": ("geometry nemo right-half", "snap to the right half"),
-    "W-Up":    ("geometry nemo maximized", "maximize"),
-    "W-Down":  ("geometry nemo on-screen", "restore"),
-    "XF86Launch5": ("popup kavis-panel visible", "start menu (Super via xcape)"),
-    "C-Escape":    ("popup kavis-panel visible", "start menu"),
-    "W-r":         ("popup kavis-panel visible", "start menu with search"),
-    "W-Tab":       ("popup kavis-panel visible", "overview"),
-    "W-z":         ("popup kavis-panel visible", "snap menu"),
-    "W-v":         ("popup kavis-panel visible", "clipboard history"),
-    "W-period":    ("popup kavis-panel visible", "emoji picker"),
-    "W-e":         ("window nemo visible", "Files"),
-    "W-i":         ("window kavis-settings visible", "Settings"),
-    "C-S-Escape":  ("window kavis-taskmanager visible", "Task Manager"),
+    "snap-left":      "geometry nemo left-half",
+    "snap-right":     "geometry nemo right-half",
+    "maximize":       "geometry nemo maximized",
+    "restore":        "geometry nemo on-screen",
+    "start-menu":     "popup kavis-panel visible",
+    "start-menu-alt": "popup kavis-panel visible",
+    "run":            "popup kavis-panel visible",
+    "overview":       "popup kavis-panel visible",
+    "snap-menu":      "popup kavis-panel visible",
+    "clipboard":      "popup kavis-panel visible",
+    "emoji":          "popup kavis-panel visible",
+    "files":          "window nemo visible",
+    "settings":       "window kavis-settings visible",
+    "task-manager":   "window kavis-taskmanager visible",
 }
 
-# Shortcuts a headless test must not press: they end the session, lock
-# the screen or hand the machine to a dialog the runner cannot dismiss.
+# Shortcuts a headless run must not press, and why. Every one of these
+# takes the session somewhere the remaining steps cannot come back
+# from — the v0.5-test1 run proved it the hard way: Win+L was pressed
+# near the end of this scenario and every scenario after it ran behind
+# a lock screen.
 SKIP = {
-    "C-A-Delete",   # security screen: takes over the session
-    "A-F4",         # closes the window the rest of the steps need
-    "Print",        # capture UI: stays open waiting for a selection
-    "A-Print",
-    "C-Print",      # writes a screenshot file on every run
-    "W-S-s",
-    "W-S-c",        # colour picker: grabs the pointer
+    "lock-screen":      "locks the session for every scenario after this one",
+    "security-screen":  "takes over the session",
+    "close-window":     "closes the window the rest of the steps need",
+    "screenshot":       "the capture bar stays open waiting for a selection",
+    "screenshot-alt":   "same capture bar",
+    "screenshot-quick": "writes a screenshot file on every run",
+    "color-picker":     "grabs the pointer",
+    "show-desktop":     "iconifies everything and nothing presses it back",
 }
-
-
-def xdotool_key(binding):
-    """'W-S-c' → 'super+shift+c'; None when it cannot be expressed."""
-    parts = binding.split("-")
-    key = parts[-1]
-    mods = []
-    for part in parts[:-1]:
-        if part not in MODIFIERS:
-            return None
-        mods.append(MODIFIERS[part])
-    if key.startswith("XF86") or key in KEYS or len(key) == 1:
-        return "+".join(mods + [KEYS.get(key, key)])
-    return None
-
-
-def bindings():
-    """Keybind values the hook ADDS, in order, without duplicates.
-
-    Only the heredocs that build the snippet count. The awk program
-    above them also mentions keys (`key="A-F4"`, `key="Print"`) but it
-    is matching bindings to REMOVE from the stock rc.xml, and a test
-    that presses those would assert the opposite of what we want.
-    """
-    text = HOOK.read_text(encoding="utf-8")
-    blocks = re.findall(r"cat >>? \"\$SNIPPET\" <<'?EOF2?'?\n(.*?)\nEOF2?\n",
-                        text, re.S)
-    seen = []
-    for block in blocks:
-        for match in re.finditer(r'key="([^"]+)"', block):
-            value = match.group(1)
-            if value not in seen:
-                seen.append(value)
-    return seen
-
 
 # A popup is already in the panel's address space, so it appears in
 # milliseconds. A window shortcut has to start a cold GTK program, and
@@ -108,10 +78,40 @@ def timeout_for(expect):
     return WINDOW_TIMEOUT if expect.startswith("window ") else POPUP_TIMEOUT
 
 
+def xdotool_key(binding):
+    """'W-S-c' → 'super+shift+c'; None when it cannot be expressed."""
+    parts = binding.split("-")
+    key = parts[-1]
+    mods = []
+    for part in parts[:-1]:
+        if part not in MODIFIERS:
+            return None
+        mods.append(MODIFIERS[part])
+    if key.startswith("XF86") or key in NAMED_KEYS or len(key) == 1:
+        return "+".join(mods + [key])
+    return None
+
+
+def catalogue():
+    """(id, group, key, action) for every catalogue line, in order."""
+    entries = []
+    for raw in CATALOG.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        fields = [f.strip() for f in line.split("|")]
+        if len(fields) != 4:
+            raise SystemExit(
+                f"ERROR: {CATALOG.name}: expected 4 fields, got "
+                f"{len(fields)}: {raw}")
+        entries.append(tuple(fields))
+    return entries
+
+
 def scenario():
     lines = [
         "# GENERATED by tools/gen-keybind-scenario.py — do not edit.",
-        "# Source: iso/config/hooks/normal/0210-openbox-keybinds.hook.chroot",
+        "# Source: usr/share/kavis/shortcuts.list (the shortcut catalogue)",
         "#",
         "# Every Kavis shortcut, pressed in a REAL session. Xvfb cannot",
         "# prove a shortcut works (the snap bug passed there twice); the",
@@ -127,21 +127,22 @@ def scenario():
         "    timeout: 30000",
         "    note: a window to aim the window shortcuts at",
     ]
-    for binding in bindings():
-        if binding in SKIP:
+    for entry_id, group, key, _action in catalogue():
+        if entry_id in SKIP:
+            lines.append(f"  # not pressed — {entry_id}: {SKIP[entry_id]}")
             continue
-        key = xdotool_key(binding)
-        if key is None:
+        keys = xdotool_key(key)
+        if keys is None:
             continue
-        expect, note = EXPECTATIONS.get(binding, ("ok", ""))
-        lines.append(f"  - do: key {key}")
+        expect = EXPECTATIONS.get(entry_id, "ok")
+        lines.append(f"  - do: key {keys}")
         lines.append(f"    expect: {expect}")
         if expect != "ok":
             lines.append(f"    timeout: {timeout_for(expect)}")
-        lines.append(f"    note: {binding}" + (f" — {note}" if note else ""))
+        lines.append(f"    note: {entry_id} ({group}) — {key}")
         if expect.startswith("popup"):
-            # Leave the session as we found it, or the next press toggles
-            # the popup shut instead of opening the next one.
+            # Leave the session as we found it, or the next press
+            # toggles the popup shut instead of opening the next one.
             lines.append("  - do: key Escape")
             lines.append("    expect: popup kavis-panel hidden")
             lines.append("    timeout: 4000")

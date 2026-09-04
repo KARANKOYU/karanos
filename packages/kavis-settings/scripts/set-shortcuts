@@ -1,0 +1,142 @@
+#!/bin/sh
+# Kavis — apply reassigned shortcuts (item 74). The session half of
+# Settings > Keyboard > Shortcuts.
+#
+# NO ROOT. openbox reads ~/.config/openbox/rc.xml INSTEAD of
+# /etc/xdg/openbox/rc.xml when it exists, so a reassignment is a user
+# copy of the system file with the changed key attributes, not an edit
+# of /etc. That also means the copy must be rebuilt from the system
+# file every time — never patched on top of itself — or a later system
+# update never reaches the user, and two reassignments of the same key
+# would chain into each other.
+#
+# With no overrides left the copy is DELETED, so the user goes back to
+# exactly what the ISO ships instead of to a frozen snapshot of it.
+#
+# Usage: set-shortcuts          rebuild from kavis.conf and reload
+#        set-shortcuts --check  say what it would do, write nothing
+set -eu
+
+CATALOG=${KAVIS_SHORTCUT_CATALOG:-/usr/share/kavis/shortcuts.list}
+SYSTEM_RC=${KAVIS_SYSTEM_RC:-/etc/xdg/openbox/rc.xml}
+CONF=${KAVIS_CONF:-${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf}
+USER_RC=${KAVIS_USER_RC:-${XDG_CONFIG_HOME:-$HOME/.config}/openbox/rc.xml}
+
+DRY=no
+[ "${1:-}" = "--check" ] && DRY=yes
+
+[ -f "$CATALOG" ] || { echo "E: $CATALOG missing" >&2; exit 1; }
+[ -f "$SYSTEM_RC" ] || { echo "E: $SYSTEM_RC missing" >&2; exit 1; }
+
+# --- the overrides: the [shortcuts] group of kavis.conf ---------------
+# "id=key" lines between the [shortcuts] header and the next group.
+overrides=""
+if [ -f "$CONF" ]; then
+	overrides=$(awk '
+		/^[[:space:]]*\[/ { in_group = ($0 ~ /^[[:space:]]*\[shortcuts\]/) ; next }
+		in_group && /=/ {
+			eq = index($0, "=")
+			id = substr($0, 1, eq - 1)
+			key = substr($0, eq + 1)
+			gsub(/[[:space:]]/, "", id)
+			gsub(/[[:space:]]/, "", key)
+			if (id != "" && key != "") print id "=" key
+		}
+	' "$CONF")
+fi
+
+if [ -z "$overrides" ]; then
+	if [ "$DRY" = yes ]; then
+		echo "set-shortcuts: no overrides — the defaults are in use"
+		exit 0
+	fi
+	rm -f "$USER_RC"
+	openbox --reconfigure >/dev/null 2>&1 || true
+	echo "set-shortcuts: no overrides left, back to the shipped defaults"
+	exit 0
+fi
+
+# --- default key of every id, from the catalogue ----------------------
+defaults=$(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$CATALOG" \
+	| awk -F'|' '{ gsub(/[[:space:]]/, "", $1); gsub(/[[:space:]]/, "", $3);
+	               print $1 "=" $3 }')
+
+# --- default key → new key, and a collision check ---------------------
+# Two shortcuts on one key is not a warning in openbox: it runs BOTH
+# actions, which is the bug that made Alt+F4 close a window and then
+# open the shutdown dialog. Refuse instead.
+map=""
+for pair in $overrides; do
+	id=${pair%%=*}
+	new=${pair#*=}
+	old=""
+	for known in $defaults; do
+		[ "${known%%=*}" = "$id" ] && old=${known#*=} && break
+	done
+	if [ -z "$old" ]; then
+		echo "W: unknown shortcut id '$id' in $CONF — ignored" >&2
+		continue
+	fi
+	[ "$old" = "$new" ] && continue
+	map="$map$old=$new;"
+done
+
+# Every key the session will end up with: the defaults that were not
+# reassigned, plus the new keys.
+final=$(
+	for known in $defaults; do
+		id=${known%%=*}
+		key=${known#*=}
+		for pair in $overrides; do
+			[ "${pair%%=*}" = "$id" ] && key=${pair#*=}
+		done
+		echo "$key"
+	done
+)
+clash=$(echo "$final" | sort | uniq -d)
+if [ -n "$clash" ]; then
+	echo "E: two shortcuts would share a key: $clash" >&2
+	exit 2
+fi
+
+if [ "$DRY" = yes ]; then
+	echo "set-shortcuts: would rewrite $USER_RC with: $map"
+	exit 0
+fi
+
+# --- rebuild the user copy in ONE pass --------------------------------
+# One pass, from the system file: a second sed over its own output
+# would move a binding that an earlier rule had already moved onto
+# that key.
+mkdir -p "$(dirname "$USER_RC")"
+TMP=$(mktemp)
+awk -v map="$map" '
+	BEGIN {
+		n = split(map, pairs, ";")
+		for (i = 1; i <= n; i++) {
+			if (pairs[i] == "") continue
+			eq = index(pairs[i], "=")
+			from[substr(pairs[i], 1, eq - 1)] = substr(pairs[i], eq + 1)
+		}
+	}
+	/<keybind key="/ {
+		q = index($0, "key=\"") + 5
+		rest = substr($0, q)
+		key = substr(rest, 1, index(rest, "\"") - 1)
+		if (key in from) {
+			sub("key=\"" key "\"", "key=\"" from[key] "\"")
+		}
+	}
+	{ print }
+' "$SYSTEM_RC" > "$TMP"
+
+# A broken rc.xml does not stop openbox — it starts with the DEFAULTS
+# and says nothing, so the user would see their shortcuts silently
+# revert. Check before installing it.
+if command -v python3 >/dev/null 2>&1; then
+	python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse(sys.argv[1])" \
+		"$TMP" || { rm -f "$TMP"; echo "E: rewritten rc.xml is not valid XML" >&2; exit 1; }
+fi
+mv "$TMP" "$USER_RC"
+openbox --reconfigure >/dev/null 2>&1 || true
+echo "set-shortcuts: $USER_RC rewritten ($map)"

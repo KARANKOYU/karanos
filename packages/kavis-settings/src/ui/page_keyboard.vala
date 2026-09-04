@@ -24,7 +24,8 @@ namespace Kavis.Settings.Pages {
         var page = frame (title, out body);
 
         /* --- Language --- */
-        body.pack_start (group (_("Language")), false, false, 0);
+        var lang_block = subsection (body, "language",
+            Catalog.sub_title ("keyboard", "language"));
         var note = new Gtk.Label ("");
         note.set_xalign (0);
         note.set_line_wrap (true);
@@ -70,13 +71,14 @@ namespace Kavis.Settings.Pages {
              * and Settings re-opens itself in the new language. */
             Apply.language (code, Langs.locale_of (code));
         });
-        body.pack_start (row (_("Display language"),
+        lang_block.pack_start (row (_("Display language"),
             _("Endonym and how much of the interface is translated"),
             lang_drop), false, false, 0);
-        body.pack_start (note, false, false, 0);
+        lang_block.pack_start (note, false, false, 0);
 
         /* --- Keyboard layout --- */
-        body.pack_start (group (_("Keyboard layout")), false, false, 0);
+        var layout_block = subsection (body, "layout",
+            Catalog.sub_title ("keyboard", "layout"));
         var layout_drop = new SearchDropdown (_("Search layouts"));
         foreach (unowned Xkb.Entry entry in Xkb.list ()) {
             /* The id ("fr(azerty)") is shown next to the description
@@ -97,68 +99,213 @@ namespace Kavis.Settings.Pages {
             remember_layout (id);
             Apply.keyboard_layout (chosen_layout, chosen_variant);
         });
-        body.pack_start (row (_("Layout"),
+        layout_block.pack_start (row (_("Layout"),
             _("One global layout for every window; right-click the taskbar indicator to switch between the ones you have used"),
             layout_drop), false, false, 0);
 
-        /* --- Shortcuts (madde 34: a list; an editing capture widget
-         * is separate work — ayarlar.md survey) --- */
-        /* B7: sections + key badges (W11 shortcut list). Source: rc.xml
-         * (0210 hook) and the panel's own bindings. */
-        body.pack_start (group (_("Shortcuts")), false, false, 0);
-        body.pack_start (group (_("System")), false, false, 0);
-        add_shortcut (body, "Win", _("Start menu"));
-        add_shortcut (body, "Ctrl+Alt+Del", _("Security screen"));
-        add_shortcut (body, "Win+V", _("Clipboard history"));
-        add_shortcut (body, "Win+.", _("Emoji and more"));
-        body.pack_start (group (_("Window")), false, false, 0);
-        add_shortcut (body, "Alt+F4",
-                      _("Close window / power dialog"));
-        add_shortcut (body, "Alt+Tab", _("Switch windows"));
-        add_shortcut (body, "Win+←  Win+→", _("Snap left / right"));
-        add_shortcut (body, "Win+↑  Win+↓", _("Maximize / restore"));
-        add_shortcut (body, "Win+Z", _("Snap layouts"));
-        add_shortcut (body, "Win+D", _("Show desktop"));
-        body.pack_start (group (_("Virtual desktops")), false, false, 0);
-        add_shortcut (body, "Ctrl+Win+←  Ctrl+Win+→",
-                      _("Previous / next desktop"));
-        add_shortcut (body, "Win+Tab", _("Task view"));
-        body.pack_start (group (_("Screen")), false, false, 0);
-        add_shortcut (body, "PrtSc", _("Screenshot"));
-        add_shortcut (body, "Win+Shift+S", _("Screenshot"));
-        add_shortcut (body, "Win+Shift+C", _("Color picker"));
-        body.pack_start (group (_("Apps")), false, false, 0);
-        add_shortcut (body, "Win+E", _("Files"));
-        add_shortcut (body, "Win+I", _("Settings"));
-        add_shortcut (body, "Win+R", _("Run"));
-        add_shortcut (body, "Win+1…0", _("Open pinned app"));
+        /* --- Shortcuts (item 74) ---
+         *
+         * The list is the CATALOGUE, grouped, and every row can be
+         * reassigned. It used to be typed out here beside the openbox
+         * hook and had already drifted: it claimed Ctrl+Win+arrows
+         * switched desktops when the real binding is Ctrl+Alt+arrows.
+         * Nothing is hand-written any more — what is shown is what
+         * openbox was given. */
+        var keys_block = subsection (body, "shortcuts",
+            Catalog.sub_title ("keyboard", "shortcuts"));
+        fill_shortcuts (keys_block);
 
         return page;
     }
 
-    /* One shortcut row: description left, each key as a badge right
-     * ("Win+Shift+S" → three badges; two spaces separate alternatives). */
-    private void add_shortcut (Gtk.Box body, string keys,
-                               string description) {
-        var badges = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
-        foreach (unowned string combo in keys.split ("  ")) {
-            if (badges.get_children ().length () > 0) {
-                badges.pack_start (new Gtk.Label ("/"), false, false, 4);
+    /* Build (or rebuild, after a change) the shortcut list. */
+    private void fill_shortcuts (Gtk.Box into) {
+        foreach (unowned Gtk.Widget child in into.get_children ()) {
+            into.remove (child);
+        }
+        var entries = Shortcuts.list ();
+        if (entries.length == 0) {
+            into.pack_start (row (_("Shortcuts"),
+                _("The shortcut list is missing from this system"), null),
+                false, false, 0);
+            into.show_all ();
+            return;
+        }
+
+        string current_group = "";
+        bool any_override = false;
+        foreach (Shortcuts.Entry entry in entries) {
+            if (entry.group != current_group) {
+                current_group = entry.group;
+                into.pack_start (
+                    group (Shortcuts.group_label (entry.group)),
+                    false, false, 0);
             }
-            bool first = true;
-            foreach (unowned string key in combo.split ("+")) {
-                if (!first) {
-                    badges.pack_start (new Gtk.Label ("+"),
-                                       false, false, 0);
+            if (Shortcuts.is_overridden (entry)) {
+                any_override = true;
+            }
+            into.pack_start (shortcut_row (into, entry),
+                             false, false, 0);
+        }
+
+        var reset_all = new Gtk.Button.with_label (
+            _("Reset every shortcut"));
+        reset_all.halign = Gtk.Align.START;
+        reset_all.sensitive = any_override;
+        reset_all.clicked.connect (() => {
+            complain (into, Shortcuts.reset_all ());
+            fill_shortcuts (into);
+        });
+        into.pack_start (reset_all, false, false, 0);
+        into.show_all ();
+    }
+
+    /* One shortcut: what it does on the left, its keys and a Change
+     * button on the right. The ten taskbar slots are one row and are
+     * not editable — they are generated as a block. */
+    private Gtk.Widget shortcut_row (Gtk.Box into,
+                                     Shortcuts.Entry entry) {
+        string key = Shortcuts.current_key (entry);
+        var controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+        controls.pack_start (key_badges (Shortcuts.display_key (key)),
+                             false, false, 0);
+        if (entry.editable) {
+            var change = new Gtk.Button.with_label (_("Change"));
+            change.clicked.connect (() => {
+                string? chosen = ask_for_key (into, entry);
+                if (chosen != null) {
+                    complain (into, Shortcuts.set_key (entry, chosen));
+                    fill_shortcuts (into);
                 }
-                first = false;
-                var badge = new Gtk.Label (key);
-                badge.get_style_context ().add_class ("kavis-key");
-                badges.pack_start (badge, false, false, 0);
+            });
+            controls.pack_start (change, false, false, 0);
+            if (Shortcuts.is_overridden (entry)) {
+                var reset = new Gtk.Button.from_icon_name (
+                    "edit-undo-symbolic", Gtk.IconSize.BUTTON);
+                reset.tooltip_text = _("Back to %s").printf (
+                    Shortcuts.display_key (entry.key));
+                reset.clicked.connect (() => {
+                    complain (into,
+                              Shortcuts.set_key (entry, entry.key));
+                    fill_shortcuts (into);
+                });
+                controls.pack_start (reset, false, false, 0);
             }
         }
-        body.pack_start (row (description, null, badges),
-                         false, false, 0);
+        return row (Shortcuts.label (entry.id),
+                    Shortcuts.is_overridden (entry)
+                        ? _("Changed from %s").printf (
+                              Shortcuts.display_key (entry.key))
+                        : null,
+                    controls);
+    }
+
+    /* set-shortcuts refuses rather than leave the session with two
+     * actions on one key. It should not get that far — the dialog
+     * checks first — but a hand-edited kavis.conf can still bring the
+     * refusal, and silence would look like the change had worked. */
+    private void complain (Gtk.Widget anchor, string? message) {
+        if (message == null || message == "") {
+            return;
+        }
+        var dialog = new Gtk.MessageDialog (
+            anchor.get_toplevel () as Gtk.Window,
+            Gtk.DialogFlags.MODAL, Gtk.MessageType.WARNING,
+            Gtk.ButtonsType.OK, "%s",
+            _("The shortcut could not be applied: %s").printf (message));
+        dialog.run ();
+        dialog.destroy ();
+    }
+
+    /* "Win+Shift+S" → three badges. */
+    private Gtk.Widget key_badges (string combo) {
+        var badges = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 4);
+        bool first = true;
+        foreach (unowned string key in combo.split ("+")) {
+            if (!first) {
+                badges.pack_start (new Gtk.Label ("+"), false, false, 0);
+            }
+            first = false;
+            var badge = new Gtk.Label (key);
+            badge.get_style_context ().add_class ("kavis-key");
+            badges.pack_start (badge, false, false, 0);
+        }
+        return badges;
+    }
+
+    /* Ask for a new combination. Returns null when the user backed
+     * out, or when the key is already taken — a shortcut on two
+     * actions is not a warning in openbox, it runs both, which is the
+     * bug that made Alt+F4 close a window AND open the power dialog.
+     *
+     * The dialog keeps the keyboard to itself while it is up: without
+     * a grab the combination being typed would ALSO fire the shortcut
+     * it is bound to today, and pressing Win+E to reassign it would
+     * open the file manager over the dialog. */
+    private string? ask_for_key (Gtk.Widget anchor,
+                                 Shortcuts.Entry entry) {
+        var parent = anchor.get_toplevel () as Gtk.Window;
+        var dialog = new Gtk.Dialog.with_buttons (
+            _("Change shortcut"), parent,
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            _("Cancel"), Gtk.ResponseType.CANCEL);
+        var text = new Gtk.Label (
+            _("Press the new combination for “%s”.")
+                .printf (Shortcuts.label (entry.id)));
+        text.set_line_wrap (true);
+        var hint = new Gtk.Label (
+            _("Esc cancels. The keys are taken as they are pressed."));
+        hint.get_style_context ().add_class ("dim-label");
+        hint.set_line_wrap (true);
+        var box = dialog.get_content_area ();
+        box.spacing = 8;
+        box.margin = 16;
+        box.pack_start (text, false, false, 0);
+        box.pack_start (hint, false, false, 0);
+        box.show_all ();
+
+        string chosen = "";
+        dialog.key_press_event.connect ((event) => {
+            if (event.keyval == Gdk.Key.Escape) {
+                dialog.response (Gtk.ResponseType.CANCEL);
+                return true;
+            }
+            string binding = Shortcuts.from_event (event.keyval,
+                                                   event.state);
+            if (binding == "") {
+                return true;   /* still holding modifiers down */
+            }
+            chosen = binding;
+            dialog.response (Gtk.ResponseType.OK);
+            return true;
+        });
+        dialog.map_event.connect (() => {
+            var seat = Gdk.Display.get_default ().get_default_seat ();
+            seat.grab (dialog.get_window (),
+                       Gdk.SeatCapabilities.KEYBOARD,
+                       false, null, null, null);
+            return false;
+        });
+
+        int answer = dialog.run ();
+        Gdk.Display.get_default ().get_default_seat ().ungrab ();
+        dialog.destroy ();
+        if (answer != Gtk.ResponseType.OK || chosen == "") {
+            return null;
+        }
+        string? taken = Shortcuts.key_taken_by (entry, chosen);
+        if (taken != null) {
+            var clash = new Gtk.MessageDialog (parent,
+                Gtk.DialogFlags.MODAL, Gtk.MessageType.WARNING,
+                Gtk.ButtonsType.OK, "%s",
+                _("%s is already “%s”. Change that one first.")
+                    .printf (Shortcuts.display_key (chosen),
+                             Shortcuts.label (taken)));
+            clash.run ();
+            clash.destroy ();
+            return null;
+        }
+        return chosen;
     }
 
     /* The right-click menu of the panel indicator offers the layouts

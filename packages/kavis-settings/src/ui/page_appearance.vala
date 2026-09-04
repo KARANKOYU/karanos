@@ -13,6 +13,8 @@ namespace Kavis.Settings.Pages {
         /* Theme: dark (default) / light. "Follow system" was REMOVED
          * (B1): we are the system, there is no third source. A legacy
          * "system" in the conf falls back to dark. */
+        var look = subsection (body, "theme",
+                               Catalog.sub_title ("appearance", "theme"));
         var theme = new Gtk.ComboBoxText ();
         theme.append ("dark", _("Dark"));
         theme.append ("light", _("Light"));
@@ -22,7 +24,7 @@ namespace Kavis.Settings.Pages {
             conf_set ("appearance", "theme", theme.active_id);
             Apply.theme (theme.active_id);
         });
-        body.pack_start (row (_("Theme"),
+        look.pack_start (row (_("Theme"),
             _("Dark is the default"), theme), false, false, 0);
 
         /* Corner rounding (window corners, picom). */
@@ -68,12 +70,22 @@ namespace Kavis.Settings.Pages {
                          int.parse (anim.active_id ?? "100"),
                          popup.active_id ?? "slide");
         });
-        body.pack_start (row (_("Corner roundness"),
+        /* Accent color: fixed teal — display only (madde 38). It
+         * belongs with the theme, not with the effects below. */
+        var swatch = new Gtk.Label ("   ");
+        swatch.get_style_context ().add_class ("kavis-accent-swatch");
+        look.pack_start (row (_("Accent color"),
+            _("Teal — fixed in this release"), swatch),
+            false, false, 0);
+
+        var effects = subsection (body, "effects",
+            Catalog.sub_title ("appearance", "effects"));
+        effects.pack_start (row (_("Corner roundness"),
             _("Window corners; popups keep the design values"),
             radius), false, false, 0);
-        body.pack_start (row (_("Animation speed"), null, anim),
-                         false, false, 0);
-        body.pack_start (row (_("Popup animation"),
+        effects.pack_start (row (_("Animation speed"), null, anim),
+                            false, false, 0);
+        effects.pack_start (row (_("Popup animation"),
             _("Start menu, quick settings and notifications"), popup),
             false, false, 0);
 
@@ -85,7 +97,7 @@ namespace Kavis.Settings.Pages {
             conf_set_bool ("appearance", "transparency",
                            transparency.active);
         });
-        body.pack_start (row (_("Transparency effects"),
+        effects.pack_start (row (_("Transparency effects"),
             _("Taskbar and popup translucency (blur needs a GPU backend — design limit)"),
             transparency), false, false, 0);
 
@@ -93,24 +105,18 @@ namespace Kavis.Settings.Pages {
          * selected one gets a 2px teal outline + a check at top right.
          * B8: thumbnails are scaled to 200px and loaded on idle after
          * the window is drawn — they do not enter the startup RSS. */
-        body.pack_start (group (_("Wallpaper")), false, false, 0);
+        var walls = subsection (body, "wallpaper",
+            Catalog.sub_title ("appearance", "wallpaper"));
         var flow = new Gtk.FlowBox ();
         flow.max_children_per_line = 4;
         flow.column_spacing = 8;
         flow.row_spacing = 8;
         flow.selection_mode = Gtk.SelectionMode.NONE;
-        body.pack_start (flow, false, false, 0);
+        walls.pack_start (flow, false, false, 0);
         Idle.add (() => {
             load_wallpapers (flow);
             return Source.REMOVE;
         });
-
-        /* Accent color: fixed teal — display only (madde 38). */
-        var swatch = new Gtk.Label ("   ");
-        swatch.get_style_context ().add_class ("kavis-accent-swatch");
-        body.pack_start (row (_("Accent color"),
-            _("Teal — fixed in this release"), swatch),
-            false, false, 0);
 
         return page;
     }

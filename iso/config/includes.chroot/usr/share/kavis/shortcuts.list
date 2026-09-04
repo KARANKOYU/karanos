@@ -1,0 +1,90 @@
+# Kavis shortcut catalogue (item 74) — THE single source.
+#
+# Three things read this file and none of them may hold a second copy:
+#
+#   * iso/config/hooks/normal/0210-openbox-keybinds.hook.chroot
+#     writes the Kavis block of /etc/xdg/openbox/rc.xml from it,
+#   * Settings > Keyboard shows it, grouped, and lets the user
+#     reassign a key (the override goes to kavis.conf [shortcuts] and
+#     /usr/lib/kavis/set-shortcuts rebuilds the user's rc.xml),
+#   * tools/gen-keybind-scenario.py turns every line into a selftest
+#     step, so a shortcut that stops working fails CI.
+#
+# Before this file the bindings lived in the hook and the list in
+# Settings was typed out by hand next to it. They had already drifted:
+# Settings claimed Ctrl+Win+Left/Right switched desktops when the real
+# binding is Ctrl+Alt+Left/Right.
+#
+# FIELDS:  id | group | default key | action
+#
+#   id      stable, used by the config overrides and by the label
+#           table in page_keyboard.vala. Never reused for something
+#           else — an override in a user's kavis.conf names it.
+#   group   system | window | desktop | screen | apps | media
+#   key     openbox syntax: W=Super C=Ctrl A=Alt S=Shift
+#   action  exec <command>   run a command
+#           wm <name>        window action; the XML lives in the hook,
+#                            which is the only place that speaks
+#                            openbox
+#           stock            openbox's own binding, kept as it is. The
+#                            hook writes nothing; Settings still shows
+#                            it and can still reassign it
+#           generated        written by a loop in the hook (the ten
+#                            taskbar slots). Shown, not editable
+
+# --- system ----------------------------------------------------------
+# The start menu is Super ALONE. xcape turns a Super_L tap into
+# XF86Launch5 (Win+letter shortcuts still see Super as a modifier), so
+# the binding that reaches openbox is the synthetic key, not "W".
+start-menu | system | XF86Launch5 | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false
+# Ctrl+Esc reaches the start menu when a hypervisor swallows Super.
+start-menu-alt | system | C-Escape | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false
+run | system | W-r | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu true
+clipboard | system | W-v | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowClipboard
+emoji | system | W-period | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowPicker last
+security-screen | system | C-A-Delete | exec kavis-tools secure-menu
+task-manager | system | C-S-Escape | exec kavis-taskmanager
+lock-screen | system | W-l | exec kavis-lock
+
+# --- window ----------------------------------------------------------
+snap-left | window | W-Left | wm snap-left
+snap-right | window | W-Right | wm snap-right
+maximize | window | W-Up | wm maximize
+restore | window | W-Down | wm restore
+snap-menu | window | W-z | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowSnapMenu
+# Closes the window, or opens the power dialog when the desktop has
+# focus — the tool decides, which is why this is not openbox's Close.
+close-window | window | A-F4 | exec kavis-tools alt-f4
+switch-windows | window | A-Tab | stock
+
+# --- desktop ---------------------------------------------------------
+overview | desktop | W-Tab | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowOverview
+show-desktop | desktop | W-d | stock
+# Next before previous on purpose: the generated selftest presses the
+# catalogue in order, and next-then-previous is a round trip that ends
+# on the desktop it started from.
+desktop-next | desktop | C-A-Right | stock
+desktop-prev | desktop | C-A-Left | stock
+
+# --- screen ----------------------------------------------------------
+screenshot | screen | Print | exec kavis-tools capture
+screenshot-alt | screen | W-S-s | exec kavis-tools capture
+screenshot-quick | screen | C-Print | exec kavis-tools capture --quick
+color-picker | screen | W-S-c | exec kavis-tools capture --color
+
+# --- apps ------------------------------------------------------------
+files | apps | W-e | exec nemo
+settings | apps | W-i | exec kavis-settings
+pinned-slots | apps | W-1 | generated
+
+# --- media (the Fn row on a laptop) ----------------------------------
+# These are the keys Fn produces; reassigning one is how a keyboard
+# that reports something else is made to work.
+volume-up | media | XF86AudioRaiseVolume | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeUp
+volume-down | media | XF86AudioLowerVolume | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeDown
+volume-mute | media | XF86AudioMute | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.VolumeMute
+brightness-up | media | XF86MonBrightnessUp | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.BrightnessUp
+brightness-down | media | XF86MonBrightnessDown | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.BrightnessDown
+media-play | media | XF86AudioPlay | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media play
+media-next | media | XF86AudioNext | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media next
+media-prev | media | XF86AudioPrev | exec gdbus call --session --dest org.kavis.Osd --object-path /org/kavis/Osd --method org.kavis.Osd.Media prev

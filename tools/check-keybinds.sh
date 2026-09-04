@@ -24,6 +24,10 @@ STOCK=${1:-/etc/xdg/openbox/rc.xml}
 DISPLAY_NO=${DISPLAY_NO:-77}
 WINDOW_CMD=${KAVIS_WINDOW_CMD:-xterm}
 HOOK=iso/config/hooks/normal/0210-openbox-keybinds.hook.chroot
+# item 74: the bindings come from the catalogue now. Point the hook at
+# the copy in the repository — on the ISO it reads the same file from
+# /usr/share/kavis, placed there by includes.chroot.
+CATALOG=iso/config/includes.chroot/usr/share/kavis/shortcuts.list
 
 # ALL required tools are checked at once; the missing ones on one line
 # (so CI does not fail one by one — v0.4-test2 red: xprop was missing).
@@ -50,6 +54,7 @@ cp "$STOCK" "$T/rc.xml"
 # is already redirected into $T (the guard exists to stop an UNMODIFIED
 # hook from running on a developer machine).
 sed -e "s|^RC=/etc/xdg/openbox/rc.xml|RC=$T/rc.xml|" \
+    -e "s|^CATALOG=/usr/share/kavis/shortcuts.list|CATALOG=$CATALOG|" \
     -e '/--- Host guard/,/^fi$/d' "$HOOK" > "$T/hook.sh"
 sh "$T/hook.sh" >/dev/null || { echo "ERROR: 0210 hook failed" >&2; exit 2; }
 

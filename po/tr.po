@@ -1700,3 +1700,267 @@ msgstr "Parola yanlış"
 
 msgid "Lock the screen after"
 msgstr "Ekranı kilitleme süresi"
+
+msgid "Theme and color"
+msgstr "Tema ve renk"
+
+msgid "Effects"
+msgstr "Efektler"
+
+msgid "Output"
+msgstr "Çıkış"
+
+msgid "Screen and sleep"
+msgstr "Ekran ve uyku"
+
+msgid "Tests"
+msgstr "Testler"
+
+msgid "Dark or light, the whole desktop"
+msgstr "Koyu ya da açık, tüm masaüstü"
+
+msgid "The teal of the brand"
+msgstr "Markanın turkuazı"
+
+msgid "How round window corners are"
+msgstr "Pencere köşelerinin ne kadar yuvarlak olduğu"
+
+msgid "How fast windows open and close"
+msgstr "Pencerelerin ne hızda açılıp kapandığı"
+
+msgid "How the panel's popups appear"
+msgstr "Panel açılır pencerelerinin nasıl belirdiği"
+
+msgid "Blur behind the taskbar and menus"
+msgstr "Görev çubuğu ve menülerin arkasındaki bulanıklık"
+
+msgid "The desktop background"
+msgstr "Masaüstü arka planı"
+
+msgid "How many pixels the screen shows"
+msgstr "Ekranın kaç piksel gösterdiği"
+
+msgid "How many times a second the screen redraws"
+msgstr "Ekranın saniyede kaç kez yenilendiği"
+
+msgid "How large everything is drawn"
+msgstr "Her şeyin ne büyüklükte çizildiği"
+
+msgid "Rotate the screen"
+msgstr "Ekranı döndür"
+
+msgid "How bright the screen is"
+msgstr "Ekranın ne kadar parlak olduğu"
+
+msgid "Which screen the taskbar is on"
+msgstr "Görev çubuğunun hangi ekranda olduğu"
+
+msgid "Mirror or extend"
+msgstr "Yansıt ya da genişlet"
+
+msgid "Warmer colors after sunset"
+msgstr "Gün batımından sonra daha sıcak renkler"
+
+msgid "How warm the night colors are"
+msgstr "Gece renklerinin ne kadar sıcak olduğu"
+
+msgid "Sunset to sunrise, or hours you choose"
+msgstr "Gün batımından gün doğumuna ya da seçtiğin saatler"
+
+msgid "Where sound comes out"
+msgstr "Sesin nereden çıktığı"
+
+msgid "How loud everything is"
+msgstr "Her şeyin ne kadar yüksek olduğu"
+
+msgid "The sounds the desktop itself makes"
+msgstr "Masaüstünün kendi çıkardığı sesler"
+
+msgid "The language of the interface"
+msgstr "Arayüzün dili"
+
+msgid "Which letters the keys type"
+msgstr "Tuşların hangi harfleri yazdığı"
+
+msgid "Every key combination, and how to change one"
+msgstr "Tüm tuş birleşimleri ve birinin nasıl değiştirileceği"
+
+msgid "Efficiency, balanced or performance"
+msgstr "Verimlilik, dengeli ya da performans"
+
+msgid "Idle time before the screen locks"
+msgstr "Ekran kilitlenmeden önceki boşta süre"
+
+msgid "Idle time before the screen goes dark"
+msgstr "Ekran kararmadan önceki boşta süre"
+
+msgid "Idle time before the machine sleeps"
+msgstr "Makine uykuya geçmeden önceki boşta süre"
+
+msgid "What closing the lid does"
+msgstr "Kapağı kapatmanın ne yapacağı"
+
+msgid "Sleep or hibernate right now"
+msgstr "Şimdi uyku ya da hazırda bekletme"
+
+msgid "Turn wireless on or off"
+msgstr "Kablosuzu aç ya da kapat"
+
+msgid "Networks in range"
+msgstr "Menzildeki ağlar"
+
+msgid "Saved networks and the hotspot"
+msgstr "Kayıtlı ağlar ve etkin nokta"
+
+msgid "The cable connection, and manual IP"
+msgstr "Kablolu bağlantı ve elle IP"
+
+msgid "Import and use a VPN profile"
+msgstr "VPN profili içe aktar ve kullan"
+
+msgid "DNS over TLS, and which resolver"
+msgstr "TLS üzerinden DNS ve hangi çözümleyici"
+
+msgid "Which edge the taskbar is on"
+msgstr "Görev çubuğunun hangi kenarda olduğu"
+
+msgid "How tall the taskbar is"
+msgstr "Görev çubuğunun ne kadar yüksek olduğu"
+
+msgid "Centred or to the left"
+msgstr "Ortada ya da solda"
+
+msgid "The taskbar gets out of the way"
+msgstr "Görev çubuğu yoldan çekilir"
+
+msgid "Which apps sit on the taskbar"
+msgstr "Görev çubuğunda hangi uygulamaların durduğu"
+
+msgid "Nine checks: does this machine work"
+msgstr "Dokuz denetim: bu makine çalışıyor mu"
+
+msgid "What this machine is"
+msgstr "Bu makinenin ne olduğu"
+
+msgid "Kavis tests its own interface and writes a report"
+msgstr "Kavis kendi arayüzünü sınar ve bir rapor yazar"
+
+msgid "Media and Fn keys"
+msgstr "Medya ve Fn tuşları"
+
+msgid "Start menu (second key)"
+msgstr "Başlat menüsü (ikinci tuş)"
+
+msgid "Lock screen"
+msgstr "Kilit ekranı"
+
+msgid "Snap to the left half"
+msgstr "Sol yarıya yasla"
+
+msgid "Snap to the right half"
+msgstr "Sağ yarıya yasla"
+
+msgid "Maximize"
+msgstr "Büyüt"
+
+msgid "Restore or minimize"
+msgstr "Geri getir ya da küçült"
+
+msgid "Next desktop"
+msgstr "Sonraki masaüstü"
+
+msgid "Previous desktop"
+msgstr "Önceki masaüstü"
+
+msgid "Screenshot (second key)"
+msgstr "Ekran görüntüsü (ikinci tuş)"
+
+msgid "Screenshot without asking"
+msgstr "Sormadan ekran görüntüsü"
+
+msgid "Open pinned app 1…10"
+msgstr "Sabitlenmiş uygulama 1…10'u aç"
+
+msgid "Volume up"
+msgstr "Sesi artır"
+
+msgid "Volume down"
+msgstr "Sesi azalt"
+
+msgid "Brightness up"
+msgstr "Parlaklığı artır"
+
+msgid "Brightness down"
+msgstr "Parlaklığı azalt"
+
+msgid "Play / pause"
+msgstr "Oynat / duraklat"
+
+msgid "Next track"
+msgstr "Sonraki parça"
+
+msgid "Previous track"
+msgstr "Önceki parça"
+
+msgid "Space"
+msgstr "Boşluk"
+
+msgid "Enter"
+msgstr "Enter"
+
+msgid "Volume up key"
+msgstr "Ses artırma tuşu"
+
+msgid "Volume down key"
+msgstr "Ses azaltma tuşu"
+
+msgid "Mute key"
+msgstr "Sessize alma tuşu"
+
+msgid "Brightness up key"
+msgstr "Parlaklık artırma tuşu"
+
+msgid "Brightness down key"
+msgstr "Parlaklık azaltma tuşu"
+
+msgid "Play key"
+msgstr "Oynat tuşu"
+
+msgid "Next track key"
+msgstr "Sonraki parça tuşu"
+
+msgid "Previous track key"
+msgstr "Önceki parça tuşu"
+
+msgid "The shortcut list is missing from this system"
+msgstr "Kısayol listesi bu sistemde yok"
+
+msgid "Reset every shortcut"
+msgstr "Tüm kısayolları sıfırla"
+
+msgid "Change"
+msgstr "Değiştir"
+
+msgid "Back to %s"
+msgstr "%s tuşuna dön"
+
+msgid "Changed from %s"
+msgstr "%s iken değiştirildi"
+
+msgid "The shortcut could not be applied: %s"
+msgstr "Kısayol uygulanamadı: %s"
+
+msgid "Change shortcut"
+msgstr "Kısayolu değiştir"
+
+msgid "Press the new combination for “%s”."
+msgstr "“%s” için yeni birleşimi tuşla."
+
+msgid "Esc cancels. The keys are taken as they are pressed."
+msgstr "Esc iptal eder. Tuşlar basıldıkları gibi alınır."
+
+msgid "%s is already “%s”. Change that one first."
+msgstr "%s zaten “%s”. Önce onu değiştir."
+
+msgid "Nothing matches “%s”"
+msgstr "“%s” ile eşleşen bir şey yok"

@@ -9,6 +9,9 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
+        var layout = subsection (body, "layout",
+            Catalog.sub_title ("taskbar", "layout"));
+
         var position = new Gtk.ComboBoxText ();
         position.append ("bottom", _("Bottom"));
         position.append ("top", _("Top"));
@@ -25,8 +28,8 @@ namespace Kavis.Settings.Pages {
                                    "slide"),
                          position.active_id ?? "bottom");
         });
-        body.pack_start (row (_("Position"), null, position),
-                         false, false, 0);
+        layout.pack_start (row (_("Position"), null, position),
+                           false, false, 0);
 
         var size = new Gtk.ComboBoxText ();
         size.append ("thin", _("Small"));
@@ -36,7 +39,7 @@ namespace Kavis.Settings.Pages {
         size.changed.connect (() => {
             conf_set ("taskbar", "size", size.active_id);
         });
-        body.pack_start (row (_("Size"), null, size), false, false, 0);
+        layout.pack_start (row (_("Size"), null, size), false, false, 0);
 
         var align = new Gtk.ComboBoxText ();
         align.append ("left", _("Left"));
@@ -45,7 +48,7 @@ namespace Kavis.Settings.Pages {
         align.changed.connect (() => {
             conf_set ("taskbar", "align", align.active_id);
         });
-        body.pack_start (row (_("Alignment"),
+        layout.pack_start (row (_("Alignment"),
             _("Start button and window list placement"), align),
             false, false, 0);
 
@@ -54,13 +57,14 @@ namespace Kavis.Settings.Pages {
         autohide.notify["active"].connect (() => {
             conf_set_bool ("taskbar", "autohide", autohide.active);
         });
-        body.pack_start (row (_("Automatically hide the taskbar"),
-                              null, autohide), false, false, 0);
+        layout.pack_start (row (_("Automatically hide the taskbar"),
+                               null, autohide), false, false, 0);
 
         /* Pinned apps: the list + how to edit it. Editing happens on
          * the taskbar itself (drag / right-click) — a second editor
          * here would be duplicate work. */
-        body.pack_start (group (_("Pinned apps")), false, false, 0);
+        var pinned = subsection (body, "pinned",
+            Catalog.sub_title ("taskbar", "pinned"));
         string pinned_path = Path.build_filename (
             Environment.get_user_config_dir (), "kavis", "pinned.conf");
         string names = "";
@@ -83,12 +87,12 @@ namespace Kavis.Settings.Pages {
         pinned_label.set_xalign (0);
         pinned_label.set_line_wrap (true);
         pinned_label.get_style_context ().add_class ("dim-label");
-        body.pack_start (pinned_label, false, false, 0);
+        pinned.pack_start (pinned_label, false, false, 0);
         var hint = new Gtk.Label (
             _("Pin and reorder from the taskbar itself (right-click or drag)"));
         hint.set_xalign (0);
         hint.get_style_context ().add_class ("dim-label");
-        body.pack_start (hint, false, false, 0);
+        pinned.pack_start (hint, false, false, 0);
 
         return page;
     }

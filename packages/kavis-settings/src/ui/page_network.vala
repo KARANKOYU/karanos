@@ -39,6 +39,11 @@ namespace Kavis.Settings.Pages {
         }
 
         /* Rebuild the whole page from the current state. */
+        /* The box of the sub-section being filled right now. Each
+         * section method opens one and packs into it; the page is a
+         * list of blocks instead of one long run of cards (item 74). */
+        private Gtk.Box block;
+
         private void refresh () {
             foreach (var child in ((Gtk.Box) page).get_children ()) {
                 ((Gtk.Box) page).remove (child);
@@ -73,7 +78,8 @@ namespace Kavis.Settings.Pages {
                 return;   /* no Wi-Fi hardware: the section would be a lie */
             }
             bool on = radio.strip () == "enabled";
-            body.pack_start (group (_("Wi-Fi")), false, false, 0);
+            block = subsection (body, "wifi",
+                                Catalog.sub_title ("network", "wifi"));
 
             var wifi = new Gtk.Switch ();
             wifi.active = on;
@@ -84,7 +90,7 @@ namespace Kavis.Settings.Pages {
                  * immediately would show an empty list. */
                 Timeout.add_seconds (2, () => { refresh (); return Source.REMOVE; });
             });
-            body.pack_start (row (_("Wi-Fi"), null, wifi), false, false, 0);
+            block.pack_start (row (_("Wi-Fi"), null, wifi), false, false, 0);
             if (!on) {
                 return;
             }
@@ -107,7 +113,7 @@ namespace Kavis.Settings.Pages {
                         continue;
                     }
                     seen.add (f[0]);
-                    body.pack_start (wifi_row (f[0], f[1], f[2],
+                    block.pack_start (wifi_row (f[0], f[1], f[2],
                                                f[3] == "yes"),
                                      false, false, 0);
                     if (++shown >= 12) {
@@ -116,7 +122,7 @@ namespace Kavis.Settings.Pages {
                 }
             }
             if (shown == 0) {
-                body.pack_start (row (_("Available networks"),
+                block.pack_start (row (_("Available networks"),
                     _("No networks found"), null), false, false, 0);
             }
 
@@ -130,7 +136,7 @@ namespace Kavis.Settings.Pages {
             var buttons = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             buttons.pack_start (rescan, false, false, 0);
             buttons.pack_start (hotspot, false, false, 0);
-            body.pack_start (row (_("Wi-Fi actions"),
+            block.pack_start (row (_("Wi-Fi actions"),
                 _("Share this machine's connection over Wi-Fi"),
                 buttons), false, false, 0);
         }
@@ -257,7 +263,8 @@ namespace Kavis.Settings.Pages {
                     continue;
                 }
                 if (!header) {
-                    body.pack_start (group (_("Wired")), false, false, 0);
+                    block = subsection (body, "wired",
+                        Catalog.sub_title ("network", "wired"));
                     header = true;
                 }
                 bool up = f[2] == "connected";
@@ -277,7 +284,7 @@ namespace Kavis.Settings.Pages {
                     addresses.clicked.connect (() => address_dialog (connection));
                     controls.pack_start (addresses, false, false, 0);
                 }
-                body.pack_start (row (f[0], up ? f[3] : _("Not connected"),
+                block.pack_start (row (f[0], up ? f[3] : _("Not connected"),
                                       controls), false, false, 0);
             }
         }
@@ -372,7 +379,8 @@ namespace Kavis.Settings.Pages {
         /* --- VPN ------------------------------------------------------ */
 
         private void vpn_section () {
-            body.pack_start (group (_("VPN")), false, false, 0);
+            block = subsection (body, "vpn",
+                                Catalog.sub_title ("network", "vpn"));
             string? saved = Run.capture ({ "nmcli", "-t", "-f",
                 "NAME,TYPE,STATE", "connection", "show" });
             int count = 0;
@@ -406,7 +414,7 @@ namespace Kavis.Settings.Pages {
                     });
                     controls.pack_start (toggle, false, false, 0);
                     controls.pack_start (remove, false, false, 0);
-                    body.pack_start (row (name,
+                    block.pack_start (row (name,
                         (f[1] == "wireguard") ? "WireGuard" : "OpenVPN",
                         controls), false, false, 0);
                     count++;
@@ -414,7 +422,7 @@ namespace Kavis.Settings.Pages {
             }
             var import = new Gtk.Button.with_label (_("Import a profile…"));
             import.clicked.connect (() => import_vpn ());
-            body.pack_start (row (
+            block.pack_start (row (
                 (count == 0) ? _("No VPN configured") : _("Add another"),
                 _("A WireGuard .conf or an OpenVPN .ovpn file"),
                 import), false, false, 0);
@@ -458,7 +466,8 @@ namespace Kavis.Settings.Pages {
                                  FileTest.IS_EXECUTABLE)) {
                 return;
             }
-            body.pack_start (group (_("DNS privacy")), false, false, 0);
+            block = subsection (body, "dns",
+                                Catalog.sub_title ("network", "dns"));
             var provider = new Gtk.ComboBoxText ();
             provider.append ("off", _("Off (use the network's DNS)"));
             provider.append ("cloudflare", "Cloudflare");
@@ -475,7 +484,7 @@ namespace Kavis.Settings.Pages {
              * resolver; DoT is what this machine can do without adding
              * a proxy, and calling it DoH in the interface would be a
              * lie the user could not check. */
-            body.pack_start (row (_("Encrypted DNS"),
+            block.pack_start (row (_("Encrypted DNS"),
                 _("Send DNS queries over TLS to a chosen resolver instead of the network's"),
                 provider), false, false, 0);
         }

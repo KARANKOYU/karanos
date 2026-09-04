@@ -16,20 +16,21 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        body.pack_start (group (_("About")), false, false, 0);
+        var about = subsection (body, "about",
+                                Catalog.sub_title ("system", "about"));
         foreach (unowned Kavis.SysInfo.Fact fact in Kavis.SysInfo.os_facts ()) {
-            body.pack_start (row (fact.label, null, value_label (fact.value)),
-                             false, false, 0);
+            about.pack_start (row (fact.label, null, value_label (fact.value)),
+                              false, false, 0);
         }
 
-        body.pack_start (about_section (_("Processor"), "cpu", true),
-                         false, false, 0);
-        body.pack_start (about_section (_("Graphics"), "gpu", false),
-                         false, false, 0);
-        body.pack_start (about_section (_("Memory"), "memory", false),
-                         false, false, 0);
-        body.pack_start (about_section (_("Disk"), "disk", false),
-                         false, false, 0);
+        about.pack_start (about_section (_("Processor"), "cpu", true),
+                          false, false, 0);
+        about.pack_start (about_section (_("Graphics"), "gpu", false),
+                          false, false, 0);
+        about.pack_start (about_section (_("Memory"), "memory", false),
+                          false, false, 0);
+        about.pack_start (about_section (_("Disk"), "disk", false),
+                          false, false, 0);
 
         var copy = new Gtk.Button.with_label (_("Copy details"));
         copy.halign = Gtk.Align.START;
@@ -41,17 +42,18 @@ namespace Kavis.Settings.Pages {
                 .set_text (Kavis.SysInfo.report (Kavis.SysInfo.collect ()),
                            -1);
         });
-        body.pack_start (copy, false, false, 0);
+        about.pack_start (copy, false, false, 0);
 
         /* Selftest (item 72): only when kavis-selftest is installed —
          * Settings must not depend on the test runner, and a button that
          * cannot do anything is worse than no button. */
         if (Environment.find_program_in_path ("kavis-selftest") != null) {
-            body.pack_start (group (_("Self test")), false, false, 0);
+            var selftest = subsection (body, "selftest",
+                Catalog.sub_title ("system", "selftest"));
             var test = new Gtk.Button.with_label (_("Test this system"));
             test.halign = Gtk.Align.START;
             test.clicked.connect (() => run_selftest (test));
-            body.pack_start (row (_("Automatic interface test"),
+            selftest.pack_start (row (_("Automatic interface test"),
                 _("Runs the interface through its own checks and writes a report"),
                 test), false, false, 0);
         }
