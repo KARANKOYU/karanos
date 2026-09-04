@@ -129,11 +129,25 @@ namespace Kavis {
                 : (minute >= from || minute < to);
         }
 
+        /* Whether xsct exists at all. Checked once: without it there
+         * is no way to set the screen temperature, and retrying every
+         * minute would put a warning a minute in the journal — which
+         * boot-check counts as errors. */
+        private bool tool_missing = false;
+
         /* Apply what the settings ask for, if it is not already what
          * the screen has. */
         public void apply_now () {
+            if (tool_missing) {
+                return;
+            }
             int want = wanted_now () ? temperature () : DAY_TEMPERATURE;
             if (want == applied) {
+                return;
+            }
+            if (Environment.find_program_in_path ("xsct") == null) {
+                tool_missing = true;
+                warning ("kavis: xsct is not installed, night light is off");
                 return;
             }
             applied = want;
