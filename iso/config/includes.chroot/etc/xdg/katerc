@@ -1,9 +1,44 @@
 # Kavis defaults (item 40). The user's ~/.config/katerc overrides these.
 # Key names are from KTextEditor's kateconfig.cpp.
+#
+# H6 (v0.4-test2 feedback): opening a .py file used to land in Kate's
+# stock layout — toolbar, sidebars and a tab bar around six lines of
+# code. The Kavis layout is a plain editor: no toolbar, no sidebars,
+# one tab, and the same 11 pt monospace face the terminal uses. The
+# color theme is the closest dark scheme KSyntaxHighlighting ships to
+# the Kavis palette; a custom .theme file is item 40's tail.
+
 [General]
 Startup Session=new
 Show Full Path in Title=true
+Show Menu Bar=true
+Show Status Bar=true
+Show Tab Bar=false
+Show Url Nav Bar=false
+
+[MainWindow]
+ToolBarsMovable=Disabled
+State=
+
+[KTextEditor Document]
+Show Tabs=false
+Tab Width=4
+Indentation Mode=normal
+Replace Tabs=true
+
+[KTextEditor View]
+Dynamic Word Wrap=true
+Line Numbers=true
+Scroll Bar Mini Map=false
+Show Folding Bar=false
+Show Icon Bar=false
+Show Line Modification=false
+Smart Home=true
 
 [KTextEditor Renderer]
 Auto Color Theme Selection=false
 Color Theme=Breeze Dark
+Text Font=DejaVu Sans Mono,11,-1,5,50,0,0,0,0,0
+
+[filetree]
+showFullPathOnRoots=true
