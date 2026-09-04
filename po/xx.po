@@ -12,11 +12,17 @@ msgstr "⟪Smileys··⟫"
 msgid "People"
 msgstr "⟪People··⟫"
 
+msgid "Animals"
+msgstr "⟪Animals··⟫"
+
 msgid "Nature"
 msgstr "⟪Nature··⟫"
 
 msgid "Food"
 msgstr "⟪Food··⟫"
+
+msgid "Activity"
+msgstr "⟪Activity···⟫"
 
 msgid "Travel"
 msgstr "⟪Travel··⟫"
@@ -26,6 +32,9 @@ msgstr "⟪Objects··⟫"
 
 msgid "Symbols"
 msgstr "⟪Symbols··⟫"
+
+msgid "Flags"
+msgstr "⟪Flags··⟫"
 
 msgid "Happy"
 msgstr "⟪Happy··⟫"
@@ -45,23 +54,26 @@ msgstr "⟪Love··⟫"
 msgid "Other"
 msgstr "⟪Other··⟫"
 
-msgid "Currency"
-msgstr "⟪Currency···⟫"
+msgid "Math"
+msgstr "⟪Math··⟫"
 
 msgid "Arrows"
 msgstr "⟪Arrows··⟫"
 
-msgid "Punctuation"
-msgstr "⟪Punctuation····⟫"
+msgid "Currency"
+msgstr "⟪Currency···⟫"
 
-msgid "Math"
-msgstr "⟪Math··⟫"
+msgid "Greek"
+msgstr "⟪Greek··⟫"
+
+msgid "Super/subscript"
+msgstr "⟪Super/subscript······⟫"
 
 msgid "Accented letters"
 msgstr "⟪Accented letters······⟫"
 
-msgid "Super/subscript"
-msgstr "⟪Super/subscript······⟫"
+msgid "Punctuation"
+msgstr "⟪Punctuation····⟫"
 
 msgid "%s used of %s"
 msgstr "⟪%s used of %s·····⟫"
@@ -879,8 +891,20 @@ msgstr "⟪Logs··⟫"
 msgid "Right-click a process for actions"
 msgstr "⟪Right-click a process for actions·············⟫"
 
+msgid "Advanced columns"
+msgstr "⟪Advanced columns······⟫"
+
+msgid "Show the RSS and PID columns"
+msgstr "⟪Show the RSS and PID columns···········⟫"
+
 msgid "Name"
 msgstr "⟪Name··⟫"
+
+msgid "Memory (RSS)"
+msgstr "⟪Memory (RSS)····⟫"
+
+msgid "PID"
+msgstr "⟪PID··⟫"
 
 msgid "End task"
 msgstr "⟪End task···⟫"
@@ -906,9 +930,6 @@ msgstr "⟪The process is stopped at once. Unsaved work is lost.········
 msgid "Continue"
 msgstr "⟪Continue···⟫"
 
-msgid "PID"
-msgstr "⟪PID··⟫"
-
 msgid "Command line"
 msgstr "⟪Command line····⟫"
 
@@ -917,9 +938,6 @@ msgstr "⟪Working directory······⟫"
 
 msgid "Executable"
 msgstr "⟪Executable····⟫"
-
-msgid "Memory (RSS)"
-msgstr "⟪Memory (RSS)····⟫"
 
 msgid "Memory (USS)"
 msgstr "⟪Memory (USS)····⟫"

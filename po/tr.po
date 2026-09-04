@@ -1115,3 +1115,36 @@ msgstr "Dil ara"
 
 msgid "Search layouts"
 msgstr "Düzen ara"
+
+msgid "Animals"
+msgstr "Hayvanlar"
+
+msgid "Activity"
+msgstr "Aktivite"
+
+msgid "Flags"
+msgstr "Bayraklar"
+
+msgid "Greek"
+msgstr "Yunan"
+
+msgid "Advanced columns"
+msgstr "Gelişmiş sütunlar"
+
+msgid "Show the RSS and PID columns"
+msgstr "RSS ve PID sütunlarını göster"
+
+msgid ""
+"Share of the whole processor — all %d logical cores together, so the column "
+"adds up to the total."
+msgstr "Tüm işlemcinin payı — %d mantıksal çekirdeğin tamamı, böylece sütun toplamı tutar."
+
+msgid ""
+"Private memory (USS): what is really freed when this process ends. Shared "
+"libraries are not counted twice."
+msgstr "Özel bellek (USS): bu süreç bitince gerçekten boşalan miktar. Paylaşılan kütüphaneler iki kez sayılmaz."
+
+msgid ""
+"Private memory cannot be read for another user's process — this is RSS, "
+"which counts shared libraries too."
+msgstr "Başka kullanıcının sürecinde özel bellek okunamaz — bu RSS, paylaşılan kütüphaneleri de sayar."

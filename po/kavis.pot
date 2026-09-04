@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 06:40+0000\n"
+"POT-Creation-Date: 2026-09-04 08:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,100 +17,120 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: packages/kavis-common/picker_data.vala:18
-#: packages/kavis-common/picker_data.vala:38
+#: packages/kavis-common/picker_data.vala:24
+#: packages/kavis-common/picker_data.vala:50
 msgid "Smileys"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:20
-#: packages/kavis-common/picker_data.vala:38
+#: packages/kavis-common/picker_data.vala:26
+#: packages/kavis-common/picker_data.vala:50
 msgid "People"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:22
-#: packages/kavis-common/picker_data.vala:38
-msgid "Nature"
-msgstr ""
-
-#: packages/kavis-common/picker_data.vala:24
-#: packages/kavis-common/picker_data.vala:38
-msgid "Food"
-msgstr ""
-
-#: packages/kavis-common/picker_data.vala:26
-#: packages/kavis-common/picker_data.vala:39
-msgid "Travel"
-msgstr ""
-
 #: packages/kavis-common/picker_data.vala:28
-#: packages/kavis-common/picker_data.vala:39
-msgid "Objects"
+#: packages/kavis-common/picker_data.vala:50
+msgid "Animals"
 msgstr ""
 
 #: packages/kavis-common/picker_data.vala:30
-#: packages/kavis-common/picker_data.vala:39
+#: packages/kavis-common/picker_data.vala:50
+msgid "Nature"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:32
+#: packages/kavis-common/picker_data.vala:51
+msgid "Food"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:34
+#: packages/kavis-common/picker_data.vala:51
+msgid "Activity"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:36
+#: packages/kavis-common/picker_data.vala:51
+msgid "Travel"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:38
+#: packages/kavis-common/picker_data.vala:51
+msgid "Objects"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:40
+#: packages/kavis-common/picker_data.vala:52
 #: packages/kavis-panel/src/ui/picker.vala:171
 msgid "Symbols"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:43
-#: packages/kavis-common/picker_data.vala:58
+#: packages/kavis-common/picker_data.vala:42
+#: packages/kavis-common/picker_data.vala:52
+msgid "Flags"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:60
+#: packages/kavis-common/picker_data.vala:75
 msgid "Happy"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:45
-#: packages/kavis-common/picker_data.vala:58
+#: packages/kavis-common/picker_data.vala:62
+#: packages/kavis-common/picker_data.vala:75
 msgid "Sad"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:47
-#: packages/kavis-common/picker_data.vala:58
+#: packages/kavis-common/picker_data.vala:64
+#: packages/kavis-common/picker_data.vala:75
 msgid "Angry"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:49
-#: packages/kavis-common/picker_data.vala:58
+#: packages/kavis-common/picker_data.vala:66
+#: packages/kavis-common/picker_data.vala:75
 msgid "Surprised"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:51
-#: packages/kavis-common/picker_data.vala:59
+#: packages/kavis-common/picker_data.vala:68
+#: packages/kavis-common/picker_data.vala:76
 msgid "Love"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:53
-#: packages/kavis-common/picker_data.vala:59
+#: packages/kavis-common/picker_data.vala:70
+#: packages/kavis-common/picker_data.vala:76
 msgid "Other"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:63
-#: packages/kavis-common/picker_data.vala:78
-msgid "Currency"
-msgstr ""
-
-#: packages/kavis-common/picker_data.vala:65
-#: packages/kavis-common/picker_data.vala:78
-msgid "Arrows"
-msgstr ""
-
-#: packages/kavis-common/picker_data.vala:67
-#: packages/kavis-common/picker_data.vala:78
-msgid "Punctuation"
-msgstr ""
-
-#: packages/kavis-common/picker_data.vala:69
-#: packages/kavis-common/picker_data.vala:78
+#: packages/kavis-common/picker_data.vala:80
+#: packages/kavis-common/picker_data.vala:111
 msgid "Math"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:71
-#: packages/kavis-common/picker_data.vala:79
+#: packages/kavis-common/picker_data.vala:82
+#: packages/kavis-common/picker_data.vala:111
+msgid "Arrows"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:84
+#: packages/kavis-common/picker_data.vala:111
+msgid "Currency"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:86
+#: packages/kavis-common/picker_data.vala:111
+msgid "Greek"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:88
+#: packages/kavis-common/picker_data.vala:112
+msgid "Super/subscript"
+msgstr ""
+
+#: packages/kavis-common/picker_data.vala:90
+#: packages/kavis-common/picker_data.vala:112
 msgid "Accented letters"
 msgstr ""
 
-#: packages/kavis-common/picker_data.vala:73
-#: packages/kavis-common/picker_data.vala:79
-msgid "Super/subscript"
+#: packages/kavis-common/picker_data.vala:92
+#: packages/kavis-common/picker_data.vala:113
+msgid "Punctuation"
 msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:358
@@ -232,8 +252,8 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_system.vala:29
 #: packages/kavis-settings/src/ui/window.vala:147
 #: packages/kavis-taskmanager/src/perf.vala:119
-#: packages/kavis-taskmanager/src/tasks.vala:150
-#: packages/kavis-taskmanager/src/tasks.vala:589
+#: packages/kavis-taskmanager/src/tasks.vala:227
+#: packages/kavis-taskmanager/src/tasks.vala:744
 #, c-format
 msgid "Memory"
 msgstr ""
@@ -242,7 +262,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_system.vala:31
 #: packages/kavis-settings/src/ui/window.vala:147
 #: packages/kavis-taskmanager/src/perf.vala:121
-#: packages/kavis-taskmanager/src/tasks.vala:151
+#: packages/kavis-taskmanager/src/tasks.vala:228
 msgid "Disk"
 msgstr ""
 
@@ -501,8 +521,8 @@ msgid "Display settings"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/panel.vala:1487
-#: packages/kavis-taskmanager/src/tasks.vala:67
-#: packages/kavis-taskmanager/src/tasks.vala:69
+#: packages/kavis-taskmanager/src/tasks.vala:118
+#: packages/kavis-taskmanager/src/tasks.vala:120
 #: packages/kavis-tools/src/securemenu.vala:87
 msgid "Task Manager"
 msgstr ""
@@ -545,12 +565,12 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:178
 #: packages/kavis-taskmanager/src/logs.vala:40
-#: packages/kavis-taskmanager/src/tasks.vala:105
+#: packages/kavis-taskmanager/src/tasks.vala:167
 msgid "Search"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:234
-#: packages/kavis-taskmanager/src/tasks.vala:378
+#: packages/kavis-taskmanager/src/tasks.vala:542
 #: packages/kavis-tools/src/capture.vala:506
 #: packages/kavis-tools/src/repair.vala:89
 msgid "Close"
@@ -586,7 +606,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/picker.vala:520
 #: packages/kavis-settings/src/ui/page_display.vala:360
 #: packages/kavis-taskmanager/src/logs.vala:134
-#: packages/kavis-taskmanager/src/tasks.vala:337
+#: packages/kavis-taskmanager/src/tasks.vala:501
 #: packages/kavis-tools/src/altf4.vala:116
 msgid "Cancel"
 msgstr ""
@@ -703,7 +723,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/quick_settings.vala:526
 #: packages/kavis-settings/src/ui/page_power.vala:77
 #: packages/kavis-settings/src/ui/window.vala:133
-#: packages/kavis-taskmanager/src/tasks.vala:92
+#: packages/kavis-taskmanager/src/tasks.vala:154
 msgid "Performance"
 msgstr ""
 
@@ -799,11 +819,11 @@ msgstr ""
 msgid "Still writing — do not remove"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/apply.vala:206
+#: packages/kavis-settings/src/logic/apply.vala:275
 msgid "Language changed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/apply.vala:207
+#: packages/kavis-settings/src/logic/apply.vala:276
 msgid "Sign out and back in for the change to take full effect."
 msgstr ""
 
@@ -1275,9 +1295,9 @@ msgid "Save log"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:118
-#: packages/kavis-taskmanager/src/tasks.vala:149
-#: packages/kavis-taskmanager/src/tasks.vala:407
-#: packages/kavis-taskmanager/src/tasks.vala:588
+#: packages/kavis-taskmanager/src/tasks.vala:226
+#: packages/kavis-taskmanager/src/tasks.vala:571
+#: packages/kavis-taskmanager/src/tasks.vala:742
 #, c-format
 msgid "CPU"
 msgstr ""
@@ -1351,7 +1371,7 @@ msgid "Add"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/startup.vala:139
-#: packages/kavis-taskmanager/src/tasks.vala:400
+#: packages/kavis-taskmanager/src/tasks.vala:564
 #, c-format
 msgid "User"
 msgstr ""
@@ -1364,90 +1384,119 @@ msgstr ""
 msgid "Choose an app to start with your session"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:91
+#: packages/kavis-taskmanager/src/tasks.vala:153
 msgid "Processes"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:93
+#: packages/kavis-taskmanager/src/tasks.vala:155
 msgid "Startup"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:94
+#: packages/kavis-taskmanager/src/tasks.vala:156
 msgid "Logs"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:111
+#: packages/kavis-taskmanager/src/tasks.vala:173
 msgid "Right-click a process for actions"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:148
-#: packages/kavis-taskmanager/src/tasks.vala:398
+#: packages/kavis-taskmanager/src/tasks.vala:180
+msgid "Advanced columns"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:182
+msgid "Show the RSS and PID columns"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:225
+#: packages/kavis-taskmanager/src/tasks.vala:562
 msgid "Name"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:253
+#: packages/kavis-taskmanager/src/tasks.vala:229
+#: packages/kavis-taskmanager/src/tasks.vala:572
+msgid "Memory (RSS)"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:231
+#: packages/kavis-taskmanager/src/tasks.vala:563
+msgid "PID"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:243
+#, c-format
+msgid ""
+"Share of the whole processor — all %d logical cores together, so the column "
+"adds up to the total."
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:385
+msgid ""
+"Private memory (USS): what is really freed when this process ends. Shared "
+"libraries are not counted twice."
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:386
+msgid ""
+"Private memory cannot be read for another user's process — this is RSS, "
+"which counts shared libraries too."
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:417
 msgid "End task"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:256
+#: packages/kavis-taskmanager/src/tasks.vala:420
 msgid "Kill"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:262
+#: packages/kavis-taskmanager/src/tasks.vala:426
 msgid "Open file location"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:276
-#: packages/kavis-taskmanager/src/tasks.vala:376
+#: packages/kavis-taskmanager/src/tasks.vala:440
+#: packages/kavis-taskmanager/src/tasks.vala:540
 msgid "Properties"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:309
+#: packages/kavis-taskmanager/src/tasks.vala:473
 msgid "Ending this system process may cause problems. Continue?"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:325
+#: packages/kavis-taskmanager/src/tasks.vala:489
 #, c-format
 msgid "Kill %s (PID %d)?"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:326
+#: packages/kavis-taskmanager/src/tasks.vala:490
 msgid "The process is stopped at once. Unsaved work is lost."
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:338
+#: packages/kavis-taskmanager/src/tasks.vala:502
 msgid "Continue"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:399
-msgid "PID"
-msgstr ""
-
-#: packages/kavis-taskmanager/src/tasks.vala:401
+#: packages/kavis-taskmanager/src/tasks.vala:565
 msgid "Command line"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:403
+#: packages/kavis-taskmanager/src/tasks.vala:567
 msgid "Working directory"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:405
+#: packages/kavis-taskmanager/src/tasks.vala:569
 msgid "Executable"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:408
-msgid "Memory (RSS)"
-msgstr ""
-
-#: packages/kavis-taskmanager/src/tasks.vala:410
+#: packages/kavis-taskmanager/src/tasks.vala:574
 msgid "Memory (USS)"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:411
+#: packages/kavis-taskmanager/src/tasks.vala:575
 msgid "Start time"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:585
+#: packages/kavis-taskmanager/src/tasks.vala:738
 #, c-format
 msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
 msgstr ""

@@ -23,7 +23,7 @@ packages=(
 	# ISO tooling (lb build itself only runs in CI, the config is linted here)
 	live-build xorriso
 	# Headless UI tests: check-keybinds.sh, check-snap.sh, panel-screenshot.sh
-	xvfb openbox xdotool x11-utils xterm xwallpaper picom
+	xvfb openbox xdotool x11-utils x11-apps xterm xfonts-base xwallpaper picom
 	# Translations and linting
 	gettext shellcheck
 	# Large binary assets
