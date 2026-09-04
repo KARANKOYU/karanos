@@ -73,6 +73,7 @@ packages/*/src/logic/appinit.vala
 packages/*/src/headerbar.vala
 packages/*/src/theme.vala
 packages/*/src/logic/theme.vala
+packages/*/src/logic/easing.vala
 packages/kavis-tools/src/config.vala
 packages/kavis-taskmanager/src/config.vala
 packages/kavis-taskmanager/src/sysinfo.vala

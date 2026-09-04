@@ -47,6 +47,11 @@ namespace Kavis {
 
         private enum Zone { NONE, LEFT, RIGHT, TOP, TL, TR, BL, BR }
 
+        private const Wnck.WindowMoveResizeMask ALL_MASK =
+            Wnck.WindowMoveResizeMask.X | Wnck.WindowMoveResizeMask.Y
+            | Wnck.WindowMoveResizeMask.WIDTH
+            | Wnck.WindowMoveResizeMask.HEIGHT;
+
         private unowned Wnck.Screen screen;
         private Gtk.Window preview;
         private bool composited;
@@ -57,6 +62,14 @@ namespace Kavis {
 
         private bool button_was_down = false;
         private bool dragging = false;
+        /* C1: preview fade and settle animation. `animating` also tells
+         * the C2 keep-on-screen watcher to stay out of the way while a
+         * window is travelling into its zone. */
+        private uint preview_fade = 0;
+        private double preview_opacity = 0;
+        private bool preview_shown = false;
+        private uint settle_timer = 0;
+        private bool animating = false;
         private bool restored_this_drag = false;
         private Gdk.Rectangle unsnap_size = { 0, 0, 0, 0 };
         private unowned Wnck.Window? drag_window = null;
@@ -132,6 +145,10 @@ namespace Kavis {
             var provider = new Gtk.CssProvider ();
             try {
                 provider.load_from_data ("""
+                    /* C1: a translucent pane in the accent colour with
+                       the window corner radius, so it reads as "the
+                       window will land here" rather than as a marker.
+                       Same 8px as a real window (docs/tasarim-dili.md). */
                     .kavis-snap-preview {
                       background-color: rgba(45, 212, 191, 0.16);
                       border: 2px solid rgba(45, 212, 191, 0.7);
@@ -268,7 +285,25 @@ namespace Kavis {
             return hit;
         }
 
+        /* Whether a compositor is up. Read again at every press: at
+         * startup kavis-snap can win the race against picom, and a
+         * daemon that decided "no compositor" once would then never
+         * show a preview for the rest of the session — which is what
+         * "there is no preview" looked like in the VM. */
+        private void refresh_composited () {
+            var s = preview.get_screen ();
+            bool now = s.get_rgba_visual () != null && s.is_composited ();
+            if (now != composited) {
+                dbg ("compositing %s", now ? "appeared" : "went away");
+                composited = now;
+                if (now) {
+                    preview.set_visual (s.get_rgba_visual ());
+                }
+            }
+        }
+
         private void begin_press (int x, int y) {
+            refresh_composited ();
             dragging = false;
             restored_this_drag = false;
             taking_over = false;
@@ -482,21 +517,109 @@ namespace Kavis {
                 return;   /* uncomposited preview would draw an opaque box */
             }
             if (zone == Zone.NONE) {
-                preview.hide ();
+                fade_preview (false);
                 return;
             }
             Gdk.Rectangle r = zone_rect (zone, workarea_at (x, y));
             preview.set_size_request (r.width, r.height);
             preview.resize (r.width, r.height);
             preview.move (r.x, r.y);
-            preview.show_all ();
+            fade_preview (true);
+        }
+
+        /* C1: the preview appears and leaves on the design curve rather
+         * than blinking. 180 ms, the same as every other transition.
+         *
+         * The raise is not decoration: the preview is an override-
+         * redirect window, so the window manager never restacks it, and
+         * the window openbox raises while you drag it would otherwise
+         * end up on top of the preview — which is exactly "there is no
+         * preview" from the user's side. */
+        private void fade_preview (bool visible) {
+            if (visible == preview_shown && preview_fade != 0) {
+                return;
+            }
+            if (visible == preview_shown && preview_opacity == (visible ? 1.0 : 0.0)) {
+                if (visible) {
+                    preview.get_window ().raise ();
+                }
+                return;
+            }
+            preview_shown = visible;
+            if (visible) {
+                preview.set_opacity (preview_opacity);
+                preview.show_all ();
+                preview.get_window ().raise ();
+            }
+            if (preview_fade != 0) {
+                Source.remove (preview_fade);
+            }
+            double from = preview_opacity;
+            double to = visible ? 1.0 : 0.0;
+            var timer = new Timer ();
+            preview_fade = Timeout.add (16, () => {
+                double t = timer.elapsed () * 1000 / Kavis.Easing.DURATION_MS;
+                if (t >= 1) {
+                    preview_opacity = to;
+                    preview.set_opacity (to);
+                    if (to == 0) {
+                        preview.hide ();
+                    }
+                    preview_fade = 0;
+                    return Source.REMOVE;
+                }
+                preview_opacity = from + (to - from) * Kavis.Easing.ease (t);
+                preview.set_opacity (preview_opacity);
+                return Source.CONTINUE;
+            });
+        }
+
+        /* C1: the window travels into its zone instead of teleporting.
+         *
+         * The steps are frame geometry changes on the design curve, one
+         * per frame for 180 ms, and the last one sets the exact target
+         * so rounding can never leave the window a pixel off. Openbox
+         * processes each as an ordinary configure — the same traffic a
+         * drag already produces, so nothing new is being asked of the
+         * application. */
+        private void animate_to (Wnck.Window w, Gdk.Rectangle from,
+                                 Gdk.Rectangle to, owned Func<void*>? done) {
+            if (settle_timer != 0) {
+                Source.remove (settle_timer);
+                settle_timer = 0;
+            }
+            if (!composited || from.width <= 0) {
+                set_frame_geometry (w, ALL_MASK, to.x, to.y, to.width, to.height);
+                if (done != null) { done (null); }
+                return;
+            }
+            animating = true;
+            unowned Wnck.Window win = w;
+            var timer = new Timer ();
+            settle_timer = Timeout.add (16, () => {
+                double t = timer.elapsed () * 1000 / Kavis.Easing.DURATION_MS;
+                if (t >= 1) {
+                    set_frame_geometry (win, ALL_MASK,
+                                        to.x, to.y, to.width, to.height);
+                    settle_timer = 0;
+                    animating = false;
+                    if (done != null) { done (null); }
+                    return Source.REMOVE;
+                }
+                set_frame_geometry (win, ALL_MASK,
+                    Kavis.Easing.step (from.x, to.x, t),
+                    Kavis.Easing.step (from.y, to.y, t),
+                    Kavis.Easing.step (from.width, to.width, t),
+                    Kavis.Easing.step (from.height, to.height, t));
+                return Source.CONTINUE;
+            });
         }
 
         private void end_drag () {
             dbg ("released dragging=%s zone=%d window=%s",
                  dragging.to_string (), (int) zone,
                  drag_window == null ? "(none)" : drag_window.get_name ());
-            preview.hide ();
+            fade_preview (false);
             if (dragging && drag_window != null) {
                 if (zone != Zone.NONE) {
                     apply_zone ();
@@ -529,26 +652,38 @@ namespace Kavis {
                 saved.insert (xid, press_geometry);
             }
 
-            if (zone == Zone.TOP) {
-                drag_window.maximize ();
-                return;
-            }
             Gdk.Rectangle r = zone_rect (zone, wa);
             drag_window.unmaximize ();
-            set_frame_geometry (drag_window,
-                Wnck.WindowMoveResizeMask.X | Wnck.WindowMoveResizeMask.Y
-                | Wnck.WindowMoveResizeMask.WIDTH
-                | Wnck.WindowMoveResizeMask.HEIGHT,
-                r.x, r.y, r.width, r.height);
+
+            /* Where it is now, so the settle can start from there. */
+            var from = Gdk.Rectangle ();
+            int fx, fy, fw, fh;
+            if (frame_geometry (drag_window, out fx, out fy, out fw, out fh)) {
+                from = { fx, fy, fw, fh };
+            }
+            unowned Wnck.Window w = drag_window;
+            bool maximize = (zone == Zone.TOP);
+            animate_to (w, from, r, (_) => {
+                /* The top edge means maximize, not "cover the work
+                 * area": the window must come back to its old size on
+                 * unmaximize, and the taskbar must stay reserved. The
+                 * animation lands on the work area first so the state
+                 * change is invisible. */
+                if (maximize) {
+                    w.maximize ();
+                }
+            });
         }
 
         /* --- C2: the titlebar stays on screen -------------------------- */
 
         private void watch_window (Wnck.Window w) {
             w.geometry_changed.connect ((win) => {
-                /* Do not interfere during a drag; end_drag fixes it on
-                 * release anyway. */
-                if (button_was_down) {
+                /* Do not interfere during a drag (end_drag fixes it on
+                 * release anyway) or while a window is travelling into
+                 * its zone — an intermediate frame of the settle is
+                 * partly off screen by design. */
+                if (button_was_down || animating) {
                     return;
                 }
                 clamp_to_screen (win);

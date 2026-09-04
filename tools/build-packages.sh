@@ -71,6 +71,10 @@ prepare_sources() {
 			packages/kavis-panel/src/logic/brightness.vala
 		install -m644 packages/kavis-common/theme.vala \
 			packages/kavis-panel/src/logic/theme.vala
+		# C1: the design animation curve as a function — kavis-snap
+		# animates the preview and the settle itself.
+		install -m644 packages/kavis-common/easing.vala \
+			packages/kavis-panel/src/logic/easing.vala
 		# F4: the xkeyboard-config catalogue is read by Settings
 		# (full list) and by the panel (the configured layouts).
 		install -m644 packages/kavis-common/xkb.vala \

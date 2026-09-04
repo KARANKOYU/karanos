@@ -234,7 +234,15 @@ jobs:
       # with xdotool; it presses the title bar and drags the mouse — openbox
       # does the move.
       - name: SNAP — edge snapping check
-        run: DISPLAY_NO=78 tools/check-snap.sh
+        run: |
+          set -eu
+          # Twice on purpose (C1): without a compositor kavis-snap puts
+          # the window in its zone immediately, with one it travels
+          # there over 180 ms — different code, same four scenarios.
+          DISPLAY_NO=78 tools/check-snap.sh
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y -qq --no-install-recommends picom > /dev/null
+          DISPLAY_NO=81 SNAP_PICOM=auto tools/check-snap.sh
 
       # A3: picom's animation scripts are their own config language and a
       # rejected config means the session boots with NO compositor — no
@@ -243,8 +251,6 @@ jobs:
       - name: PICOM — compositor config check
         run: |
           set -eu
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get install -y -qq --no-install-recommends picom > /dev/null
           DISPLAY_NO=79 tools/check-picom.sh
 
       # A5: the two things the VM round complained about that are

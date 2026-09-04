@@ -17,8 +17,10 @@ VALA_PACKAGES := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
                  --pkg x11 --pkg gio-unix-2.0 --pkg posix
 # GETTEXT_PACKAGE: valac's _() / N_() bindings require this define
 # through glib/gi18n-lib.h (translation domain "kavis" — Grup D task c).
+# -lm: easing.vala rounds and takes absolute values of doubles, which
+# are libm symbols; gcc does not link it by default.
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w \
-               -X -DGETTEXT_PACKAGE='"kavis"'
+               -X -DGETTEXT_PACKAGE='"kavis"' -X -lm
 
 SOURCES := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala)
 PO_FILES := $(wildcard po/*.po)
@@ -31,7 +33,8 @@ override_dh_auto_build:
 	# theme.vala + config.vala (B2): palette from kavis.conf, live.
 	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-snap \
 		src/snap.vala src/logic/appinit.vala \
-		src/logic/config.vala src/logic/theme.vala
+		src/logic/config.vala src/logic/theme.vala \
+		src/logic/easing.vala
 	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/brightness.vala \

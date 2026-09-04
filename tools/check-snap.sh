@@ -10,6 +10,12 @@
 # Usage: tools/check-snap.sh
 #   KAVIS_ROOT=<dir>    extracted .deb tree instead of the installed package (local)
 #   DISPLAY_NO=96       Xvfb display number
+#   SNAP_PICOM=auto     run a compositor during the test, which switches
+#                       kavis-snap to its ANIMATED path (C1): the window
+#                       travels into the zone over 180 ms instead of
+#                       jumping. Without a compositor that code never
+#                       runs, so both passes are worth doing — the same
+#                       four scenarios must hold either way.
 # Requirements: xvfb, openbox, xdotool, x11-utils (xwininfo, xprop), xterm
 # Exit: 0 = all four scenarios held (SNAP-OK), 1 = at least one did not.
 set -eu
@@ -29,7 +35,7 @@ TMP=$(mktemp -d)
 Xvfb "$DISPLAY" -screen 0 1280x800x24 >/dev/null 2>&1 &
 XVFB_PID=$!
 cleanup() {
-	kill "$XVFB_PID" "${SNAP_PID:-}" "${OB_PID:-}" "${WIN_PID:-}" 2>/dev/null || true
+	kill "$XVFB_PID" "${SNAP_PID:-}" "${OB_PID:-}" "${WIN_PID:-}" "${PICOM_PID:-}" 2>/dev/null || true
 	rm -rf "$TMP"
 }
 trap cleanup EXIT
@@ -41,10 +47,36 @@ awk '/<theme>/{t=1} t&&!d&&/<name>/{sub(/<name>[^<]*<\/name>/,"<name>Kavis</name
 openbox --config-file "$TMP/rc.xml" >/dev/null 2>&1 &
 OB_PID=$!
 sleep 1
+MODE="plain"
+if [ -n "${SNAP_PICOM:-}" ]; then
+	# Whatever picom is around: the system one, or the 12.5 that
+	# tools/check-picom.sh caches. Only its presence matters here —
+	# kavis-snap asks the X server whether anything is compositing.
+	PICOM_BIN=""
+	if command -v picom >/dev/null 2>&1; then
+		PICOM_BIN=$(command -v picom)
+	elif [ -x "${XDG_CACHE_HOME:-$HOME/.cache}/kavis-picom/root/usr/bin/picom" ]; then
+		PICOM_BIN="${XDG_CACHE_HOME:-$HOME/.cache}/kavis-picom/root/usr/bin/picom"
+		export LD_LIBRARY_PATH="${XDG_CACHE_HOME:-$HOME/.cache}/kavis-picom/root/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
+	fi
+	if [ -z "$PICOM_BIN" ]; then
+		echo "ERROR: SNAP_PICOM set but no picom found (run tools/check-picom.sh first)"; exit 2
+	fi
+	"$PICOM_BIN" --backend xrender >"$TMP/picom.log" 2>&1 &
+	PICOM_PID=$!
+	sleep 2
+	MODE="composited"
+fi
+# After the compositor: kavis-snap reads the compositing state when a
+# drag starts, but starting it second keeps the log honest about what it
+# saw at boot.
 KAVIS_SNAP_DEBUG=1 "$SNAP" 2>"$TMP/snap.log" &
 SNAP_PID=$!
 sleep 1
-xterm -T snaptest -geometry 50x15+300+200 >"$TMP/xterm.log" 2>&1 &
+# -e sleep: an interactive shell rewrites the window title from
+# its prompt within a second, and the search by title then
+# misses — a flaky "test window did not open".
+xterm -T snaptest -geometry 50x15+300+200 -e sleep 600 >"$TMP/xterm.log" 2>&1 &
 WIN_PID=$!
 ID=""
 for _ in $(seq 1 40); do
@@ -89,6 +121,7 @@ expect() { # name x y w h
 	fi
 }
 read -r _ _ W0 H0 < <(frame)
+echo "mode: $MODE"
 echo "initial frame: $(frame)"
 
 read -r tx ty < <(title_xy); drag "$tx" "$ty" 1 400
@@ -112,4 +145,4 @@ if [ "$fail" -ne 0 ]; then
 	echo "--- kavis-snap log ---"; cat "$TMP/snap.log"
 	exit 1
 fi
-echo "SNAP-OK: 4 scenarios held"
+echo "SNAP-OK: 4 scenarios held ($MODE)"

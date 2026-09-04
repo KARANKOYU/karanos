@@ -126,7 +126,8 @@ else
 	"$PICOM" --backend xrender --config "$PICOM_CONF" >"$TMP/picom.log" 2>&1 &
 	PICOM_PID=$!
 	sleep 2
-	xterm -T cornertest -geometry 40x12+200+150 >/dev/null 2>&1 &
+	# -e sleep: the shell would rename the window from its prompt
+	xterm -T cornertest -geometry 40x12+200+150 -e sleep 600 >/dev/null 2>&1 &
 	WIN_PID=$!
 	ID=""
 	for _ in $(seq 1 40); do
