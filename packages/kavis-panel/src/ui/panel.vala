@@ -69,14 +69,16 @@ namespace Kavis.Ui {
         .kavis-panel.acrylic {
           background-color: @kavis_panel_acrylic;
           border-top: 1px solid @kavis_border_acrylic;
+          box-shadow: inset 0 1px 0 @kavis_top_edge;   /* A4 */
         }
         .kavis-panel {
           background-color: @kavis_panel;
           border-top: 1px solid @kavis_border;
+          box-shadow: inset 0 1px 0 @kavis_top_edge;   /* A4 */
         }
         /* Hover rule (sonraki-isler 1): everything clickable on the
            panel gets the same box — white 9%, 14% when pressed, 6px
-           corners, 140 ms; no border at rest. Buttons still cover the
+           corners, 120 ms on the design curve; no border at rest. Buttons still cover the
            full panel height (no margin given): clicking the bottom-most
            pixel of the screen must work — Fitts. */
         .kavis-panel button {

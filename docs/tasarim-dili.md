@@ -68,11 +68,26 @@ Sınırlar (bilinçli kabul):
 | Ölçü | Değer |
 |---|---|
 | Popup iç kenar | 16px |
-| Öğeler arası | 8px |
+| Kart iç dolgu | 12px (A4) |
+| Öğeler arası / kartlar arası | 8px |
 | Gruplar arası | 12px (panel sağ bölge grupları: yatay 6 / dikey 8) |
 
 Sıkışıklık yok — kullanıcı ferah hissetmeli. Yeni bir widget bu
 değerlerin dışına çıkacaksa sebebi commit mesajında yazılır.
+
+## Kenarlık ve gölge (A4, v0.4-test4)
+
+| Öğe | Değer | Nerede |
+|---|---|---|
+| Üst kenar çizgisi | 1px `@kavis_top_edge` (koyu: beyaz %6, açık: siyah %5) | her yüzeyde `box-shadow: inset 0 1px 0` — panel, popup, kart, kutucuk, headerbar, çerçeve, ipucu, menü |
+| Pencere gölgesi | picom `shadow-radius 18`, `shadow-opacity 0.35`, y+6 | picom-kavis.conf |
+| GTK gölgesi (popup) | `0 8px 24px rgba(0,0,0,0.35)` | bileşen CSS'i — picom'un değerlerine eşlenir |
+
+Üst çizgi **kenarlık değil gölge** olarak veriliyor: kenarlık widget'ın
+boyutunu değiştirir, oturmuş her yerleşim kayar.
+
+Gölge dar ve koyu olursa pencere çıkartma gibi durur; geniş ve açık
+olunca derinlik okunur — A4'ten önce 14/0.45'ti.
 
 ## Açık tema paleti (B2, 3 Eyl 2026)
 

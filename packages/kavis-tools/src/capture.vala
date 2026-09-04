@@ -426,6 +426,8 @@ namespace Kavis.Tools {
                       background-color: @kavis_surface;
                       border: 1px solid @kavis_border;
                       border-radius: 12px;   /* J1 */
+                      box-shadow: inset 0 1px 0 @kavis_top_edge,
+                                  0 8px 24px rgba(0, 0, 0, 0.35);   /* A4 */
                     }
                     .kavis-snip-bar button {
                       background-image: none;

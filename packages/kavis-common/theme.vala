@@ -34,6 +34,11 @@ namespace Kavis.Theme {
         @define-color kavis_overlay_hover rgba(255, 255, 255, 0.09);
         @define-color kavis_overlay_press rgba(255, 255, 255, 0.14);
         @define-color kavis_card_border   rgba(255, 255, 255, 0.08);
+        /* A4: 1px light line along the TOP edge of every surface, so a
+           panel reads as catching light from above instead of being a
+           flat rectangle. Drawn as an inset box-shadow, never a border
+           (a border would change the widget's size). */
+        @define-color kavis_top_edge      rgba(255, 255, 255, 0.06);
         @define-color kavis_panel_acrylic   rgba(18, 28, 38, 0.85);
         @define-color kavis_surface_acrylic rgba(23, 34, 44, 0.92);
         @define-color kavis_border_acrylic  rgba(35, 58, 69, 0.9);
@@ -61,6 +66,9 @@ namespace Kavis.Theme {
         @define-color kavis_overlay_hover rgba(0, 0, 0, 0.06);
         @define-color kavis_overlay_press rgba(0, 0, 0, 0.10);
         @define-color kavis_card_border   rgba(0, 0, 0, 0.10);
+        /* A4: on a white surface a white highlight has nothing to add;
+           the light theme uses the same line as a hairline separator. */
+        @define-color kavis_top_edge      rgba(0, 0, 0, 0.05);
         @define-color kavis_panel_acrylic   rgba(233, 237, 241, 0.85);
         @define-color kavis_surface_acrylic rgba(255, 255, 255, 0.92);
         @define-color kavis_border_acrylic  rgba(213, 219, 225, 0.9);

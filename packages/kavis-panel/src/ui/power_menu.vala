@@ -25,7 +25,8 @@ namespace Kavis.Ui {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
           border-radius: 12px;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+          box-shadow: inset 0 1px 0 @kavis_top_edge,
+                      0 8px 24px rgba(0, 0, 0, 0.35);
         }
         /* Without a compositor: a plain border instead of shadow and rounded corners. */
         .kavis-power-menu.plain {

@@ -45,11 +45,14 @@ namespace Kavis.Settings {
             font-size: 20px;
             font-weight: bold;
         }
+        /* A4: 12px inner padding, 8px between cards (the body box
+           spacing in pages.vala), 1px light line on the top edge. */
         .kavis-card {
             background-color: @kavis_card;
             border: 1px solid @kavis_card_border;
             border-radius: 8px;
-            padding: 12px 16px;
+            box-shadow: inset 0 1px 0 @kavis_top_edge;
+            padding: 12px;
         }
         /* About page disclosure header (F1): a plain button inside the
          * card — no frame of its own, the card is the visual. */

@@ -31,7 +31,10 @@ namespace Kavis.Ui {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
           border-radius: 12px;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+          /* A4: top light line + the same soft shadow picom draws
+             (radius 18, opacity 0.35). */
+          box-shadow: inset 0 1px 0 @kavis_top_edge,
+                      0 8px 24px rgba(0, 0, 0, 0.35);
         }
         .kavis-popup.plain {
           border-radius: 0;
@@ -83,6 +86,7 @@ namespace Kavis.Ui {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
           border-radius: 8px;
+          box-shadow: inset 0 1px 0 @kavis_top_edge;
         }
         /* One less than the tile so the fill does not poke out of the
            border on the diagonal. */
