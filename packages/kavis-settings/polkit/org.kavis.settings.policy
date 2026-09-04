@@ -15,4 +15,19 @@
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/kavis/set-locale</annotate>
   </action>
+
+  <!-- Kavis Settings: power behaviour (item 51). Same reasoning as the
+       language action: the active local user of a single-user product
+       changes their own machine's CPU governor and lid behaviour
+       without a password. Both are reversible and lose no data. -->
+  <action id="org.kavis.settings.set-power">
+    <description>Change power behaviour</description>
+    <message>Authentication is required to change power behaviour</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/kavis/set-power</annotate>
+  </action>
 </policyconfig>

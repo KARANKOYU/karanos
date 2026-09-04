@@ -22,6 +22,11 @@ int main (string[] args) {
      * the panel is the one that is always running. Settings and the
      * quick toggle only write kavis.conf. */
     Kavis.NightLight.start ();
+    /* Item 51: the two things that have to keep watching — what the
+     * machine does when nobody touches it, and what happens when the
+     * battery runs down. Both read kavis.conf; Settings only writes. */
+    Kavis.IdleWatch.start (() => Kavis.Battery.on_ac ());
+    Kavis.BatteryWarning.start ();
     Gtk.main ();
     return 0;
 }

@@ -77,8 +77,19 @@ namespace Kavis.PowerPlan {
         }
     }
 
-    /* Best-effort immediate effect via power-profiles-daemon's CLI;
-     * silently a no-op when the tool is absent. */
+    /* Make the plan real (item 51).
+     *
+     * Two mechanisms, deliberately both: power-profiles-daemon when the
+     * machine has it, because that is what firmware-level profiles and
+     * other desktops agree on — and the CPU governor plus the
+     * energy-performance preference written straight to sysfs, because
+     * ppd is not installed everywhere, has no notion of our Game mode,
+     * and without it the four modes were four labels that changed
+     * nothing. The sysfs half runs through a root helper (pkexec, no
+     * password for the active local user).
+     *
+     * Both are best-effort and silent when their tool is missing: a
+     * machine with neither still remembers the choice. */
     public void apply (Plan plan) {
         unowned string profile;
         switch (plan) {
@@ -87,17 +98,31 @@ namespace Kavis.PowerPlan {
         case Plan.SAVER:       profile = "power-saver"; break;
         default:               profile = "balanced";    break;
         }
-        if (Environment.find_program_in_path ("powerprofilesctl") == null) {
-            return;
+        if (Environment.find_program_in_path ("powerprofilesctl") != null) {
+            spawn ({ "powerprofilesctl", "set", profile });
         }
+        if (FileUtils.test ("/usr/lib/kavis/set-power", FileTest.IS_EXECUTABLE)) {
+            spawn ({ "pkexec", "/usr/lib/kavis/set-power",
+                     "governor", plan.id () });
+        }
+    }
+
+    /* The lid action is logind's, so it goes through the same helper.
+     * action: suspend | hibernate | lock | ignore */
+    public void apply_lid (string action) {
+        if (FileUtils.test ("/usr/lib/kavis/set-power", FileTest.IS_EXECUTABLE)) {
+            spawn ({ "pkexec", "/usr/lib/kavis/set-power", "lid", action });
+        }
+    }
+
+    private void spawn (string[] argv) {
         try {
-            Process.spawn_async (null,
-                { "powerprofilesctl", "set", profile }, null,
-                SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
+            Process.spawn_async (null, argv, null,
+                SpawnFlags.SEARCH_PATH | SpawnFlags.STDOUT_TO_DEV_NULL
+                    | SpawnFlags.STDERR_TO_DEV_NULL,
                 null, null);
         } catch (SpawnError e) {
-            warning ("kavis-panel: could not run powerprofilesctl: %s",
-                     e.message);
+            warning ("kavis: could not run %s: %s", argv[0], e.message);
         }
     }
 }

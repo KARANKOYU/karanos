@@ -32,6 +32,8 @@ override_dh_auto_install:
 	# without password; the pkexec path is pinned via annotate).
 	install -d $(DEST)/usr/lib/kavis $(DEST)/usr/share/polkit-1/actions
 	install -m755 scripts/set-locale $(DEST)/usr/lib/kavis/set-locale
+	# Power (item 51): CPU governor/EPP and the lid action are root-only.
+	install -m755 scripts/set-power $(DEST)/usr/lib/kavis/set-power
 	install -m644 polkit/org.kavis.settings.policy \
 		$(DEST)/usr/share/polkit-1/actions/org.kavis.settings.policy
 

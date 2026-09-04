@@ -1266,3 +1266,64 @@ msgstr "Birden çok ekran"
 
 msgid "Show the same picture everywhere, or spread the desktop across them"
 msgstr "Hepsinde aynı görüntü, ya da masaüstünü ekranlara yay"
+
+msgid "Sleep after"
+msgstr "Uyku süresi"
+
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d dakika"
+msgstr[1] "%d dakika"
+
+msgid "Warn me at"
+msgstr "Uyarı eşiği"
+
+msgid "A notification when the charge drops this low"
+msgstr "Şarj bu düzeyin altına inince bildirim gelir"
+
+msgid "Hibernate"
+msgstr "Hazırda beklet"
+
+msgid "Lock the screen"
+msgstr "Ekranı kilitle"
+
+msgid "Do nothing"
+msgstr "Hiçbir şey yapma"
+
+msgid "When I close the lid"
+msgstr "Kapağı kapatınca"
+
+msgid "Now"
+msgstr "Şimdi"
+
+msgid "Sleep or hibernate"
+msgstr "Uyku ya da hazırda bekletme"
+
+msgid "Sleep keeps the session in memory; hibernate writes it to disk and powers off"
+msgstr "Uyku oturumu bellekte tutar; hazırda bekletme diske yazıp bilgisayarı kapatır"
+
+msgid "Hibernate needs a swap area at least as large as the memory in this machine"
+msgstr "Hazırda bekletme için en az bellek kadar takas alanı gerekir"
+
+msgid "Lowest clocks, longest battery life"
+msgstr "En düşük hız, en uzun pil ömrü"
+
+msgid "Highest clocks, more heat and fan noise"
+msgstr "En yüksek hız, daha çok ısı ve fan sesi"
+
+msgid "Clocks follow the load"
+msgstr "Hız yüke göre ayarlanır"
+
+msgid "Battery low (%d%%)"
+msgstr "Pil azaldı (%%%d)"
+
+msgid "Battery critically low (%d%%)"
+msgstr "Pil kritik düzeyde (%%%d)"
+
+msgid "About %d minute left."
+msgid_plural "About %d minutes left."
+msgstr[0] "Yaklaşık %d dakika kaldı."
+msgstr[1] "Yaklaşık %d dakika kaldı."
+
+msgid "Plug in the charger."
+msgstr "Şarj aletini tak."

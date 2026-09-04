@@ -13,14 +13,17 @@ DEST := debian/kavis-panel
 
 # WNCK_I_KNOW_THIS_IS_UNSTABLE: the libwnck headers refuse to compile
 # without this define (API stability disclaimer).
+# xscrnsaver: the X idle counter for the power timeouts (item 51).
+# Debian ships no vapi for libXss, so vapi/xscrnsaver.vapi is ours.
 VALA_PACKAGES := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
-                 --pkg x11 --pkg gio-unix-2.0 --pkg posix
+                 --pkg x11 --pkg gio-unix-2.0 --pkg posix \
+                 --vapidir vapi --pkg xscrnsaver
 # GETTEXT_PACKAGE: valac's _() / N_() bindings require this define
 # through glib/gi18n-lib.h (translation domain "kavis" — Grup D task c).
 # -lm: easing.vala rounds and takes absolute values of doubles, which
 # are libm symbols; gcc does not link it by default.
 VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w \
-               -X -DGETTEXT_PACKAGE='"kavis"' -X -lm
+               -X -DGETTEXT_PACKAGE='"kavis"' -X -lm -X -lXss
 
 SOURCES := src/main.vala $(wildcard src/logic/*.vala) $(wildcard src/ui/*.vala)
 PO_FILES := $(wildcard po/*.po)

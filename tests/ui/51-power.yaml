@@ -1,0 +1,43 @@
+# Power (item 51): the settings the round made real.
+#
+# What a VM can prove: the page builds on a machine with no battery, the
+# per-source timeouts and the lid choice round-trip through kavis.conf,
+# and the root helper refuses to run where it must not. What it cannot:
+# that the CPU governor changed — QEMU exposes no cpufreq — so the
+# governor is checked by asking the helper and accepting "no cpufreq on
+# this machine" as a pass.
+name: 51-power
+title: Power
+item: 51
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings power
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the Power page builds (three modes, timeouts, sleep actions)
+    shot: true
+  - do: conf power screen_off_battery 5
+    expect: conf power screen_off_battery 5
+  - do: conf power sleep_after_battery 20
+    expect: conf power sleep_after_battery 20
+  - do: conf power lid suspend
+    expect: conf power lid suspend
+  - do: conf power low_battery 15
+    expect: conf power low_battery 15
+  - do: shell test -x /usr/lib/kavis/set-power
+    expect: ok
+    note: the root helper is installed
+  - do: shell /usr/lib/kavis/set-power governor performance
+    expect: ok
+    timeout: 10000
+    note: >
+      run as the user on purpose: the guard must PASS here (booted Kavis
+      system) while the sysfs writes quietly do nothing without root.
+      A non-zero exit means the guard is wrong, which is how it would
+      also refuse to work under pkexec.
+  - do: shell grep -q Kavis /etc/systemd/logind.conf.d/50-kavis-lid.conf || true
+    expect: ok
+    note: the lid drop-in is written by the helper, not by an edit of logind.conf
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

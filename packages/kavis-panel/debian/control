@@ -9,6 +9,7 @@ Build-Depends:
  libgtk-3-dev,
  libwnck-3-dev,
  libx11-dev,
+ libxss-dev,
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Homepage: https://github.com/KARANKOYU/karanos

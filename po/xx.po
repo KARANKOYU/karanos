@@ -174,6 +174,18 @@ msgstr "⟪Apps··⟫"
 msgid "%s tools"
 msgstr "⟪%s tools···⟫"
 
+msgid "About %d minute left."
+msgstr "⟪About %d minute left.········⟫"
+
+msgid "Plug in the charger."
+msgstr "⟪Plug in the charger.········⟫"
+
+msgid "Battery critically low (%d%%)"
+msgstr "⟪Battery critically low (%d%%)···········⟫"
+
+msgid "Battery low (%d%%)"
+msgstr "⟪Battery low (%d%%)·······⟫"
+
 msgid "Focus session finished"
 msgstr "⟪Focus session finished········⟫"
 
@@ -768,23 +780,53 @@ msgstr "⟪Saved networks·····⟫"
 msgid "No saved networks"
 msgstr "⟪No saved networks······⟫"
 
-msgid "Power mode"
-msgstr "⟪Power mode····⟫"
+msgid "Turn off screen after"
+msgstr "⟪Turn off screen after········⟫"
+
+msgid "Sleep after"
+msgstr "⟪Sleep after····⟫"
 
 msgid "Never"
 msgstr "⟪Never··⟫"
 
-msgid "5 minutes"
-msgstr "⟪5 minutes···⟫"
+msgid "Warn me at"
+msgstr "⟪Warn me at····⟫"
 
-msgid "10 minutes"
-msgstr "⟪10 minutes····⟫"
+msgid "A notification when the charge drops this low"
+msgstr "⟪A notification when the charge drops this low··················⟫"
 
-msgid "30 minutes"
-msgstr "⟪30 minutes····⟫"
+msgid "Hibernate"
+msgstr "⟪Hibernate···⟫"
 
-msgid "Turn off screen after"
-msgstr "⟪Turn off screen after········⟫"
+msgid "Lock the screen"
+msgstr "⟪Lock the screen······⟫"
+
+msgid "Do nothing"
+msgstr "⟪Do nothing····⟫"
+
+msgid "When I close the lid"
+msgstr "⟪When I close the lid········⟫"
+
+msgid "Power mode"
+msgstr "⟪Power mode····⟫"
+
+msgid "Now"
+msgstr "⟪Now··⟫"
+
+msgid "Sleep or hibernate"
+msgstr "⟪Sleep or hibernate·······⟫"
+
+msgid "%d minute"
+msgstr "⟪%d minute···⟫"
+
+msgid "Lowest clocks, longest battery life"
+msgstr "⟪Lowest clocks, longest battery life··············⟫"
+
+msgid "Highest clocks, more heat and fan noise"
+msgstr "⟪Highest clocks, more heat and fan noise···············⟫"
+
+msgid "Clocks follow the load"
+msgstr "⟪Clocks follow the load········⟫"
 
 msgid "Applies to newly started applications"
 msgstr "⟪Applies to newly started applications··············⟫"

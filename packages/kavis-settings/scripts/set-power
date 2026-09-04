@@ -1,0 +1,135 @@
+#!/bin/sh
+# Kavis — the root half of the Power settings (item 51).
+#
+# Runs as root via pkexec (polkit: org.kavis.settings.set-power). Two
+# jobs, both of which the session user cannot do on their own:
+#
+#   governor <saver|normal|performance|game>
+#       CPU frequency governor and energy-performance preference for
+#       every CPU. power-profiles-daemon covers this on machines that
+#       have it, but it is not on every install and it does not know
+#       about our Game mode; writing sysfs directly is what actually
+#       makes the four modes different rather than four labels.
+#
+#   lid <suspend|hibernate|lock|ignore>
+#       What closing the lid does. This is logind's decision, so it is
+#       a drop-in under /etc/systemd/logind.conf.d — never an edit of
+#       logind.conf itself, which is a package conffile.
+#
+# Anything else exits non-zero without touching the system.
+set -eu
+
+# --- Host guard -------------------------------------------------------
+# This script writes /sys and /etc/systemd. On a developer machine that
+# is the class of command CLAUDE.md forbids outright, and the 4 Sep 2026
+# container loss is what that rule is for. Two conditions, both
+# required, and between them they leave exactly one place it can run:
+#
+#   * systemd must be running this machine (/run/systemd/system). A dev
+#     container has no systemd, and neither does the live-build chroot,
+#     so both are excluded — and inside the chroot the lid half would
+#     configure the BUILD HOST's logind, which is the incident again.
+#   * /usr/share/kavis/build-marker must exist. It ships in
+#     includes.chroot, so it is on every Kavis system and on no
+#     workstation: it is what tells "a Kavis machine" apart from
+#     "a Debian machine somebody copied this script onto".
+#
+# So: a booted Kavis system, which in testing means QEMU or VirtualBox.
+if [ ! -d /run/systemd/system ]; then
+	echo "E: $0 needs a booted systemd system — refusing (test in a VM)" >&2
+	exit 3
+fi
+if [ ! -f /usr/share/kavis/build-marker ]; then
+	echo "E: $0 runs only on a Kavis system (marker missing)" >&2
+	exit 3
+fi
+
+# Pick the first governor in the preference list that this CPU driver
+# actually offers. intel_pstate in active mode only has powersave and
+# performance; acpi-cpufreq and amd_pstate have the whole set. Asking
+# for one that does not exist writes nothing and reports nothing, which
+# would look like the setting had been applied.
+pick_governor() {
+	available=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 2>/dev/null || echo "")
+	[ -n "$available" ] || return 1
+	for want in "$@"; do
+		for have in $available; do
+			[ "$want" = "$have" ] && { echo "$want"; return 0; }
+		done
+	done
+	return 1
+}
+
+pick_epp() {
+	available=$(cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_available_preferences 2>/dev/null || echo "")
+	[ -n "$available" ] || return 1
+	for want in "$@"; do
+		for have in $available; do
+			[ "$want" = "$have" ] && { echo "$want"; return 0; }
+		done
+	done
+	return 1
+}
+
+write_all() {
+	file=$1
+	value=$2
+	written=0
+	for cpu in /sys/devices/system/cpu/cpu[0-9]*/cpufreq; do
+		[ -w "$cpu/$file" ] || continue
+		printf '%s\n' "$value" > "$cpu/$file" 2>/dev/null && written=$((written + 1))
+	done
+	echo "$written"
+}
+
+case "${1:-}" in
+governor)
+	case "${2:-}" in
+	saver)       govs="powersave conservative schedutil"; epps="power balance_power" ;;
+	normal)      govs="schedutil ondemand powersave";     epps="balance_power balance_performance default" ;;
+	performance) govs="performance schedutil";            epps="performance balance_performance" ;;
+	# "game" is still accepted so an existing kavis.conf keeps working,
+	# but it is NOT a separate mode here and is no longer offered in
+	# Settings — see item 13 (Group H). What would make it one is a
+	# running daemon, not a governor: the C-state latency floor has to
+	# hold /dev/cpu_dma_latency open for as long as the game runs, and
+	# muting notifications and bypassing the compositor are session-side
+	# decisions this root helper has no business making.
+	game)        govs="performance schedutil";            epps="performance balance_performance" ;;
+	*) echo "set-power: unknown plan: ${2:-}" >&2; exit 2 ;;
+	esac
+	if gov=$(pick_governor $govs); then
+		n=$(write_all scaling_governor "$gov")
+		echo "set-power: governor $gov on $n cpus"
+	else
+		echo "set-power: no cpufreq governors on this machine"
+	fi
+	if epp=$(pick_epp $epps); then
+		n=$(write_all energy_performance_preference "$epp")
+		echo "set-power: epp $epp on $n cpus"
+	fi
+	;;
+lid)
+	case "${2:-}" in
+	suspend|hibernate|lock|ignore) action=${2} ;;
+	*) echo "set-power: unknown lid action: ${2:-}" >&2; exit 2 ;;
+	esac
+	[ "$action" = "ignore" ] && action=ignore
+	mkdir -p /etc/systemd/logind.conf.d
+	cat > /etc/systemd/logind.conf.d/50-kavis-lid.conf <<CONF
+# Written by Kavis Settings > Power. Edit there, not here.
+[Login]
+HandleLidSwitch=$action
+HandleLidSwitchDocked=ignore
+HandleLidSwitchExternalPower=$action
+CONF
+	# logind re-reads its configuration on reload; without this the
+	# setting would only take effect after a reboot.
+	systemctl reload systemd-logind 2>/dev/null || true
+	echo "set-power: lid $action"
+	;;
+*)
+	echo "usage: set-power governor <plan> | set-power lid <action>" >&2
+	exit 2
+	;;
+esac

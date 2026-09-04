@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 12:46+0000\n"
+"POT-Creation-Date: 2026-09-04 12:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -292,6 +292,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/indicators.vala:234
 #: packages/kavis-panel/src/ui/quick_settings.vala:797
 #: packages/kavis-settings/src/ui/page_display.vala:75
+#: packages/kavis-settings/src/ui/page_power.vala:50
 #, c-format
 msgid "%d%%"
 msgstr ""
@@ -305,6 +306,27 @@ msgstr ""
 #: packages/kavis-panel/src/logic/apps.vala:25
 #, c-format
 msgid "%s tools"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/battery_warn.vala:78
+#, c-format
+msgid "About %d minute left."
+msgid_plural "About %d minutes left."
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/kavis-panel/src/logic/battery_warn.vala:80
+msgid "Plug in the charger."
+msgstr ""
+
+#: packages/kavis-panel/src/logic/battery_warn.vala:89
+#, c-format
+msgid "Battery critically low (%d%%)"
+msgstr ""
+
+#: packages/kavis-panel/src/logic/battery_warn.vala:90
+#, c-format
+msgid "Battery low (%d%%)"
 msgstr ""
 
 #: packages/kavis-panel/src/logic/focus.vala:50
@@ -370,13 +392,13 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:307
 #: packages/kavis-panel/src/ui/quick_settings.vala:495
-#: packages/kavis-settings/src/ui/page_power.vala:17
+#: packages/kavis-settings/src/ui/page_power.vala:30
 msgid "When plugged in"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:307
 #: packages/kavis-panel/src/ui/quick_settings.vala:498
-#: packages/kavis-settings/src/ui/page_power.vala:20
+#: packages/kavis-settings/src/ui/page_power.vala:37
 msgid "On battery"
 msgstr ""
 
@@ -390,7 +412,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:347
 #: packages/kavis-panel/src/ui/quick_settings.vala:532
-#: packages/kavis-settings/src/ui/page_power.vala:79
+#: packages/kavis-settings/src/ui/page_power.vala:206
 msgid "Balanced"
 msgstr ""
 
@@ -610,7 +632,7 @@ msgid "Delete"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:522
-#: packages/kavis-settings/src/ui/page_display.vala:780
+#: packages/kavis-settings/src/ui/page_display.vala:785
 #: packages/kavis-taskmanager/src/logs.vala:134
 #: packages/kavis-taskmanager/src/tasks.vala:510
 #: packages/kavis-tools/src/altf4.vala:118
@@ -628,6 +650,8 @@ msgid "Lock"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:120
+#: packages/kavis-settings/src/ui/page_power.vala:65
+#: packages/kavis-settings/src/ui/page_power.vala:93
 #: packages/kavis-tools/src/altf4.vala:106
 msgid "Sleep"
 msgstr ""
@@ -678,6 +702,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:256
 #: packages/kavis-panel/src/ui/quick_settings.vala:491
+#: packages/kavis-settings/src/ui/page_power.vala:46
 msgid "Battery"
 msgstr ""
 
@@ -721,20 +746,20 @@ msgid "Paired devices"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:523
-#: packages/kavis-settings/src/ui/page_power.vala:76
+#: packages/kavis-settings/src/ui/page_power.vala:203
 #: packages/kavis-settings/src/ui/window.vala:136
 msgid "Efficiency"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:526
-#: packages/kavis-settings/src/ui/page_power.vala:77
+#: packages/kavis-settings/src/ui/page_power.vala:204
 #: packages/kavis-settings/src/ui/window.vala:136
 #: packages/kavis-taskmanager/src/tasks.vala:154
 msgid "Performance"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:529
-#: packages/kavis-settings/src/ui/page_power.vala:78
+#: packages/kavis-settings/src/ui/page_power.vala:205
 #: packages/kavis-settings/src/ui/window.vala:137
 msgid "Game"
 msgstr ""
@@ -929,7 +954,7 @@ msgid "Arrangement"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_display.vala:63
-#: packages/kavis-settings/src/ui/page_display.vala:571
+#: packages/kavis-settings/src/ui/page_display.vala:576
 msgid "Resolution"
 msgstr ""
 
@@ -995,94 +1020,94 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:217
+#: packages/kavis-settings/src/ui/page_display.vala:222
 msgid "Landscape"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:218
+#: packages/kavis-settings/src/ui/page_display.vala:223
 msgid "Portrait (left)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:219
+#: packages/kavis-settings/src/ui/page_display.vala:224
 msgid "Portrait (right)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:220
+#: packages/kavis-settings/src/ui/page_display.vala:225
 msgid "Landscape (flipped)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:226
+#: packages/kavis-settings/src/ui/page_display.vala:231
 msgid "Orientation"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:302
+#: packages/kavis-settings/src/ui/page_display.vala:307
 msgid "Main display"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:303
+#: packages/kavis-settings/src/ui/page_display.vala:308
 msgid "Where the taskbar and new windows go"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:309
+#: packages/kavis-settings/src/ui/page_display.vala:314
 msgid "Mirror"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:310
+#: packages/kavis-settings/src/ui/page_display.vala:315
 msgid "Extend"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:315
+#: packages/kavis-settings/src/ui/page_display.vala:320
 msgid "Multiple displays"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:316
+#: packages/kavis-settings/src/ui/page_display.vala:321
 msgid "Show the same picture everywhere, or spread the desktop across them"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:578
+#: packages/kavis-settings/src/ui/page_display.vala:583
 msgid "Refresh rate"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:631
+#: packages/kavis-settings/src/ui/page_display.vala:636
 #, c-format
 msgid "%s (native)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:637
+#: packages/kavis-settings/src/ui/page_display.vala:642
 #, c-format
 msgid "%s Hz"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:648
+#: packages/kavis-settings/src/ui/page_display.vala:653
 msgid "Custom…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:664
+#: packages/kavis-settings/src/ui/page_display.vala:669
 msgid "Unknown"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:778
+#: packages/kavis-settings/src/ui/page_display.vala:783
 msgid "All resolutions"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:781
+#: packages/kavis-settings/src/ui/page_display.vala:786
 msgid "Apply"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:868
+#: packages/kavis-settings/src/ui/page_display.vala:873
 msgid "Keep these display settings?"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:869
+#: packages/kavis-settings/src/ui/page_display.vala:874
 msgid "Revert"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:870
+#: packages/kavis-settings/src/ui/page_display.vala:875
 msgid "Keep"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_display.vala:873
-#: packages/kavis-settings/src/ui/page_display.vala:885
+#: packages/kavis-settings/src/ui/page_display.vala:878
+#: packages/kavis-settings/src/ui/page_display.vala:890
 #, c-format
 msgid "Reverting in %d seconds"
 msgstr ""
@@ -1228,30 +1253,89 @@ msgstr ""
 msgid "No saved networks"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:24
+#: packages/kavis-settings/src/ui/page_power.vala:33
+#: packages/kavis-settings/src/ui/page_power.vala:39
+#: packages/kavis-settings/src/ui/page_power.vala:81
+#: packages/kavis-settings/src/ui/window.vala:135
+msgid "Turn off screen after"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:35
+#: packages/kavis-settings/src/ui/page_power.vala:41
+#: packages/kavis-settings/src/ui/page_power.vala:83
+msgid "Sleep after"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:48
+#: packages/kavis-settings/src/ui/page_power.vala:133
+msgid "Never"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:58
+msgid "Warn me at"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:59
+msgid "A notification when the charge drops this low"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:66
+#: packages/kavis-settings/src/ui/page_power.vala:99
+msgid "Hibernate"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:67
+msgid "Lock the screen"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:68
+msgid "Do nothing"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:75
+msgid "When I close the lid"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:79
 #: packages/kavis-settings/src/ui/window.vala:135
 msgid "Power mode"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:30
-msgid "Never"
+#: packages/kavis-settings/src/ui/page_power.vala:91
+msgid "Now"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:31
-msgid "5 minutes"
+#: packages/kavis-settings/src/ui/page_power.vala:105
+msgid "Sleep or hibernate"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:32
-msgid "10 minutes"
+#: packages/kavis-settings/src/ui/page_power.vala:107
+msgid ""
+"Sleep keeps the session in memory; hibernate writes it to disk and powers off"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:33
-msgid "30 minutes"
+#: packages/kavis-settings/src/ui/page_power.vala:108
+msgid ""
+"Hibernate needs a swap area at least as large as the memory in this machine"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:41
-#: packages/kavis-settings/src/ui/window.vala:135
-msgid "Turn off screen after"
+#: packages/kavis-settings/src/ui/page_power.vala:136
+#, c-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:213
+msgid "Lowest clocks, longest battery life"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:215
+msgid "Highest clocks, more heat and fan noise"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:217
+msgid "Clocks follow the load"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_sound.vala:22

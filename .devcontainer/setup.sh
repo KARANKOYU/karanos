@@ -14,7 +14,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 packages=(
 	# Vala/GTK build (Build-Depends of the kavis-* packages)
-	valac libgtk-3-dev libwnck-3-dev libgstreamer1.0-dev
+	valac libgtk-3-dev libwnck-3-dev libgstreamer1.0-dev libxss-dev
 	meson ninja-build
 	# Debian packaging
 	debhelper devscripts dpkg-dev fakeroot
