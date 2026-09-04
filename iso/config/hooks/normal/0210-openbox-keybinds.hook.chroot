@@ -279,6 +279,11 @@ cat > "$SNIPPET" <<'EOF'
         <command>kavis-tools capture</command>
       </action>
     </keybind>
+    <keybind key="W-l">
+      <action name="Execute">
+        <command>kavis-lock</command>
+      </action>
+    </keybind>
 EOF
 
 # Win+number (next-tasks 2): Nth taskbar slot from the left — launch if

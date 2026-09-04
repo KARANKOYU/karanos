@@ -153,6 +153,18 @@ msgstr "⟪Memory··⟫"
 msgid "Disk"
 msgstr "⟪Disk··⟫"
 
+msgid "Password"
+msgstr "⟪Password···⟫"
+
+msgid "Sign in"
+msgstr "⟪Sign in··⟫"
+
+msgid "Unlock"
+msgstr "⟪Unlock··⟫"
+
+msgid "Wrong password"
+msgstr "⟪Wrong password·····⟫"
+
 msgid "Caps Lock on"
 msgstr "⟪Caps Lock on····⟫"
 
@@ -1053,9 +1065,6 @@ msgstr "⟪At least 8 characters········⟫"
 msgid "Network name"
 msgstr "⟪Network name····⟫"
 
-msgid "Password"
-msgstr "⟪Password···⟫"
-
 msgid "Hotspot not started"
 msgstr "⟪Hotspot not started·······⟫"
 
@@ -1133,6 +1142,9 @@ msgstr "⟪Encrypted DNS·····⟫"
 
 msgid "Send DNS queries over TLS to a chosen resolver instead of the network's"
 msgstr "⟪Send DNS queries over TLS to a chosen resolver instead of the network's····························⟫"
+
+msgid "Lock the screen after"
+msgstr "⟪Lock the screen after········⟫"
 
 msgid "Turn off screen after"
 msgstr "⟪Turn off screen after········⟫"

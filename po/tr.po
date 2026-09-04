@@ -1682,3 +1682,15 @@ msgstr "Hayır"
 
 msgid "Yes"
 msgstr "Evet"
+
+msgid "Sign in"
+msgstr "Giriş yap"
+
+msgid "Unlock"
+msgstr "Kilidi aç"
+
+msgid "Wrong password"
+msgstr "Parola yanlış"
+
+msgid "Lock the screen after"
+msgstr "Ekranı kilitleme süresi"

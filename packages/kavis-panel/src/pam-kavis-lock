@@ -1,0 +1,14 @@
+# PAM stack for the Kavis lock screen (item 70).
+#
+# The system's own rules and nothing else: common-auth is what login and
+# every other service use, so an account that cannot log in cannot
+# unlock either, and a fingerprint or smartcard module added to
+# common-auth works here without this file changing.
+#
+# common-account is included as well: an expired or disabled account
+# must not be able to unlock a screen it could not log into.
+#
+# No common-session and no common-password: unlocking starts no session
+# and changes no password.
+@include common-auth
+@include common-account

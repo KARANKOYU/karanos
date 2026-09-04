@@ -115,6 +115,9 @@ steps:
     expect: window kavis-settings visible
     timeout: 6000
     note: W-i — Settings
+  - do: key super+l
+    expect: ok
+    note: W-l
   - do: close window nemo
     expect: window nemo absent
     timeout: 8000

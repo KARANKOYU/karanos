@@ -55,7 +55,7 @@ sh "$T/hook.sh" >/dev/null || { echo "ERROR: 0210 hook failed" >&2; exit 2; }
 
 # --- stub commands ----------------------------------------------------
 mkdir -p "$T/bin"
-for cmd in gdbus nemo kavis-settings kavis-tools kavis-taskmanager; do
+for cmd in gdbus nemo kavis-settings kavis-tools kavis-taskmanager kavis-lock; do
 	cat > "$T/bin/$cmd" <<EOS
 #!/bin/sh
 echo "$cmd \$*" >> "$LOG"
@@ -150,6 +150,7 @@ check "Win+1 → slot 1"          super+1     'log_has "ActivateSlot 1 false"'
 check "Win+Shift+1 → slot 1 new" super+shift+1 'log_has "ActivateSlot 1 true"'
 check "Volume+ → OSD"           XF86AudioRaiseVolume 'log_has VolumeUp'
 check "Brightness+ → OSD"       XF86MonBrightnessUp  'log_has BrightnessUp'
+check "Win+L → lock screen"     super+l     'log_has "^kavis-lock"'
 
 # --- table -------------------------------------------------------------
 {

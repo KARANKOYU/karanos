@@ -40,6 +40,13 @@ override_dh_auto_build:
 		src/logic/easing.vala
 	# quick.vala's night light toggle writes the shared config and asks
 	# NightLight to apply it, so the OSD binary needs those two too.
+	# kavis-lock: PAM for the password, so the answer respects the
+	# system's own rules rather than a hand-rolled shadow check.
+	valac $(VALA_PACKAGES) $(VALA_CFLAGS) --pkg pam -X -lpam \
+		-o kavis-lock \
+		src/kavis_lock.vala src/logic/appinit.vala \
+		src/logic/config.vala src/logic/theme.vala \
+		src/logic/timefmt.vala
 	valac $(VALA_PACKAGES) $(VALA_CFLAGS) -o kavis-osd \
 		src/kavis_osd.vala src/logic/appinit.vala \
 		src/logic/config.vala src/logic/brightness.vala \
@@ -52,6 +59,12 @@ override_dh_auto_install:
 	install -m755 kavis-panel $(DEST)/usr/bin/kavis-panel
 	install -m755 kavis-snap $(DEST)/usr/bin/kavis-snap
 	install -m755 kavis-osd $(DEST)/usr/bin/kavis-osd
+	install -m755 kavis-lock $(DEST)/usr/bin/kavis-lock
+	# PAM stack for the lock screen: the system's own auth rules, no
+	# more and no less. Without this file PAM falls back to "other",
+	# which on Debian denies everything and the screen never unlocks.
+	install -d $(DEST)/etc/pam.d
+	install -m644 src/pam-kavis-lock $(DEST)/etc/pam.d/kavis-lock
 	install -d $(DEST)/usr/share/applications
 	install -m644 src/kavis-panel.desktop \
 		$(DEST)/usr/share/applications/kavis-panel.desktop

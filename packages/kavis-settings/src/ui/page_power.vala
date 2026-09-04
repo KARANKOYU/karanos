@@ -30,12 +30,16 @@ namespace Kavis.Settings.Pages {
             body.pack_start (group (_("When plugged in")),
                              false, false, 0);
             body.pack_start (plan_list (true), false, false, 0);
+            body.pack_start (timeout_row (_("Lock the screen after"),
+                                          "lock_after", true), false, false, 0);
             body.pack_start (timeout_row (_("Turn off screen after"),
                                           "screen_off", true), false, false, 0);
             body.pack_start (timeout_row (_("Sleep after"),
                                           "sleep_after", true), false, false, 0);
             body.pack_start (group (_("On battery")), false, false, 0);
             body.pack_start (plan_list (false), false, false, 0);
+            body.pack_start (timeout_row (_("Lock the screen after"),
+                                          "lock_after", false), false, false, 0);
             body.pack_start (timeout_row (_("Turn off screen after"),
                                           "screen_off", false), false, false, 0);
             body.pack_start (timeout_row (_("Sleep after"),
@@ -78,6 +82,8 @@ namespace Kavis.Settings.Pages {
             /* Desktop: one list, and no lid or battery questions. */
             body.pack_start (group (_("Power mode")), false, false, 0);
             body.pack_start (plan_list (true), false, false, 0);
+            body.pack_start (timeout_row (_("Lock the screen after"),
+                                          "lock_after", true), false, false, 0);
             body.pack_start (timeout_row (_("Turn off screen after"),
                                           "screen_off", true), false, false, 0);
             body.pack_start (timeout_row (_("Sleep after"),
@@ -139,9 +145,12 @@ namespace Kavis.Settings.Pages {
         string full_key = key + (plugged ? "_ac" : "_battery");
         /* Default: a laptop on battery sleeps, a machine on mains does
          * not — and the screen goes dark before either. */
-        int fallback = (key == "screen_off")
-            ? (plugged ? 15 : 5)
-            : (plugged ? 0 : 20);
+        int fallback;
+        switch (key) {
+        case "lock_after":  fallback = plugged ? 15 : 5;  break;
+        case "screen_off":  fallback = plugged ? 15 : 5;  break;
+        default:            fallback = plugged ? 0 : 20;  break;
+        }
         combo.active_id = conf_get_int ("power", full_key,
             conf_get_int ("power", key, fallback)).to_string ();
         combo.changed.connect (() => {

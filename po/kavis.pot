@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 13:12+0000\n"
+"POT-Creation-Date: 2026-09-04 13:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -277,6 +277,23 @@ msgstr ""
 msgid "Disk"
 msgstr ""
 
+#: packages/kavis-panel/src/kavis_lock.vala:112
+#: packages/kavis-settings/src/ui/page_network.vala:221
+msgid "Password"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:118
+msgid "Sign in"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:118
+msgid "Unlock"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:199
+msgid "Wrong password"
+msgstr ""
+
 #: packages/kavis-panel/src/kavis_osd.vala:278
 msgid "Caps Lock on"
 msgstr ""
@@ -298,7 +315,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/indicators.vala:234
 #: packages/kavis-panel/src/ui/quick_settings.vala:797
 #: packages/kavis-settings/src/ui/page_display.vala:75
-#: packages/kavis-settings/src/ui/page_power.vala:50
+#: packages/kavis-settings/src/ui/page_power.vala:54
 #, c-format
 msgid "%d%%"
 msgstr ""
@@ -407,7 +424,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:307
 #: packages/kavis-panel/src/ui/quick_settings.vala:498
-#: packages/kavis-settings/src/ui/page_power.vala:37
+#: packages/kavis-settings/src/ui/page_power.vala:39
 msgid "On battery"
 msgstr ""
 
@@ -421,7 +438,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicators.vala:347
 #: packages/kavis-panel/src/ui/quick_settings.vala:532
-#: packages/kavis-settings/src/ui/page_power.vala:206
+#: packages/kavis-settings/src/ui/page_power.vala:215
 msgid "Balanced"
 msgstr ""
 
@@ -664,8 +681,8 @@ msgid "Lock"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/power_menu.vala:120
-#: packages/kavis-settings/src/ui/page_power.vala:65
-#: packages/kavis-settings/src/ui/page_power.vala:93
+#: packages/kavis-settings/src/ui/page_power.vala:69
+#: packages/kavis-settings/src/ui/page_power.vala:99
 #: packages/kavis-tools/src/altf4.vala:106
 msgid "Sleep"
 msgstr ""
@@ -717,7 +734,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:256
 #: packages/kavis-panel/src/ui/quick_settings.vala:491
-#: packages/kavis-settings/src/ui/page_power.vala:46
+#: packages/kavis-settings/src/ui/page_power.vala:50
 msgid "Battery"
 msgstr ""
 
@@ -761,20 +778,20 @@ msgid "Paired devices"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:523
-#: packages/kavis-settings/src/ui/page_power.vala:203
+#: packages/kavis-settings/src/ui/page_power.vala:212
 #: packages/kavis-settings/src/ui/window.vala:136
 msgid "Efficiency"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:526
-#: packages/kavis-settings/src/ui/page_power.vala:204
+#: packages/kavis-settings/src/ui/page_power.vala:213
 #: packages/kavis-settings/src/ui/window.vala:136
 #: packages/kavis-taskmanager/src/tasks.vala:154
 msgid "Performance"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:529
-#: packages/kavis-settings/src/ui/page_power.vala:205
+#: packages/kavis-settings/src/ui/page_power.vala:214
 #: packages/kavis-settings/src/ui/window.vala:137
 msgid "Game"
 msgstr ""
@@ -1729,10 +1746,6 @@ msgstr ""
 msgid "Network name"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_network.vala:221
-msgid "Password"
-msgstr ""
-
 #: packages/kavis-settings/src/ui/page_network.vala:229
 #: packages/kavis-settings/src/ui/page_network.vala:237
 msgid "Hotspot not started"
@@ -1841,87 +1854,93 @@ msgid "Send DNS queries over TLS to a chosen resolver instead of the network's"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_power.vala:33
-#: packages/kavis-settings/src/ui/page_power.vala:39
-#: packages/kavis-settings/src/ui/page_power.vala:81
+#: packages/kavis-settings/src/ui/page_power.vala:41
+#: packages/kavis-settings/src/ui/page_power.vala:85
+msgid "Lock the screen after"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_power.vala:35
+#: packages/kavis-settings/src/ui/page_power.vala:43
+#: packages/kavis-settings/src/ui/page_power.vala:87
 #: packages/kavis-settings/src/ui/window.vala:135
 msgid "Turn off screen after"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:35
-#: packages/kavis-settings/src/ui/page_power.vala:41
-#: packages/kavis-settings/src/ui/page_power.vala:83
+#: packages/kavis-settings/src/ui/page_power.vala:37
+#: packages/kavis-settings/src/ui/page_power.vala:45
+#: packages/kavis-settings/src/ui/page_power.vala:89
 msgid "Sleep after"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:48
-#: packages/kavis-settings/src/ui/page_power.vala:133
+#: packages/kavis-settings/src/ui/page_power.vala:52
+#: packages/kavis-settings/src/ui/page_power.vala:139
 msgid "Never"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:58
+#: packages/kavis-settings/src/ui/page_power.vala:62
 msgid "Warn me at"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:59
+#: packages/kavis-settings/src/ui/page_power.vala:63
 msgid "A notification when the charge drops this low"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:66
-#: packages/kavis-settings/src/ui/page_power.vala:99
+#: packages/kavis-settings/src/ui/page_power.vala:70
+#: packages/kavis-settings/src/ui/page_power.vala:105
 msgid "Hibernate"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:67
+#: packages/kavis-settings/src/ui/page_power.vala:71
 msgid "Lock the screen"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:68
+#: packages/kavis-settings/src/ui/page_power.vala:72
 msgid "Do nothing"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:75
+#: packages/kavis-settings/src/ui/page_power.vala:79
 msgid "When I close the lid"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:79
+#: packages/kavis-settings/src/ui/page_power.vala:83
 #: packages/kavis-settings/src/ui/window.vala:135
 msgid "Power mode"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:91
+#: packages/kavis-settings/src/ui/page_power.vala:97
 msgid "Now"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:105
+#: packages/kavis-settings/src/ui/page_power.vala:111
 msgid "Sleep or hibernate"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:107
+#: packages/kavis-settings/src/ui/page_power.vala:113
 msgid ""
 "Sleep keeps the session in memory; hibernate writes it to disk and powers off"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:108
+#: packages/kavis-settings/src/ui/page_power.vala:114
 msgid ""
 "Hibernate needs a swap area at least as large as the memory in this machine"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:136
+#: packages/kavis-settings/src/ui/page_power.vala:142
 #, c-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:213
+#: packages/kavis-settings/src/ui/page_power.vala:222
 msgid "Lowest clocks, longest battery life"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:215
+#: packages/kavis-settings/src/ui/page_power.vala:224
 msgid "Highest clocks, more heat and fan noise"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_power.vala:217
+#: packages/kavis-settings/src/ui/page_power.vala:226
 msgid "Clocks follow the load"
 msgstr ""
 

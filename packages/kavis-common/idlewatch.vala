@@ -21,6 +21,7 @@ namespace Kavis {
 
         private uint timer = 0;
         private bool screen_is_off = false;
+        private bool locked = false;
         private XScreenSaver.Info? info = null;
 
         /* Seconds of inactivity, or -1 when the extension is missing
@@ -66,6 +67,21 @@ namespace Kavis {
             }
             int screen_off = minutes ("screen_off", on_ac, 0);
             int sleep_after = minutes ("sleep_after", on_ac, 0);
+            int lock_after = minutes ("lock_after", on_ac, 0);
+
+            /* Lock first, before the screen goes dark: a machine that
+             * sleeps or blanks while still unlocked is a machine
+             * somebody can walk up to. Started once per idle period —
+             * kavis-lock refuses a second instance anyway, but asking
+             * every 20 seconds would fill the log. */
+            if (lock_after > 0 && idle >= lock_after * 60) {
+                if (!locked) {
+                    locked = true;
+                    LockWatch.lock_now ();
+                }
+            } else if (idle < 30) {
+                locked = false;
+            }
 
             if (screen_off > 0 && idle >= screen_off * 60) {
                 if (!screen_is_off) {

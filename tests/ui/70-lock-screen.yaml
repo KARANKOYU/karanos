@@ -1,0 +1,38 @@
+# Lock screen (item 70).
+#
+# The scenario locks and then unlocks with the live user's password,
+# which is empty in the live session — the passwordless path. On an
+# installed system with a real password the same steps need it typed,
+# so a password entry is NOT part of this scenario; what is asserted is
+# that the screen appears, takes the grab, and goes away again.
+#
+# The idle and lid triggers are not exercised here: waiting out a
+# five-minute timeout inside a smoke test would double its length, and
+# the lid does not exist in QEMU. Both stay on the VM checklist.
+name: 70-lock-screen
+title: Lock screen
+item: 70
+allowed: [kavis-lock]
+steps:
+  - do: launch kavis-lock
+    expect: window kavis-lock visible
+    timeout: 20000
+    note: the lock window appears over everything
+    shot: true
+  - do: shell pgrep -x kavis-lock >/dev/null
+    expect: ok
+    note: still running — a locker that exits on its own is not a locker
+  - do: key Return
+    expect: ok
+    timeout: 4000
+    note: >
+      the live user has no password, so the card shows one button and
+      Return activates it
+  - do: wait 2000
+    expect: window kavis-lock absent
+    timeout: 10000
+    note: unlocked and gone
+    shot: true
+  - do: shell test -f /etc/pam.d/kavis-lock
+    expect: ok
+    note: without the PAM stack the screen could never unlock

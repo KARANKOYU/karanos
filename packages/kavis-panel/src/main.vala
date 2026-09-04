@@ -26,6 +26,9 @@ int main (string[] args) {
      * machine does when nobody touches it, and what happens when the
      * battery runs down. Both read kavis.conf; Settings only writes. */
     Kavis.IdleWatch.start (() => Kavis.Battery.on_ac ());
+    /* Item 70: logind's Lock signal — `loginctl lock-session` and the
+     * lid, when Settings > Power says the lid locks. */
+    Kavis.LockWatch.start ();
     Kavis.BatteryWarning.start ();
     Gtk.main ();
     return 0;
