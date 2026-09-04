@@ -37,6 +37,14 @@ uss_mb() {
 		"/proc/$1/smaps_rollup" 2>/dev/null || echo 0
 }
 
+# RSS (MB): what a system monitor shows — includes shared library pages,
+# so adding it up across the GTK processes counts the same memory many
+# times over. Logged next to USS so the two can be told apart.
+rss_mb() {
+	awk '/^VmRSS:/ { printf "%d", $2 / 1024 }' "/proc/$1/status" 2>/dev/null \
+		|| echo 0
+}
+
 # 0) Was the live user created
 # live-config creates this user with user-setup. If the package is
 # missing the user is never created and the session cannot open — this
@@ -697,6 +705,26 @@ done
 # 6) Memory usage — measurement for the 1 GB target in prompt 20
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"
+
+# E3 (v0.4-test4): "960 MB used at idle" needs a breakdown, not a total.
+# Both numbers per process: USS is what that process actually costs, RSS
+# is what a task manager shows — and RSS counts the shared GTK, cairo and
+# pango pages once per process, which is most of the difference between
+# the two columns. Live sessions read high anyway (squashfs plus the RAM
+# overlay), so this is a measurement, never a failure.
+for name in Xorg lightdm kavis-panel kavis-snap kavis-osd kavis-tools \
+	nemo-desktop lxpolkit picom xsettingsd xcape; do
+	for pid in $(pgrep -f "^[^ ]*$name" 2>/dev/null); do
+		[ -r "/proc/$pid/status" ] || continue
+		log "MEM-PROC $name pid=$pid uss=$(uss_mb "$pid")MB rss=$(rss_mb "$pid")MB"
+	done
+done
+# The idle target from the RAM cleanup round. A warning, not a failure:
+# the live session carries the squashfs cache the installed system does
+# not have.
+if [ "$mem_used_mb" -gt 380 ]; then
+	log "MEM-USED-WARN ${mem_used_mb}MB > 380MB target (live session, see MEM-PROC lines)"
+fi
 
 # 12) Selftest (item 72): if the desktop is ready the scenarios run in
 # the real session; run.log lines land in the serial log with the

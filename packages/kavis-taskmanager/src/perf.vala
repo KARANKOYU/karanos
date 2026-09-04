@@ -222,6 +222,22 @@ namespace Kavis.TaskManager {
             detail.add_named (page, id);
         }
 
+        /* E1: each per-core graph in its own framed cell. Without the
+         * frame the lines of neighbouring cores ran into each other and
+         * the grid read as one wide, noisy graph — 1px white 8% border,
+         * 4px of air inside it, and the core's number above so a busy
+         * one can be named. */
+        private const string CORE_CSS = """
+        .kavis-core-cell {
+          border: 1px solid @kavis_card_border;
+          border-radius: 6px;
+          padding: 4px;
+        }
+        .kavis-core-label {
+          font-size: 10px;
+        }
+        """;
+
         /* G5: one small graph per logical processor, W11 style. The
          * layout squares off (4 columns for a quad core, 8 for 64), and
          * the graphs shrink as the count grows so the grid still fits
@@ -243,17 +259,37 @@ namespace Kavis.TaskManager {
                 columns++;
             }
             int rows = (n + columns - 1) / columns;
-            int height = (rows > 4) ? 28 : ((rows > 2) ? 40 : 54);
+            int height = (rows > 4) ? 42 : ((rows > 2) ? 54 : 68);
+
+            var provider = new Gtk.CssProvider ();
+            try {
+                provider.load_from_data (CORE_CSS, CORE_CSS.length);
+                Gtk.StyleContext.add_provider_for_screen (
+                    Gdk.Screen.get_default (), provider,
+                    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            } catch (Error e) {
+                warning ("kavis-taskmanager: core graph CSS: %s", e.message);
+            }
 
             var grid = new Gtk.Grid ();
-            grid.column_spacing = 6;
-            grid.row_spacing = 6;
+            grid.column_spacing = 4;
+            grid.row_spacing = 4;
             grid.column_homogeneous = true;
             for (int i = 0; i < n; i++) {
                 var g = new Graph ();
-                g.set_size_request (-1, height);
+                /* The label takes part of the cell, so the graph itself
+                 * gives up those pixels and the grid keeps its height. */
+                g.set_size_request (-1, height - 14);
                 core_graphs += g;
-                grid.attach (g, i % columns, i / columns, 1, 1);
+                var cell = new Gtk.Box (Gtk.Orientation.VERTICAL, 2);
+                cell.get_style_context ().add_class ("kavis-core-cell");
+                var tag = new Gtk.Label (_("CPU %d").printf (i));
+                tag.set_xalign (0);
+                tag.get_style_context ().add_class ("dim-label");
+                tag.get_style_context ().add_class ("kavis-core-label");
+                cell.pack_start (tag, false, false, 0);
+                cell.pack_start (g, true, true, 0);
+                grid.attach (cell, i % columns, i / columns, 1, 1);
             }
             box.pack_start (grid, false, false, 0);
             return box;

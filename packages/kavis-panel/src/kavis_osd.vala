@@ -203,7 +203,24 @@ namespace Kavis.Osd {
     public class Daemon : Object {
 
         private OsdService service;
-        private OsdWindow window = new OsdWindow ();
+        /* E3: built on the first key press, not at login.
+         *
+         * kavis-osd sits idle for most of a session, and a realized GTK
+         * window costs its widgets, its icon pixbufs and a backing
+         * surface the whole time for something nobody is looking at.
+         * It is kept once built: rebuilding it on every volume key
+         * would trade memory for a visible delay on the one action this
+         * daemon exists for. */
+        private OsdWindow? osd_window = null;
+
+        private OsdWindow window {
+            get {
+                if (osd_window == null) {
+                    osd_window = new OsdWindow ();
+                }
+                return osd_window;
+            }
+        }
         private bool caps_state;
         private bool num_state;
         private bool enabled = true;

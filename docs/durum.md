@@ -131,6 +131,36 @@ yetecek kadar dar. Bu değer VM/gerçek donanım ölçümüyle bir daha
 gözden geçirilecek — canlı oturumda tema ve ikonlar yüklü olduğu için
 sayılar Xvfb'den yüksek çıkıyor (3 Eyl QEMU: panel 36 MB).
 
+## Boşta bellek — nereye gidiyor (E3, 4 Eyl)
+
+VM turunda "boşta 960 MB / 3.8 GB" görüldü, hedef 380 MB. Toplam tek
+başına bir şey söylemiyor; boot-check artık her koşuda **süreç başına
+USS + RSS** basıyor (`MEM-PROC` satırları) ve toplam 380 MB'ı aşarsa
+`MEM-USED-WARN` yazıyor (uyarı, hata değil — canlı oturumda squashfs
+önbelleği var, kurulu sistemde yok).
+
+İki sayı birlikte veriliyor çünkü aralarındaki fark E3'ün asıl cevabı:
+RSS paylaşılan GTK/cairo/pango sayfalarını **her süreçte tekrar**
+sayar. Görev Yöneticisi'nde "kavis-osd 35 MB" görünmesinin sebebi bu.
+
+**kavis-osd ölçümü (Xvfb, boşta):** pencere baştan kuruluyorken
+USS 15 MB / RSS 20 MB, pencere tembel kurulunca USS 15 MB / RSS 19 MB.
+Yani pencere maliyet değildi; maliyet **GTK3 sürecinin kendisi**
+(12-14 MB özel sayfa tabanı, yukarıdaki bölüm). Pencere yine de tembel
+kuruldu — kimsenin bakmadığı bir şeyi oturum boyunca hazır tutmak
+doğru değil — ama "OSD kapalıyken bellek tutmasın" isteğinin gerçek
+karşılığı **kavis-osd'yi GTK süreci olmaktan çıkarmak** olur (ham X +
+cairo ile çizmek). Bu ayrı bir madde; şu an yapılmadı.
+
+Aynı mantık listedeki diğer kalemler için:
+- **Xorg 161 MB**: VM'de çerçeve arabelleği ve pixmap'ler; yazılım
+  rasterizasyonuyla küçültülemez.
+- **nemo-desktop 43 MB**: masaüstü ikon katmanı bir Nemo süreci.
+  Küçültmenin tek yolu ikonları kendimiz çizmek (ayrı madde).
+- **lxpolkit / kavis-tools / kavis-snap**: VM turunda `MEM-PROC`
+  satırlarından okunacak; eşik aşan olursa değiştirilecek (RAM
+  maddesi 2).
+
 ## VM'de doğrulanacaklar (v0.4-test3 turu)
 
 Kullanıcı ISO'yu indirip VirtualBox'ta deneyecek. Bakılacaklar:

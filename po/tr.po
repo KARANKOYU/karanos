@@ -1191,3 +1191,6 @@ msgstr "Test bitmeden durdu."
 
 msgid "Open report"
 msgstr "Raporu aç"
+
+msgid "CPU %d"
+msgstr "İşlemci %d"

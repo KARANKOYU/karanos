@@ -265,7 +265,16 @@ namespace Kavis.TaskManager {
                 Gtk.TreePath path;
                 if (view.get_path_at_pos ((int) event.x, (int) event.y,
                                           out path, null, null, null)) {
+                    /* E2: focus FIRST. Selecting a row in a view that
+                     * does not have the keyboard focus draws it in the
+                     * unfocused selection colour, which on this theme
+                     * is close enough to the row background that the
+                     * v0.4-test4 round read it as "right-click does not
+                     * select". Focusing also matches Windows: the list
+                     * you right-clicked becomes the active one. */
+                    view.grab_focus ();
                     view.get_selection ().select_path (path);
+                    view.set_cursor (path, null, false);
                 }
                 show_context_menu (event);
                 return true;

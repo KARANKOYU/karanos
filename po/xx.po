@@ -852,6 +852,9 @@ msgstr "⟪GPU··⟫"
 msgid "Logical processors"
 msgstr "⟪Logical processors·······⟫"
 
+msgid "CPU %d"
+msgstr "⟪CPU %d··⟫"
+
 msgid "Base speed"
 msgstr "⟪Base speed····⟫"
 
