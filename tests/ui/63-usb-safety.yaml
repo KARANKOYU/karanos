@@ -1,17 +1,23 @@
-# Safe USB use (item 63): a plugged-in stick mounts with no execute
-# permission and no setuid.
+# Safe USB use (item 63): the panel's USB list and the write indicator.
 #
-# No stick exists in a VM, so the rule that would apply is checked
-# instead of the result. A missing rule file means the next stick
-# mounts with exec — which is the failure this item exists to prevent.
+# The item is NOT "mount with nosuid" — it is knowing when a stick is
+# still being written to, and being able to remove it safely. QEMU has
+# no removable device, so the popup shows an empty list; that it opens
+# and that the kernel counters it reads are readable is what a VM can
+# prove. Plugging a real stick in stays on the VM checklist.
 name: 63-usb-safety
 title: USB safety
 item: 63
 allowed: []
 steps:
-  - do: shell grep -rqs 'nosuid' /etc/udisks2 /usr/lib/udisks2 || test -f /etc/udisks2/mount_options.conf
+  - do: shell grep -q Dirty /proc/meminfo
     expect: ok
-    note: removable media mount options are pinned somewhere
-  - do: shell systemctl is-active --quiet udisks2
+    note: >
+      the write indicator reads Dirty and Writeback from here — "the
+      copy finished" is not the same as "the kernel finished writing"
+  - do: shell command -v udisksctl
     expect: ok
-    timeout: 10000
+    note: safe removal is sync + unmount + power-off through udisks
+  - do: shell gdbus call --system --dest org.freedesktop.UDisks2 --object-path /org/freedesktop/UDisks2/Manager --method org.freedesktop.DBus.Peer.Ping
+    expect: ok
+    timeout: 20000

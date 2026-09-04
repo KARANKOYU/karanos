@@ -1,15 +1,18 @@
 # Disks and USB (item 42): the pieces that make a plugged-in stick
 # appear and mount without a password.
+#
+# udisks is D-Bus activated, so "is it running" is the wrong question —
+# it starts when something asks. Whether it ANSWERS is the right one.
 name: 42-disks
 title: Disks and USB
 item: 42
 allowed: []
 steps:
-  - do: shell systemctl is-active --quiet udisks2
+  - do: shell gdbus call --system --dest org.freedesktop.UDisks2 --object-path /org/freedesktop/UDisks2/Manager --method org.freedesktop.DBus.Peer.Ping
     expect: ok
-    timeout: 10000
-    note: without udisks nothing mounts from the file manager
-  - do: shell test -x /usr/bin/gio || test -d /usr/lib/gvfs
+    timeout: 20000
+    note: udisks answers — without it nothing mounts from the file manager
+  - do: shell test -d /usr/lib/gvfs || test -x /usr/bin/gio
     expect: ok
     note: gvfs is what turns a mount into a place in the sidebar
   - do: shell lsblk -no NAME >/dev/null

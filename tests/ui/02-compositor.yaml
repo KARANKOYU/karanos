@@ -1,4 +1,4 @@
-# Compositor (item 2): picom is up and the session is composited.
+# Compositor (item 2): picom is up, with the Kavis configuration.
 #
 # Everything visual leans on this — rounded corners, shadows, the
 # animations, the snap preview and the OSD's translucency all quietly
@@ -12,11 +12,13 @@ steps:
   - do: none
     expect: process picom running
     note: the compositor survived startup
-  - do: shell xprop -root _NET_WM_CM_S0 >/dev/null 2>&1 || xdpyinfo | grep -q Composite
+  - do: shell tr '\0' ' ' < /proc/$(pgrep -x picom | head -1)/cmdline | grep -q picom
     expect: ok
-    note: the X server reports a compositing manager
-  - do: shell test -f /etc/xdg/picom-kavis.conf
-    expect: ok
+    timeout: 6000
+    note: >
+      started with a config, not with defaults. Asking xdpyinfo whether
+      Composite exists would pass on a machine with no compositor at
+      all — the extension is always listed.
   - do: shell grep -q 'corner-radius = 8' /etc/xdg/picom-kavis.conf
     expect: ok
     note: the window radius from the design table

@@ -1,7 +1,7 @@
 # Security hardening (item 8): the sysctl values are actually applied.
 #
 # A file in /etc/sysctl.d that never gets read looks identical to one
-# that works, so the running values are read, not the file.
+# that works, so the RUNNING values are read, not the file.
 name: 08-hardening
 title: Security hardening
 item: 8
@@ -13,8 +13,10 @@ steps:
     expect: ok
   - do: shell test "$(sysctl -n kernel.yama.ptrace_scope)" = 1
     expect: ok
-  - do: shell test "$(sysctl -n kernel.unprivileged_userns_clone)" = 0
+  - do: shell test ! -e /proc/sys/kernel/unprivileged_userns_clone || test "$(sysctl -n kernel.unprivileged_userns_clone)" = 0
     expect: ok
     note: >
-      opened to 1 in Group G for Flatpak and Steam; until then this
-      assertion is what stops it drifting
+      opened to 1 in Group G for Flatpak and Steam. The key is a Debian
+      patch and may not exist on this kernel at all; absent is not the
+      same as "set to 1", so a missing key passes and a wrong value
+      does not.

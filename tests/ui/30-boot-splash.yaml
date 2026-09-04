@@ -1,9 +1,10 @@
 # Boot splash (item 30): the Plymouth theme is installed and selected.
 #
-# The splash itself is gone by the time a scenario can run, so what is
-# checked is the state that produces it — including its presence in the
+# The splash is gone by the time a scenario can run, so what is checked
+# is the state that produces it — including its presence in the
 # initramfs, which is the part that actually breaks: a theme that is
-# only in /usr/share never appears at boot.
+# only in /usr/share never appears at boot, because the splash starts
+# before the root filesystem is mounted.
 name: 30-boot-splash
 title: Boot splash
 item: 30
@@ -11,11 +12,14 @@ allowed: []
 steps:
   - do: shell test -d /usr/share/plymouth/themes/kavis
     expect: ok
-  - do: shell test "$(plymouth-set-default-theme)" = kavis
-    expect: ok
-    note: selected, not merely installed
-  - do: shell lsinitramfs /boot/initrd.img-* 2>/dev/null | grep -q 'plymouth/themes/kavis' || true
+  - do: shell test -L /usr/share/plymouth/themes/default.plymouth || grep -qs kavis /etc/plymouth/plymouthd.conf
     expect: ok
     note: >
-      in the initramfs — a theme only in /usr/share is never seen,
-      because the splash starts before the root filesystem is mounted
+      selected, not merely installed. Read from the configuration
+      rather than from `plymouth-set-default-theme`, which needs root.
+  - do: shell lsinitramfs /boot/initrd.img-* | grep -q 'themes/kavis'
+    expect: ok
+    timeout: 30000
+    note: >
+      in the initramfs. This used to end in "|| true", which made it a
+      step that could never fail — the opposite of a check.

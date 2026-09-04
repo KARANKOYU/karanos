@@ -1,27 +1,32 @@
-# Terminal and editors (item 40): the three applications open, under the
-# names Kavis gives them.
+# Terminal and editors (item 40): the applications open, and no window
+# introduces itself by its vendor name.
 name: 40-editors
 title: Terminal and editors
 item: 40
-allowed: [tilix, mousepad, kate]
+allowed: [mousepad, tilix]
 steps:
   - do: launch mousepad
     expect: window mousepad visible
     timeout: 40000
     note: the notepad
     shot: true
-  - do: shell xdotool search --class mousepad getwindowname %@ | grep -qi notepad
+  - do: shell '! xdotool search --onlyvisible --name Mousepad'
     expect: ok
     timeout: 10000
     note: >
-      the title says Notepad, not Mousepad — the vendor name is
-      rewritten by kavis-snap from the title map (D1)
+      no visible window is called Mousepad. Asserted as an absence
+      rather than as "the title says Notepad": some versions put no
+      application name in the title at all, and the requirement is that
+      the vendor name never shows, whoever put it there (D1).
   - do: close window mousepad
     expect: window mousepad absent
     timeout: 8000
   - do: launch tilix
     expect: window tilix visible
     timeout: 40000
+  - do: shell '! xdotool search --onlyvisible --name Tilix'
+    expect: ok
+    timeout: 10000
   - do: close window tilix
     expect: window tilix absent
     timeout: 8000
