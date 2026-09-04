@@ -69,6 +69,62 @@ ile taşıdığı için bunu hiç görmedi; VirtualBox/edge-warp/XI2 şüpheleri
 yanlıştı. Çözüm: XQueryTree + XGetWindowAttributes +
 XTranslateCoordinates ile her yoklamada sunucudan okumak.
 
+## USS eşiği 10 → 20 MB (4 Eyl)
+
+`SETTINGS-USS-WARN` ve yeni `PANEL-USS-WARN` eşiği 20 MB. Sebep: 10 MB
+hedefi bir GTK3 sürecinin tabanının ALTINDAYDI. 4 Eyl Xvfb ölçümü
+(boşta, tek pencere): kavis-panel 16 MB, kavis-taskmanager 17, Ayarlar
+15, hesap makinesi 14, önizleme 15 MB USS. Boş bir GTK3 penceresi bile
+12-14 MB özel sayfa tutuyor (ikon önbelleği, CSS sağlayıcı, Pango ve
+GTK'nın süreç başına durumu); yani ölçülen değerler zaten ulaşılabilir
+en düşük seviyeye yakındı ve eşik her koşuda uyarı basıyordu. 20 MB,
+gerçek bir gerilemenin (sızıntı, ikon önbelleğinin şişmesi) görünmesine
+yetecek kadar dar. Bu değer VM/gerçek donanım ölçümüyle bir daha
+gözden geçirilecek — canlı oturumda tema ve ikonlar yüklü olduğu için
+sayılar Xvfb'den yüksek çıkıyor (3 Eyl QEMU: panel 36 MB).
+
+## VM'de doğrulanacaklar (v0.4-test3 turu)
+
+Kullanıcı ISO'yu indirip VirtualBox'ta deneyecek. Bakılacaklar:
+
+**Ayarlar**
+- F1 Hakkında: Processor/Graphics/Memory/Disk katlanır kartları; gerçek
+  donanımda bellek tipi/hızı/CL/yuva dolu geliyor mu (VM'de tire).
+- F2 Ekran: çözünürlük listesi kısa ve tekrarsız mı, "Custom…" tüm
+  modları veriyor mu, Hz listesi seçime göre değişiyor mu, 15 sn geri
+  sayım çalışıyor mu.
+- F3 Ölçek: 100/125/150/175/200 — yazı boyu ve hizalar; yüzde biçimi
+  (EN "125%", TR "%125").
+- F4 Dil/klavye: dil açılır listesi + arama, düzen listesi (590 giriş),
+  seçince uygulanıyor mu; panel göstergesine sağ tık.
+
+**Görev Yöneticisi**
+- G1 ayrı uygulama + ikon; G2 sağ tık menüsü ve Delete/Shift+Delete.
+- G3 CPU yüzdeleri toplamla tutarlı mı; G4 sıralama oku.
+- G5 Performans: mantıksal işlemci ızgarası (gerçek makinede 8-16
+  çekirdek), bellek modülü satırları dolu mu.
+- G6 Başlangıç: sistem girdileri görünmüyor, hepsi kapalı, açıp
+  kapatınca ~/.config/autostart doğru değişiyor mu.
+
+**Uygulamalar**
+- H1 Nemo başlığı tam yol; H2 ev dizininde Templates yok, sağ tık >
+  yeni dosya 12 şablonu gösteriyor mu (H3), ikonlar doğru mu.
+- H4 Firefox koyu açılıyor mu; tema açığa geçince Firefox da (canlı
+  yarısı `Apply.firefox_theme` — ilk kez VM'de görülecek).
+- H5 hiçbir yerde "Tilix" yazmıyor; H6 Kate düzeni; H7 masaüstünde beş
+  kısayol.
+- I Emoji seçici: 24 px glifler, 8 sütun, sekmeler, arama.
+
+**Sistem**
+- RAM: boşta `free` "used" (hedef < 380 MB), lxpolkit / nemo-desktop /
+  kavis-tools / kavis-osd / kavis-snap USS tablosu (RAM maddesi 2),
+  PANEL-USS ve SETTINGS-USS yeni 20 MB eşiğine göre.
+- Çift `kavis-panel` süreci tekrar ediyor mu (RAM maddesi 6).
+- Selftest: `kavis-selftest --all` beş senaryoyu koşuyor mu, rapor
+  ~/.local/share/kavis/selftest/ altında mı.
+- B1 GRUB gizli, Shift ile menü; boot-check günlüğü
+  /run/kavis/boot-check.log.
+
 ## Kod tabanı İngilizce (3 Eyl, `7a382b9`)
 
 Yeni kural CLAUDE.md'de: identifier/yorum/log/CI çıktısı/commit mesajı

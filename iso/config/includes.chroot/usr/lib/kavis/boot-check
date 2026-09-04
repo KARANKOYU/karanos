@@ -168,7 +168,13 @@ if [ "$panel_up" -eq 1 ]; then
 		log "PANEL-RSS=$((panel_rss_kb / 1024))MB"
 		# J (v0.4-test1): USS = only the pages belonging to this process
 		# (shared gtk/rsvg libraries excluded) — the real cost measure.
-		log "PANEL-USS=$(uss_mb "$panel_pid")MB"
+		# Same 20 MB budget as Settings, and for the same reason: a GTK3
+		# process starts around 12-14 MB of private pages.
+		panel_uss=$(uss_mb "$panel_pid")
+		log "PANEL-USS=${panel_uss}MB"
+		if [ "$panel_uss" -gt 20 ]; then
+			log "PANEL-USS-WARN ${panel_uss}MB > 20MB"
+		fi
 	fi
 	# v0.4-test2 A: "process exists" ≠ "window on screen". The CI frame is
 	# taken once the panel and the desktop layer are VISIBLE; if not
@@ -548,10 +554,16 @@ if command -v kavis-settings >/dev/null 2>&1; then
 				"/proc/$settings_pid/status")
 			settings_uss=$(uss_mb "$settings_pid")
 			log "SETTINGS-OK window opened, RSS=$((settings_rss_kb / 1024))MB USS=${settings_uss}MB"
-			# J: target USS <= 10 MB, above is a WARNING (RSS counts shared
-			# libraries, meaningless for the target).
-			if [ "$settings_uss" -gt 10 ]; then
-				log "SETTINGS-USS-WARN ${settings_uss}MB > 10MB"
+			# Budget 20 MB, above is a WARNING (RSS counts shared
+			# libraries, meaningless for the target). The old 10 MB
+			# target was below the floor of a GTK3 process: measured on
+			# 4 Sep an empty window already costs 12-14 MB of private
+			# pages (icon cache, CSS provider, Pango and GTK's own
+			# per-process state), so Settings at 15 MB and the panel at
+			# 16 MB were already close to the minimum a GTK3 app can
+			# reach. 20 MB leaves room for a real regression to show.
+			if [ "$settings_uss" -gt 20 ]; then
+				log "SETTINGS-USS-WARN ${settings_uss}MB > 20MB"
 			fi
 		else
 			log "SETTINGS-OK window opened"
