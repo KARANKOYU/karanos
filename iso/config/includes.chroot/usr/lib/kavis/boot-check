@@ -710,6 +710,27 @@ if [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
 	if [ "${selftest_rc:-0}" = "0" ]; then
 		log "SELFTEST-OK"
 	else
+		# The report leaves the VM through the serial log: the smoke
+		# test has no shared folder, and a failing step is exactly when
+		# the screenshots are worth having. Thumbnails are dropped and
+		# the archive is capped, because base64 over an emulated serial
+		# port is slow — a report that does not fit is truncated on
+		# purpose rather than stalling the run.
+		selftest_dir=$(runuser -u karan -- sh -c 'ls -1d /users/karan/.local/share/kavis/selftest/*/ 2>/dev/null | tail -1')
+		if [ -n "$selftest_dir" ]; then
+			tar czf /tmp/selftest.tar.gz -C "$selftest_dir" \
+				--exclude='*-thumb.png' . 2>/dev/null || true
+			size=$(stat -c %s /tmp/selftest.tar.gz 2>/dev/null || echo 0)
+			if [ "$size" -gt 0 ] && [ "$size" -le 524288 ]; then
+				log "SELFTEST-REPORT-BEGIN ${size} bytes"
+				base64 -w 120 /tmp/selftest.tar.gz | while IFS= read -r chunk; do
+					log "SELFTEST-REPORT ${chunk}"
+				done
+				log "SELFTEST-REPORT-END"
+			else
+				log "SELFTEST-REPORT-SKIP ${size} bytes (limit 524288)"
+			fi
+		fi
 		fatal "SELFTEST-FAIL scenario error (run.log)" "selftest"
 	fi
 else

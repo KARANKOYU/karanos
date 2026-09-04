@@ -285,8 +285,30 @@ wait "$QEMU_PID" 2>/dev/null || true
 
 echo
 echo "===== KAVIS-CHECK lines ====="
-grep "KAVIS-CHECK" "$SERIAL" || echo "(no lines at all)"
+# The selftest report is base64 in the middle of the log; printing it
+# would bury everything else.
+grep "KAVIS-CHECK" "$SERIAL" | grep -v "KAVIS-CHECK: SELFTEST-REPORT " \
+	|| echo "(no lines at all)"
 echo "==================================="
+
+# --- selftest report (item 72) ---------------------------------------
+#
+# A failing scenario sends its run directory out as base64 over the
+# serial port, since the VM has no shared folder. Rebuild the archive
+# next to the screenshots so it travels with the diagnostics artifact.
+if grep -q "KAVIS-CHECK: SELFTEST-REPORT-BEGIN" "$SERIAL" 2>/dev/null; then
+	report="${SCREENSHOT_DIR:-$PWD}/selftest-$MODE.tar.gz"
+	if sed -n 's/^KAVIS-CHECK: SELFTEST-REPORT \(.*\)$/\1/p' "$SERIAL" \
+		| tr -d '\r' | base64 -d > "$report" 2>/dev/null \
+		&& tar tzf "$report" >/dev/null 2>&1; then
+		echo ">> selftest report: $report"
+	else
+		echo "::warning::selftest report could not be decoded ($MODE)"
+		rm -f "$report"
+	fi
+elif grep -q "KAVIS-CHECK: SELFTEST-REPORT-SKIP" "$SERIAL" 2>/dev/null; then
+	echo "::warning::selftest report too large for the serial log ($MODE)"
+fi
 
 # --- Idle RAM usage (prompt 20: 1 GB normal, 1.5 GB absolute limit) ---
 #

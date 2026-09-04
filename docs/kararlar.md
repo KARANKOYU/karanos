@@ -242,7 +242,11 @@ artifact'ı (seri günlükte yalnız run.log satırları; klasörün dışarı
 (`tools/gen-test-coverage.py`, lint iş akışında `--check`) girdi.
 Kapsam denetimi şimdilik UYARI: 5/71 madde senaryolu, hepsi kırmızı
 yanarsa denetim öğrenilmiş körlüğe dönüşür; başlangıç seti tamamlanınca
-`--strict` varsayılan olacak. Kalan: kayıt modu, rapor artifact'ı,
-kısayol senaryosu. Senaryo
+`--strict` varsayılan olacak. Kısayol senaryosu
+(`tools/gen-keybind-scenario.py` → `tests/ui/06-shortcuts.yaml`) ve
+rapor artifact'ı da girdi: senaryo düşerse boot-check koşu klasörünü
+(küçük resimler hariç, 512 KB sınırı) base64 olarak seri günlüğe
+basıyor, duman testi çözüp `selftest-<mode>.tar.gz` olarak teşhis
+yapıtına koyuyor. **Kalan tek parça: kayıt modu.** Senaryo
 biçimi YAML alt kümesi: `name/title/madde/allowed` + `steps:` listesi,
 adım = `do` / `expect` / `timeout` / `note` / `shot`.
