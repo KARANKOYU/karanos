@@ -4,6 +4,26 @@
 Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
 İngilizce (CLAUDE.md dil kuralı), push kullanıcı isteyince.
 
+## 0a. 4 Eylül — konteyner kaybı ve wip'in kapanışı
+
+- Codespace'in `/etc/passwd`'si bozulup konteyner yeniden kuruldu.
+  Artık **her chroot hook'u** `/usr/share/kavis/build-marker` yoksa
+  çalışmayı reddediyor (marker yalnız includes.chroot ile chroot'a
+  girer); `tools/check-config.sh` korumayı denetliyor, CLAUDE.md'de
+  host'ta yasak komut listesi var, `.devcontainer/` araç zincirini
+  kaydediyor. Commit `cbc050c`.
+- **wip commit'i (4027be2) kapandı:** yeni konteynerde derleme yeşil,
+  eksik 9 çeviri eklendi (`5882212`), denetimler geçiyor —
+  check-config, check-packages, check-i18n (375 msgid), KEYBIND 26/26,
+  SNAP 4/4. Xvfb doğrulaması: Görev Yöneticisi (üstte CPU/RAM/süreç
+  toplamı, USS Memory sütunu + "Advanced columns", CPU başlığında ▼,
+  "Right-click a process for actions" — G2/G3/G4 ve RAM maddesi 1) ve
+  emoji seçici (8 sütun, büyük glifler, sekmeler + kategori başlığı —
+  madde I) çalışıyor.
+- Kalan doğrulama: G5 (Performans çekirdek ızgarası), G6 (Başlangıç
+  listesi kuralları), H4'ün canlı yarısı (`Apply.firefox_theme`), hepsi
+  **VM turunda**.
+
 ## 0b. 4 Eylül ilerlemesi
 
 Biten ve commit edilen maddeler: **F1, F2, F3, F4, F5, G1, G2, H1, H2,

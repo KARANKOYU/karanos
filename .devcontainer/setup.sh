@@ -19,11 +19,13 @@ packages=(
 	# Debian packaging
 	debhelper devscripts dpkg-dev fakeroot
 	# Assets generated at build time
-	ffmpeg librsvg2-bin python3-gi gir1.2-gtk-3.0
+	ffmpeg librsvg2-bin python3-gi gir1.2-gtk-3.0 python3-pil
 	# ISO tooling (lb build itself only runs in CI, the config is linted here)
 	live-build xorriso
 	# Headless UI tests: check-keybinds.sh, check-snap.sh, panel-screenshot.sh
 	xvfb openbox xdotool x11-utils x11-apps xterm xfonts-base xwallpaper picom
+	# Emoji picker screenshots need the same font the ISO ships
+	fonts-noto-color-emoji
 	# Translations and linting
 	gettext shellcheck
 	# Large binary assets
