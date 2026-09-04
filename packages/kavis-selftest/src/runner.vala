@@ -204,17 +204,67 @@ namespace Kavis.Selftest {
                 return do_click (w, out err);
             case "drag":
                 return do_drag (w, out err);
-            case "close": {
-                if (w.length < 3) { err = "close window <class>"; return false; }
-                unowned Wnck.Window? win = xw.find (w[2]);
-                if (win == null) { err = "no window: " + w[2]; return false; }
-                win.close (Gdk.CURRENT_TIME);
-                return true;
-            }
+            case "close":
+                return do_close (w, out err);
             default:
                 err = "unknown action: " + w[0];
                 return false;
             }
+        }
+
+        /* close window <class> — B1.
+         *
+         * The old version asked libwnck to close the window it had in
+         * its cache. When the cache lagged the server the request went
+         * to a window that no longer existed, the step reported success
+         * and the window stayed open; the v0.4-test4 report has five of
+         * those. Now the client list comes from the window manager
+         * itself, the EWMH close request goes to every match, and the
+         * result is polled instead of assumed.
+         *
+         * Escalation, in the order a person would use: ask the window
+         * manager (which asks the app, so it can save and shut down
+         * cleanly), then SIGTERM the process the window names, then
+         * fail — never SIGKILL, since a scenario that has to kill an
+         * application is reporting a real bug and must not hide it. */
+        private bool do_close (string[] w, out string err) {
+            err = "";
+            if (w.length < 3) { err = "close window <class>"; return false; }
+            string cls = w[2];
+            X.Window[] wins = xw.clients_of (cls);
+            if (wins.length == 0) { err = "no window: " + cls; return false; }
+            foreach (X.Window win in wins) {
+                xw.request_close (win);
+            }
+            /* 8 s in half-second steps: long enough for a GTK app to
+             * run its shutdown, short enough that a hung one does not
+             * eat the run. */
+            for (int i = 0; i < 16; i++) {
+                settle (500);
+                if (xw.clients_of (cls).length == 0) {
+                    return true;
+                }
+            }
+            int killed = 0;
+            foreach (X.Window win in xw.clients_of (cls)) {
+                int pid = xw.pid_of (win);
+                if (pid > 0) {
+                    Posix.kill ((Posix.pid_t) pid, Posix.Signal.TERM);
+                    killed++;
+                }
+            }
+            if (killed > 0) {
+                for (int i = 0; i < 6; i++) {
+                    settle (500);
+                    if (xw.clients_of (cls).length == 0) {
+                        err = "ignored the close request, SIGTERM was needed";
+                        return false;
+                    }
+                }
+            }
+            err = "still open after the close request%s".printf (
+                killed > 0 ? " and SIGTERM" : "");
+            return false;
         }
 
         private bool conf_set (string[] w, out string err) {

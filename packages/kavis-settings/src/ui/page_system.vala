@@ -130,9 +130,15 @@ namespace Kavis.Settings.Pages {
         }
         done.add_button (_("Close"), Gtk.ResponseType.CLOSE);
         if (done.run () == 1) {
+            /* xdg-open, not AppInfo.launch_default_for_uri (B3): GIO
+             * asks its own mime database and picked the notepad for
+             * text/html, so the report opened as source. xdg-open goes
+             * through the same mimeapps.list the desktop uses, and the
+             * user's own choice in it wins. */
             try {
-                AppInfo.launch_default_for_uri (
-                    "file://" + Path.build_filename (dir, "report.html"), null);
+                Process.spawn_async (null,
+                    { "xdg-open", Path.build_filename (dir, "report.html") },
+                    null, SpawnFlags.SEARCH_PATH, null, null);
             } catch (Error e) {
                 warning ("kavis-settings: report could not be opened: %s",
                          e.message);

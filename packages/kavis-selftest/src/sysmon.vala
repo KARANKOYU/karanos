@@ -38,32 +38,78 @@ namespace Kavis.Selftest {
             return (int) ((total - avail) / 1024);
         }
 
-        /* pid list by comm (exact) — pgrep -x without spawning. */
-        public int[] pids_of (string comm) {
+        /* The name a process should be matched by (B2).
+         *
+         * /proc/PID/comm is truncated to 15 characters, so
+         * "kavis-taskmanager" is stored as "kavis-taskmanag" and every
+         * `process kavis-taskmanager running` expectation failed on a
+         * system where it WAS running. The executable's own name has no
+         * such limit, so it is the answer whenever it can be read;
+         * comm stays the fallback for kernel threads and for processes
+         * whose /proc/PID/exe we may not follow. */
+        private string process_name (string pid) {
+            string exe = "";
+            try {
+                exe = FileUtils.read_link ("/proc/" + pid + "/exe");
+            } catch (Error e) { }
+            if (exe != "") {
+                return Path.get_basename (exe);
+            }
+            /* An interpreted program (a shell script) has the
+             * interpreter as its exe, so argv[0] is closer to what the
+             * scenario means. */
+            string cmd;
+            try {
+                FileUtils.get_contents ("/proc/" + pid + "/cmdline", out cmd);
+                /* cmdline is NUL separated, and every string function
+                 * here stops at the first NUL — so this IS argv[0]. */
+                if (cmd != "") {
+                    return Path.get_basename (cmd);
+                }
+            } catch (Error e) { }
+            string c;
+            try {
+                FileUtils.get_contents ("/proc/" + pid + "/comm", out c);
+            } catch (Error e) {
+                return "";
+            }
+            return c.strip ();
+        }
+
+        /* pid list by process name (exact) — pgrep -x without spawning.
+         * Also accepts a comm that is the 15-character truncation of
+         * the wanted name, so a process whose exe cannot be read still
+         * matches. */
+        public int[] pids_of (string name) {
             int[] res = {};
+            string truncated = name.length > 15 ? name.substring (0, 15) : name;
             try {
                 var dir = Dir.open ("/proc");
-                string? name;
-                while ((name = dir.read_name ()) != null) {
-                    if (name[0] < '0' || name[0] > '9') {
+                string? pid;
+                while ((pid = dir.read_name ()) != null) {
+                    if (pid[0] < '0' || pid[0] > '9') {
+                        continue;
+                    }
+                    if (process_name (pid) == name) {
+                        res += int.parse (pid);
                         continue;
                     }
                     string c;
                     try {
-                        FileUtils.get_contents ("/proc/" + name + "/comm", out c);
+                        FileUtils.get_contents ("/proc/" + pid + "/comm", out c);
                     } catch (Error e) {
                         continue;
                     }
-                    if (c.strip () == comm) {
-                        res += int.parse (name);
+                    if (c.strip () == truncated) {
+                        res += int.parse (pid);
                     }
                 }
             } catch (Error e) { }
             return res;
         }
 
-        public bool running (string comm) {
-            return pids_of (comm).length > 0;
+        public bool running (string name) {
+            return pids_of (name).length > 0;
         }
 
         /* processes-NNN.txt: every kavis-* plus the session pillars. */

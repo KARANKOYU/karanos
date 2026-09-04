@@ -160,6 +160,106 @@ namespace Kavis.Selftest {
             return n;
         }
 
+        /* WM_CLASS of an X window as "instance class" (both names). */
+        private string wm_class (X.Display xd, X.Window w) {
+            X.Atom at; int af; ulong cnt, ba; void* prop;
+            var sb = new StringBuilder ();
+            if (xd.get_window_property (w, X.XA_WM_CLASS, 0, 64, false,
+                    X.XA_STRING, out at, out af, out cnt, out ba, out prop) == X.Success
+                && prop != null && cnt > 0) {
+                unowned uint8[] data = (uint8[]) prop;
+                for (int i = 0; i < (int) cnt; i++) {
+                    sb.append_c (data[i] == 0 ? ' ' : (char) data[i]);
+                }
+                X.free (prop);
+            }
+            return sb.str;
+        }
+
+        /* Managed windows of a class, read from the server every time.
+         *
+         * WHY NOT libwnck: its window list is a cache that lags the
+         * server — the same lag that broke edge snapping twice. A close
+         * request sent to a cached window that no longer exists looks
+         * like it worked and changes nothing, which is exactly the
+         * "close window does not work" the v0.4-test4 report showed
+         * five times. _NET_CLIENT_LIST is the window manager's own,
+         * current answer. */
+        public X.Window[] clients_of (string cls) {
+            unowned X.Display xd =
+                ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
+            X.Window root = xd.default_root_window ();
+            X.Window[] res = {};
+            X.Atom list = xd.intern_atom ("_NET_CLIENT_LIST", true);
+            if ((X.ID) list == X.None) {
+                return res;
+            }
+            X.Atom at; int af; ulong cnt, ba; void* prop;
+            Gdk.error_trap_push ();
+            if (xd.get_window_property (root, list, 0, 1024, false, X.XA_WINDOW,
+                    out at, out af, out cnt, out ba, out prop) == X.Success
+                && prop != null) {
+                unowned X.Window[] wins = (X.Window[]) prop;
+                for (int i = 0; i < (int) cnt; i++) {
+                    if (wm_class (xd, wins[i]).down ().contains (cls.down ())) {
+                        res += wins[i];
+                    }
+                }
+                X.free (prop);
+            }
+            Gdk.error_trap_pop_ignored ();
+            return res;
+        }
+
+        /* _NET_WM_PID, so a window that ignores the close request can
+         * still be ended politely. 0 when the window does not say. */
+        public int pid_of (X.Window w) {
+            unowned X.Display xd =
+                ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
+            X.Atom prop_atom = xd.intern_atom ("_NET_WM_PID", true);
+            if ((X.ID) prop_atom == X.None) {
+                return 0;
+            }
+            X.Atom at; int af; ulong cnt, ba; void* prop;
+            int pid = 0;
+            Gdk.error_trap_push ();
+            if (xd.get_window_property (w, prop_atom, 0, 1, false, X.XA_CARDINAL,
+                    out at, out af, out cnt, out ba, out prop) == X.Success
+                && prop != null && cnt > 0) {
+                unowned ulong[] v = (ulong[]) prop;
+                pid = (int) v[0];
+                X.free (prop);
+            }
+            Gdk.error_trap_pop_ignored ();
+            return pid;
+        }
+
+        /* The EWMH close request — what a taskbar's "close" does and
+         * what `wmctrl -c` sends. The window manager then asks the
+         * client to quit (WM_DELETE_WINDOW), so the application can run
+         * its own shutdown. */
+        public void request_close (X.Window w) {
+            unowned X.Display xd =
+                ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
+            X.Window root = xd.default_root_window ();
+            X.Event ev = {};
+            ev.xclient.type = X.EventType.ClientMessage;
+            ev.xclient.window = w;
+            ev.xclient.message_type = xd.intern_atom ("_NET_CLOSE_WINDOW", false);
+            ev.xclient.format = 32;
+            ev.xclient.l[0] = (long) Gdk.X11.get_server_time (
+                (Gdk.X11.Window) Gdk.get_default_root_window ());
+            /* Source indication 2 = "a pager", i.e. a deliberate request
+             * from a control surface rather than from the app itself. */
+            ev.xclient.l[1] = 2;
+            Gdk.error_trap_push ();
+            xd.send_event (root, false,
+                           X.EventMask.SubstructureNotifyMask
+                           | X.EventMask.SubstructureRedirectMask, ref ev);
+            xd.flush ();
+            Gdk.error_trap_pop_ignored ();
+        }
+
         public Gdk.Rectangle workarea () {
             var display = Gdk.Display.get_default ();
             var monitor = display.get_primary_monitor () ?? display.get_monitor (0);

@@ -2,6 +2,13 @@
 # always", ~/.config/mimeapps.list overrides these.
 # Plain text goes to the notepad (mousepad), code/JSON to kate.
 [Default Applications]
+# B3: HTML belongs to the browser. Without these lines GIO picked the
+# notepad for text/html — mousepad registers it — and the selftest
+# report opened as source code.
+text/html=firefox-esr.desktop
+application/xhtml+xml=firefox-esr.desktop
+x-scheme-handler/http=firefox-esr.desktop
+x-scheme-handler/https=firefox-esr.desktop
 text/plain=org.xfce.mousepad.desktop
 application/json=org.kde.kate.desktop
 application/xml=org.kde.kate.desktop
