@@ -250,3 +250,73 @@ basıyor, duman testi çözüp `selftest-<mode>.tar.gz` olarak teşhis
 yapıtına koyuyor. **Kalan tek parça: kayıt modu.** Senaryo
 biçimi YAML alt kümesi: `name/title/madde/allowed` + `steps:` listesi,
 adım = `do` / `expect` / `timeout` / `note` / `shot`.
+
+## 10. "App Files" — uygulama verileri klasörü (4 Eyl 2026, F maddesi)
+
+Karar kullanıcıdan, tasarım burada. **Kod Grup G'de** (mağaza ile aynı
+turda; mağaza kurulumu bağı kuran taraf).
+
+### Sorun
+
+"Minecraft dünyalarım nerede?" sorusunun bugünkü cevabı yok. Veri
+`~/.config`, `~/.local/share`, `~/.var/app` (Flatpak) ve bazen
+`~/.<uygulamaadı>` arasına dağılıyor; hepsi gizli, hepsi ayrı yerde.
+Windows'ta karşılığı `Belgeler\<Oyun>` — kullanıcı oraya bakar.
+
+### Çözüm: `/users/karan/apps`, görünen adı **App Files**
+
+Gerçek bir dizin; içinde **uygulama başına bir sembolik bağ**, hedefi o
+uygulamanın XDG'ye uygun veri dizini:
+
+```
+/users/karan/apps/
+├── Minecraft      -> ../.local/share/minecraft
+├── Firefox        -> ../.mozilla/firefox
+└── GIMP           -> ../.config/GIMP
+```
+
+### Neden bağ, neden bookmark değil
+
+- **XDG bozulmuyor.** Uygulama kendi dizinini kendi yerinde tutar;
+  Kavis hiçbir uygulamanın veri yolunu değiştirmez, `XDG_DATA_HOME`
+  gibi değişkenlerle oynamaz. Bağı silmek veriyi silmez.
+- **Bookmark yetmez.** Nemo yer imi yalnız Nemo'da görünür; dosya
+  seçme diyaloğunda, terminalde, başka bir dosya yöneticisinde yok.
+  Sembolik bağ dosya sisteminin kendisinde, her yerde çalışır.
+- **Kopya/taşıma yok.** Veriyi taşımak uygulamayı bozar ve güncelleme
+  ile geri gelir; bağ hiçbir şeyi taşımaz.
+
+### Hangi uygulama, hangi hedef
+
+Bağı **mağaza kurar**, tahmin etmez. Kaynak sırası:
+
+1. Kavis mağaza kataloğundaki `AppFiles=` alanı (bizim eklediğimiz
+   alan, uygulama başına elle doğrulanmış yol).
+2. Flatpak ise `~/.var/app/<app-id>` — sabit ve garanti.
+3. Hiçbiri yoksa **bağ kurulmaz.** Yanlış klasöre bağ, klasörün hiç
+   olmamasından kötüdür.
+
+Bağ adı uygulamanın `.desktop` `Name=` alanı (yani menüde ve görev
+çubuğunda yazan ad — D1 kuralıyla aynı ad). Kaldırıldığında bağ
+silinir, veri dizini olduğu gibi kalır.
+
+### Görünürlük
+
+- Nemo kenar çubuğunda "App Files" (`~/.config/gtk-3.0/bookmarks`
+  değil — `nemo` XDG kullanıcı dizinlerini okur; klasör
+  `user-dirs.dirs` benzeri bir Kavis girdisiyle değil, **doğrudan yer
+  imi** olarak eklenir; ilk oturumda `kavis-session-autostart` yazar).
+- Klasör ikonu ayrı (`folder-apps`), boşken açıklayıcı bir README ile
+  gelir: "Mağazadan kurduğun uygulamaların verileri burada görünür."
+- Yalnızca `/users/karan` altında; sistem genelinde bir karşılığı yok.
+
+### Sınırlar (bilinçli)
+
+- apt ile terminalden kurulan uygulamalar bağ almaz — mağaza kurulumu
+  bağı kuran tek yer. (Sonradan "tara ve ekle" düğmesi eklenebilir.)
+- Bir uygulamanın verisi birden fazla dizine dağılmışsa tek bağ ana
+  dizine gider; ikincil dizinler için kural yazılmaz (kataloğa `AppFiles`
+  ikinci satır eklemek gerekirse o zaman değerlendirilir).
+- Windows'taki gibi "Belgeler altında" DEĞİL: ev dizini kökü, çünkü
+  `/users/karan/Belgeler` kullanıcının kendi belgeleri; uygulama verisi
+  onunla karışmamalı.

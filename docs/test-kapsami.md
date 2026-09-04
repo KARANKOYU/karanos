@@ -4,7 +4,7 @@ Bu dosya `tools/gen-test-coverage.py` ile ÜRETİLİR, elle
 düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 `tests/ui/*.yaml` senaryolarının `item:` alanı (karar 9b).
 
-**Kapsam: 5 / 71 madde.**
+**Kapsam: 5 / 72 madde.**
 
 | Madde | Başlık | Senaryo |
 |---|---|---|
@@ -79,3 +79,4 @@ düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 | 69 | YENİDEN KURULUM — "DOSYALARIMI KORU" KİPİ | — |
 | 70 | KİLİT EKRANI | — |
 | 71 | fastfetch / kavisfetch | — |
+| 75 | APP FILES — uygulama verileri klasörü | — |

@@ -578,6 +578,15 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
       üzerinden bulanık arar; "light" yazınca tema/karanlık-aydınlık
       ayarları da çıkar, sonuçta bölüm adı görünür.
 
+75. **APP FILES — uygulama verileri klasörü (2026-09-04 eki, Grup G).**
+    `/users/karan/apps`, görünen adı "App Files": mağazadan kurulan her
+    uygulama için, o uygulamanın XDG veri dizinine giden bir sembolik
+    bağ. "Minecraft dünyalarım nerede" sorusunun tek cevabı. Bağı
+    mağaza kurar (katalogdaki `AppFiles=` alanı ya da Flatpak'in
+    `~/.var/app/<id>`'si; ikisi de yoksa bağ kurulmaz), adı .desktop
+    `Name=` alanı, kaldırınca bağ silinir ve veri kalır. Nemo kenar
+    çubuğunda yer imi. Tam tasarım ve gerekçeler: docs/kararlar.md 10.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,
@@ -595,7 +604,8 @@ ayrı commit, onay bekle. "Devam" denmeden sonraki gruba geçilmez.
   70 (kilit ekranı — grup sonu), 71 (fastfetch — grup sonu), 72
   (sağlamlık denetimleri + selftest — grup sonu; CI'ın küçük
   denetimleri 3 Eyl'de girdi)
-- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11, 65 (CachyOS
+- **GRUP G** — mağaza ve arama: 23, 12, 41, 28, 48, 11, 75 (App Files
+  — mağaza kurulumunun parçası), 65 (CachyOS
   incelemesi — Grup H'nin girdisi, H başlamadan hazır olur) + aşağıdaki
   "Grup G ek maddesi" (userns açılışı + telafi önlemleri)
 
