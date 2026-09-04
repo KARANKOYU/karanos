@@ -105,6 +105,10 @@ namespace Kavis {
          * never moved, opens near the cursor. [picker] group. */
         public int picker_x = -1;
         public int picker_y = -1;
+        /* Picker glyph size step (feedback item I): "s" | "m" | "l",
+         * roughly 20 / 24 / 32 px. [picker] size — applied on the next
+         * open too, so the choice survives a restart. */
+        public string picker_size = "m";
         /* Madde 63 "safe mode": mount USB with -o sync. Default OFF —
          * it costs speed; the explanation is in the USB popup. */
         public bool usb_sync = false;
@@ -171,6 +175,12 @@ namespace Kavis {
                 config.picker_y = file.get_integer ("picker", "y");
             } catch (Error e) { }
             try {
+                config.picker_size = file.get_string ("picker", "size");
+            } catch (Error e) { }
+            if (config.picker_size != "s" && config.picker_size != "l") {
+                config.picker_size = "m";
+            }
+            try {
                 config.usb_sync = file.get_boolean ("usb", "sync");
             } catch (Error e) { }
             return config;
@@ -190,6 +200,7 @@ namespace Kavis {
                               calendar_collapsed);
             file.set_integer ("picker", "x", picker_x);
             file.set_integer ("picker", "y", picker_y);
+            file.set_string ("picker", "size", picker_size);
             file.set_boolean ("usb", "sync", usb_sync);
             Config.save (file);
         }

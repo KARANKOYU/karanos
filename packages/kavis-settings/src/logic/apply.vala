@@ -56,9 +56,78 @@ namespace Kavis.Settings.Apply {
         string name = (theme_id == "light") ? "Kavis-Light" : "Kavis";
         xsettings_set ("Net/ThemeName", "\"%s\"".printf (name));
         openbox_theme (name);
+        firefox_theme (theme_id == "light");
         /* Panel/OSD/menus watch kavis.conf (Theme.install) — nothing
          * more to do here; the page already wrote the conf. */
     }
+
+    /* Firefox follows the desktop theme (feedback H4). The system
+     * policy in /etc/firefox-esr/policies/policies.json only sets the
+     * DEFAULT (dark), so switching to the light theme has to reach the
+     * profile. Firefox reads user.js at startup and copies it over
+     * prefs.js, which is why the change lands on the next start — there
+     * is no supported way to push a pref into a running Firefox.
+     * Every profile under ~/.mozilla/firefox gets the file; a machine
+     * with several profiles would otherwise keep the old look on all
+     * but one. Lines Kavis owns live between markers so a pref the
+     * user added by hand survives. */
+    private void firefox_theme (bool light) {
+        string root = Path.build_filename (Environment.get_home_dir (),
+                                           ".mozilla", "firefox");
+        if (!FileUtils.test (root, FileTest.IS_DIR)) {
+            return;   /* Firefox has never been started */
+        }
+        string block = FIREFOX_BEGIN + "\n"
+            + "user_pref(\"ui.systemUsesDarkTheme\", %d);\n".printf (light ? 0 : 1)
+            + "user_pref(\"browser.theme.toolbar-theme\", %d);\n".printf (light ? 1 : 0)
+            + "user_pref(\"browser.theme.content-theme\", %d);\n".printf (light ? 1 : 0)
+            + "user_pref(\"layout.css.prefers-color-scheme.content-override\", %d);\n".printf (light ? 1 : 0)
+            + FIREFOX_END + "\n";
+        try {
+            var dir = Dir.open (root);
+            string? entry;
+            while ((entry = dir.read_name ()) != null) {
+                string profile = Path.build_filename (root, entry);
+                if (!FileUtils.test (Path.build_filename (profile, "prefs.js"),
+                                     FileTest.EXISTS)) {
+                    continue;   /* not a profile directory */
+                }
+                string user_js = Path.build_filename (profile, "user.js");
+                string existing = "";
+                try {
+                    FileUtils.get_contents (user_js, out existing);
+                } catch (Error e) { }
+                var kept = new StringBuilder ();
+                bool inside = false;
+                foreach (unowned string line in existing.split ("\n")) {
+                    if (line.strip () == FIREFOX_BEGIN) {
+                        inside = true;
+                        continue;
+                    }
+                    if (line.strip () == FIREFOX_END) {
+                        inside = false;
+                        continue;
+                    }
+                    if (!inside && line.strip () != "") {
+                        kept.append (line);
+                        kept.append_c ('\n');
+                    }
+                }
+                try {
+                    FileUtils.set_contents (user_js, kept.str + block);
+                } catch (Error e) {
+                    warning ("kavis-settings: could not write %s: %s",
+                             user_js, e.message);
+                }
+            }
+        } catch (Error e) {
+            warning ("kavis-settings: could not read Firefox profiles: %s",
+                     e.message);
+        }
+    }
+
+    private const string FIREFOX_BEGIN = "// --- Kavis theme (do not edit) ---";
+    private const string FIREFOX_END = "// --- end Kavis theme ---";
 
     /* Openbox reads only rc.xml: ensure a user copy exists (system
      * copy is the hook-processed /etc/xdg one), swap the theme name,

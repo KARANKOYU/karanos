@@ -10,7 +10,10 @@
 
 namespace Kavis.PickerStore {
 
-    private const int RECENT_LIMIT = 30;
+    /* Feedback item I: 30 was one short row of the new 8-column grid;
+     * 64 fills the "Recently used" tab without turning it into a
+     * second emoji table. */
+    private const int RECENT_LIMIT = 64;
 
     private string config_file (string name) {
         return Path.build_filename (
@@ -46,8 +49,27 @@ namespace Kavis.PickerStore {
 
     /* --- recently used (mixed across tabs) --------------------------- */
 
+    /* Feedback item I: the list moved into kavis.conf ([picker] recent)
+     * so the picker keeps all of its state in the one settings file the
+     * Settings app edits. The old picker-recent file is imported once
+     * and then left alone as a backup. */
     public string[] recent () {
-        return read_lines ("picker-recent");
+        var file = Config.load ();
+        try {
+            return file.get_string_list ("picker", "recent");
+        } catch (Error e) {
+            string[] old = read_lines ("picker-recent");
+            if (old.length > 0) {
+                write_recent (old);
+            }
+            return old;
+        }
+    }
+
+    private void write_recent (string[] items) {
+        var file = Config.load ();
+        file.set_string_list ("picker", "recent", items);
+        Config.save (file);
     }
 
     public void remember (string item) {
@@ -57,7 +79,7 @@ namespace Kavis.PickerStore {
                 updated += old;
             }
         }
-        write_lines ("picker-recent", updated);
+        write_recent (updated);
     }
 
     /* --- favorites (starred) ----------------------------------------- */
