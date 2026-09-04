@@ -9,6 +9,163 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 4 Eylül 2026 gecesi (v0.5-test2)
+
+Yeni oturum önce bunu okur.
+
+## Ne yapıldı
+
+### 1. Kırmızı QEMU işlerinin sebepleri
+
+Beşi testin kendi hatasıydı, biri gerçek hata, biri de senaryonun
+oturumu kilitlemesiydi:
+
+- **Kısayol zaman aşımları.** Soğuk bir GTK uygulaması KVM'siz TCG'de
+  6 saniyeye sığmıyor. Pencere açan kısayollar 40 sn, popup'lar 6 sn.
+- **Mikrofon.** `arecord` ses kartı olmayan makinede üç saniyelik
+  dijital sessizlik kaydediyor ve bu "kapalı mikrofon" gibi okunuyordu.
+  `arecord -l` boşsa ya da tepe TAM sıfırsa artık SKIP.
+- **`52-network/2`.** `nmcli`'ye "ethernet" sormak QEMU'yu sınıyor;
+  önemli olan NetworkManager'ın ayakta ve aygıtları sayıyor olması.
+- **`52-network/4`.** `set-dns`'i kullanıcı olarak çalıştırmak host
+  korumasını sınamıyor — zaten `mkdir` aşamasında ve doğru olarak
+  düşüyor. Koruma artık dosyayı OKUYARAK denetleniyor.
+- **`29-capture/2` (gerçek hata).** Yakalama çubuğu override-redirect,
+  yani pencere yöneticisi ona asla odak vermiyor; sentetik tuşlar
+  (XTEST) openbox'ın en son odakladığı pencereye gidiyordu ve tek
+  umut yarım saniyede pes eden seat grab'iydi. Artık açılışta X girdi
+  odağını kendisi alıyor, grab denemesi de iki saniye sürüyor.
+- **Asıl fitil: `06-shortcuts` Win+L'ye basıyordu.** Üretilen senaryo,
+  sonlara doğru kilit ekranını açıyor ve ondan sonraki HER senaryo
+  (06-window-snap, 29-capture, 37-panels, 55-desktops, 60-popup-dismiss)
+  kilit ekranının ardında koşuyordu. 2b listesindeki 6 ve 7 numaralı
+  "popup açılmıyor / pencere kımıldamıyor" hatalarının açıklaması
+  büyük olasılıkla bu. Oturumu geri dönülemez bir yere götüren her
+  kısayol artık üreticinin SKIP tablosunda, gerekçesiyle birlikte.
+
+### 2. Madde 74 — kısayol katalogu, hiyerarşi, arama
+
+**Bir bulgu:** Ayarlar'daki kısayol listesi elle yazılmıştı ve
+kaymıştı — "Ctrl+Win+←/→ masaüstü değiştirir" diyordu, gerçek bağlama
+`Ctrl+Alt+←/→`. İki turdur yanlıştı.
+
+Bağlamalar `/usr/share/kavis/shortcuts.list`'e taşındı: openbox
+hook'u rc.xml'i ondan üretiyor, Ayarlar onu gösteriyor,
+`gen-keybind-scenario.py` onu senaryoya çeviriyor. Hiçbir şey iki yerde
+yazılı değil ve `tools/check-settings-index.py` kayma olursa push'u
+kırmızıya çeviriyor.
+
+- **Yeniden atama.** Fn satırı dahil her kısayol taşınabiliyor
+  (XF86Audio*/MonBrightness* tuşları Fn'in ürettiği tuşlardır).
+  Override kavis.conf'ta tek satır; `/usr/lib/kavis/set-shortcuts`
+  `~/.config/openbox/rc.xml`'i sistem dosyasından **yeniden üretiyor**
+  — üstüne yama atmıyor, yoksa ileriki bir sistem güncellemesi
+  kullanıcıya hiç ulaşmaz ve iki atama birbirine zincirlenir. Override
+  kalmayınca kopya siliniyor. Çakışma iki yerde birden reddediliyor:
+  openbox çakışmayı uyarı saymaz, **iki eylemi birden çalıştırır** —
+  Alt+F4'ün önce pencereyi kapatıp sonra kapatma penceresini açması
+  buydu.
+- **Hiyerarşi.** Her sayfa katlanabilir alt bölümlerden oluşuyor,
+  kenar çubuğu açılıp onları gösteriyor, birini seçmek sayfayı o
+  bloğa kaydırıyor. Güç sayfası tek sırada 19 kart yerine dört alt
+  bölüm.
+- **Arama.** Eskiden bölüm adlarında arıyordu, "light" hiçbir şey
+  bulmuyordu. Artık ayarlarda arıyor (başlık + açıklama + alt bölüm +
+  eşanlamlı, başlık eşleşmesi öne sıralanıyor) ve her sonuç hangi
+  bölüm › alt bölümde olduğunu yazıyor. Dizin bildirimsel olmak
+  ZORUNDA: sayfalar tembel kuruluyor, kullanıcı yazarken dokuz
+  sayfanın sekizi henüz yok.
+
+### 3. Selftest kayıt modu (madde 72'nin son parçası)
+
+`kavis-selftest --record dosya.yaml --item N`. XRecord ile tuşlar ve
+tıklamalar izleniyor, oturumun cevabı pencere yöneticisinden
+yoklanıyor. **Piksel koordinatı yazmıyor** — adım sözlüğü bilerek
+anlamsal (`click taskbar start`, `key super+e`), çünkü koordinatla
+yazılmış senaryo görev çubuğu ilk büyüdüğünde kırılır. Sözlüğün
+ifade edemediği tıklama, elle adıma çevrilsin diye yorum satırı olarak
+yazılıyor. Beklentiler tahmin değil: her eylemden sonra oturumun
+oturması bekleniyor ve GERÇEKTEN ne değiştiyse o yazılıyor; hiçbir
+eylem yokken değişen bir şey olursa kendi adımı oluyor.
+
+XRecord'un vapi'si yok; `src/xrecord.c` (40 satır) o yüzden var — iki
+bağlantılı, geri çağrımlı bir API için elle yazılmış binding daha
+kırılgan olurdu.
+
+## 552 MB nereden geliyor — kalem kalem
+
+v0.5-test1'de ÖLÇÜLEN (MEM-PROC satırları, USS/RSS MB):
+
+| Süreç | USS | RSS | Not |
+|---|---|---|---|
+| Xorg | 62 | 111 | |
+| nemo-desktop | 45 | 75 | 30 MB eşiğin üstünde — ayrı madde |
+| kavis-panel | 35 | 66 | 20 MB bütçesinin üstünde |
+| lxpolkit | 12 | 68 | 15 MB eşiğinin altında, değişmiyor |
+| kavis-osd | 4 | 20 | tembel pencere işe yaradı |
+| kavis-snap | 4 | 20 | |
+| picom | 1 | 6 | |
+| lightdm (2 süreç) | 1 | 15 | |
+| **adlandırılmış toplam** | **~164** | | |
+| **`free` used** | **552** | | hedef 380 |
+
+Yani **asıl soru adlandırılmış süreçler değil, aradaki ~390 MB.**
+Bu tur tahmin etmek yerine ölçtürüldü: boot-check artık her koşuda
+şunları basıyor —
+
+- `MEM-BREAKDOWN kernel=… shmem=… cache=… user=… total=…`
+  - **kernel** = slab + sayfa tabloları + çekirdek yığınları
+  - **shmem** = tmpfs: /run, /dev/shm ve **canlı overlay'in üst katmanı**
+    (kurulu sistemin ödemediği, canlı oturumun ödediği kalem)
+  - **cache** = sayfa önbelleği eksi tmpfs — çoğu açılmış squashfs.
+    Geri kazanılabilir, yani "used"'ı şişirir ama baskı altında
+    maliyeti yoktur
+  - **user** = tüm süreçlerin özel sayfalarının (USS) toplamı
+- `MEM-TOP` — özel sayfaya göre en obur on süreç, adlarına bakılmaksızın.
+  164 MB'lık adlandırılmış liste ile toplam arasındaki fark,
+  adlandırmadığımız bir şeyin bellek tuttuğunu söylüyor; bu satır onu
+  isimlendirecek.
+
+**test4'te 402, test1'de 552 — arada ne değişti?** Oturuma yeni bir
+autostart süreci GİRMEDİ (fark yalnız xsettingsd'nin yazı ayarları).
+Paket listesine giren ve boşta bellek tutabilecekler:
+`systemd-resolved` (madde 52 ile gelen yeni bir servis — DoT için
+sürekli çalışır), `fonts-noto-core` + `fonts-inter` (RSS değil ama
+fontconfig önbelleği ve her GTK sürecinin eşlediği yazı tipi sayfaları),
+`smartmontools`, `fastfetch`, `breeze-cursor-theme`. ISO da 956 MB'a
+çıktı, yani squashfs önbelleği daha büyük.
+
+Bunlar **aday**, kanıt değil. `MEM-BREAKDOWN`/`MEM-TOP` satırları bir
+sonraki koşuda geldiğinde tablo sayıyla kapanacak; o zamana kadar
+"552'nin 390'ı çekirdek + tmpfs + squashfs önbelleği" ifadesi bir
+hipotezdir.
+
+**Bu turda düzeltilen ölçüm hatası:** `PANEL-USS` panel daha tek ikon
+yüklememişken alınıyordu (1 MB loglanırken aynı panel sondaki tabloda
+35 MB'dı), yani 20 MB eşiği hiçbir zaman tetiklenemezdi. Ölçüm artık
+`DESKTOP-READY`'den sonra alınıyor.
+
+## Görev Yöneticisi sahte veri göstermiyor (doğrulandı)
+
+Soruldu, bakıldı: `tasks.vala`/`sysinfo.vala`/`perf.vala` her alanı
+`/proc` ve `/sys`'ten okuyor; okunamayan alan uydurma sayı değil **tire
+(—)** gösteriyor (`tasks.vala:47`). Kaynaklar: `/proc/PID/stat` (CPU,
+RSS), `smaps_rollup` (USS), `/proc/PID/io`, `/proc/stat` (btime ve
+toplam jiffy), SMBIOS (bellek modülleri; kök yoksa tire).
+
+## Sıradaki iş
+
+1. **v0.5-test2 ISO'sunu VM'de denemek** — gözle bakılacaklar aşağıdaki
+   v0.5-test1 listesi, üstüne madde 74: kenar çubuğu ağacı, alt bölüm
+   katlanması, "light" araması, kısayol yeniden atama + sıfırlama.
+2. **`MEM-BREAKDOWN` satırlarını okumak** ve 552'yi kalem kalem kapatmak.
+3. **nemo-desktop 45 MB USS** — tek çare ikon katmanını kendimiz
+   çizmek; ayrı madde açılacak.
+4. **Grup G** — mağaza + arama (kullanıcı "oraya geçme" dedi, sırada
+   bekliyor). Madde 75 "App Files" kararı `docs/kararlar.md` 10'da.
+
+---
+
 # OTURUM DURUMU — 4 Eylül 2026 (v0.4-test4 VM turu + Grup F kapanışı)
 
 Yeni oturum önce bunu okur.

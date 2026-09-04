@@ -25,6 +25,8 @@ int main (string[] args) {
     string? base_dir = null;
     string[] wanted = {};
     bool shots = false, quiet = false, check_only = false;
+    string? record_to = null;
+    string record_item = "0";
     for (int i = 1; i < args.length; i++) {
         switch (args[i]) {
         case "--all": break;
@@ -34,12 +36,20 @@ int main (string[] args) {
         case "--shots": shots = true; break;
         case "--quiet": quiet = true; break;
         case "--check": check_only = true; break;
+        /* Record mode (item 72): watch a session and write it down as
+         * a scenario. */
+        case "--record": if (i + 1 < args.length) { record_to = args[++i]; } break;
+        case "--item": if (i + 1 < args.length) { record_item = args[++i]; } break;
         /* Gtk.init would normally have eaten these. */
         case "--display": if (i + 1 < args.length) { i++; } break;
         default:
-            stderr.printf ("usage: kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR] [--shots] [--quiet]\n");
+            stderr.printf ("usage: kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR] [--shots] [--quiet]\n"
+                           + "       kavis-selftest --record FILE.yaml [--item N]\n");
             return 2;
         }
+    }
+    if (record_to != null) {
+        return new Kavis.Selftest.Recorder (record_to, record_item).run ();
     }
     string[] files = {};
     try {

@@ -178,15 +178,6 @@ if [ "$panel_up" -eq 1 ]; then
 		panel_rss_kb=$(awk '/^VmRSS:/ { print $2 }' "/proc/$panel_pid/status")
 		log "PANEL-EXE=$panel_exe"
 		log "PANEL-RSS=$((panel_rss_kb / 1024))MB"
-		# J (v0.4-test1): USS = only the pages belonging to this process
-		# (shared gtk/rsvg libraries excluded) — the real cost measure.
-		# Same 20 MB budget as Settings, and for the same reason: a GTK3
-		# process starts around 12-14 MB of private pages.
-		panel_uss=$(uss_mb "$panel_pid")
-		log "PANEL-USS=${panel_uss}MB"
-		if [ "$panel_uss" -gt 20 ]; then
-			log "PANEL-USS-WARN ${panel_uss}MB > 20MB"
-		fi
 	fi
 	# v0.4-test2 A: "process exists" ≠ "window on screen". The CI frame is
 	# taken once the panel and the desktop layer are VISIBLE; if not
@@ -206,6 +197,24 @@ if [ "$panel_up" -eq 1 ]; then
 	done
 	if [ "$mapped" -eq 1 ]; then
 		log "DESKTOP-READY panel and desktop windows visible (after ${j} seconds)"
+		# J (v0.4-test1): USS = only the pages belonging to this process
+		# (shared gtk/rsvg libraries excluded) — the real cost measure.
+		# Same 20 MB budget as Settings, and for the same reason: a GTK3
+		# process starts around 12-14 MB of private pages.
+		#
+		# MEASURED HERE, not three seconds after the process appears:
+		# the v0.5-test1 run logged PANEL-USS=1MB while the same panel
+		# showed 35 MB in the MEM-PROC table at the end. The early
+		# reading was taken before the panel had loaded a single icon,
+		# so the 20 MB threshold could never fire. Now it is taken once
+		# the panel is actually on screen.
+		if [ -n "$panel_pid" ] && [ -r "/proc/$panel_pid/status" ]; then
+			panel_uss=$(uss_mb "$panel_pid")
+			log "PANEL-USS=${panel_uss}MB"
+			if [ "$panel_uss" -gt 20 ]; then
+				log "PANEL-USS-WARN ${panel_uss}MB > 20MB"
+			fi
+		fi
 	else
 		fatal "PANEL-NOT-MAPPED panel/desktop window not mapped within 60 s" "panel-window"
 	fi
@@ -742,6 +751,46 @@ for name in Xorg lightdm kavis-panel kavis-snap kavis-osd kavis-tools \
 		log "MEM-PROC $name pid=$pid uss=$(uss_mb "$pid")MB rss=$(rss_mb "$pid")MB"
 	done
 done
+# Where the used memory actually went (item 74 follow-up). "552 MB at
+# idle against a 380 MB target" is not something the per-process table
+# answers on its own: those processes add up to about 160 MB, and the
+# question is what the other 390 are. Every line below comes from
+# /proc, so the next round argues with numbers instead of guesses.
+#
+#   KERNEL   slab + page tables + kernel stacks — the kernel itself
+#   SHMEM    tmpfs: /run, /dev/shm, and the live overlay's upper layer,
+#            which is the one a live session pays and an installed
+#            system does not
+#   CACHE    page cache minus tmpfs — mostly decompressed squashfs
+#            still in memory. Reclaimable, so it inflates "used" while
+#            costing nothing under pressure
+#   USER     the sum of every process's private pages (USS)
+mem_kernel_mb=$(awk '/^Slab:/{s=$2} /^PageTables:/{p=$2} /^KernelStack:/{k=$2}
+	END { printf "%d", (s + p + k) / 1024 }' /proc/meminfo)
+mem_shmem_mb=$(awk '/^Shmem:/ { printf "%d", $2 / 1024 }' /proc/meminfo)
+mem_cache_mb=$(awk '/^Cached:/{c=$2} /^Shmem:/{s=$2}
+	END { printf "%d", (c - s) / 1024 }' /proc/meminfo)
+mem_user_mb=$(grep -h '^Private_' /proc/*/smaps_rollup 2>/dev/null \
+	| awk '{ total += $2 } END { printf "%d", total / 1024 }')
+log "MEM-BREAKDOWN kernel=${mem_kernel_mb}MB shmem=${mem_shmem_mb}MB cache=${mem_cache_mb}MB user=${mem_user_mb}MB total=${mem_used_mb}MB"
+
+# The ten hungriest processes by private pages, whatever they are —
+# the named list above only reports what we thought to name, and the
+# gap between 160 MB of named processes and the total says something
+# unnamed is holding memory.
+log "MEM-TOP (private pages, largest first)"
+for status in /proc/[0-9]*/status; do
+	pid=${status%/status}
+	pid=${pid#/proc/}
+	[ -r "/proc/$pid/smaps_rollup" ] || continue
+	name=$(awk '/^Name:/ { print $2 }' "$status" 2>/dev/null)
+	kb=$(awk '/^Private_/ { t += $2 } END { print t + 0 }' \
+		"/proc/$pid/smaps_rollup" 2>/dev/null)
+	[ -n "$kb" ] && [ "$kb" -gt 0 ] && printf '%s %s %s\n' "$kb" "$name" "$pid"
+done | sort -rn | head -10 | while read -r kb name pid; do
+	log "MEM-TOP $((kb / 1024))MB $name pid=$pid"
+done
+
 # The idle target from the RAM cleanup round. A warning, not a failure:
 # the live session carries the squashfs cache the installed system does
 # not have.

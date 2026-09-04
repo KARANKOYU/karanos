@@ -34,7 +34,7 @@ jobs:
             librsvg2-bin x11-apps python3 ca-certificates git \
             ffmpeg fonts-dejavu-core gettext locales \
             valac libgtk-3-dev libwnck-3-dev libx11-dev libxss-dev \
-            libpam0g-dev libgstreamer1.0-dev
+            libpam0g-dev libgstreamer1.0-dev libxtst-dev
           # gettext: msgfmt in rules + check-i18n (Group D task c).
           # locales/en_US: the xx screenshot step needs a real locale
           # (gettext is disabled under C — seen in the Codespace).

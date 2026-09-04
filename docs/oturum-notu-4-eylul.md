@@ -1,5 +1,12 @@
 # DEVİR NOTU — 4 Eylül 2026 akşamı
 
+> **ESKİDİ (4 Eyl gecesi).** 2. bölümdeki kırmızı liste kapatıldı,
+> madde 74 ve selftest kayıt modu bitti, etiket **v0.5-test2**.
+> Güncel devir notu `docs/durum.md`'nin en üstündeki
+> "4 Eylül 2026 gecesi (v0.5-test2)" kaydıdır. Aşağısı tarihsel
+> bağlam olarak duruyor.
+
+
 Yeni sohbet bu dosyayı okuyarak başlar. Kaldığı yer, ne bozuk, ne
 yapılacak — hepsi burada. Gerekçeler `docs/durum.md`'nin başındaki
 4 Eylül kaydında.

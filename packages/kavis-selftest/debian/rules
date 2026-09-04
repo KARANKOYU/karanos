@@ -5,8 +5,12 @@ export DH_VERBOSE = 1
 DEST := debian/kavis-selftest
 VALA_PKGS := --pkg gtk+-3.0 --pkg libwnck-3.0 --pkg gdk-x11-3.0 \
                  --pkg x11 --pkg posix
-VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm
-SOURCES := $(wildcard src/*.vala)
+# -lXtst: XRecord, used by --record. src/xrecord.c is handed to the C
+# compiler by valac — XRecord has no vapi and a hand-written binding for
+# a two-connection callback API would be the fragile choice.
+VALA_CFLAGS := -X -DWNCK_I_KNOW_THIS_IS_UNSTABLE -X -O2 -X -w -X -lm \
+                 -X -lXtst
+SOURCES := $(wildcard src/*.vala) src/xrecord.c
 
 %:
 	dh $@
