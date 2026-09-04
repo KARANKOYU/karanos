@@ -69,6 +69,50 @@ ile taşıdığı için bunu hiç görmedi; VirtualBox/edge-warp/XI2 şüpheleri
 yanlıştı. Çözüm: XQueryTree + XGetWindowAttributes +
 XTranslateCoordinates ile her yoklamada sunucudan okumak.
 
+## v0.4-test3 (4 Eyl) — etiketlenen içerik
+
+Bu etikete giren işler, geri bildirim harfleriyle:
+
+- **F1** Hakkında hiyerarşik (Processor/Graphics/Memory/Disk katlanır
+  kart, okunamayan değer tire, sondalar boşta).
+- **F2** Çözünürlük listesi kısa ve tekrarsız + ayrı yenileme hızı
+  listesi + "Custom…" penceresi; 15 sn onay geri sayımı korunuyor.
+- **F3** Ölçek: tam sayı pencere çarpanı ile metin DPI'ı ayrıldı, panel
+  ölçekle birlikte büyüyor, yüzde biçimi locale'e uyuyor.
+- **F4** Dil açılır listesi (endonim + yüzde, yazı tipi yoksa İngilizce
+  ada düşer) ve xkeyboard-config'in tam düzen listesi (590 giriş);
+  panel göstergesine sağ tık ile düzen değiştirme.
+- **F5** Hiçbir kullanıcı metninde "Windows 10/11" yok; check-i18n
+  geri gelmesini engelliyor.
+- **G1-G2** Görev Yöneticisi ayrı `kavis-taskmanager` paketi, kendi
+  ikonu, sağ tık menüsü (End task düğmesi kalktı).
+- **G3-G4** CPU yüzdeleri tüm çekirdeklere normalize, toplam süreçler
+  toplamıyla tutarlı; sıralanan sütunda ▲/▼.
+- **G5** Performans'ta mantıksal işlemci başına grafik + bellek modülü
+  satırları (SMBIOS; kök yoksa tire).
+- **G6** Başlangıç sekmesi uygulama menüsünü listeliyor, hepsi kapalı,
+  oturum altyapısı görünmüyor.
+- **H1-H7** Nemo başlığı tam yol; ev dizininde Templates yok, şablonlar
+  /usr/share/kavis/templates (12 şablon, docx/xlsx/pptx derlemede
+  üretiliyor); Firefox koyu tema politikası + tema değişiminde
+  profillere user.js; "Tilix" adı her yerde "Terminal"; Kate düz
+  düzen; masaüstünde beş kısayol.
+- **I** Emoji seçici: 24 px glif, 8 sütun, sekmeler, tembel kurulan
+  sayfalar.
+- **Madde 72** kavis-selftest: çekirdek + 6 senaryo, Ayarlar > Sistem
+  "Sistemi test et" düğmesi, `docs/test-kapsami.md` üretimi, kısayol
+  senaryosu üretimi, düşen koşunun raporunun seri günlükten çıkması.
+  Kalan tek parça kayıt modu.
+- **Sağlamlık** (madde 72 CI): dpkg -V, servis/journal/coredump,
+  bağımlılık aralıkları, haftalık trixie koşusu + otomatik issue,
+  gsettings şema denetimi.
+- **Altyapı:** kod tabanı tamamen İngilizce; chroot hook'ları host'ta
+  çalışmayı reddediyor; `.devcontainer/` araç zincirini kaydediyor.
+
+Etiket öncesi yerel denetimler (4 Eyl): derleme temiz, shellcheck,
+check-config, check-packages (120 paket), check-i18n (386 msgid),
+KEYBIND 26/26, SNAP 4/4, kapsam tablosu ve kısayol senaryosu güncel.
+
 ## USS eşiği 10 → 20 MB (4 Eyl)
 
 `SETTINGS-USS-WARN` ve yeni `PANEL-USS-WARN` eşiği 20 MB. Sebep: 10 MB
