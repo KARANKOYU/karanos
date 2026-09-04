@@ -80,13 +80,25 @@ XDG_PUBLICSHARE_DIR="\$HOME"
 # directory above, so the home directory keeps six folders.
 XDG
 
-	# Desktop shortcut (item 9): Settings. nemo-desktop does not trust an
-	# unsigned launcher — the execute bit is required.
-	if [ -f /usr/share/applications/kavis-settings.desktop ]; then
-		cp /usr/share/applications/kavis-settings.desktop \
-			"$NEW_HOME/desktop/kavis-settings.desktop"
-		chmod +x "$NEW_HOME/desktop/kavis-settings.desktop"
-	fi
+	# Desktop shortcuts (item 9, feedback H7): Files, Firefox, Settings,
+	# Task Manager, Terminal — deliberately no Trash, that decision is
+	# in docs/kararlar.md. The overrides in /etc/kavis/applications
+	# (renamed Firefox and Terminal entries) win over the upstream
+	# files, so the icons carry the Kavis names. nemo-desktop does not
+	# trust an unsigned launcher — the execute bit is required. A
+	# launcher whose package is missing is skipped silently: the ISO
+	# must still boot without it.
+	for entry in nemo.desktop firefox-esr.desktop \
+		kavis-settings.desktop kavis-taskmanager.desktop \
+		com.gexperts.Tilix.desktop; do
+		for dir in /etc/kavis/applications /usr/share/applications; do
+			if [ -f "$dir/$entry" ]; then
+				cp "$dir/$entry" "$NEW_HOME/desktop/$entry"
+				chmod +x "$NEW_HOME/desktop/$entry"
+				break
+			fi
+		done
+	done
 
 	chown -R "$LIVE_USER:$LIVE_USER" "$NEW_HOME"
 
