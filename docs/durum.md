@@ -118,6 +118,32 @@ E3'ün cevabı: RSS paylaşılan GTK sayfalarını her süreçte tekrar sayar).
   `kavis-selftest --check` push öncesi hepsini ayrıştırıyor — ilk
   koşuşunda 14 senaryoyu reddetti.
 
+## v0.5-test1 CI koşusundan gelen ilk gerçek ölçümler (4 Eyl akşamı)
+
+ISO **956 MB** (sınır 1900, uyarı 1700), masaüstü 13 saniyede hazır.
+Yeni denetimler çalıştı: `CURSOR-OK Breeze_Light 115 names`,
+`FETCH-OK Kavis 1.0 x86_64 (logo 9 lines)` — kavisfetch adı
+os-release'ten okuyor, marka kuralı ayakta.
+
+**Boşta bellek (MEM-PROC satırları, USS/RSS MB):** Xorg 62/111,
+nemo-desktop 45/75, kavis-panel 35/66, lxpolkit 12/68, kavis-osd 4/20,
+kavis-snap 4/20, picom 1/6. Toplam `MEM-USED=552MB` (hedef 380).
+
+Bu tablo RAM temizliği maddesi 2'yi cevaplıyor:
+- **lxpolkit 12 MB USS** — 15 MB eşiğinin altında, değiştirilmeyecek.
+  RSS'i 68 ama o paylaşılan GTK sayfaları; E3'te anlatılan fark.
+- **kavis-osd 4 MB USS** — tembel pencere işe yaradı (Xvfb'de 15'ti).
+- **nemo-desktop 45 MB USS** — eşiğin üstünde; tek çare ikon katmanını
+  kendimiz çizmek, ayrı madde.
+- **kavis-panel 35 MB USS ama loglanan `PANEL-USS=1MB`** — ölçüm panel
+  ikonlarını yüklemeden ÖNCE alınıyor. boot-check'teki PANEL-USS
+  ölçümü DESKTOP-READY'den sonraya alınacak; şu hâliyle eşik hiçbir
+  zaman tetiklenmez.
+
+Koşunun QEMU işleri kırmızı: kırmızı olan **selftest senaryoları**,
+ISO değil. Kök sebep ve kalan liste `docs/oturum-notu-4-eylul.md` 2.
+bölümde.
+
 ## VM'de doğrulanacaklar (v0.5-test1 turu)
 
 Otomatik senaryoların göremediği, gözle bakılacaklar:

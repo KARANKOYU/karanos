@@ -201,14 +201,51 @@ namespace Kavis.Selftest {
                 && prop != null) {
                 unowned X.Window[] wins = (X.Window[]) prop;
                 for (int i = 0; i < (int) cnt; i++) {
-                    if (wm_class (xd, wins[i]).down ().contains (cls.down ())) {
-                        res += wins[i];
+                    if (!wm_class (xd, wins[i]).down ().contains (cls.down ())) {
+                        continue;
                     }
+                    /* NEVER the desktop or the panel. "nemo" matches
+                     * nemo-desktop too, and the desktop layer does not
+                     * answer a close request — so the escalation
+                     * SIGTERMed the desktop out of the session and
+                     * every scenario after it ran on a broken one.
+                     * A scenario asks to close a window, never the
+                     * furniture. */
+                    if (is_furniture (xd, wins[i])) {
+                        continue;
+                    }
+                    res += wins[i];
                 }
                 X.free (prop);
             }
             Gdk.error_trap_pop_ignored ();
             return res;
+        }
+
+        /* Is this the desktop layer or a panel? Read from
+         * _NET_WM_WINDOW_TYPE, which is how the window manager itself
+         * tells them apart. */
+        private bool is_furniture (X.Display xd, X.Window w) {
+            X.Atom type_atom = xd.intern_atom ("_NET_WM_WINDOW_TYPE", true);
+            if ((X.ID) type_atom == X.None) {
+                return false;
+            }
+            X.Atom desktop = xd.intern_atom ("_NET_WM_WINDOW_TYPE_DESKTOP", true);
+            X.Atom dock = xd.intern_atom ("_NET_WM_WINDOW_TYPE_DOCK", true);
+            X.Atom at; int af; ulong cnt, ba; void* prop;
+            bool furniture = false;
+            if (xd.get_window_property (w, type_atom, 0, 8, false, X.XA_ATOM,
+                    out at, out af, out cnt, out ba, out prop) == X.Success
+                && prop != null) {
+                unowned X.Atom[] types = (X.Atom[]) prop;
+                for (int i = 0; i < (int) cnt; i++) {
+                    if (types[i] == desktop || types[i] == dock) {
+                        furniture = true;
+                    }
+                }
+                X.free (prop);
+            }
+            return furniture;
         }
 
         /* _NET_WM_PID, so a window that ignores the close request can

@@ -1,6 +1,12 @@
 # Sonraki tur — "devam" denince ilk iş bu
 
-## 0. 4 Eylül akşamı — v0.5-test1 etiketlendi, sıradaki iş
+## 0. YENİ SOHBET BURADAN BAŞLAR
+
+**Önce `docs/oturum-notu-4-eylul.md`'yi oku.** v0.5-test1 etiketlendi,
+ISO derlendi (956 MB), ama QEMU selftest adımları kırmızı — kök sebep,
+kalan hata listesi ve sırayla ne yapılacağı o dosyada.
+
+## 0b. 4 Eylül akşamı — v0.5-test1 etiketlendi, sıradaki iş
 
 Grup F kapandı. v0.4-test4 VM turunun A–F maddeleri ve Grup F'in kalan
 altı maddesi (Ekran, Güç, Ağ, Donanım testi, Kilit ekranı, kavisfetch,
