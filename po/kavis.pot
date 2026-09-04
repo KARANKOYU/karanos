@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 13:22+0000\n"
+"POT-Creation-Date: 2026-09-04 19:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -234,7 +234,7 @@ msgstr ""
 #: packages/kavis-common/sysinfo.vala:736
 #: packages/kavis-panel/src/logic/apps.vala:24
 #: packages/kavis-settings/src/ui/page_keyboard.vala:109
-#: packages/kavis-settings/src/ui/window.vala:154
+#: packages/kavis-settings/src/ui/window.vala:159
 #: packages/kavis-taskmanager/src/logs.vala:25
 #: packages/kavis-taskmanager/src/startup.vala:297
 #, c-format
@@ -243,25 +243,25 @@ msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:737
 #: packages/kavis-settings/src/ui/page_system.vala:25
-#: packages/kavis-settings/src/ui/window.vala:156
+#: packages/kavis-settings/src/ui/window.vala:161
 msgid "Processor"
 msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:738
 #: packages/kavis-settings/src/ui/page_system.vala:27
-#: packages/kavis-settings/src/ui/window.vala:156
+#: packages/kavis-settings/src/ui/window.vala:161
 msgid "Graphics"
 msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:739
-#: packages/kavis-settings/src/logic/hwtest.vala:109
-#: packages/kavis-settings/src/logic/hwtest.vala:123
-#: packages/kavis-settings/src/logic/hwtest.vala:144
-#: packages/kavis-settings/src/logic/hwtest.vala:148
+#: packages/kavis-settings/src/logic/hwtest.vala:115
+#: packages/kavis-settings/src/logic/hwtest.vala:129
+#: packages/kavis-settings/src/logic/hwtest.vala:150
+#: packages/kavis-settings/src/logic/hwtest.vala:154
 #: packages/kavis-settings/src/ui/page_hardware.vala:54
 #: packages/kavis-settings/src/ui/page_system.vala:29
-#: packages/kavis-settings/src/ui/window.vala:152
 #: packages/kavis-settings/src/ui/window.vala:157
+#: packages/kavis-settings/src/ui/window.vala:162
 #: packages/kavis-taskmanager/src/perf.vala:128
 #: packages/kavis-taskmanager/src/tasks.vala:227
 #: packages/kavis-taskmanager/src/tasks.vala:753
@@ -271,7 +271,7 @@ msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:740
 #: packages/kavis-settings/src/ui/page_system.vala:31
-#: packages/kavis-settings/src/ui/window.vala:157
+#: packages/kavis-settings/src/ui/window.vala:162
 #: packages/kavis-taskmanager/src/perf.vala:130
 #: packages/kavis-taskmanager/src/tasks.vala:228
 msgid "Disk"
@@ -290,7 +290,7 @@ msgstr ""
 msgid "Unlock"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:199
+#: packages/kavis-panel/src/kavis_lock.vala:204
 msgid "Wrong password"
 msgstr ""
 
@@ -626,7 +626,7 @@ msgstr ""
 #: packages/kavis-panel/src/ui/picker.vala:236
 #: packages/kavis-settings/src/ui/page_system.vala:131
 #: packages/kavis-taskmanager/src/tasks.vala:551
-#: packages/kavis-tools/src/capture.vala:508
+#: packages/kavis-tools/src/capture.vala:536
 #: packages/kavis-tools/src/repair.vala:89
 msgid "Close"
 msgstr ""
@@ -903,12 +903,12 @@ msgid "Skipped"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/hwtest.vala:55
-#: packages/kavis-settings/src/logic/hwtest.vala:61
-#: packages/kavis-settings/src/logic/hwtest.vala:80
-#: packages/kavis-settings/src/logic/hwtest.vala:85
-#: packages/kavis-settings/src/logic/hwtest.vala:89
+#: packages/kavis-settings/src/logic/hwtest.vala:67
+#: packages/kavis-settings/src/logic/hwtest.vala:86
+#: packages/kavis-settings/src/logic/hwtest.vala:91
+#: packages/kavis-settings/src/logic/hwtest.vala:95
 #: packages/kavis-settings/src/ui/page_hardware.vala:52
-#: packages/kavis-settings/src/ui/window.vala:152
+#: packages/kavis-settings/src/ui/window.vala:157
 msgid "Disk health"
 msgstr ""
 
@@ -916,144 +916,154 @@ msgstr ""
 msgid "The reporting helper is not installed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:62
-#: packages/kavis-settings/src/logic/hwtest.vala:86
+#: packages/kavis-settings/src/logic/hwtest.vala:68
+#: packages/kavis-settings/src/logic/hwtest.vala:92
 msgid "No disk reported SMART data (common in a virtual machine)"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:81
+#: packages/kavis-settings/src/logic/hwtest.vala:87
 #, c-format
 msgid "SMART reports a problem on: %s — back up now"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:90
+#: packages/kavis-settings/src/logic/hwtest.vala:96
 #, c-format
 msgid "%d disk reports itself healthy"
 msgid_plural "%d disks report themselves healthy"
 msgstr[0] ""
 msgstr[1] ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:110
+#: packages/kavis-settings/src/logic/hwtest.vala:116
 msgid "Cannot read /proc/meminfo"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:124
+#: packages/kavis-settings/src/logic/hwtest.vala:130
 msgid "Not enough free memory to test safely"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:145
+#: packages/kavis-settings/src/logic/hwtest.vala:151
 #, c-format
 msgid "%lld errors in %.0f MB — run the full memory test from the boot menu"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:149
+#: packages/kavis-settings/src/logic/hwtest.vala:155
 #, c-format
 msgid "%.0f MB checked with four patterns, no errors"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:162
-#: packages/kavis-settings/src/logic/hwtest.vala:169
-#: packages/kavis-settings/src/logic/hwtest.vala:174
+#: packages/kavis-settings/src/logic/hwtest.vala:168
+#: packages/kavis-settings/src/logic/hwtest.vala:175
 #: packages/kavis-settings/src/logic/hwtest.vala:180
-#: packages/kavis-settings/src/logic/hwtest.vala:184
+#: packages/kavis-settings/src/logic/hwtest.vala:186
+#: packages/kavis-settings/src/logic/hwtest.vala:190
 #: packages/kavis-settings/src/ui/page_hardware.vala:56
-#: packages/kavis-settings/src/ui/window.vala:153
+#: packages/kavis-settings/src/ui/window.vala:158
 msgid "Network speed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:163
+#: packages/kavis-settings/src/logic/hwtest.vala:169
 msgid "curl is not installed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:170
-#: packages/kavis-settings/src/logic/hwtest.vala:175
+#: packages/kavis-settings/src/logic/hwtest.vala:176
+#: packages/kavis-settings/src/logic/hwtest.vala:181
 msgid "No internet connection"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:181
+#: packages/kavis-settings/src/logic/hwtest.vala:187
 #, c-format
 msgid "%.1f Mbit/s — slower than a working connection should be"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:185
+#: packages/kavis-settings/src/logic/hwtest.vala:191
 #, c-format
 msgid "%.1f Mbit/s from the Debian mirror"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:207
-#: packages/kavis-settings/src/logic/hwtest.vala:221
+#: packages/kavis-settings/src/logic/hwtest.vala:213
 #: packages/kavis-settings/src/logic/hwtest.vala:227
+#: packages/kavis-settings/src/logic/hwtest.vala:233
 #: packages/kavis-settings/src/ui/page_hardware.vala:49
-#: packages/kavis-settings/src/ui/window.vala:151
+#: packages/kavis-settings/src/ui/window.vala:156
 msgid "Camera"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:208
+#: packages/kavis-settings/src/logic/hwtest.vala:214
 msgid "No camera found"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/hwtest.vala:222
-#, c-format
-msgid "%s exists but cannot be opened — check permissions"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/hwtest.vala:228
 #, c-format
+msgid "%s exists but cannot be opened — check permissions"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/hwtest.vala:234
+#, c-format
 msgid "%s opens"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:229
+#: packages/kavis-settings/src/logic/hwtest.vala:235
 #, c-format
 msgid "%s (%s) opens"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:263
-#: packages/kavis-settings/src/logic/hwtest.vala:272
-#: packages/kavis-settings/src/logic/hwtest.vala:279
-#: packages/kavis-settings/src/logic/hwtest.vala:286
+#: packages/kavis-settings/src/logic/hwtest.vala:269
+#: packages/kavis-settings/src/logic/hwtest.vala:280
 #: packages/kavis-settings/src/logic/hwtest.vala:290
+#: packages/kavis-settings/src/logic/hwtest.vala:297
+#: packages/kavis-settings/src/logic/hwtest.vala:305
+#: packages/kavis-settings/src/logic/hwtest.vala:313
+#: packages/kavis-settings/src/logic/hwtest.vala:317
 #: packages/kavis-settings/src/ui/page_hardware.vala:47
-#: packages/kavis-settings/src/ui/window.vala:150
-#: packages/kavis-tools/src/capture.vala:499
+#: packages/kavis-settings/src/ui/window.vala:155
+#: packages/kavis-tools/src/capture.vala:527
 msgid "Microphone"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:264
+#: packages/kavis-settings/src/logic/hwtest.vala:270
 #: packages/kavis-settings/src/ui/page_hardware.vala:352
 msgid "alsa-utils is not installed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:273
-#, c-format
-msgid "No recording device: %s"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/hwtest.vala:280
-msgid "The recording could not be read"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/hwtest.vala:287
-msgid "Silence recorded — the microphone may be muted or not connected"
+#: packages/kavis-settings/src/logic/hwtest.vala:281
+msgid "No recording device on this machine"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/hwtest.vala:291
 #, c-format
+msgid "No recording device: %s"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/hwtest.vala:298
+msgid "The recording could not be read"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/hwtest.vala:306
+msgid "The recording device produced no signal"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/hwtest.vala:314
+msgid "Silence recorded — the microphone may be muted or not connected"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/hwtest.vala:318
+#, c-format
 msgid "Sound picked up, peak %d%%"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:351
-#: packages/kavis-settings/src/logic/hwtest.vala:356
+#: packages/kavis-settings/src/logic/hwtest.vala:378
+#: packages/kavis-settings/src/logic/hwtest.vala:383
 #: packages/kavis-settings/src/ui/page_hardware.vala:82
-#: packages/kavis-settings/src/ui/window.vala:148
+#: packages/kavis-settings/src/ui/window.vala:153
 msgid "Hardware test"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:361
+#: packages/kavis-settings/src/logic/hwtest.vala:388
 #: packages/kavis-settings/src/ui/page_system.vala:119
 msgid "Everything passed."
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:362
+#: packages/kavis-settings/src/logic/hwtest.vala:389
 #: packages/kavis-settings/src/ui/page_system.vala:121
 #, c-format
 msgid "%d check failed."
@@ -1061,15 +1071,15 @@ msgid_plural "%d checks failed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:366
+#: packages/kavis-settings/src/logic/hwtest.vala:393
 msgid "Check"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:367
+#: packages/kavis-settings/src/logic/hwtest.vala:394
 msgid "Result"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/hwtest.vala:368
+#: packages/kavis-settings/src/logic/hwtest.vala:395
 msgid "Detail"
 msgstr ""
 
@@ -1333,7 +1343,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:261
 #: packages/kavis-settings/src/ui/page_hardware.vala:265
 #: packages/kavis-settings/src/ui/page_hardware.vala:268
-#: packages/kavis-settings/src/ui/window.vala:149
+#: packages/kavis-settings/src/ui/window.vala:154
 msgid "Keyboard"
 msgstr ""
 
@@ -1346,7 +1356,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:335
 #: packages/kavis-settings/src/ui/page_hardware.vala:340
 #: packages/kavis-settings/src/ui/page_hardware.vala:343
-#: packages/kavis-settings/src/ui/window.vala:149
+#: packages/kavis-settings/src/ui/window.vala:154
 msgid "Mouse"
 msgstr ""
 
@@ -1360,7 +1370,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:367
 #: packages/kavis-settings/src/ui/page_hardware.vala:374
 #: packages/kavis-settings/src/ui/page_hardware.vala:376
-#: packages/kavis-settings/src/ui/window.vala:150
+#: packages/kavis-settings/src/ui/window.vala:155
 msgid "Sound output"
 msgstr ""
 
@@ -1382,7 +1392,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:439
 #: packages/kavis-settings/src/ui/page_hardware.vala:443
 #: packages/kavis-settings/src/ui/page_keyboard.vala:126
-#: packages/kavis-settings/src/ui/window.vala:151
+#: packages/kavis-settings/src/ui/window.vala:156
 msgid "Screen"
 msgstr ""
 
@@ -1617,7 +1627,7 @@ msgid "Security screen"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_keyboard.vala:114
-#: packages/kavis-tools/src/capture.vala:478
+#: packages/kavis-tools/src/capture.vala:506
 msgid "Window"
 msgstr ""
 
@@ -1963,12 +1973,12 @@ msgid "Device plug, notification and error sounds"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_system.vala:19
-#: packages/kavis-settings/src/ui/window.vala:155
+#: packages/kavis-settings/src/ui/window.vala:160
 msgid "About"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_system.vala:34
-#: packages/kavis-settings/src/ui/window.vala:155
+#: packages/kavis-settings/src/ui/window.vala:160
 msgid "Copy details"
 msgstr ""
 
@@ -2068,7 +2078,7 @@ msgstr ""
 msgid "Taskbar"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:180
+#: packages/kavis-settings/src/ui/window.vala:185
 msgid "Find a setting"
 msgstr ""
 
@@ -2353,64 +2363,64 @@ msgid "Show in folder"
 msgstr ""
 
 #: packages/kavis-tools/src/capture.vala:215
-#: packages/kavis-tools/src/capture.vala:670
-#: packages/kavis-tools/src/capture.vala:1082
+#: packages/kavis-tools/src/capture.vala:698
+#: packages/kavis-tools/src/capture.vala:1110
 msgid "Screenshot saved"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:460
+#: packages/kavis-tools/src/capture.vala:488
 msgid "Image"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:462
+#: packages/kavis-tools/src/capture.vala:490
 msgid "Video"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:477
+#: packages/kavis-tools/src/capture.vala:505
 msgid "Rectangle"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:477
+#: packages/kavis-tools/src/capture.vala:505
 msgid "Ellipse"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:477
+#: packages/kavis-tools/src/capture.vala:505
 msgid "Freeform"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:478
+#: packages/kavis-tools/src/capture.vala:506
 msgid "Full screen"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:478
+#: packages/kavis-tools/src/capture.vala:506
 msgid "Color"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:496
+#: packages/kavis-tools/src/capture.vala:524
 msgid "Record audio too"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:992
+#: packages/kavis-tools/src/capture.vala:1020
 msgid "Copy RGB"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:994
+#: packages/kavis-tools/src/capture.vala:1022
 msgid "Copy HSL"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1183
+#: packages/kavis-tools/src/capture.vala:1211
 msgid "Recording"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1187
+#: packages/kavis-tools/src/capture.vala:1215
 msgid "You can also press PrtSc to stop"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1196
+#: packages/kavis-tools/src/capture.vala:1224
 msgid "Stop"
 msgstr ""
 
-#: packages/kavis-tools/src/capture.vala:1250
+#: packages/kavis-tools/src/capture.vala:1278
 msgid "Screen recording saved"
 msgstr ""
 

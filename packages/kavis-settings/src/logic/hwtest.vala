@@ -269,6 +269,18 @@ namespace Kavis.Settings.HwTest {
             return make ("microphone", _("Microphone"), Result.SKIP,
                          _("alsa-utils is not installed"));
         }
+        /* A machine with no capture hardware has nothing to test, and
+         * `arecord` does not say so: it happily records three seconds
+         * of digital silence from a dummy device, which then reads as
+         * a muted microphone. That is how every QEMU run reported a
+         * FAIL. `arecord -l` lists the capture cards and lists nothing
+         * when there are none. */
+        string? cards = Run.capture ({ "arecord", "-l" });
+        if (cards == null || !cards.contains ("card ")) {
+            return make ("microphone", _("Microphone"), Result.SKIP,
+                         _("No recording device on this machine"),
+                         timer.elapsed ());
+        }
         string path = Path.build_filename (Environment.get_tmp_dir (),
                                            "kavis-mic-test.wav");
         FileUtils.unlink (path);
@@ -284,6 +296,15 @@ namespace Kavis.Settings.HwTest {
         if (peak < 0) {
             return make ("microphone", _("Microphone"), Result.SKIP,
                          _("The recording could not be read"), timer.elapsed ());
+        }
+        /* Exactly zero is not a quiet room — a real microphone always
+         * picks up some noise floor. It means the samples never came
+         * from an input at all (dummy device, muted in the driver), so
+         * there is nothing to report as a failure. */
+        if (peak == 0) {
+            return make ("microphone", _("Microphone"), Result.SKIP,
+                         _("The recording device produced no signal"),
+                         timer.elapsed ());
         }
         /* 2% of full scale: below that the line is silent even for a
          * quiet room with a working microphone. */

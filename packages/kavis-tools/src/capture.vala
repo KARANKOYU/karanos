@@ -376,9 +376,34 @@ namespace Kavis.Tools {
             /* A POPUP window only gets keyboard/mouse through a grab;
              * since map is asynchronous, retry at short intervals. */
             map_event.connect (() => {
-                try_grab ();
+                take_input ();
                 return false;
             });
+        }
+
+        /* Take the X input focus as well as the seat grab.
+         *
+         * The grab alone is not enough. An override-redirect window is
+         * invisible to the window manager, so openbox leaves the input
+         * focus wherever it was, and synthetic key events (XTEST — the
+         * selftest, and every remote-control tool) go to the FOCUS
+         * window, not to the pointer. Until the grab is established
+         * they miss this window entirely: that is why Escape did
+         * nothing in a session with a window manager while it worked
+         * under a bare Xvfb, where the focus is PointerRoot and the
+         * pointer is over the full-screen bar anyway.
+         *
+         * RevertTo.PointerRoot on purpose: when this window goes away
+         * the focus must land somewhere, and openbox then gives it to
+         * the window under the pointer. */
+        private void take_input () {
+            unowned X.Display xd =
+                ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
+            Gdk.error_trap_push ();
+            xd.set_input_focus (((Gdk.X11.Window) get_window ()).get_xid (),
+                                X.RevertTo.PointerRoot, (int) X.CURRENT_TIME);
+            Gdk.error_trap_pop_ignored ();
+            try_grab ();
         }
 
         private void try_grab () {
@@ -398,10 +423,13 @@ namespace Kavis.Tools {
                 if (!get_visible ()) {
                     return Source.REMOVE;
                 }
+                /* Two seconds, not half of one: on a machine without
+                 * KVM the session is still settling when the bar maps
+                 * and another client can hold the seat that long. */
                 return seat.grab (get_window (),
                                   Gdk.SeatCapabilities.ALL,
                                   true, null, null, null)
-                    != Gdk.GrabStatus.SUCCESS && tries < 10;
+                    != Gdk.GrabStatus.SUCCESS && tries < 40;
             });
         }
 

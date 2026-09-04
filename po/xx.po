@@ -597,11 +597,17 @@ msgstr "⟪Microphone····⟫"
 msgid "alsa-utils is not installed"
 msgstr "⟪alsa-utils is not installed··········⟫"
 
+msgid "No recording device on this machine"
+msgstr "⟪No recording device on this machine··············⟫"
+
 msgid "No recording device: %s"
 msgstr "⟪No recording device: %s·········⟫"
 
 msgid "The recording could not be read"
 msgstr "⟪The recording could not be read············⟫"
+
+msgid "The recording device produced no signal"
+msgstr "⟪The recording device produced no signal···············⟫"
 
 msgid "Silence recorded — the microphone may be muted or not connected"
 msgstr "⟪Silence recorded — the microphone may be muted or not connected·························⟫"

@@ -14,5 +14,9 @@ steps:
     shot: true
   - do: key Escape
     expect: popup kavis-tools hidden
-    timeout: 6000
-    note: Escape leaves without capturing anything
+    timeout: 15000
+    note: >
+      Escape leaves without capturing anything. The bar is
+      override-redirect, so the window manager never focuses it and a
+      synthetic key would go to whatever openbox last focused — it
+      takes the input focus itself on map

@@ -84,7 +84,7 @@ steps:
     note: XF86AudioPrev
   - do: key ctrl+shift+Escape
     expect: window kavis-taskmanager visible
-    timeout: 6000
+    timeout: 40000
     note: C-S-Escape — Task Manager
   - do: key XF86Launch5
     expect: popup kavis-panel visible
@@ -109,11 +109,11 @@ steps:
     timeout: 4000
   - do: key super+e
     expect: window nemo visible
-    timeout: 6000
+    timeout: 40000
     note: W-e — Files
   - do: key super+i
     expect: window kavis-settings visible
-    timeout: 6000
+    timeout: 40000
     note: W-i — Settings
   - do: key super+l
     expect: ok

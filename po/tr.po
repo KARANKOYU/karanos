@@ -1522,6 +1522,12 @@ msgstr "alsa-utils kurulu değil"
 msgid "No recording device: %s"
 msgstr "Kayıt aygıtı yok: %s"
 
+msgid "No recording device on this machine"
+msgstr "Bu makinede kayıt aygıtı yok"
+
+msgid "The recording device produced no signal"
+msgstr "Kayıt aygıtından hiç sinyal gelmedi"
+
 msgid "The recording could not be read"
 msgstr "Kayıt okunamadı"
 

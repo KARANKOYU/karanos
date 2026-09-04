@@ -15,18 +15,26 @@ steps:
     timeout: 40000
     note: the page builds from nmcli (wired, VPN, DNS privacy)
     shot: true
-  - do: shell nmcli -t -f DEVICE,TYPE,STATE device | grep -q ethernet
+  - do: shell test -n "$(nmcli -t -f DEVICE,TYPE,STATE device)"
     expect: ok
     timeout: 10000
-    note: NetworkManager sees the emulated wired device
+    note: >
+      NetworkManager is up and enumerating devices. Not "ethernet":
+      QEMU's NIC is often brought up by the initramfs and stays
+      unmanaged, so asking for a wired device tests the emulator, not
+      Kavis
   - do: shell test -x /usr/lib/kavis/set-dns
     expect: ok
-  - do: shell /usr/lib/kavis/set-dns quad9
+  - do: shell grep -q "/run/systemd/system" /usr/lib/kavis/set-dns
     expect: ok
-    timeout: 15000
     note: >
-      as the user: the guard must pass on a booted Kavis system and the
-      write then fails without root, which is the pkexec path's job
+      the host guard is still in the shipped script. Checked by reading,
+      not by running: as the user the script correctly fails at
+      mkdir /etc/systemd/resolved.conf.d, so its exit code says nothing
+      about the guard
+  - do: shell grep -q "build-marker" /usr/lib/kavis/set-dns
+    expect: ok
+    note: the second half of the guard — a Kavis system, not any Debian
   - do: shell grep -q systemd-resolved /etc/NetworkManager/conf.d/10-kavis-dns.conf
     expect: ok
     note: without this NetworkManager writes resolv.conf itself and encrypted DNS does nothing
