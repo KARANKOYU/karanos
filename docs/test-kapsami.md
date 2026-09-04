@@ -14,7 +14,7 @@ düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 | 3 | Paneli C veya Vala'ya taşı | `03-panel` |
 | 4 | Görev çubuğu görünümü: | — |
 | 5 | Görev çubuğu sağ tık menüsü: | — |
-| 6 | Pencere yönetimi: | `06-window-snap` |
+| 6 | Pencere yönetimi: | `06-shortcuts`, `06-window-snap` |
 | 7 | Görev yöneticisi + küçük araçlar: | — |
 | 8 | Güvenlik sertleştirme: | — |
 | 9 | Ayarlar iskeleti: | `09-settings-theme` |

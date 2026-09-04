@@ -50,6 +50,9 @@ jobs:
           # warns about items without a scenario — five scenarios
           # against seventy items would paint every run red.
           python3 tools/gen-test-coverage.py --check
+          # The shortcut scenario is generated from the keybind hook, so
+          # adding a shortcut without regenerating it is a red run.
+          python3 tools/gen-keybind-scenario.py --check
 
       - name: Translation status table (README)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
