@@ -98,6 +98,6 @@ once the repo is public). CI updates the table on every run.
 <!-- translation-status-begin -->
 | Language | Status |
 |---|---|
-| `tr` | ▰▰▰▰▰▰▰▰▰▰ 100% (385/385) |
+| `tr` | ▰▰▰▰▰▰▰▰▰▰ 99% (543/544) |
 | _awaiting translation_ | `af` `am` `ar` `az` `be` `bg` `bn` `bs` `ca` `ckb` `cs` `cy` `da` `de` `el` `en_GB` `es` `es_MX` `et` `eu` `fa` `fi` `fr` `ga` `gl` `gu` `he` `hi` `hr` `hu` `hy` `id` `is` `it` `ja` `ka` `kk` `kn` `ko` `ku` `ky` `lt` `lv` `mk` `ml` `mn` `mr` `ms` `nb` `ne` `nl` `pa` `pl` `pt_BR` `pt_PT` `ro` `ru` `si` `sk` `sl` `sq` `sr` `sv` `sw` `ta` `te` `tg` `th` `tk` `tl` `uk` `ur` `uz` `vi` `zh_CN` `zh_TW` `zu` |
 <!-- translation-status-end -->
