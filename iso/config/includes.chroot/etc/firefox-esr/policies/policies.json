@@ -1,0 +1,14 @@
+{
+  "policies": {
+    "Preferences": {
+      "ui.systemUsesDarkTheme": { "Value": 1, "Status": "default" },
+      "browser.theme.toolbar-theme": { "Value": 0, "Status": "default" },
+      "browser.theme.content-theme": { "Value": 0, "Status": "default" },
+      "layout.css.prefers-color-scheme.content-override": { "Value": 0, "Status": "default" },
+      "browser.aboutwelcome.enabled": { "Value": false, "Status": "default" },
+      "browser.shell.checkDefaultBrowser": { "Value": false, "Status": "default" }
+    },
+    "DisableProfileImport": false,
+    "DontCheckDefaultBrowser": true
+  }
+}
