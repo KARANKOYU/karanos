@@ -17,6 +17,14 @@ bulk-rename-tool=b'gprename'
 # speaking the same language as the panel clock is a product
 # requirement, it is pinned explicitly so a later version cannot change it.
 date-format='locale'
+# H1 (v0.4-test2 feedback): the window said "Home" while the path bar
+# said "karan" — two names for one place. The title now carries the
+# full path in parentheses and tooltips spell it out as well. The path
+# bar button itself keeps the short home name; nemo builds it from the
+# bookmark and has no setting for it, and patching nemo was rejected
+# (see docs/bilinen-sorunlar.md).
+show-full-path-titles=true
+tooltips-show-path=true
 
 # E (v0.4-test1): the "Network" section in the sidebar. nemo has NO
 # setting to hide the section (nemo-places-sidebar.c add_heading is
