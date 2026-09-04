@@ -76,6 +76,28 @@ done
 	|| bad "includes.chroot/usr/share/kavis/build-marker missing — every hook would refuse to run"
 
 echo
+echo "==> Application names (D1)"
+# The title bar is rewritten from this map, the menu comes from the
+# .desktop overrides. A name in one and not the other means the same
+# program is called two things on the same screen.
+TITLE_MAP=iso/config/includes.chroot/etc/kavis/window-title-map.conf
+APP_DIR=iso/config/includes.chroot/etc/kavis/applications
+if [[ -f "$TITLE_MAP" ]]; then
+	while IFS='=' read -r vendor kavis; do
+		vendor="${vendor%"${vendor##*[![:space:]]}"}"
+		kavis="${kavis#"${kavis%%[![:space:]]*}"}"
+		[[ -z "$vendor" || "$vendor" == \#* ]] && continue
+		if grep -qh "^Name=.*\b${kavis}\b" "$APP_DIR"/*.desktop; then
+			ok "title map $vendor → $kavis matches a .desktop override"
+		else
+			bad "title map renames $vendor to '$kavis', but no .desktop override uses that name"
+		fi
+	done < "$TITLE_MAP"
+else
+	bad "$TITLE_MAP missing — title bars would keep the vendor names"
+fi
+
+echo
 echo "==> Hand-placed asset files"
 [[ -f assets/logo/koyu-k-logo.svg ]] && ok "assets/logo/koyu-k-logo.svg" \
 	|| bad "assets/logo/koyu-k-logo.svg missing"

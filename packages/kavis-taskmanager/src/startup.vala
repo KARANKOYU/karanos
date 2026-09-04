@@ -18,6 +18,17 @@
  * filtered out completely: turning off the policy agent or the panel
  * from a task manager is never what someone means, and an accessibility
  * bus that does not start breaks the screen reader silently.
+ *
+ * D2 (v0.4-test4): the name filter was not enough — a plumbing entry
+ * under a name nobody predicted still showed up as a deletable app. The
+ * rule is now structural: a SYSTEM autostart entry is listed only if it
+ * is also an application in the menu, and plumbing ships NoDisplay=true
+ * precisely so it is not. On top of that, administration tools (disk,
+ * partition, scanner utilities) are left out even though they are menu
+ * applications: nobody starts GParted with their session, and four of
+ * them in a row was most of what made the list look like a dump. The
+ * user's own autostart files are always listed, menu app or not — one
+ * they added themselves has to remain switchable.
  */
 
 namespace Kavis.TaskManager {
@@ -47,8 +58,32 @@ namespace Kavis.TaskManager {
             "xfce-polkit.desktop"
         };
 
+        /* D2: administration tools. They ARE menu applications, so no
+         * rule about the menu can exclude them, but "start GParted with
+         * every session" is not a thing anyone wants and four of them
+         * in a row is what made the list look like a dump. Named ones
+         * first, then the categories that describe the same kind of
+         * thing so a newly installed disk or scanner utility does not
+         * have to be added here by hand. */
+        private const string[] ADMIN_TOOLS = {
+            "gparted.desktop",
+            "org.gnome.baobab.desktop",
+            "org.gnome.DiskUtility.desktop",
+            "simple-scan.desktop"
+        };
+
+        private const string[] ADMIN_CATEGORIES = {
+            "Settings", "HardwareSettings", "PackageManager",
+            "Filesystem", "Scanning"
+        };
+
         private static bool essential (string basename) {
             foreach (unowned string name in ESSENTIAL) {
+                if (basename == name) {
+                    return true;
+                }
+            }
+            foreach (unowned string name in ADMIN_TOOLS) {
                 if (basename == name) {
                     return true;
                 }
@@ -56,6 +91,43 @@ namespace Kavis.TaskManager {
             /* Our own components ship several .desktop files and more may
              * arrive; none of them belong in a user-facing list. */
             return basename.has_prefix ("kavis-");
+        }
+
+        private static bool admin_categories (string? categories) {
+            if (categories == null) {
+                return false;
+            }
+            foreach (unowned string c in categories.split (";")) {
+                foreach (unowned string bad in ADMIN_CATEGORIES) {
+                    if (c == bad) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /* The basenames of everything in the applications menu that is
+         * eligible for this list. Built once per reload. */
+        private HashTable<string, bool> menu_apps () {
+            var set = new HashTable<string, bool> (str_hash, str_equal);
+            foreach (GLib.AppInfo info in GLib.AppInfo.get_all ()) {
+                var desktop = info as GLib.DesktopAppInfo;
+                if (desktop == null || !desktop.should_show ()) {
+                    continue;
+                }
+                string? filename = desktop.get_filename ();
+                if (filename == null) {
+                    continue;
+                }
+                string basename = Path.get_basename (filename);
+                if (essential (basename)
+                    || admin_categories (desktop.get_categories ())) {
+                    continue;
+                }
+                set.insert (basename, true);
+            }
+            return set;
         }
 
         private class Entry : Object {
@@ -107,9 +179,19 @@ namespace Kavis.TaskManager {
             }
             entries = {};
             var by_name = new HashTable<string, Entry> (str_hash, str_equal);
-            scan (SYSTEM_DIR, false, by_name);
-            scan (user_dir (), true, by_name);
-            add_menu_apps (by_name);
+            var menu = menu_apps ();
+            /* D2: a system autostart entry is listed only if it is also
+             * an application in the menu. Session plumbing ships with
+             * NoDisplay=true, so it is not in the menu and never
+             * reaches this list — which is how "gnome-disk-utility
+             * notification plugin" appeared as a deletable app despite
+             * the name filter. A rule beats a list of names here.
+             * The user's OWN autostart files are always listed, menu
+             * app or not: otherwise something they added themselves
+             * could not be switched off again. */
+            scan (SYSTEM_DIR, false, by_name, menu);
+            scan (user_dir (), true, by_name, null);
+            add_menu_apps (by_name, menu);
             var names = by_name.get_keys ();
             names.sort (strcmp);
             foreach (unowned string key in names) {
@@ -121,12 +203,16 @@ namespace Kavis.TaskManager {
         }
 
         private void scan (string dir, bool user,
-                           HashTable<string, Entry> by_name) {
+                           HashTable<string, Entry> by_name,
+                           HashTable<string, bool>? menu) {
             try {
                 var d = Dir.open (dir);
                 string? f;
                 while ((f = d.read_name ()) != null) {
                     if (!f.has_suffix (".desktop") || essential (f)) {
+                        continue;
+                    }
+                    if (menu != null && !menu.contains (f)) {
                         continue;
                     }
                     var kf = new KeyFile ();
@@ -167,10 +253,11 @@ namespace Kavis.TaskManager {
          * autostart file already exists for it. should_show() applies
          * NoDisplay and the OnlyShowIn/NotShowIn rules against
          * XDG_CURRENT_DESKTOP, so the list matches the start menu. */
-        private void add_menu_apps (HashTable<string, Entry> by_name) {
+        private void add_menu_apps (HashTable<string, Entry> by_name,
+                                    HashTable<string, bool> menu) {
             foreach (GLib.AppInfo info in GLib.AppInfo.get_all ()) {
                 var desktop = info as GLib.DesktopAppInfo;
-                if (desktop == null || !desktop.should_show ()) {
+                if (desktop == null) {
                     continue;
                 }
                 string? filename = desktop.get_filename ();
@@ -178,7 +265,8 @@ namespace Kavis.TaskManager {
                     continue;
                 }
                 string basename = Path.get_basename (filename);
-                if (essential (basename) || by_name.contains (basename)) {
+                if (!menu.contains (basename)
+                    || by_name.contains (basename)) {
                     continue;
                 }
                 var e = new Entry ();

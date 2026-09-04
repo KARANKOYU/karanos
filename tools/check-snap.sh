@@ -70,6 +70,7 @@ fi
 # After the compositor: kavis-snap reads the compositing state when a
 # drag starts, but starting it second keeps the log honest about what it
 # saw at boot.
+KAVIS_TITLE_MAP="$PWD/iso/config/includes.chroot/etc/kavis/window-title-map.conf" \
 KAVIS_SNAP_DEBUG=1 "$SNAP" 2>"$TMP/snap.log" &
 SNAP_PID=$!
 sleep 1
@@ -141,8 +142,31 @@ expect "top-right corner → quarter" 640 0 640 400
 read -r tx ty < <(title_xy); drag "$tx" "$ty" 640 1
 expect "top edge → maximize" 0 0 1280 800
 
+# D1: the vendor's name must not survive in a title bar. The map is
+# applied to _NET_WM_NAME, so the check is simply to set a title that
+# contains one and read back what the window ends up called.
+xdotool set_window --name "notes.txt - Mousepad" "$ID"
+sleep 1
+title=$(xdotool getwindowname "$ID")
+if [ "$title" = "notes.txt - Notepad" ]; then
+	echo "TITLE ok: '$title'"
+else
+	echo "TITLE-FAIL: expected 'notes.txt - Notepad', got '$title'"
+	fail=1
+fi
+# A file that merely CONTAINS the vendor name keeps it — whole words only.
+xdotool set_window --name "mousepadding.txt - Mousepad" "$ID"
+sleep 1
+title=$(xdotool getwindowname "$ID")
+if [ "$title" = "mousepadding.txt - Notepad" ]; then
+	echo "TITLE ok: whole words only ('$title')"
+else
+	echo "TITLE-FAIL: expected 'mousepadding.txt - Notepad', got '$title'"
+	fail=1
+fi
+
 if [ "$fail" -ne 0 ]; then
 	echo "--- kavis-snap log ---"; cat "$TMP/snap.log"
 	exit 1
 fi
-echo "SNAP-OK: 4 scenarios held ($MODE)"
+echo "SNAP-OK: 4 scenarios + 2 title rules held ($MODE)"

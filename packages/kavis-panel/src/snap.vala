@@ -30,6 +30,14 @@
  * C2 — the titlebar always stays on screen: after every drag (ours or
  * openbox's) and on any geometry change while no button is held, a
  * window whose titlebar left the work area is pulled back.
+ *
+ * D1 — the title bar says the name Kavis uses. Renaming an application
+ * in its .desktop file changes the menu and the taskbar, but the title
+ * bar shows what the application writes into _NET_WM_NAME, so Notepad
+ * still introduced itself as "Mousepad". The map in
+ * /etc/kavis/window-title-map.conf is applied to every title change.
+ * This daemon has the window list open already; a second process
+ * watching the same windows would be waste.
  */
 
 namespace Kavis {
@@ -131,6 +139,7 @@ namespace Kavis {
 
             /* C2: watch every window's geometry changes (keyboard, the
              * app moving itself). Existing ones + those opened later. */
+            load_title_map ();
             foreach (unowned Wnck.Window w in screen.get_windows ()) {
                 watch_window (w);
             }
@@ -677,7 +686,102 @@ namespace Kavis {
 
         /* --- C2: the titlebar stays on screen -------------------------- */
 
+        /* --- D1: the vendor's name out of the title bar ------------- */
+
+        /* vendor name → the name Kavis uses, from
+         * /etc/kavis/window-title-map.conf. Empty when the file is
+         * missing, and then nothing is rewritten. */
+        private HashTable<string, string> title_map =
+            new HashTable<string, string> (str_hash, str_equal);
+
+        private void load_title_map () {
+            /* The path is overridable so tools/check-snap.sh can point
+             * at the file in the source tree; unset on a real system. */
+            string path = Environment.get_variable ("KAVIS_TITLE_MAP")
+                ?? "/etc/kavis/window-title-map.conf";
+            string contents;
+            try {
+                FileUtils.get_contents (path, out contents);
+            } catch (Error e) {
+                return;
+            }
+            foreach (unowned string line in contents.split ("\n")) {
+                string trimmed = line.strip ();
+                if (trimmed == "" || trimmed.has_prefix ("#")) {
+                    continue;
+                }
+                int eq = trimmed.index_of ("=");
+                if (eq > 0) {
+                    string from = trimmed.substring (0, eq).strip ();
+                    string to = trimmed.substring (eq + 1).strip ();
+                    if (from != "" && from != to) {
+                        title_map.insert (from, to);
+                    }
+                }
+            }
+            dbg ("title map: %u entries", title_map.size ());
+        }
+
+        /* Whole-word replacement, so "Mousepad" in "notes - Mousepad"
+         * becomes "Notepad" while a file actually NAMED mousepad.txt is
+         * left alone. */
+        private string rename_in (string title) {
+            string result = title;
+            title_map.foreach ((from, to) => {
+                int at = 0;
+                while (true) {
+                    int i = result.index_of (from, at);
+                    if (i < 0) {
+                        break;
+                    }
+                    bool left = (i == 0) || !result[i - 1].isalnum ();
+                    int end = i + from.length;
+                    bool right = (end >= result.length)
+                        || !result[end].isalnum ();
+                    if (left && right) {
+                        result = result.substring (0, i) + to
+                            + result.substring (end);
+                        at = i + to.length;
+                    } else {
+                        at = end;
+                    }
+                }
+            });
+            return result;
+        }
+
+        /* Rewriting _NET_WM_NAME makes the window manager redraw the
+         * title. It cannot loop: the replacement contains no vendor
+         * name, so the PropertyNotify our own write causes finds
+         * nothing left to change. */
+        private void fix_title (Wnck.Window w) {
+            if (title_map.size () == 0) {
+                return;
+            }
+            string? name = w.get_name ();
+            if (name == null || name == "") {
+                return;
+            }
+            string wanted = rename_in (name);
+            if (wanted == name) {
+                return;
+            }
+            unowned X.Display xd =
+                ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
+            X.Atom net_name = xd.intern_atom ("_NET_WM_NAME", false);
+            X.Atom utf8 = xd.intern_atom ("UTF8_STRING", false);
+            Gdk.error_trap_push ();
+            xd.change_property ((X.Window) w.get_xid (), net_name, utf8, 8,
+                                X.PropMode.Replace,
+                                (uchar[]) wanted.data, wanted.length);
+            xd.flush ();
+            Gdk.error_trap_pop_ignored ();
+            dbg ("title '%s' -> '%s'", name, wanted);
+        }
+
         private void watch_window (Wnck.Window w) {
+            fix_title (w);
+            w.name_changed.connect ((win) => fix_title (win));
             w.geometry_changed.connect ((win) => {
                 /* Do not interfere during a drag (end_drag fixes it on
                  * release anyway) or while a window is travelling into

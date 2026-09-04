@@ -1,5 +1,5 @@
 [Desktop Entry]
 Type=Application
-Name=Mousepad Settings
+Name=Notepad Settings
 Exec=mousepad --preferences
 NoDisplay=true
