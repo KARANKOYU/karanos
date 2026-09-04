@@ -590,6 +590,20 @@ else
 	fatal "EARLYOOM-FAIL service not running" "earlyoom"
 fi
 
+# 10b) gsettings overrides (H1/H5 and the rest of zz-kavis): a key that
+# does not exist in an installed schema is IGNORED at runtime without a
+# word, so a typo would silently drop a default. Compiling the schema
+# directory in dry-run mode reports exactly those cases.
+schema_out=$(glib-compile-schemas --dry-run /usr/share/glib-2.0/schemas 2>&1 || true)
+if printf '%s' "$schema_out" | grep -q "override"; then
+	printf '%s\n' "$schema_out" | grep "override" | head -10 | while IFS= read -r line; do
+		log "SCHEMA-OVERRIDE ${line}"
+	done
+	fatal "SCHEMA-FAIL gsettings override key rejected" "schema"
+else
+	log "SCHEMA-OK gsettings overrides accepted"
+fi
+
 # 11) Robustness checks (item 72, kararlar.md 9a)
 # 11a) Service health: no systemd unit may be in the failed state
 failed_units=$(systemctl --failed --no-legend --plain 2>/dev/null | awk '{print $1}' | tr '\n' ' ')
