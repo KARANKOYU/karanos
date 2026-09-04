@@ -69,7 +69,11 @@ ile taşıdığı için bunu hiç görmedi; VirtualBox/edge-warp/XI2 şüpheleri
 yanlıştı. Çözüm: XQueryTree + XGetWindowAttributes +
 XTranslateCoordinates ile her yoklamada sunucudan okumak.
 
-## v0.4-test3 (4 Eyl) — etiketlenen içerik
+## v0.4-test4 (4 Eyl) — etiketlenen içerik
+
+(v0.4-test3 tur ortasında kullanıcı tarafından etiketlendi — o ISO
+aşağıdaki son yedi commit'i içermiyor: USS eşiği, selftest düğmesi,
+kapsam tablosu, kısayol senaryosu, rapor çıkarma. Tam içerik test4'te.)
 
 Bu etikete giren işler, geri bildirim harfleriyle:
 
@@ -109,7 +113,7 @@ Bu etikete giren işler, geri bildirim harfleriyle:
 - **Altyapı:** kod tabanı tamamen İngilizce; chroot hook'ları host'ta
   çalışmayı reddediyor; `.devcontainer/` araç zincirini kaydediyor.
 
-Etiket öncesi yerel denetimler (4 Eyl): derleme temiz, shellcheck,
+Etiket öncesi yerel denetimler (v0.4-test4, 4 Eyl): derleme temiz, shellcheck,
 check-config, check-packages (120 paket), check-i18n (386 msgid),
 KEYBIND 26/26, SNAP 4/4, kapsam tablosu ve kısayol senaryosu güncel.
 

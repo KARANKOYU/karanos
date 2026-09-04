@@ -39,7 +39,7 @@ henüz derlenmemiş: H4'ün canlı yarısı (tema değişince Firefox
 profillerine user.js yazılması, `Apply.firefox_theme`).
 
 Kalan: I sonrası **VM turu** (F3 ölçek adımları, G/H maddeleri, 5
-senaryo), RAM temizliği 2-6, sonra **v0.4-test3** etiketi.
+senaryo), RAM temizliği 2-6, sonra **v0.4-test4** etiketi.
 
 ## 0. Durum (3 Eyl sonu)
 
