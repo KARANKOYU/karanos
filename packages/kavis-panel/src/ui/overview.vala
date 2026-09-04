@@ -41,7 +41,7 @@ namespace Kavis.Ui {
           border-radius: 6px;
           color: @kavis_text;
           padding: 6px 8px;
-          transition: background-color 180ms ease;
+          transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         .kavis-overview button:hover {
           background-color: @kavis_hover;

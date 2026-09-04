@@ -28,7 +28,7 @@ namespace Kavis.Tools {
           color: @kavis_text;
           padding: 14px 28px;
           font-size: 18px;
-          transition: background-color 140ms ease;
+          transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         .kavis-secure button:hover {
           background-color: @kavis_overlay_hover;

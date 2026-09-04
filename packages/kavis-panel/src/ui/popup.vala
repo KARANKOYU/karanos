@@ -52,7 +52,7 @@ namespace Kavis.Ui {
           border-radius: 6px;
           color: @kavis_text;
           padding: 8px 10px;
-          transition: background-color 140ms ease;
+          transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         .kavis-popup button:hover {
           background-color: @kavis_overlay_hover;

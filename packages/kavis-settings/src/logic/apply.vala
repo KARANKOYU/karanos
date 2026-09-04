@@ -397,15 +397,22 @@ namespace Kavis.Settings.Apply {
      * the panel's own popups, written as a picom window rule between
      * the popup-animation-begin/-sonu markers; the slide direction
      * follows the taskbar position ("bottom" → slides up). */
-    public void picom (int radius, int anim_factor, string popup,
-                       string position) {
+    /* The config text alone, with no side effects — picom () writes it,
+     * `kavis-settings --print-picom` prints it for tools/check-picom.sh
+     * to hand to a real picom 12.5. */
+    public string picom_config (int radius, int anim_factor, string popup,
+                                string position) {
         string template;
+        /* The path is overridable so tools/check-picom.sh can feed the
+         * template straight out of the source tree; on a real system
+         * the variable is unset. */
+        string source = Environment.get_variable ("KAVIS_PICOM_TEMPLATE")
+            ?? "/etc/xdg/picom-kavis.conf";
         try {
-            FileUtils.get_contents ("/etc/xdg/picom-kavis.conf",
-                                    out template);
+            FileUtils.get_contents (source, out template);
         } catch (Error e) {
             warning ("kavis-settings: picom template missing: %s", e.message);
-            return;
+            return "";
         }
         try {
             var re = new Regex ("corner-radius = [0-9]+;");
@@ -434,16 +441,25 @@ namespace Kavis.Settings.Apply {
                 }
             }
         } else {
-            /* tasarim-dili.md base durations: open 0.18, close 0.12 —
-             * scaled by the multiplier. */
+            /* A3: one base duration, 0.18 s, on every trigger —
+             * scaled by the multiplier. (Before A3 open and close had
+             * different durations; a close that outran its open read as
+             * a snap.) */
             try {
                 var re = new Regex ("duration = 0\\.18;");
                 template = re.replace (template, -1, 0,
                     "duration = %.2f;".printf (0.18 * anim_factor / 100.0));
-                re = new Regex ("duration = 0\\.12;");
-                template = re.replace (template, -1, 0,
-                    "duration = %.2f;".printf (0.12 * anim_factor / 100.0));
             } catch (RegexError e) { }
+        }
+        return template;
+    }
+
+    public void picom (int radius, int anim_factor, string popup,
+                       string position) {
+        string template = picom_config (radius, anim_factor, popup,
+                                        position);
+        if (template == "") {
+            return;
         }
         string user_conf = Path.build_filename (
             Environment.get_user_config_dir (), "kavis", "picom.conf");
@@ -481,13 +497,50 @@ namespace Kavis.Settings.Apply {
     /* The picom window rule for panel popups (C6). Durations are the
      * design-language bases (0.18 / 0.12) — the caller scales them
      * together with the window animations. */
+    /* One timing function on the design curve (A3). The curve cannot
+     * be given to a picom preset — presets take only duration, scale
+     * and direction — so the popup animation is written out as a script
+     * exactly like the ones in the shipped template. */
+    private string timing (double from, double to) {
+        return "{ curve = \"cubic-bezier(0.2, 0.9, 0.25, 1)\"; duration = 0.18; start = %.2f; end = %.2f; }"
+            .printf (from, to);
+    }
+
+    /* One animation script: opacity always (a popup that only slides,
+     * without fading, pops), plus the movement this style needs. */
+    private string script (string triggers, double op_from, double op_to,
+                           string? variable, double from, double to) {
+        var sb = new StringBuilder ();
+        sb.append_printf ("      { triggers = [ %s ];\n", triggers);
+        sb.append_printf ("        opacity = %s;\n", timing (op_from, op_to));
+        sb.append ("        shadow-opacity = \"opacity\";\n");
+        if (variable != null) {
+            sb.append_printf ("        %s = %s;\n", variable,
+                              timing (from, to));
+            if (variable.has_prefix ("offset")) {
+                sb.append_printf ("        shadow-%s = \"%s\";\n",
+                                  variable, variable);
+            } else {
+                sb.append ("        scale-y = \"scale-x\";\n");
+                sb.append ("        shadow-scale-x = \"scale-x\";\n");
+                sb.append ("        shadow-scale-y = \"scale-x\";\n");
+            }
+        }
+        sb.append ("      }");
+        return sb.str;
+    }
+
     private string popup_rule (string popup, string position) {
-        string open_dir, close_dir;
+        /* Where the popup sits while hidden: just outside the taskbar
+         * edge it is anchored to, so it always travels away from the
+         * bar. */
+        string axis;
+        double away;
         switch (position) {
-        case "top":   open_dir = "down";  close_dir = "up";    break;
-        case "left":  open_dir = "right"; close_dir = "left";  break;
-        case "right": open_dir = "left";  close_dir = "right"; break;
-        default:      open_dir = "up";    close_dir = "down";  break;
+        case "top":   axis = "offset-y"; away = -12; break;
+        case "left":  axis = "offset-x"; away = -12; break;
+        case "right": axis = "offset-x"; away =  12; break;
+        default:      axis = "offset-y"; away =  12; break;
         }
         string anims;
         switch (popup) {
@@ -496,21 +549,24 @@ namespace Kavis.Settings.Apply {
             break;
         case "grow":
             anims = "(\n"
-                + "      { triggers = [ \"open\", \"show\" ];  preset = \"appear\";    scale = 0.90; duration = 0.18; },\n"
-                + "      { triggers = [ \"close\", \"hide\" ]; preset = \"disappear\"; scale = 0.90; duration = 0.12; }\n"
-                + "    )";
+                + script ("\"open\", \"show\"", 0, 1, "scale-x", 0.90, 1.0)
+                + ",\n"
+                + script ("\"close\", \"hide\"", 1, 0, "scale-x", 1.0, 0.90)
+                + "\n    )";
             break;
         case "fade":
             anims = "(\n"
-                + "      { triggers = [ \"open\", \"show\" ];  preset = \"appear\";    scale = 1.0; duration = 0.18; },\n"
-                + "      { triggers = [ \"close\", \"hide\" ]; preset = \"disappear\"; scale = 1.0; duration = 0.12; }\n"
-                + "    )";
+                + script ("\"open\", \"show\"", 0, 1, null, 0, 0)
+                + ",\n"
+                + script ("\"close\", \"hide\"", 1, 0, null, 0, 0)
+                + "\n    )";
             break;
         default: /* slide */
             anims = "(\n"
-                + "      { triggers = [ \"open\", \"show\" ];  preset = \"slide-in\";  direction = \"" + open_dir + "\";   duration = 0.18; },\n"
-                + "      { triggers = [ \"close\", \"hide\" ]; preset = \"slide-out\"; direction = \"" + close_dir + "\"; duration = 0.12; }\n"
-                + "    )";
+                + script ("\"open\", \"show\"", 0, 1, axis, away, 0)
+                + ",\n"
+                + script ("\"close\", \"hide\"", 1, 0, axis, 0, away)
+                + "\n    )";
             break;
         }
         return "  { match = \"class_g = 'kavis-panel' && override_redirect\";\n"

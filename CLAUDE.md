@@ -120,6 +120,7 @@ CI koşusu 5–40 dakika sürüyor; yazım hatasını oraya kadar taşıma:
 ```bash
 tools/check-config.sh      # sözdizimi, çalıştırma izinleri, YAML
 tools/check-packages.sh    # paket adları Debian trixie arşivinde var mı (~2 sn)
+tools/check-picom.sh       # compositor yapılandırması gerçek picom 12.5'te açılıyor mu
 shellcheck -S warning tools/*.sh iso/auto/* iso/config/hooks/normal/*.hook.*
 ```
 

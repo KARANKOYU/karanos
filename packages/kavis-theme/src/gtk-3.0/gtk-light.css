@@ -291,3 +291,16 @@ progressbar > trough > progress,
 levelbar block {
 	border-radius: 999px;
 }
+
+/* Hover is never a hard cut (A3): 120 ms on the design curve. Adwaita
+ * animates some of these already, at its own duration — restating them
+ * keeps a third-party window feeling like the rest of the desktop. */
+button,
+row,
+list row,
+menuitem,
+notebook > header > tabs > tab,
+headerbar button.titlebutton {
+	transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1),
+	            color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}

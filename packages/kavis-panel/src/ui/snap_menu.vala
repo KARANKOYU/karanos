@@ -35,7 +35,7 @@ namespace Kavis.Ui {
           border: 1px solid @kavis_border;
           border-radius: 4px;
           padding: 0;
-          transition: background-color 140ms ease;
+          transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         .kavis-snap-menu button.snap-cell:hover {
           background-color: rgba(45, 212, 191, 0.45);

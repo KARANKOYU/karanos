@@ -236,6 +236,17 @@ jobs:
       - name: SNAP — edge snapping check
         run: DISPLAY_NO=78 tools/check-snap.sh
 
+      # A3: picom's animation scripts are their own config language and a
+      # rejected config means the session boots with NO compositor — no
+      # corners, no shadows, no animations. This container is trixie, so
+      # the picom here is the one the ISO installs.
+      - name: PICOM — compositor config check
+        run: |
+          set -eu
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y -qq --no-install-recommends picom > /dev/null
+          DISPLAY_NO=79 tools/check-picom.sh
+
       - name: Upload xx screenshot
         uses: actions/upload-artifact@v7
         with:

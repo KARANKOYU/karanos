@@ -86,7 +86,7 @@ namespace Kavis.Ui {
           background-color: transparent;
           color: @kavis_text;
           padding: 0 10px;
-          transition: background-color 140ms ease;
+          transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         .kavis-panel button:hover {
           background-color: @kavis_overlay_hover;
@@ -114,7 +114,7 @@ namespace Kavis.Ui {
         }
         .kavis-panel .underline {
           border-radius: 2px;
-          transition: background-color 140ms ease;
+          transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         /* Slot lines (sonraki-isler 2): active is teal, running but
            inactive is dim; a pinned app that is not running has none. */

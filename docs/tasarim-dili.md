@@ -30,18 +30,34 @@ düğme 7): eşit verilirse dolgu köşede kenarlığın dışına taşar.
 X menüleri (Gtk.Menu) picom'un genel 8px'iyle yuvarlanır; menü
 kutusuna GTK içinden 12px verilemiyor (kabul edilmiş sınır).
 
-## Animasyonlar (J2)
+## Animasyonlar (J2 — v0.4-test4 A3 ile güncellendi)
 
-| Olay | Süre / eğri | Kim yapıyor |
+**Tek eğri: `cubic-bezier(0.2, 0.9, 0.25, 1)`, tek süre: 180 ms.**
+Hızlı çıkıp yavaş oturur. VM turunda "animasyonlar sert" denmesinin
+sebeplerinden biri kapanışın açılıştan hızlı olmasıydı (180/120) —
+göz bunu kesme olarak okuyor; ikisi de 180 ms.
+
+| Olay | Süre / eğri | Nasıl |
 |---|---|---|
-| Popup/pencere açılış | 180 ms, appear (ölçek 0.96 + solma) | picom |
-| Kapanış | 120 ms, disappear | picom |
-| Hover | 140 ms ease | GTK CSS `transition` |
+| Pencere açılış | 180 ms, ölçek 0.96 → 1 + solma | picom `open` betiği |
+| Pencere kapanış | 180 ms, ölçek 1 → 0.96 + solma | picom `close` |
+| Küçült (görev çubuğuna) | 180 ms, ölçek 1 → 0.82 + solma | picom `hide` |
+| Geri getir | 180 ms, ölçek 0.82 → 1 + solma | picom `show` |
+| Panel popup'ı | 180 ms, 12 px kayma + solma | picom kural bloğu (yön görev çubuğu kenarına göre) |
+| Hover | 120 ms, aynı eğri | GTK CSS `transition` |
 | Kutucuk basış | anlık renk (%14) | GTK CSS `:active` |
 
+Gölge (`shadow-*`) pencereyle birlikte ölçeklenir ve solar; yoksa
+küçülen pencerenin çevresinde tam boy gölge kalır.
+
+**picom preset'i kullanılmıyor:** preset'ler yalnız `duration`,
+`scale`, `direction` alıyor (12.5 man sayfasında doğrulandı), eğri
+verilemiyor. Bu yüzden dört tetikleyici de elle yazılmış betik.
+`tools/check-picom.sh` yapılandırmayı gerçek picom 12.5 ile açıp
+doğruluyor (Ayarlar'ın ürettiği 17 varyant dahil) — reddedilen
+yapılandırma masaüstünü compositor'süz bırakır.
+
 Sınırlar (bilinçli kabul):
-- "Hafif yukarı kayma" picom v12 preset'lerinde yok; appear'ın
-  ölçek+solması en yakın karşılık.
 - GTK3 CSS `transform` animasyonu bilmez — basışta 80 ms küçük ölçek
   verilemiyor; karşılık `:active` rengi.
 - picom v12 öncesi animasyon bloğunu yok sayar (yalnız yerel test

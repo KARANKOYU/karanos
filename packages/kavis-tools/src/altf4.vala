@@ -53,7 +53,7 @@ namespace Kavis.Tools {
             box-shadow: none;
             color: @kavis_text;
             padding: 12px;
-            transition: background-color 140ms ease;
+            transition: background-color 120ms cubic-bezier(0.2, 0.9, 0.25, 1);
         }
         .kavis-power-dialog button:hover {
             background-color: @kavis_overlay_hover;
