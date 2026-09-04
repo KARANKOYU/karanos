@@ -7,6 +7,13 @@ set -e
 
 case "$1" in
 configure)
+	# C3: Breeze Light is the default pointer; Kavis-Cursors stays
+	# registered so `update-alternatives --config x-cursor-theme` can
+	# still pick the brand cursor. The higher priority wins on a fresh
+	# install; a user who already chose is not overridden, because
+	# --install never changes a manual selection.
+	update-alternatives --install /usr/share/icons/default/index.theme \
+		x-cursor-theme /usr/share/kavis/cursor-default.theme 150
 	update-alternatives --install /usr/share/icons/default/index.theme \
 		x-cursor-theme /usr/share/icons/Kavis-Cursors/cursor.theme 100
 	# The gsettings override (nemo defaults) is inert until compiled;

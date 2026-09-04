@@ -10,5 +10,5 @@ Encoding=UTF-8
 GtkTheme=Kavis
 MetacityTheme=Kavis
 IconTheme=Kavis
-CursorTheme=Kavis-Cursors
+CursorTheme=Breeze_Light
 ButtonLayout=:minimize,maximize,close

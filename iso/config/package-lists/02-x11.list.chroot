@@ -67,6 +67,16 @@ fonts-liberation2
 fonts-inter
 fonts-noto-core
 
+# --- mouse cursor (v0.4-test4 feedback C3) ---
+# breeze-cursor-theme: the pointer the VM round called unclear. Our own
+# generated Kavis-Cursors covers 109 shapes and falls back for the rest,
+# and the fallbacks were what showed. Breeze Light is a complete,
+# hand-drawn white pointer with a dark outline — the Windows 11 reading
+# on a dark desktop — and it is in the archive, so there is nothing to
+# maintain. 30 MB installed; Bibata was the other candidate the feedback
+# named and it is 178 MB, which is 10% of the ISO budget for a cursor.
+breeze-cursor-theme
+
 # NOTE (after item 3): the Python + PyGObject stack was REMOVED — the
 # panel is now a compiled Vala binary, no component on the ISO depends on
 # Python. If a user application returns to Python later, its

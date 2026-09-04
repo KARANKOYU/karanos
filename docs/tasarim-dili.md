@@ -199,6 +199,26 @@ kutusu tam yükseklik dolmaz, animasyon yok. Bunlar tema dosyasıyla
 değil ancak openbox'ı yamalamakla çözülür; imzalı Debian paketini
 yamalamak kapsam dışı.
 
+## Fare imleci (C3, v0.4-test4)
+
+Varsayılan **Breeze Light**, boyut **24**. Beyaz gövde + koyu kontur:
+koyu masaüstünde okunan, Windows 11'in imlecine en yakın hazır tema.
+Kendi ürettiğimiz Kavis-Cursors 109 ad kapsıyor ama gerisi için
+Adwaita'ya düşüyordu ve VM turunda görülen o düşüşlerdi; artık hem
+düşüş Breeze Light'a hem varsayılan Breeze Light'a.
+
+Kavis-Cursors silinmedi — `update-alternatives --config x-cursor-theme`
+ile seçilebilir (öncelik 100, varsayılan 150).
+
+Bibata-Modern-Classic da adaydı; kurulu boyutu 178 MB (ISO bütçesinin
+%10'u), Breeze 30 MB.
+
+Ad dört yerde geçiyor ve `tools/check-visual.sh` dördünün de aynı
+olmasını şart koşuyor: `55kavis-cursor` (XCURSOR_THEME — Qt, Firefox),
+`settings.ini` (GTK), `/etc/X11/Xresources/kavis` (Xcursor kaynak
+veritabanı), `index.theme` (metatema) + update-alternatives varsayılanı.
+Biri sapınca imleç pencereden pencereye şekil değiştirir.
+
 ## Güç diyaloğu / Ctrl+Alt+Del (2D hedef tasarımı)
 
 Tek bileşen (iki ayrı kod YOK): kenarlıksız, ekran ortasında, 12px

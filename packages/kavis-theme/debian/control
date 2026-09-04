@@ -16,6 +16,7 @@ Architecture: all
 Depends:
  ${misc:Depends},
  adwaita-icon-theme,
+ breeze-cursor-theme,
  fonts-inter,
  hicolor-icon-theme,
  papirus-icon-theme,

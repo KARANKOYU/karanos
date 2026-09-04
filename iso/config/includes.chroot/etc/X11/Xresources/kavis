@@ -18,3 +18,8 @@ Xft.hintstyle:  hintslight
 Xft.rgba:       rgb
 Xft.lcdfilter:  lcddefault
 Xft.dpi:        96
+
+! Cursor (C3). Xcursor reads these for anything that consults the
+! resource database rather than the environment.
+Xcursor.theme:  Breeze_Light
+Xcursor.size:   24

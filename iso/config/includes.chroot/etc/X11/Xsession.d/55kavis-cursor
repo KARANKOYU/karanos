@@ -1,8 +1,10 @@
 # shellcheck shell=sh
 # Kavis (C5): cursor theme from the environment for ALL toolkits — only
 # GTK reads GTK's settings.ini; Qt/Firefox/Electron look at
-# XCURSOR_THEME. The theme comes from kavis-theme (update-alternatives
-# looks at the same name).
-XCURSOR_THEME=Kavis-Cursors
+# XCURSOR_THEME. C3: Breeze Light, a complete hand-drawn white pointer;
+# the same name is in kavis-theme's settings.ini, in the Xcursor
+# resources and in the update-alternatives default, and
+# tools/check-visual.sh fails if the four ever disagree.
+XCURSOR_THEME=Breeze_Light
 XCURSOR_SIZE=24
 export XCURSOR_THEME XCURSOR_SIZE

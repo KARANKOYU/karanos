@@ -168,9 +168,18 @@ override_dh_auto_install:
 	# --- Cursor theme -----------------------------------------------------
 	install -d $(CURSORS)/cursors
 	python3 tools/gen-cursors.py $(CURSORS)/cursors
-	printf '[Icon Theme]\nName=Kavis\nComment=Kavis cursors\nInherits=Adwaita\n' \
+	# C3: what a shape we do not draw falls back to. It used to be
+	# Adwaita, and those fallbacks are what the VM round saw.
+	printf '[Icon Theme]\nName=Kavis\nComment=Kavis cursors\nInherits=Breeze_Light\n' \
 		> $(CURSORS)/index.theme
 	cp $(CURSORS)/index.theme $(CURSORS)/cursor.theme
+	# C3: the system-wide default pointer, registered with
+	# update-alternatives by the postinst. It is a pointer FILE rather
+	# than a theme directory on purpose: it must not show up in a cursor
+	# theme list as a nameless duplicate of Breeze Light.
+	install -d $(SHARE)
+	printf '[Icon Theme]\nInherits=Breeze_Light\n' \
+		> $(SHARE)/cursor-default.theme
 
 	# --- Wallpapers -------------------------------------------------------
 	install -d $(WALL)

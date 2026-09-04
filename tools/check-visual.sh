@@ -100,6 +100,56 @@ grep -qF "Xft/DPI $((96 * 1024))" "$AUTOSTART" \
 	|| bad "the xsettingsd Xft/DPI default does not match ${dpi} dpi"
 
 echo
+echo "==> CURSOR — one theme name in all four places (C3)"
+CURSOR_ENV="iso/config/includes.chroot/etc/X11/Xsession.d/55kavis-cursor"
+CURSOR_THEME=$(sed -n 's/^XCURSOR_THEME=//p' "$CURSOR_ENV")
+CURSOR_SIZE=$(sed -n 's/^XCURSOR_SIZE=//p' "$CURSOR_ENV")
+if [[ -n "$CURSOR_THEME" ]]; then
+	note "session environment XCURSOR_THEME = $CURSOR_THEME, size $CURSOR_SIZE"
+else
+	bad "55kavis-cursor does not set XCURSOR_THEME"
+fi
+# Every toolkit reads a different one of these; a mismatch means the
+# pointer changes shape as you move between windows, which is exactly
+# the "the cursor is bad" the VM round reported.
+if grep -qF "gtk-cursor-theme-name=$CURSOR_THEME" "$SETTINGS_INI"; then
+	note "settings.ini cursor theme = $CURSOR_THEME"
+else
+	bad "settings.ini names a different cursor theme than $CURSOR_THEME"
+fi
+if grep -qF "gtk-cursor-theme-size=$CURSOR_SIZE" "$SETTINGS_INI"; then
+	note "settings.ini cursor size = $CURSOR_SIZE"
+else
+	bad "settings.ini cursor size is not $CURSOR_SIZE"
+fi
+if grep -qE "^Xcursor\.theme:[[:space:]]+$CURSOR_THEME\$" "$XRES"; then
+	note "Xresources Xcursor.theme = $CURSOR_THEME"
+else
+	bad "Xresources does not set Xcursor.theme to $CURSOR_THEME"
+fi
+if grep -qE "^Xcursor\.size:[[:space:]]+$CURSOR_SIZE\$" "$XRES"; then
+	note "Xresources Xcursor.size = $CURSOR_SIZE"
+else
+	bad "Xresources does not set Xcursor.size to $CURSOR_SIZE"
+fi
+if grep -qF "CursorTheme=$CURSOR_THEME" packages/kavis-theme/src/index.theme; then
+	note "metatheme CursorTheme = $CURSOR_THEME"
+else
+	bad "the metatheme names a different cursor theme than $CURSOR_THEME"
+fi
+if grep -qF "Inherits=$CURSOR_THEME" packages/kavis-theme/debian/rules; then
+	note "update-alternatives default inherits $CURSOR_THEME"
+else
+	bad "the shipped default pointer does not inherit $CURSOR_THEME"
+fi
+# The theme has to be on the ISO, or all of the above point at nothing.
+if grep -qxF "breeze-cursor-theme" iso/config/package-lists/02-x11.list.chroot; then
+	note "breeze-cursor-theme is in the package list"
+else
+	bad "breeze-cursor-theme is not in any package list"
+fi
+
+echo
 echo "==> TITLE BAR — the SSD frame and the CSD header bar must match (C2)"
 THEMERC="packages/kavis-theme/src/openbox-3/themerc"
 DARK_CSS="packages/kavis-theme/src/gtk-3.0/gtk-dark.css"

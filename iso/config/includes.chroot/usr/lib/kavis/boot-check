@@ -124,8 +124,12 @@ else
 	fatal "THEME-FAIL missing:${theme_missing}" "theme"
 fi
 
-if [ -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr ]; then
-	log "CURSOR-OK $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l) cursor names"
+# C3: the default pointer is Breeze Light; Kavis-Cursors is the
+# alternative. Both must be on the ISO — a missing default means the
+# session falls back to X's core cursor, which is the thick black X.
+if [ -f /usr/share/icons/Breeze_Light/cursors/left_ptr ] \
+	&& [ -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr ]; then
+	log "CURSOR-OK Breeze_Light $(ls /usr/share/icons/Breeze_Light/cursors 2>/dev/null | wc -l) names, Kavis-Cursors $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l)"
 else
 	fatal "CURSOR-FAIL cursor theme missing" "cursor"
 fi
