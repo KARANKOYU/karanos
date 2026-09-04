@@ -144,7 +144,12 @@ namespace Kavis.Settings {
                   + _("Alignment") + "\n"
                   + _("Automatically hide the taskbar") + "\n"
                   + _("Pinned apps") },
-                { "hardware", "preferences-desktop-peripherals-symbolic",
+                /* drive-harddisk-symbolic and not
+                 * preferences-desktop-peripherals-symbolic: the latter
+                 * is not in Adwaita, and a symbolic name with no
+                 * fallback draws the broken-image icon rather than
+                 * quietly picking something else. */
+                { "hardware", "drive-harddisk-symbolic",
                   _("Hardware test"),
                   _("Keyboard") + "\n" + _("Mouse") + "\n"
                   + _("Sound output") + "\n" + _("Microphone") + "\n"
