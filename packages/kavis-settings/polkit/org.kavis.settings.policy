@@ -44,4 +44,17 @@
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/kavis/set-dns</annotate>
   </action>
+
+  <!-- Kavis Settings: hardware report (item 50). A read-only helper —
+       SMART health needs the raw device, nothing is written. -->
+  <action id="org.kavis.settings.hw-report">
+    <description>Read hardware health information</description>
+    <message>Authentication is required to read disk health information</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/kavis/hw-report</annotate>
+  </action>
 </policyconfig>

@@ -144,6 +144,13 @@ namespace Kavis.Settings {
                   + _("Alignment") + "\n"
                   + _("Automatically hide the taskbar") + "\n"
                   + _("Pinned apps") },
+                { "hardware", "preferences-desktop-peripherals-symbolic",
+                  _("Hardware test"),
+                  _("Keyboard") + "\n" + _("Mouse") + "\n"
+                  + _("Sound output") + "\n" + _("Microphone") + "\n"
+                  + _("Camera") + "\n" + _("Screen") + "\n"
+                  + _("Disk health") + "\n" + _("Memory") + "\n"
+                  + _("Network speed") },
                 { "system", "computer-symbolic", _("System"),
                   _("About") + "\n" + _("Copy details") + "\n"
                   + _("Processor") + "\n" + _("Graphics") + "\n"

@@ -4,7 +4,7 @@ Bu dosya `tools/gen-test-coverage.py` ile ÜRETİLİR, elle
 düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 `tests/ui/*.yaml` senaryolarının `item:` alanı (karar 9b).
 
-**Kapsam: 8 / 72 madde.**
+**Kapsam: 9 / 72 madde.**
 
 | Madde | Başlık | Senaryo |
 |---|---|---|
@@ -58,7 +58,7 @@ düzenlenmez. Kaynaklar: `docs/gorev-listesi.md` maddeleri ve
 | 47 | REFERANS İNCELEME (Grup A2) | — |
 | 48 | Güvenlik taraması + dosya doğrulama | — |
 | 49 | SİSTEM SAĞLIĞI: | — |
-| 50 | DONANIM TESTİ VE BENCHMARK: | — |
+| 50 | DONANIM TESTİ VE BENCHMARK: | `50-hardware-test` |
 | 51 | GÜÇ VE PİL: | `51-power` |
 | 52 | AĞ ARAÇLARI: | `52-network` |
 | 53 | SANALLAŞTIRMA: | — |

@@ -20,6 +20,27 @@ int main (string[] args) {
             args.length > 5 ? args[5] : "bottom"));
         return 0;
     }
+    /* Test hook (item 50): run one automatic hardware check and print
+     * "<id> <result> <detail>". The selftest scenario uses it to assert
+     * real results instead of only "the page opened", and it is how
+     * these checks can be exercised at all without a person clicking.
+     * The interactive checks are deliberately absent — they need one.
+     * Usage: kavis-settings --hw-test <memory|camera|network|smart|microphone>
+     */
+    if (args.length > 2 && args[1] == "--hw-test") {
+        var check = Kavis.Settings.HwTest.run_by_id (args[2]);
+        if (check == null) {
+            printerr ("unknown check: %s\n", args[2]);
+            return 2;
+        }
+        print ("%s %s %s\n", check.id,
+               (check.result == Kavis.Settings.HwTest.Result.PASS) ? "PASS"
+                   : ((check.result == Kavis.Settings.HwTest.Result.FAIL)
+                      ? "FAIL" : "SKIP"),
+               check.detail);
+        /* A skipped check is not a failure: exit 0 unless it failed. */
+        return (check.result == Kavis.Settings.HwTest.Result.FAIL) ? 1 : 0;
+    }
     Gtk.init (ref args);
     /* Palette (B2): component CSS takes the @kavis_* names from here. */
     Kavis.Theme.install ();

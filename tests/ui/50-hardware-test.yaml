@@ -1,0 +1,42 @@
+# Hardware test (item 50): the checks a machine can answer by itself.
+#
+# The interactive half (keyboard, mouse, sound, screen) needs a person
+# and stays on the VM checklist. The five automatic ones run through
+# `kavis-settings --hw-test`, which exists so they can be exercised at
+# all without someone clicking.
+#
+# SKIP is expected for several of these in QEMU — no camera, no sound
+# card, no SMART data — and a skip is a pass for this scenario: the
+# check is asserted to RUN and to report honestly, not to find hardware
+# the machine does not have.
+name: 50-hardware-test
+title: Hardware test
+item: 50
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings hardware
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the page lists all nine checks
+    shot: true
+  - do: shell kavis-settings --hw-test memory
+    expect: ok
+    timeout: 60000
+    note: writes and reads back patterns in free memory — must not report errors
+  - do: shell kavis-settings --hw-test camera
+    expect: ok
+    timeout: 15000
+    note: no camera in QEMU, so this reports Skipped rather than failing
+  - do: shell kavis-settings --hw-test smart
+    expect: ok
+    timeout: 20000
+    note: the virtual disk reports no SMART data; the helper must still exit cleanly
+  - do: shell kavis-settings --hw-test microphone
+    expect: ok
+    timeout: 20000
+  - do: shell test -x /usr/lib/kavis/hw-report
+    expect: ok
+    note: the privileged read helper is installed
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

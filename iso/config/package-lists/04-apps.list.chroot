@@ -46,6 +46,10 @@ gnome-disk-utility
 gparted
 baobab
 exfatprogs
+# smartmontools: the disk health check in Settings > Hardware test
+# (item 50). Without it that check can only say "no data", which on a
+# machine with a dying disk is the wrong answer.
+smartmontools
 
 # --- Printer and scanner (item 43) ---
 # The first path is DRIVERLESS (grup-e-taramasi): modern printers speak

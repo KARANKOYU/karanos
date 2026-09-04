@@ -513,6 +513,108 @@ msgstr "⟪Language changed······⟫"
 msgid "Sign out and back in for the change to take full effect."
 msgstr "⟪Sign out and back in for the change to take full effect.······················⟫"
 
+msgid "Passed"
+msgstr "⟪Passed··⟫"
+
+msgid "Failed"
+msgstr "⟪Failed··⟫"
+
+msgid "Skipped"
+msgstr "⟪Skipped··⟫"
+
+msgid "Disk health"
+msgstr "⟪Disk health····⟫"
+
+msgid "The reporting helper is not installed"
+msgstr "⟪The reporting helper is not installed··············⟫"
+
+msgid "No disk reported SMART data (common in a virtual machine)"
+msgstr "⟪No disk reported SMART data (common in a virtual machine)······················⟫"
+
+msgid "SMART reports a problem on: %s — back up now"
+msgstr "⟪SMART reports a problem on: %s — back up now·················⟫"
+
+msgid "%d disk reports itself healthy"
+msgstr "⟪%d disk reports itself healthy············⟫"
+
+msgid "Cannot read /proc/meminfo"
+msgstr "⟪Cannot read /proc/meminfo··········⟫"
+
+msgid "Not enough free memory to test safely"
+msgstr "⟪Not enough free memory to test safely··············⟫"
+
+msgid "%lld errors in %.0f MB — run the full memory test from the boot menu"
+msgstr "⟪%lld errors in %.0f MB — run the full memory test from the boot menu···························⟫"
+
+msgid "%.0f MB checked with four patterns, no errors"
+msgstr "⟪%.0f MB checked with four patterns, no errors··················⟫"
+
+msgid "Network speed"
+msgstr "⟪Network speed·····⟫"
+
+msgid "curl is not installed"
+msgstr "⟪curl is not installed········⟫"
+
+msgid "No internet connection"
+msgstr "⟪No internet connection········⟫"
+
+msgid "%.1f Mbit/s — slower than a working connection should be"
+msgstr "⟪%.1f Mbit/s — slower than a working connection should be······················⟫"
+
+msgid "%.1f Mbit/s from the Debian mirror"
+msgstr "⟪%.1f Mbit/s from the Debian mirror·············⟫"
+
+msgid "Camera"
+msgstr "⟪Camera··⟫"
+
+msgid "No camera found"
+msgstr "⟪No camera found······⟫"
+
+msgid "%s exists but cannot be opened — check permissions"
+msgstr "⟪%s exists but cannot be opened — check permissions····················⟫"
+
+msgid "%s opens"
+msgstr "⟪%s opens···⟫"
+
+msgid "%s (%s) opens"
+msgstr "⟪%s (%s) opens·····⟫"
+
+msgid "Microphone"
+msgstr "⟪Microphone····⟫"
+
+msgid "alsa-utils is not installed"
+msgstr "⟪alsa-utils is not installed··········⟫"
+
+msgid "No recording device: %s"
+msgstr "⟪No recording device: %s·········⟫"
+
+msgid "The recording could not be read"
+msgstr "⟪The recording could not be read············⟫"
+
+msgid "Silence recorded — the microphone may be muted or not connected"
+msgstr "⟪Silence recorded — the microphone may be muted or not connected·························⟫"
+
+msgid "Sound picked up, peak %d%%"
+msgstr "⟪Sound picked up, peak %d%%··········⟫"
+
+msgid "Hardware test"
+msgstr "⟪Hardware test·····⟫"
+
+msgid "Everything passed."
+msgstr "⟪Everything passed.·······⟫"
+
+msgid "%d check failed."
+msgstr "⟪%d check failed.······⟫"
+
+msgid "Check"
+msgstr "⟪Check··⟫"
+
+msgid "Result"
+msgstr "⟪Result··⟫"
+
+msgid "Detail"
+msgstr "⟪Detail··⟫"
+
 msgid "Dark"
 msgstr "⟪Dark··⟫"
 
@@ -690,6 +792,144 @@ msgstr "⟪Keep··⟫"
 msgid "Reverting in %d seconds"
 msgstr "⟪Reverting in %d seconds·········⟫"
 
+msgid "Keyboard"
+msgstr "⟪Keyboard···⟫"
+
+msgid "Press keys and check that each one registers"
+msgstr "⟪Press keys and check that each one registers·················⟫"
+
+msgid "Mouse"
+msgstr "⟪Mouse··⟫"
+
+msgid "Both buttons, the wheel, and movement"
+msgstr "⟪Both buttons, the wheel, and movement··············⟫"
+
+msgid "Sound output"
+msgstr "⟪Sound output····⟫"
+
+msgid "Plays a test tone through the speakers"
+msgstr "⟪Plays a test tone through the speakers···············⟫"
+
+msgid "Records three seconds and measures the level"
+msgstr "⟪Records three seconds and measures the level·················⟫"
+
+msgid "Finds and opens the device"
+msgstr "⟪Finds and opens the device··········⟫"
+
+msgid "Screen"
+msgstr "⟪Screen··⟫"
+
+msgid "Full-screen colours for dead pixels and tint"
+msgstr "⟪Full-screen colours for dead pixels and tint·················⟫"
+
+msgid "SMART self-assessment for every disk"
+msgstr "⟪SMART self-assessment for every disk··············⟫"
+
+msgid "Writes and reads back patterns in free memory"
+msgstr "⟪Writes and reads back patterns in free memory··················⟫"
+
+msgid "Downloads from the Debian mirror"
+msgstr "⟪Downloads from the Debian mirror············⟫"
+
+msgid "Nothing has been tested yet."
+msgstr "⟪Nothing has been tested yet.···········⟫"
+
+msgid "Test everything"
+msgstr "⟪Test everything······⟫"
+
+msgid "Save and open the report"
+msgstr "⟪Save and open the report·········⟫"
+
+msgid "Each check reports on its own; the report collects them"
+msgstr "⟪Each check reports on its own; the report collects them······················⟫"
+
+msgid "Test"
+msgstr "⟪Test··⟫"
+
+msgid "%d passed, %d failed, %d skipped"
+msgstr "⟪%d passed, %d failed, %d skipped············⟫"
+
+msgid "Nothing to report"
+msgstr "⟪Nothing to report······⟫"
+
+msgid "Run at least one check first."
+msgstr "⟪Run at least one check first.···········⟫"
+
+msgid "The report could not be written"
+msgstr "⟪The report could not be written············⟫"
+
+msgid "Check the space in your home folder."
+msgstr "⟪Check the space in your home folder.··············⟫"
+
+msgid "Something did not work"
+msgstr "⟪Something did not work········⟫"
+
+msgid "Done"
+msgstr "⟪Done··⟫"
+
+msgid "Press at least eight different keys."
+msgstr "⟪Press at least eight different keys.··············⟫"
+
+msgid "%d more key to press"
+msgstr "⟪%d more key to press········⟫"
+
+msgid "Reported as not working after %d keys"
+msgstr "⟪Reported as not working after %d keys··············⟫"
+
+msgid "Stopped after %d keys"
+msgstr "⟪Stopped after %d keys········⟫"
+
+msgid "%d different keys registered"
+msgstr "⟪%d different keys registered···········⟫"
+
+msgid "All five registered."
+msgstr "⟪All five registered.········⟫"
+
+msgid "Still missing: %d"
+msgstr "⟪Still missing: %d······⟫"
+
+msgid "Reported as not working (%d of 5 registered)"
+msgstr "⟪Reported as not working (%d of 5 registered)·················⟫"
+
+msgid "Stopped with %d of 5 registered"
+msgstr "⟪Stopped with %d of 5 registered············⟫"
+
+msgid "Buttons, wheel and movement all registered"
+msgstr "⟪Buttons, wheel and movement all registered················⟫"
+
+msgid "The test tone could not be played: %s"
+msgstr "⟪The test tone could not be played: %s··············⟫"
+
+msgid "A tone is playing on the left and right speakers. Do you hear it?"
+msgstr "⟪A tone is playing on the left and right speakers. Do you hear it?··························⟫"
+
+msgid "The tone was heard"
+msgstr "⟪The tone was heard·······⟫"
+
+msgid "No sound — check the volume, the mute switch and the cable"
+msgstr "⟪No sound — check the volume, the mute switch and the cable·······················⟫"
+
+msgid "Any key: next colour · Escape: finish"
+msgstr "⟪Any key: next colour · Escape: finish··············⟫"
+
+msgid "Were all the colours even, with no dots or patches?"
+msgstr "⟪Were all the colours even, with no dots or patches?····················⟫"
+
+msgid "Uneven colour or dead pixels reported"
+msgstr "⟪Uneven colour or dead pixels reported··············⟫"
+
+msgid "Stopped after %d of %d colours"
+msgstr "⟪Stopped after %d of %d colours············⟫"
+
+msgid "All %d colours looked even"
+msgstr "⟪All %d colours looked even··········⟫"
+
+msgid "No"
+msgstr "⟪No··⟫"
+
+msgid "Yes"
+msgstr "⟪Yes··⟫"
+
 msgid "Language"
 msgstr "⟪Language···⟫"
 
@@ -749,9 +989,6 @@ msgstr "⟪Previous / next desktop·········⟫"
 
 msgid "Task view"
 msgstr "⟪Task view···⟫"
-
-msgid "Screen"
-msgstr "⟪Screen··⟫"
 
 msgid "Screenshot"
 msgstr "⟪Screenshot····⟫"
@@ -977,12 +1214,6 @@ msgstr "⟪Runs the interface through its own checks and writes a report····
 
 msgid "Testing…"
 msgstr "⟪Testing…···⟫"
-
-msgid "Everything passed."
-msgstr "⟪Everything passed.·······⟫"
-
-msgid "%d check failed."
-msgstr "⟪%d check failed.······⟫"
 
 msgid "The test stopped before it finished."
 msgstr "⟪The test stopped before it finished.··············⟫"
@@ -1244,9 +1475,6 @@ msgstr "⟪Color··⟫"
 
 msgid "Record audio too"
 msgstr "⟪Record audio too······⟫"
-
-msgid "Microphone"
-msgstr "⟪Microphone····⟫"
 
 msgid "Copy RGB"
 msgstr "⟪Copy RGB···⟫"

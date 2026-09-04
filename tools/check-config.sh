@@ -74,7 +74,8 @@ done
 # The root helpers are the other thing that must never run on a
 # workstation; set-power writes /sys and /etc/systemd.
 for helper in packages/kavis-settings/scripts/set-power \
-	packages/kavis-settings/scripts/set-dns; do
+	packages/kavis-settings/scripts/set-dns \
+	packages/kavis-settings/scripts/hw-report; do
 	if grep -q '/run/systemd/system' "$helper" \
 		&& grep -q '/usr/share/kavis/build-marker' "$helper"; then
 		ok "$(basename "$helper") — host guard present"

@@ -1447,3 +1447,238 @@ msgstr "Şifreli DNS"
 
 msgid "Send DNS queries over TLS to a chosen resolver instead of the network's"
 msgstr "DNS sorgularını ağın sunucusu yerine seçtiğin çözücüye TLS ile gönder"
+
+msgid "Passed"
+msgstr "Geçti"
+
+msgid "Failed"
+msgstr "Kaldı"
+
+msgid "Skipped"
+msgstr "Atlandı"
+
+msgid "Disk health"
+msgstr "Disk sağlığı"
+
+msgid "The reporting helper is not installed"
+msgstr "Rapor yardımcısı kurulu değil"
+
+msgid "No disk reported SMART data (common in a virtual machine)"
+msgstr "Hiçbir disk SMART verisi vermedi (sanal makinede olağan)"
+
+msgid "SMART reports a problem on: %s — back up now"
+msgstr "SMART şu diskte sorun bildiriyor: %s — hemen yedek al"
+
+msgid "%d disk reports itself healthy"
+msgid_plural "%d disks report themselves healthy"
+msgstr[0] "%d disk kendini sağlıklı bildiriyor"
+msgstr[1] "%d disk kendini sağlıklı bildiriyor"
+
+msgid "Cannot read /proc/meminfo"
+msgstr "/proc/meminfo okunamıyor"
+
+msgid "Not enough free memory to test safely"
+msgstr "Güvenle test etmeye yetecek boş bellek yok"
+
+msgid "%lld errors in %.0f MB — run the full memory test from the boot menu"
+msgstr "%.0f MB içinde %lld hata — açılış menüsünden tam bellek testini çalıştır"
+
+msgid "%.0f MB checked with four patterns, no errors"
+msgstr "%.0f MB dört desenle denendi, hata yok"
+
+msgid "Network speed"
+msgstr "Ağ hızı"
+
+msgid "curl is not installed"
+msgstr "curl kurulu değil"
+
+msgid "No internet connection"
+msgstr "İnternet bağlantısı yok"
+
+msgid "%.1f Mbit/s — slower than a working connection should be"
+msgstr "%.1f Mbit/s — çalışan bir bağlantı için fazla yavaş"
+
+msgid "%.1f Mbit/s from the Debian mirror"
+msgstr "Debian yansısından %.1f Mbit/s"
+
+msgid "Camera"
+msgstr "Kamera"
+
+msgid "No camera found"
+msgstr "Kamera bulunamadı"
+
+msgid "%s exists but cannot be opened — check permissions"
+msgstr "%s var ama açılamıyor — izinleri denetle"
+
+msgid "%s opens"
+msgstr "%s açılıyor"
+
+msgid "%s (%s) opens"
+msgstr "%s (%s) açılıyor"
+
+msgid "alsa-utils is not installed"
+msgstr "alsa-utils kurulu değil"
+
+msgid "No recording device: %s"
+msgstr "Kayıt aygıtı yok: %s"
+
+msgid "The recording could not be read"
+msgstr "Kayıt okunamadı"
+
+msgid "Silence recorded — the microphone may be muted or not connected"
+msgstr "Sessizlik kaydedildi — mikrofon kapalı ya da bağlı olmayabilir"
+
+msgid "Sound picked up, peak %d%%"
+msgstr "Ses alındı, tepe %%%d"
+
+msgid "Hardware test"
+msgstr "Donanım testi"
+
+msgid "Check"
+msgstr "Denetim"
+
+msgid "Result"
+msgstr "Sonuç"
+
+msgid "Detail"
+msgstr "Ayrıntı"
+
+msgid "Keyboard"
+msgstr "Klavye"
+
+msgid "Press keys and check that each one registers"
+msgstr "Tuşlara bas, her birinin algılandığını gör"
+
+msgid "Mouse"
+msgstr "Fare"
+
+msgid "Both buttons, the wheel, and movement"
+msgstr "İki düğme, tekerlek ve hareket"
+
+msgid "Sound output"
+msgstr "Ses çıkışı"
+
+msgid "Plays a test tone through the speakers"
+msgstr "Hoparlörlerden deneme sesi çalar"
+
+msgid "Records three seconds and measures the level"
+msgstr "Üç saniye kaydeder ve düzeyi ölçer"
+
+msgid "Finds and opens the device"
+msgstr "Aygıtı bulur ve açar"
+
+msgid "Full-screen colours for dead pixels and tint"
+msgstr "Ölü piksel ve renk sapması için tam ekran renkler"
+
+msgid "SMART self-assessment for every disk"
+msgstr "Her disk için SMART öz değerlendirmesi"
+
+msgid "Writes and reads back patterns in free memory"
+msgstr "Boş bellekte desen yazıp geri okur"
+
+msgid "Downloads from the Debian mirror"
+msgstr "Debian yansısından indirir"
+
+msgid "Nothing has been tested yet."
+msgstr "Henüz hiçbir şey test edilmedi."
+
+msgid "Test everything"
+msgstr "Hepsini test et"
+
+msgid "Save and open the report"
+msgstr "Raporu kaydet ve aç"
+
+msgid "Each check reports on its own; the report collects them"
+msgstr "Her denetim kendi sonucunu verir; rapor hepsini toplar"
+
+msgid "Test"
+msgstr "Test et"
+
+msgid "%d passed, %d failed, %d skipped"
+msgstr "%d geçti, %d kaldı, %d atlandı"
+
+msgid "Nothing to report"
+msgstr "Raporlanacak bir şey yok"
+
+msgid "Run at least one check first."
+msgstr "Önce en az bir denetim çalıştır."
+
+msgid "The report could not be written"
+msgstr "Rapor yazılamadı"
+
+msgid "Check the space in your home folder."
+msgstr "Ev klasöründeki boş alanı denetle."
+
+msgid "Something did not work"
+msgstr "Bir şey çalışmadı"
+
+msgid "Done"
+msgstr "Bitti"
+
+msgid "Press at least eight different keys."
+msgstr "En az sekiz farklı tuşa bas."
+
+msgid "%d more key to press"
+msgid_plural "%d more keys to press"
+msgstr[0] "%d tuş daha"
+msgstr[1] "%d tuş daha"
+
+msgid "Reported as not working after %d keys"
+msgstr "%d tuştan sonra çalışmıyor olarak bildirildi"
+
+msgid "Stopped after %d keys"
+msgstr "%d tuşta durduruldu"
+
+msgid "%d different keys registered"
+msgstr "%d farklı tuş algılandı"
+
+msgid "Inside the box: click left, click right, scroll up, scroll down, and move the pointer."
+msgstr "Kutunun içinde: sol tık, sağ tık, yukarı kaydır, aşağı kaydır ve imleci gezdir."
+
+msgid "All five registered."
+msgstr "Beşi de algılandı."
+
+msgid "Still missing: %d"
+msgstr "Eksik: %d"
+
+msgid "Reported as not working (%d of 5 registered)"
+msgstr "Çalışmıyor olarak bildirildi (5 işlemden %d algılandı)"
+
+msgid "Stopped with %d of 5 registered"
+msgstr "5 işlemden %d algılanmışken durduruldu"
+
+msgid "Buttons, wheel and movement all registered"
+msgstr "Düğmeler, tekerlek ve hareket algılandı"
+
+msgid "The test tone could not be played: %s"
+msgstr "Deneme sesi çalınamadı: %s"
+
+msgid "A tone is playing on the left and right speakers. Do you hear it?"
+msgstr "Sol ve sağ hoparlörde bir ses çalıyor. Duyuyor musun?"
+
+msgid "The tone was heard"
+msgstr "Ses duyuldu"
+
+msgid "No sound — check the volume, the mute switch and the cable"
+msgstr "Ses yok — ses düzeyini, sessize alma düğmesini ve kabloyu denetle"
+
+msgid "Any key: next colour · Escape: finish"
+msgstr "Herhangi bir tuş: sonraki renk · Escape: bitir"
+
+msgid "Were all the colours even, with no dots or patches?"
+msgstr "Renklerin hepsi düzgün müydü, nokta ya da leke var mıydı?"
+
+msgid "Uneven colour or dead pixels reported"
+msgstr "Düzensiz renk ya da ölü piksel bildirildi"
+
+msgid "Stopped after %d of %d colours"
+msgstr "%d renkten %d tanesinden sonra durduruldu"
+
+msgid "All %d colours looked even"
+msgstr "%d rengin hepsi düzgün göründü"
+
+msgid "No"
+msgstr "Hayır"
+
+msgid "Yes"
+msgstr "Evet"

@@ -1,0 +1,43 @@
+#!/bin/sh
+# Kavis — the privileged READS behind Settings > Hardware test (item 50).
+#
+# smartctl has to open the raw block device, which the session user
+# cannot do. This helper only reads: it never writes to a disk, never
+# changes a setting, and prints one line per device.
+#
+# Deliberately not a general "run smartctl with my arguments" wrapper:
+# polkit cannot restrict arguments, so a helper that passed them through
+# would hand the user's session a root-run smartctl with -X and friends.
+set -eu
+
+# Same guard as the other helpers: a booted Kavis system only. Reading
+# is harmless, but a helper that is careful in one place and casual in
+# another teaches the wrong habit.
+if [ ! -d /run/systemd/system ]; then
+	echo "E: $0 needs a booted systemd system — refusing (test in a VM)" >&2
+	exit 3
+fi
+if [ ! -f /usr/share/kavis/build-marker ]; then
+	echo "E: $0 runs only on a Kavis system (marker missing)" >&2
+	exit 3
+fi
+
+case "${1:-}" in
+smart)
+	command -v smartctl >/dev/null 2>&1 || exit 0
+	for dev in /dev/sd? /dev/nvme?n? /dev/vd?; do
+		[ -b "$dev" ] || continue
+		# -H is the overall health self-assessment: one word, which is
+		# the only thing a person needs from SMART unless it is bad.
+		out=$(smartctl -H "$dev" 2>/dev/null || true)
+		verdict=$(echo "$out" | sed -n 's/.*overall-health self-assessment test result: *//p' | head -1)
+		[ -n "$verdict" ] || verdict=$(echo "$out" | sed -n 's/^SMART Health Status: *//p' | head -1)
+		[ -n "$verdict" ] || continue
+		printf '%s %s\n' "$(basename "$dev")" "$verdict"
+	done
+	;;
+*)
+	echo "usage: hw-report smart" >&2
+	exit 2
+	;;
+esac

@@ -113,6 +113,7 @@ namespace Kavis.Settings.Pages {
         case "network":    return network (title);
         case "taskbar":    return taskbar (title);
         case "system":     return system_page (title);
+        case "hardware":   return hardware (title);
         }
         Gtk.Box body;
         return frame (title, out body);
