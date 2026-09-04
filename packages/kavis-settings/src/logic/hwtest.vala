@@ -55,8 +55,14 @@ namespace Kavis.Settings.HwTest {
             return make ("smart", _("Disk health"), Result.SKIP,
                          _("The reporting helper is not installed"));
         }
-        string? text = Run.capture ({ "pkexec", "/usr/lib/kavis/hw-report",
-                                      "smart" });
+        /* Wrapped in `timeout`: this is the only check that blocks on a
+         * privileged call, and pkexec waits for an answer. The polkit
+         * action needs no password from the active user, so it normally
+         * returns at once — but if anything ever puts a dialog in front
+         * of it, an unattended selftest run would sit there for ever
+         * instead of reporting a skipped check. */
+        string? text = Run.capture ({ "timeout", "25", "pkexec",
+                                      "/usr/lib/kavis/hw-report", "smart" });
         if (text == null || text.strip () == "") {
             return make ("smart", _("Disk health"), Result.SKIP,
                 _("No disk reported SMART data (common in a virtual machine)"),

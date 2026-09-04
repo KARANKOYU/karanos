@@ -26,12 +26,14 @@ CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/kavis-picom"
 MIRROR="https://deb.debian.org/debian"
 TEMPLATE="iso/config/includes.chroot/etc/xdg/picom-kavis.conf"
 
-for tool in Xvfb curl dpkg-deb; do
-	command -v "$tool" >/dev/null 2>&1 || {
-		echo "ERROR: $tool missing (apt: xvfb curl dpkg)" >&2
-		exit 2
-	}
-done
+# curl and dpkg-deb are only needed when a picom has to be fetched; on
+# Debian trixie the archive version IS the one we want and nothing is
+# downloaded. Requiring them up front failed the CI run on a container
+# that had picom and no curl.
+command -v Xvfb >/dev/null 2>&1 || {
+	echo "ERROR: Xvfb missing (apt: xvfb)" >&2
+	exit 2
+}
 
 # On Debian trixie (the CI container, and the ISO itself) the archive
 # version IS the one we want — no download, no pinned URLs to rot.
@@ -45,6 +47,12 @@ fi
 
 mkdir -p "$CACHE"
 if [[ -z "$PICOM" ]] && { [[ ! -x "$CACHE/root/usr/bin/picom" ]] || [[ -n "${REFRESH:-}" ]]; }; then
+	for tool in curl dpkg-deb; do
+		command -v "$tool" >/dev/null 2>&1 || {
+			echo "ERROR: no picom 12+ installed and $tool is missing" >&2
+			exit 2
+		}
+	done
 	rm -rf "$CACHE/root"
 	echo "==> fetching picom 12.5 and libconfig from $MIRROR"
 	# The versions are pinned: this check is only meaningful if it runs
