@@ -822,6 +822,9 @@ msgstr "⟪CPU··⟫"
 msgid "GPU"
 msgstr "⟪GPU··⟫"
 
+msgid "Logical processors"
+msgstr "⟪Logical processors·······⟫"
+
 msgid "Base speed"
 msgstr "⟪Base speed····⟫"
 
@@ -845,9 +848,6 @@ msgstr "⟪Cached··⟫"
 
 msgid "Swap"
 msgstr "⟪Swap··⟫"
-
-msgid "Speed / type"
-msgstr "⟪Speed / type····⟫"
 
 msgid "Read"
 msgstr "⟪Read··⟫"

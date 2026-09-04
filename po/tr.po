@@ -959,9 +959,6 @@ msgstr "Önbellek"
 msgid "Swap"
 msgstr "Takas"
 
-msgid "Speed / type"
-msgstr "Hız / tür"
-
 msgid "Capacity"
 msgstr "Kapasite"
 
@@ -1148,3 +1145,6 @@ msgid ""
 "Private memory cannot be read for another user's process — this is RSS, "
 "which counts shared libraries too."
 msgstr "Başka kullanıcının sürecinde özel bellek okunamaz — bu RSS, paylaşılan kütüphaneleri de sayar."
+
+msgid "Logical processors"
+msgstr "Mantıksal işlemciler"

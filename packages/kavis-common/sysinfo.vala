@@ -190,6 +190,39 @@ namespace Kavis.SysInfo {
         busy = total - v[3] - ((v.length > 4) ? v[4] : 0);
     }
 
+    /* Per-logical-CPU jiffies: the "cpu0", "cpu1", … lines of /proc/stat,
+     * in order. Same idle accounting as cpu_jiffies (idle + iowait).
+     * Task Manager's Performance page draws one small graph per entry. */
+    public void cpu_jiffies_per_core (out uint64[] busy, out uint64[] total) {
+        /* Vala forbids += on an out parameter, so the lists are built
+         * locally and handed over at the end. */
+        uint64[] busy_list = {};
+        uint64[] total_list = {};
+        foreach (unowned string line in read_file ("/proc/stat").split ("\n")) {
+            if (!line.has_prefix ("cpu") || line.has_prefix ("cpu ")) {
+                continue;
+            }
+            string[] f = line.split (" ");
+            uint64[] v = {};
+            foreach (unowned string field in f[1:f.length]) {
+                if (field != "") {
+                    v += uint64.parse (field);
+                }
+            }
+            if (v.length < 4) {
+                continue;
+            }
+            uint64 t = 0;
+            foreach (uint64 x in v) {
+                t += x;
+            }
+            total_list += t;
+            busy_list += t - v[3] - ((v.length > 4) ? v[4] : 0);
+        }
+        busy = busy_list;
+        total = total_list;
+    }
+
     public double uptime_seconds () {
         string s = read_file ("/proc/uptime").split (" ")[0];
         return (s != "") ? double.parse (s) : 0;

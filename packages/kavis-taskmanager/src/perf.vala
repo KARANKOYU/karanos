@@ -86,6 +86,15 @@ namespace Kavis.TaskManager {
         private Gtk.Stack detail;
         private Item[] items = {};
         private uint timer = 0;
+        private Graph[] core_graphs = {};
+        private bool dmi_read = false;
+        private string dmi_type = "";
+        private string dmi_speed = "";
+        private string dmi_cas = "";
+        private int dmi_used_slots = 0;
+        private int dmi_total_slots = 0;
+        private uint64[] core_busy = {};
+        private uint64[] core_total = {};
 
         /* sample history */
         private uint64 prev_busy = 0;
@@ -190,6 +199,9 @@ namespace Kavis.TaskManager {
             graph.auto_scale = id.has_prefix ("disk:") || id.has_prefix ("net:");
             graphs.insert (id, graph);
             page.pack_start (graph, false, false, 0);
+            if (id == "cpu") {
+                page.pack_start (core_grid (), false, false, 0);
+            }
             var grid = new Gtk.Grid ();
             grid.column_spacing = 24;
             grid.row_spacing = 6;
@@ -210,13 +222,51 @@ namespace Kavis.TaskManager {
             detail.add_named (page, id);
         }
 
+        /* G5: one small graph per logical processor, W11 style. The
+         * layout squares off (4 columns for a quad core, 8 for 64), and
+         * the graphs shrink as the count grows so the grid still fits
+         * without scrolling on a laptop screen. */
+        private Gtk.Widget core_grid () {
+            SysInfo.cpu_jiffies_per_core (out core_busy, out core_total);
+            int n = core_busy.length;
+            var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 6);
+            if (n <= 1) {
+                return box;   /* a single logical CPU is the big graph */
+            }
+            var caption = new Gtk.Label (_("Logical processors"));
+            caption.set_xalign (0);
+            caption.get_style_context ().add_class ("dim-label");
+            box.pack_start (caption, false, false, 0);
+
+            int columns = 4;
+            while (columns * columns < n && columns < 8) {
+                columns++;
+            }
+            int rows = (n + columns - 1) / columns;
+            int height = (rows > 4) ? 28 : ((rows > 2) ? 40 : 54);
+
+            var grid = new Gtk.Grid ();
+            grid.column_spacing = 6;
+            grid.row_spacing = 6;
+            grid.column_homogeneous = true;
+            for (int i = 0; i < n; i++) {
+                var g = new Graph ();
+                g.set_size_request (-1, height);
+                core_graphs += g;
+                grid.attach (g, i % columns, i / columns, 1, 1);
+            }
+            box.pack_start (grid, false, false, 0);
+            return box;
+        }
+
         private string[] fact_keys (string id) {
             if (id == "cpu") {
                 return { "model", "cores", "base", "cur", "temp",
                          "uptime", "procs", "board" };
             }
             if (id == "mem") {
-                return { "used", "cached", "swap", "speed" };
+                return { "used", "cached", "swap", "speed",
+                         "type", "cas", "slots" };
             }
             if (id.has_prefix ("disk:")) {
                 return { "model", "size", "read", "write", "temp" };
@@ -231,6 +281,9 @@ namespace Kavis.TaskManager {
             switch (key) {
             case "model":  return _("Model");
             case "cores":  return _("Cores / threads");
+            case "type":   return _("Type");
+            case "cas":    return _("CAS latency");
+            case "slots":  return _("Slots in use");
             case "base":   return _("Base speed");
             case "cur":    return _("Current speed");
             case "temp":   return _("Temperature");
@@ -240,7 +293,7 @@ namespace Kavis.TaskManager {
             case "used":   return _("In use");
             case "cached": return _("Cached");
             case "swap":   return _("Swap");
-            case "speed":  return _("Speed / type");
+            case "speed":  return _("Speed");
             case "size":   return _("Capacity");
             case "read":   return _("Read");
             case "write":  return _("Write");
@@ -276,6 +329,31 @@ namespace Kavis.TaskManager {
             return (t >= 0) ? "%.0f °C".printf (t) : "—";
         }
 
+        /* Per-core percentages for the G5 grid. Cores can be offlined,
+         * so a changed count just skips this tick instead of indexing
+         * past the end of the graph array. */
+        private void sample_cores () {
+            if (core_graphs.length == 0) {
+                return;
+            }
+            uint64[] busy, total;
+            SysInfo.cpu_jiffies_per_core (out busy, out total);
+            if (busy.length != core_graphs.length
+                || busy.length != core_busy.length) {
+                return;
+            }
+            for (int i = 0; i < busy.length; i++) {
+                double pct = 0;
+                if (core_total[i] > 0 && total[i] > core_total[i]) {
+                    pct = 100.0 * (busy[i] - core_busy[i])
+                        / (total[i] - core_total[i]);
+                }
+                core_graphs[i].push (pct);
+            }
+            core_busy = busy;
+            core_total = total;
+        }
+
         private void sample () {
             /* --- CPU --- */
             uint64 busy, total;
@@ -288,6 +366,7 @@ namespace Kavis.TaskManager {
             prev_total = total;
             graphs.lookup ("cpu").push (cpu_pct);
             set_figure ("cpu", "%.0f%%".printf (cpu_pct));
+            sample_cores ();
             set_fact ("cpu", "model", SysInfo.cpu_model ());
             int cores, threads;
             SysInfo.cpu_topology (out cores, out threads);
@@ -336,8 +415,22 @@ namespace Kavis.TaskManager {
             set_fact ("mem", "swap", (st > 0)
                 ? "%s / %s".printf (SysInfo.format_bytes (su),
                                     SysInfo.format_bytes (st)) : "—");
-            /* dmidecode needs root — no password prompt for a status page */
-            set_fact ("mem", "speed", "—");
+            /* G5: type/speed/CAS/slots come from SMBIOS. dmidecode needs
+             * root and a status page must never ask for a password, so a
+             * VM (or any unprivileged session) simply shows em dashes.
+             * The values cannot change while the machine runs, so they
+             * are read once instead of every second. */
+            if (!dmi_read) {
+                dmi_read = true;
+                SysInfo.memory_dmi (out dmi_type, out dmi_speed,
+                                    out dmi_cas, out dmi_used_slots,
+                                    out dmi_total_slots);
+            }
+            set_fact ("mem", "speed", (dmi_speed != "") ? dmi_speed : "—");
+            set_fact ("mem", "type", (dmi_type != "") ? dmi_type : "—");
+            set_fact ("mem", "cas", (dmi_cas != "") ? dmi_cas : "—");
+            set_fact ("mem", "slots", (dmi_total_slots > 0)
+                ? "%d / %d".printf (dmi_used_slots, dmi_total_slots) : "—");
 
             /* --- Disks --- */
             foreach (unowned SysInfo.Disk d in SysInfo.disks ()) {
