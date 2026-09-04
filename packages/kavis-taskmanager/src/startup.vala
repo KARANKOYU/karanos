@@ -10,6 +10,14 @@
  * Disable = write a user copy with Hidden=true (system entries stay
  * untouched, package updates cannot re-enable them). Enable = drop the
  * user override when it only existed to hide, else Hidden=false.
+ *
+ * G6: the list is the applications menu, every one of them OFF until
+ * the user turns it on — the old list was whatever happened to sit in
+ * the autostart directories, which meant the session's own plumbing
+ * showed up as togglable "apps". Session infrastructure (ESSENTIAL) is
+ * filtered out completely: turning off the policy agent or the panel
+ * from a task manager is never what someone means, and an accessibility
+ * bus that does not start breaks the screen reader silently.
  */
 
 namespace Kavis.TaskManager {
@@ -18,6 +26,38 @@ namespace Kavis.TaskManager {
 
         private const string SYSTEM_DIR = "/etc/xdg/autostart";
 
+        /* Session infrastructure: never listed, never switchable. Matched
+         * on the .desktop basename, which is what both autostart
+         * directories and the menu are keyed by. */
+        private const string[] ESSENTIAL = {
+            "at-spi-dbus-bus.desktop",
+            "gnome-disk-utility.desktop",
+            "gsd-disk-utility-notify.desktop",
+            "kavis-osd.desktop",
+            "kavis-panel.desktop",
+            "kavis-power.desktop",
+            "kavis-session-autostart.desktop",
+            "kavis-snap.desktop",
+            "lxpolkit.desktop",
+            "nemo-autostart.desktop",
+            "picom.desktop",
+            "print-applet.desktop",
+            "system-config-printer.desktop",
+            "xdg-user-dirs.desktop",
+            "xfce-polkit.desktop"
+        };
+
+        private static bool essential (string basename) {
+            foreach (unowned string name in ESSENTIAL) {
+                if (basename == name) {
+                    return true;
+                }
+            }
+            /* Our own components ship several .desktop files and more may
+             * arrive; none of them belong in a user-facing list. */
+            return basename.has_prefix ("kavis-");
+        }
+
         private class Entry : Object {
             public string basename;
             public string name;
@@ -25,6 +65,7 @@ namespace Kavis.TaskManager {
             public bool enabled;
             public bool user_file;      /* exists in ~/.config/autostart */
             public bool system_file;    /* exists in /etc/xdg/autostart */
+            public string menu_path = ""; /* menu entry, when it autostarts nowhere yet */
         }
 
         private Gtk.ListBox list;
@@ -36,7 +77,7 @@ namespace Kavis.TaskManager {
 
             var bar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
             var hint = new Gtk.Label (
-                _("Apps that start with your session. Turn one off to skip it next time."));
+                _("Apps you can start with your session. Everything is off until you turn it on."));
             hint.set_xalign (0);
             hint.set_line_wrap (true);
             hint.get_style_context ().add_class ("dim-label");
@@ -68,6 +109,7 @@ namespace Kavis.TaskManager {
             var by_name = new HashTable<string, Entry> (str_hash, str_equal);
             scan (SYSTEM_DIR, false, by_name);
             scan (user_dir (), true, by_name);
+            add_menu_apps (by_name);
             var names = by_name.get_keys ();
             names.sort (strcmp);
             foreach (unowned string key in names) {
@@ -84,7 +126,7 @@ namespace Kavis.TaskManager {
                 var d = Dir.open (dir);
                 string? f;
                 while ((f = d.read_name ()) != null) {
-                    if (!f.has_suffix (".desktop")) {
+                    if (!f.has_suffix (".desktop") || essential (f)) {
                         continue;
                     }
                     var kf = new KeyFile ();
@@ -121,6 +163,34 @@ namespace Kavis.TaskManager {
             } catch (Error e) { }
         }
 
+        /* Everything in the applications menu, switched off unless an
+         * autostart file already exists for it. should_show() applies
+         * NoDisplay and the OnlyShowIn/NotShowIn rules against
+         * XDG_CURRENT_DESKTOP, so the list matches the start menu. */
+        private void add_menu_apps (HashTable<string, Entry> by_name) {
+            foreach (GLib.AppInfo info in GLib.AppInfo.get_all ()) {
+                var desktop = info as GLib.DesktopAppInfo;
+                if (desktop == null || !desktop.should_show ()) {
+                    continue;
+                }
+                string? filename = desktop.get_filename ();
+                if (filename == null) {
+                    continue;
+                }
+                string basename = Path.get_basename (filename);
+                if (essential (basename) || by_name.contains (basename)) {
+                    continue;
+                }
+                var e = new Entry ();
+                e.basename = basename;
+                e.name = desktop.get_display_name ();
+                e.exec = desktop.get_commandline () ?? "";
+                e.enabled = false;
+                e.menu_path = filename;
+                by_name.insert (basename, e);
+            }
+        }
+
         private Gtk.Widget make_row (Entry e) {
             var row = new Gtk.ListBoxRow ();
             row.activatable = false;
@@ -136,18 +206,21 @@ namespace Kavis.TaskManager {
             name.set_xalign (0);
             text.pack_start (name, false, false, 0);
             var sub = new Gtk.Label ("%s — %s".printf (
-                e.system_file ? _("System") : _("User"), e.exec));
+                e.system_file ? _("System")
+                              : (e.user_file ? _("User") : _("App")), e.exec));
             sub.set_xalign (0);
             sub.set_ellipsize (Pango.EllipsizeMode.END);
             sub.get_style_context ().add_class ("dim-label");
             text.pack_start (sub, false, false, 0);
             box.pack_start (text, true, true, 0);
-            var remove = new Gtk.Button.from_icon_name (
-                "edit-delete-symbolic", Gtk.IconSize.BUTTON);
-            remove.set_relief (Gtk.ReliefStyle.NONE);
-            remove.set_tooltip_text (_("Remove"));
-            remove.clicked.connect (() => on_remove (e));
-            box.pack_end (remove, false, false, 0);
+            if (e.user_file || e.system_file) {
+                var remove = new Gtk.Button.from_icon_name (
+                    "edit-delete-symbolic", Gtk.IconSize.BUTTON);
+                remove.set_relief (Gtk.ReliefStyle.NONE);
+                remove.set_tooltip_text (_("Remove"));
+                remove.clicked.connect (() => on_remove (e));
+                box.pack_end (remove, false, false, 0);
+            }
             row.add (box);
             return row;
         }
@@ -157,11 +230,21 @@ namespace Kavis.TaskManager {
             DirUtils.create_with_parents (user_dir (), 0755);
             var kf = new KeyFile ();
             string source = (e.user_file) ? user_path
-                : Path.build_filename (SYSTEM_DIR, e.basename);
+                : (e.system_file ? Path.build_filename (SYSTEM_DIR, e.basename)
+                                 : e.menu_path);
             try {
                 kf.load_from_file (source, KeyFileFlags.KEEP_TRANSLATIONS
                                            | KeyFileFlags.KEEP_COMMENTS);
             } catch (Error err) {
+                return;
+            }
+            if (!on && !e.system_file && e.user_file) {
+                /* A menu app the user had switched on: the autostart file
+                 * exists only because of that switch, so drop it instead
+                 * of leaving a Hidden=true stub behind. */
+                FileUtils.remove (user_path);
+                e.user_file = false;
+                e.enabled = false;
                 return;
             }
             if (on && e.system_file) {

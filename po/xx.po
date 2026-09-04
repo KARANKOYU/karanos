@@ -864,14 +864,14 @@ msgstr "⟪Receive··⟫"
 msgid "Send"
 msgstr "⟪Send··⟫"
 
-msgid "Apps that start with your session. Turn one off to skip it next time."
-msgstr "⟪Apps that start with your session. Turn one off to skip it next time.···························⟫"
-
 msgid "Add"
 msgstr "⟪Add··⟫"
 
 msgid "User"
 msgstr "⟪User··⟫"
+
+msgid "App"
+msgstr "⟪App··⟫"
 
 msgid "Remove"
 msgstr "⟪Remove··⟫"

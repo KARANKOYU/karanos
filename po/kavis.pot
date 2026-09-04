@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 08:50+0000\n"
+"POT-Creation-Date: 2026-09-04 08:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -235,7 +235,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_keyboard.vala:109
 #: packages/kavis-settings/src/ui/window.vala:144
 #: packages/kavis-taskmanager/src/logs.vala:25
-#: packages/kavis-taskmanager/src/startup.vala:139
+#: packages/kavis-taskmanager/src/startup.vala:209
 #, c-format
 msgid "System"
 msgstr ""
@@ -1366,25 +1366,29 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/startup.vala:39
-msgid "Apps that start with your session. Turn one off to skip it next time."
+#: packages/kavis-taskmanager/src/startup.vala:80
+msgid ""
+"Apps you can start with your session. Everything is off until you turn it on."
 msgstr ""
 
-#: packages/kavis-taskmanager/src/startup.vala:44
+#: packages/kavis-taskmanager/src/startup.vala:85
 msgid "Add"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/startup.vala:139
+#: packages/kavis-taskmanager/src/startup.vala:210
 #: packages/kavis-taskmanager/src/tasks.vala:564
-#, c-format
 msgid "User"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/startup.vala:148
+#: packages/kavis-taskmanager/src/startup.vala:210
+msgid "App"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/startup.vala:220
 msgid "Remove"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/startup.vala:198
+#: packages/kavis-taskmanager/src/startup.vala:281
 msgid "Choose an app to start with your session"
 msgstr ""
 

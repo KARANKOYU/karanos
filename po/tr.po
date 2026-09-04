@@ -983,9 +983,6 @@ msgstr "Kullanım"
 msgid "Video memory"
 msgstr "Görüntü belleği"
 
-msgid "Apps that start with your session. Turn one off to skip it next time."
-msgstr "Oturumunuzla başlayan uygulamalar. Kapattığınız bir sonraki açılışta başlamaz."
-
 msgid "Add"
 msgstr "Ekle"
 
@@ -1148,3 +1145,13 @@ msgstr "Başka kullanıcının sürecinde özel bellek okunamaz — bu RSS, payl
 
 msgid "Logical processors"
 msgstr "Mantıksal işlemciler"
+
+msgid ""
+"Apps you can start with your session. Everything is off until you turn it on."
+msgstr ""
+"Oturumunuzla birlikte başlatabileceğiniz uygulamalar. Siz açana kadar hepsi "
+"kapalıdır."
+
+
+msgid "App"
+msgstr "Uygulama"
