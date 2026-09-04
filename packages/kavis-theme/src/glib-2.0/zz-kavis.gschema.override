@@ -53,6 +53,12 @@ exec='tilix'
 # and the warning is disabled too (both: belt and suspenders).
 [com.gexperts.Tilix.Settings]
 warn-vte-config-issue=false
+# H5 (v0.4-test2 feedback): the window title read "Tilix: karan@kavis:
+# ~", so the taskbar and the title bar still said Tilix even though the
+# .desktop override renamed it to Terminal. The application title is
+# just the session title now; ${appName} is what put the product name
+# there.
+app-title='${sessionName}'
 
 [com.gexperts.Tilix.Profile:/com/gexperts/Tilix/profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d/]
 use-theme-colors=false
