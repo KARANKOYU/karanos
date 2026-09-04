@@ -4,6 +4,18 @@
 Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
 İngilizce (CLAUDE.md dil kuralı), push kullanıcı isteyince.
 
+## 0b. 4 Eylül ilerlemesi
+
+Biten ve commit edilen maddeler: **F1, F2, F3, F4, F5, G1, G2, H1, H2,
+H3, H4 (sistem yarısı), H5, H6, H7** + tema seçim rengi düzeltmesi +
+boot-check SCHEMA-OK denetimi. Çalışan ajanlar: **G3-G6 + RAM maddesi 1**
+(kavis-taskmanager), **I** (emoji seçici, kavis-panel). Elde yazılan ama
+henüz derlenmemiş: H4'ün canlı yarısı (tema değişince Firefox
+profillerine user.js yazılması, `Apply.firefox_theme`).
+
+Kalan: I sonrası **VM turu** (F3 ölçek adımları, G/H maddeleri, 5
+senaryo), RAM temizliği 2-6, sonra **v0.4-test3** etiketi.
+
 ## 0. Durum (3 Eyl sonu)
 
 - **F1, F2, F4 bitti ve commit edildi** (`584281e`, `8015bf7`,
