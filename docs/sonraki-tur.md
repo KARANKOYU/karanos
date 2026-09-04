@@ -20,9 +20,14 @@ Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
   "Right-click a process for actions" — G2/G3/G4 ve RAM maddesi 1) ve
   emoji seçici (8 sütun, büyük glifler, sekmeler + kategori başlığı —
   madde I) çalışıyor.
-- Kalan doğrulama: G5 (Performans çekirdek ızgarası), G6 (Başlangıç
-  listesi kuralları), H4'ün canlı yarısı (`Apply.firefox_theme`), hepsi
-  **VM turunda**.
+- **G5 ve G6 yapılmamıştı, bu turda yazıldı** (`360404a`, `9b1a222`):
+  Performans sayfasında mantıksal işlemci başına küçük grafik + bellek
+  modülü bilgileri (SMBIOS, kök yoksa tire); Başlangıç sekmesi artık
+  uygulama menüsünü listeliyor, hepsi kapalı başlıyor, oturum altyapısı
+  (at-spi, lxpolkit, picom, xdg-user-dirs, yazıcı ve kavis-*) hiç
+  görünmüyor. Xvfb'de doğrulandı.
+- Kalan doğrulama: H4'ün canlı yarısı (`Apply.firefox_theme`) ve
+  G5/G6'nın gerçek donanımda görünümü — **VM turunda**.
 
 ## 0b. 4 Eylül ilerlemesi
 
@@ -101,9 +106,14 @@ senaryo), RAM temizliği 2-6, sonra **v0.4-test3** etiketi.
    nemo-desktop 43 MB (eşik aşıldı → sebep aranacak), lxpolkit 11 MB
    (eşik altında → kalıyor), kavis-snap 4, kavis-osd 4, openbox 4,
    picom 2, xcape 0. Boşta MEM-USED ≈ 570–600 MB (hedef < 380 MB).
-3. kavis-tools 67 MB RSS: emoji seçici + hesap makinesi + ekran
-   görüntüsü tek süreçte mi, kullanılmayan pencereler bellekte mi —
-   lazy oluştur, USS hedefi < 10 MB.
+3. kavis-tools 67 MB RSS: **incelendi (4 Eyl)** — tek süreçte
+   toplanmıyor: `main.vala` alt komuta göre TEK pencere kuruyor, görev
+   yöneticisi ayrı ikiliye taşındı (G1), emoji seçici panelde ve
+   sayfaları `ensure_glyph_page` ile tembel kuruluyor. Xvfb ölçümü:
+   calc USS 14 MB, preview 15 MB, panel 16 MB, taskmanager 17 MB — GTK3
+   tabanı ~12-14 MB olduğu için "USS < 10 MB" hedefi tek süreçte
+   ulaşılabilir değil. VM'deki 67 MB eski (tek ikilili) görev
+   yöneticisiydi; yeni ölçüm VM turunda alınacak.
 4. Print applet olduğu gibi kalır (karar).
 5. Hedef: masaüstü boşta `free` "used" < 380 MB (CI MEM-USED), tablo
    docs/durum.md'ye.
