@@ -1,0 +1,17 @@
+{
+	// Kavis development container. The toolchain lives in setup.sh so a
+	// rebuilt Codespace comes back with everything the repo needs — the
+	// 4 Sep 2026 rebuild found the tools installed by hand and unrecorded.
+	"name": "Kavis",
+	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"remoteUser": "codespace",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"prince781.vala",
+				"timonwong.shellcheck"
+			]
+		}
+	}
+}

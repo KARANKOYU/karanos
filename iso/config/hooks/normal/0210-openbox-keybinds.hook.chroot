@@ -19,6 +19,17 @@
 
 set -e
 
+# --- Host guard (4 Sep 2026 incident) --------------------------------
+# This hook edits the RUNNING system. On a developer machine that means
+# the real /home, /etc, initramfs or systemd state — one stray run cost
+# a whole Codespace (its user account and /home had to be rebuilt).
+# live-build copies includes.chroot before the normal hooks, so the
+# marker exists inside the build chroot and nowhere else.
+if [ ! -f /usr/share/kavis/build-marker ]; then
+	echo "E: $0 runs only inside the live-build chroot (marker missing)" >&2
+	exit 1
+fi
+
 RC=/etc/xdg/openbox/rc.xml
 
 if [ ! -f "$RC" ]; then

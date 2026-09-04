@@ -60,6 +60,22 @@ for f in .github/workflows/*.yml; do
 done
 
 echo
+echo "==> Host guard in the chroot hooks (4 Sep 2026 incident)"
+# A hook without the guard can wreck a developer machine: these scripts
+# rewrite /home, /etc, the initramfs and systemd state of whatever system
+# they run on. The marker file only exists inside the build chroot.
+for f in iso/config/hooks/normal/*.hook.chroot; do
+	if grep -q '/usr/share/kavis/build-marker' "$f"; then
+		ok "$(basename "$f") — host guard present"
+	else
+		bad "$(basename "$f") — host guard MISSING"
+	fi
+done
+[[ -f iso/config/includes.chroot/usr/share/kavis/build-marker ]] \
+	&& ok "build-marker ships in includes.chroot" \
+	|| bad "includes.chroot/usr/share/kavis/build-marker missing — every hook would refuse to run"
+
+echo
 echo "==> Hand-placed asset files"
 [[ -f assets/logo/koyu-k-logo.svg ]] && ok "assets/logo/koyu-k-logo.svg" \
 	|| bad "assets/logo/koyu-k-logo.svg missing"

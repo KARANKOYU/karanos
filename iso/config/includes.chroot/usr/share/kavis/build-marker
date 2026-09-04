@@ -1,0 +1,15 @@
+Kavis build marker.
+
+live-build copies includes.chroot into the chroot BEFORE it runs the
+normal hooks, so this file exists inside the build chroot and on the
+built system, and NOWHERE ELSE. Every hook that edits the running
+system refuses to start without it (see the "Host guard" block at the
+top of iso/config/hooks/normal/*.hook.chroot).
+
+Reason: on 4 September 2026 a Kavis hook ran on the development
+Codespace instead of the chroot; /home and the user account were
+damaged badly enough that the container had to be rebuilt. A hook that
+rewrites /home, /etc/passwd, sudoers, initramfs or systemd state must
+never be able to run on a developer machine by accident.
+
+Do not delete this file and do not create it by hand on a workstation.

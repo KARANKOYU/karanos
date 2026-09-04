@@ -26,7 +26,11 @@
 set -e
 
 kavis_dirs() {
-	# Only in the live session, and once
+	# Only in the live session, and once. The marker is the same host
+	# guard the chroot hooks use (4 Sep 2026 incident): this function
+	# rewrites the passwd record of a real account, so it must never run
+	# on a development machine even if /proc/cmdline says boot=live.
+	[ -f /usr/share/kavis/build-marker ] || return 0
 	grep -q 'boot=live' /proc/cmdline || return 0
 	[ -e /var/lib/live/config/kavis-dirs ] && return 0
 

@@ -45,7 +45,12 @@ WIN_PID=; OB_PID=; XV_PID=
 
 # --- rc.xml: stock + hook (exactly the same operation as on the ISO) ---
 cp "$STOCK" "$T/rc.xml"
-sed -e "s|^RC=/etc/xdg/openbox/rc.xml|RC=$T/rc.xml|" "$HOOK" > "$T/hook.sh"
+# The hook edits $RC in place, so the copy points at the temp file; the
+# host guard is dropped with it, because every path this harness touches
+# is already redirected into $T (the guard exists to stop an UNMODIFIED
+# hook from running on a developer machine).
+sed -e "s|^RC=/etc/xdg/openbox/rc.xml|RC=$T/rc.xml|" \
+    -e '/--- Host guard/,/^fi$/d' "$HOOK" > "$T/hook.sh"
 sh "$T/hook.sh" >/dev/null || { echo "ERROR: 0210 hook failed" >&2; exit 2; }
 
 # --- stub commands ----------------------------------------------------

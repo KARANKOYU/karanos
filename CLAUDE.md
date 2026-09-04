@@ -161,6 +161,33 @@ başarısız saymaz.
   yerelde geçmeyeni push etme. Yeni bağımlılık → hem paketin `Depends`
   alanına hem iş akışının kurulum adımına.
 
+## Codespace host'unda YASAK komutlar (4 Eyl 2026 kuralı)
+
+Geliştirme konteynerinin kendisi bir kez kurban gitti: bir hook host'ta
+çalıştı, `/home` ve kullanıcı hesabı bozuldu, konteyner yeniden
+kurulmak zorunda kaldı. Bu yüzden host'ta ASLA çalıştırılmaz:
+
+- `useradd` / `usermod` / `userdel` / `groupadd` / `groupmod` /
+  `groupdel` / `passwd` / `chpasswd`,
+- `/etc/passwd`, `/etc/group`, `/etc/shadow`, `/etc/sudoers*` düzenleme,
+- `mount` / `umount`, `systemctl` (enable/disable/start dahil),
+  `update-initramfs`, `plymouth-set-default-theme`, `dpkg-divert`,
+- `/home` üzerinde herhangi bir değişiklik (silme, taşıma, sembolik bağ),
+- Kavis paketlerini host'a kurmak (`dpkg -i`, `apt install ./kavis-*.deb`)
+  — bakım betikleri host'un `/usr/lib/os-release`'ini saptırır ve
+  systemd birimlerini etkinleştirir. Paket testi VM'de yapılır.
+
+Bunların yeri: `iso/config/hooks/normal/*.hook.chroot` (live-build
+chroot'u), `iso/config/includes.chroot/usr/lib/live/config/*` (canlı
+sistem) ya da QEMU/VirtualBox VM'i. Her chroot hook'unun başında
+**host koruması** var: `/usr/share/kavis/build-marker` yoksa hook
+çalışmayı reddeder (marker yalnız includes.chroot ile chroot'a girer).
+`tools/check-config.sh` her hook'ta bu korumayı arar; koruma silinirse
+push öncesi denetim kırmızı yanar. Bir test betiği hook'u çalıştırmak
+zorundaysa (örn. `tools/check-keybinds.sh`) hem yolları geçici dizine
+çevirir hem korumayı sed ile atar — kopyanın dokunduğu her şey $TMP
+altındadır.
+
 ## Bilinen tuzaklar
 
 Bir kez ısırdıkları için burada duruyorlar:
@@ -175,6 +202,11 @@ Bir kez ısırdıkları için burada duruyorlar:
 - **`cmd | tee` tee'nin çıkış kodunu döndürür.** `iso/auto/build` bu yüzden
   `#!/bin/bash` + `set -eo pipefail` kullanır; olmazsa başarısız derleme
   CI'da yeşil görünür.
+- **Chroot hook'ları host'ta çalıştırma.** `0230-home-users` `/home`'u
+  siler ve `/users`'a bağlar, `9995-cleanup` `/usr/share/doc`'u siler,
+  `0100-kavis-services` `systemctl enable` çağırır. Hepsinde artık host
+  koruması var (yukarıdaki bölüm); korumayı kaldırmadan çalıştırmayı
+  deneme.
 - **`--apt-recommends false` derleme için**, kurulu sistem için değil.
   `9990-apt-recommends.hook.chroot` kurulan sistemde Recommends'i geri açar;
   ayrıca Recommends kapalıyken gelen paketler (`libpam-systemd` gibi) paket
