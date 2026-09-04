@@ -1,0 +1,39 @@
+# Network (item 52): the page and the pieces a VM can actually exercise.
+#
+# QEMU gives a wired connection and no Wi-Fi hardware, so the Wi-Fi
+# section is absent by design and the wired one is what gets checked.
+# Connecting to a real access point, the hotspot and importing a VPN
+# profile stay on the VM checklist by hand — they need hardware and a
+# file the test does not have.
+name: 52-network
+title: Network
+item: 52
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings network
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the page builds from nmcli (wired, VPN, DNS privacy)
+    shot: true
+  - do: shell nmcli -t -f DEVICE,TYPE,STATE device | grep -q ethernet
+    expect: ok
+    timeout: 10000
+    note: NetworkManager sees the emulated wired device
+  - do: shell test -x /usr/lib/kavis/set-dns
+    expect: ok
+  - do: shell /usr/lib/kavis/set-dns quad9
+    expect: ok
+    timeout: 15000
+    note: >
+      as the user: the guard must pass on a booted Kavis system and the
+      write then fails without root, which is the pkexec path's job
+  - do: shell grep -q systemd-resolved /etc/NetworkManager/conf.d/10-kavis-dns.conf
+    expect: ok
+    note: without this NetworkManager writes resolv.conf itself and encrypted DNS does nothing
+  - do: shell systemctl is-active --quiet systemd-resolved
+    expect: ok
+    timeout: 10000
+    note: the resolver the DNS setting configures is actually running
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

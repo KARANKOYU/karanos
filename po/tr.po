@@ -1327,3 +1327,123 @@ msgstr[1] "Yaklaşık %d dakika kaldı."
 
 msgid "Plug in the charger."
 msgstr "Şarj aletini tak."
+
+msgid "NetworkManager is not installed"
+msgstr "NetworkManager kurulu değil"
+
+msgid "Scan again"
+msgstr "Yeniden tara"
+
+msgid "Hotspot…"
+msgstr "Erişim noktası…"
+
+msgid "Wi-Fi actions"
+msgstr "Wi-Fi işlemleri"
+
+msgid "Share this machine's connection over Wi-Fi"
+msgstr "Bu bilgisayarın bağlantısını Wi-Fi ile paylaş"
+
+msgid "Connect"
+msgstr "Bağlan"
+
+msgid "Forget"
+msgstr "Unut"
+
+msgid "Open network"
+msgstr "Parolasız ağ"
+
+msgid "Password for “%s”"
+msgstr "“%s” parolası"
+
+msgid "Wi-Fi password"
+msgstr "Wi-Fi parolası"
+
+msgid "Could not connect to “%s”"
+msgstr "“%s” ağına bağlanılamadı"
+
+msgid "Hotspot"
+msgstr "Erişim noktası"
+
+msgid "At least 8 characters"
+msgstr "En az 8 karakter"
+
+msgid "Network name"
+msgstr "Ağ adı"
+
+msgid "Password"
+msgstr "Parola"
+
+msgid "Hotspot not started"
+msgstr "Erişim noktası başlatılamadı"
+
+msgid "A hotspot needs a name and a password of at least 8 characters."
+msgstr "Erişim noktası için bir ad ve en az 8 karakterlik bir parola gerekir."
+
+msgid "Wired"
+msgstr "Kablolu"
+
+msgid "IP and DNS…"
+msgstr "IP ve DNS…"
+
+msgid "Not connected"
+msgstr "Bağlı değil"
+
+msgid "IP and DNS"
+msgstr "IP ve DNS"
+
+msgid "Automatic (DHCP)"
+msgstr "Otomatik (DHCP)"
+
+msgid "Address"
+msgstr "Adres"
+
+msgid "Gateway"
+msgstr "Ağ geçidi"
+
+msgid "DNS servers"
+msgstr "DNS sunucuları"
+
+msgid "Could not save the addresses"
+msgstr "Adresler kaydedilemedi"
+
+msgid "VPN"
+msgstr "VPN"
+
+msgid "VPN “%s”"
+msgstr "“%s” VPN'i"
+
+msgid "Import a profile…"
+msgstr "Profil içe aktar…"
+
+msgid "No VPN configured"
+msgstr "Tanımlı VPN yok"
+
+msgid "Add another"
+msgstr "Bir tane daha ekle"
+
+msgid "A WireGuard .conf or an OpenVPN .ovpn file"
+msgstr "WireGuard .conf ya da OpenVPN .ovpn dosyası"
+
+msgid "Import a VPN profile"
+msgstr "VPN profili içe aktar"
+
+msgid "Import"
+msgstr "İçe aktar"
+
+msgid "VPN profiles"
+msgstr "VPN profilleri"
+
+msgid "Could not import the profile"
+msgstr "Profil içe aktarılamadı"
+
+msgid "DNS privacy"
+msgstr "DNS gizliliği"
+
+msgid "Off (use the network's DNS)"
+msgstr "Kapalı (ağın DNS'ini kullan)"
+
+msgid "Encrypted DNS"
+msgstr "Şifreli DNS"
+
+msgid "Send DNS queries over TLS to a chosen resolver instead of the network's"
+msgstr "DNS sorgularını ağın sunucusu yerine seçtiğin çözücüye TLS ile gönder"

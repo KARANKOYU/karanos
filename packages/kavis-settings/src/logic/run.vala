@@ -16,6 +16,26 @@ namespace Kavis.Settings.Run {
         }
     }
 
+    /* Run to completion and report whether it worked, with whatever it
+     * said. For the actions where the user has to be told: connecting
+     * to a network, importing a VPN profile. */
+    public bool run (string[] argv, out string message) {
+        message = "";
+        try {
+            string output, errors;
+            int status;
+            Process.spawn_sync (null, argv, null, SpawnFlags.SEARCH_PATH,
+                                null, out output, out errors, out status);
+            message = (errors.strip () != "") ? errors.strip ()
+                                              : output.strip ();
+            return Process.if_exited (status)
+                && Process.exit_status (status) == 0;
+        } catch (Error e) {
+            message = e.message;
+            return false;
+        }
+    }
+
     /* Fire and forget. */
     public void fire (string[] argv) {
         try {

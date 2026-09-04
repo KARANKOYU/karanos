@@ -30,4 +30,18 @@
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/kavis/set-power</annotate>
   </action>
+
+  <!-- Kavis Settings: encrypted DNS (item 52). Choosing a resolver is
+       reversible and loses no data; the active local user does it
+       without a password, like the other two. -->
+  <action id="org.kavis.settings.set-dns">
+    <description>Change the DNS resolver</description>
+    <message>Authentication is required to change the DNS resolver</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/kavis/set-dns</annotate>
+  </action>
 </policyconfig>

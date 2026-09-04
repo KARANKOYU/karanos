@@ -72,6 +72,12 @@ tzdata
 # --- network ---
 network-manager
 wpasupplicant
+# systemd-resolved: the local resolver behind Settings > Network > DNS
+# privacy (item 52). Without it "encrypted DNS" has nowhere to go —
+# NetworkManager would keep writing the network's servers straight into
+# resolv.conf. The drop-in that chooses a resolver is written by
+# /usr/lib/kavis/set-dns.
+systemd-resolved
 wireless-regdb
 iw
 iproute2

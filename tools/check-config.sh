@@ -73,13 +73,15 @@ for f in iso/config/hooks/normal/*.hook.chroot; do
 done
 # The root helpers are the other thing that must never run on a
 # workstation; set-power writes /sys and /etc/systemd.
-helper=packages/kavis-settings/scripts/set-power
-if grep -q '/run/systemd/system' "$helper" \
-	&& grep -q '/usr/share/kavis/build-marker' "$helper"; then
-	ok "$(basename "$helper") — host guard present"
-else
-	bad "$(basename "$helper") — host guard MISSING (it writes /sys and /etc)"
-fi
+for helper in packages/kavis-settings/scripts/set-power \
+	packages/kavis-settings/scripts/set-dns; do
+	if grep -q '/run/systemd/system' "$helper" \
+		&& grep -q '/usr/share/kavis/build-marker' "$helper"; then
+		ok "$(basename "$helper") — host guard present"
+	else
+		bad "$(basename "$helper") — host guard MISSING (it writes /sys and /etc)"
+	fi
+done
 [[ -f iso/config/includes.chroot/usr/share/kavis/build-marker ]] \
 	&& ok "build-marker ships in includes.chroot" \
 	|| bad "includes.chroot/usr/share/kavis/build-marker missing — every hook would refuse to run"
