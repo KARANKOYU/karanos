@@ -180,12 +180,30 @@ popover > contents {
 }
 
 /* Adwaita's `list row:selected` color is a fixed blue in the compiled
- * CSS — its specificity beats the general :selected rule; explicitly teal. */
+ * CSS — its specificity beats the general :selected rule; explicitly teal.
+ * Tree and icon views carry their own selector (the Task Manager's
+ * process list came up Adwaita blue, G1 screenshots), and so do menu
+ * items, which is why they are listed here rather than left to the
+ * generic :selected rule below. */
 list row:selected,
 list row:selected:hover,
 stacksidebar row:selected,
-stacksidebar row:selected:hover {
+stacksidebar row:selected:hover,
+treeview.view:selected,
+treeview.view:selected:hover,
+treeview.view:selected:focus,
+iconview:selected,
+iconview:selected:hover,
+menu menuitem:hover,
+menu menuitem:selected {
 	background-color: @kavis_teal;
+	color: @kavis_ground;
+}
+
+/* The teal fill leaves the row's own text dark; the cell renderers of a
+ * selected tree row must follow, otherwise the secondary columns keep
+ * the light foreground and vanish on teal. */
+treeview.view:selected > * {
 	color: @kavis_ground;
 }
 
