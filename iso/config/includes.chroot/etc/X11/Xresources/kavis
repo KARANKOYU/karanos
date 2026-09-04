@@ -1,0 +1,20 @@
+! Kavis — Xft rendering defaults (v0.4-test4 feedback A1)
+!
+! Debian's /etc/X11/Xsession.d/30x11-common_xresources merges every file
+! in this directory into the X resource database at login, before
+! ~/.Xresources. Everything that is NOT a GTK application reads its font
+! rendering from here: openbox title bars, Qt (Kate), Java, xterm.
+! GTK apps get the same values from settings.ini and xsettingsd; the two
+! must agree or the title bar and the window content look like different
+! systems.
+!
+! Xft.dpi is the base 96. Settings > Display > Scale overrides it live
+! (xrdb -merge) and persists the override in the Kavis block of
+! ~/.Xresources, which is merged after this file.
+
+Xft.antialias:  1
+Xft.hinting:    1
+Xft.hintstyle:  hintslight
+Xft.rgba:       rgb
+Xft.lcdfilter:  lcddefault
+Xft.dpi:        96

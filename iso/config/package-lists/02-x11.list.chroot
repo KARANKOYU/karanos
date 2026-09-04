@@ -54,6 +54,19 @@ librsvg2-common
 fonts-dejavu-core
 fonts-liberation2
 
+# --- UI font (v0.4-test4 feedback A1) ---
+# fonts-inter: the system UI face at 10pt. Chosen over the previous
+# DejaVu Sans because DejaVu is a text face — at UI sizes its low
+# x-height and heavy stems are what made the VM screenshots look
+# "pixelated". Inter was drawn for screen UI at exactly this size.
+# fonts-noto-core: the fallback for scripts Inter does not cover
+# (Cyrillic beyond the basics, Greek, Arabic...). Kavis is meant to be
+# translated, so a missing-glyph box is a real failure, not cosmetics.
+# Rendering policy (slight hinting + subpixel) is in
+# includes.chroot/etc/fonts/local.conf.
+fonts-inter
+fonts-noto-core
+
 # NOTE (after item 3): the Python + PyGObject stack was REMOVED — the
 # panel is now a compiled Vala binary, no component on the ISO depends on
 # Python. If a user application returns to Python later, its

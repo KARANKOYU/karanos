@@ -10,7 +10,12 @@ XS_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/xsettingsd/xsettingsd.conf"
 if command -v xsettingsd >/dev/null 2>&1; then
 	if [ ! -f "$XS_CONF" ]; then
 		mkdir -p "$(dirname "$XS_CONF")"
-		printf 'Net/ThemeName "Kavis"\nNet/IconThemeName "Kavis"\nGtk/FontName "DejaVu Sans 10"\n' > "$XS_CONF"
+		# Font and its rendering (A1): XSETTINGS is what GTK reads
+		# once xsettingsd is up, so it has to carry the same values as
+		# settings.ini and /etc/X11/Xresources/kavis. Xft/RGBA and the
+		# slight hint style are the difference between "crisp" and the
+		# pixelated text the v0.4-test4 VM round reported.
+		printf 'Net/ThemeName "Kavis"\nNet/IconThemeName "Kavis"\nGtk/FontName "Inter 10"\nXft/Antialias 1\nXft/Hinting 1\nXft/HintStyle "hintslight"\nXft/RGBA "rgb"\nXft/DPI 98304\n' > "$XS_CONF"
 	fi
 	xsettingsd -c "$XS_CONF" &
 fi

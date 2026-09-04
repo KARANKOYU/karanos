@@ -18,10 +18,13 @@
 border.width: 1
 padding.width: 8
 # The title height matches Tilix's CSD bar and the Kavis apps'
-# GtkHeaderBar (gtk.css min-height 46px): text (~13px) + 2×16 padding
-# + 1px border = 46px (test2 E2; measured on Xvfb with
-# _NET_FRAME_EXTENTS, 11 gave 36px).
-padding.height: 16
+# GtkHeaderBar (gtk.css min-height 46px). Padding depends on the title
+# font, so the two are set together: A1 moved openbox from Debian's
+# "sans 8 bold" to "Inter 10" (the 0200 hook writes the rc.xml font
+# blocks), which is ~4px taller, so the padding drops from 16 to 14 and
+# the frame stays 46. Measured on Xvfb with _NET_FRAME_EXTENTS: 16 gave
+# 50, 14 gives 46, 13 gives 44.
+padding.height: 14
 window.handle.width: 0
 window.client.padding.width: 0
 window.client.padding.height: 0

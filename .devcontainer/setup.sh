@@ -23,9 +23,9 @@ packages=(
 	# ISO tooling (lb build itself only runs in CI, the config is linted here)
 	live-build xorriso
 	# Headless UI tests: check-keybinds.sh, check-snap.sh, panel-screenshot.sh
-	xvfb openbox xdotool x11-utils x11-apps xterm xfonts-base xwallpaper picom
-	# Emoji picker screenshots need the same font the ISO ships
-	fonts-noto-color-emoji
+	xvfb openbox xdotool x11-utils x11-apps x11-xserver-utils xterm xfonts-base xwallpaper picom
+	# Screenshots need the same fonts the ISO ships (emoji cells, UI face)
+	fonts-noto-color-emoji fonts-inter
 	# Translations and linting
 	gettext shellcheck
 	# Large binary assets

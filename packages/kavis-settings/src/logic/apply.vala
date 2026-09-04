@@ -281,6 +281,77 @@ namespace Kavis.Settings.Apply {
         Posix.execvp ("kavis-settings", { "kavis-settings", "keyboard" });
     }
 
+    /* Xft.dpi in the X resource database (A1). XSETTINGS reaches GTK
+     * only; openbox title bars, Qt (Kate) and xterm read the resource
+     * database instead, so a scale change that skips this leaves the
+     * title bars at the old size. ~/.Xresources is merged AFTER
+     * /etc/X11/Xresources/kavis at login, so the Kavis block there wins
+     * over the shipped default, and `xrdb -merge` makes it live for
+     * everything started from now on. Lines outside the markers are the
+     * user's and are kept. */
+    private const string XRES_BEGIN = "! --- Kavis settings (do not edit) ---";
+    private const string XRES_END = "! --- end Kavis settings ---";
+
+    private void xresources_set (string resource, string value) {
+        string path = Path.build_filename (Environment.get_home_dir (),
+                                           ".Xresources");
+        string contents = "";
+        try {
+            FileUtils.get_contents (path, out contents);
+        } catch (Error e) { }
+        var kept = new StringBuilder ();
+        var mine = new HashTable<string, string> (str_hash, str_equal);
+        string[] order = {};
+        bool inside = false;
+        foreach (unowned string line in contents.split ("\n")) {
+            if (line.strip () == XRES_BEGIN) {
+                inside = true;
+                continue;
+            }
+            if (line.strip () == XRES_END) {
+                inside = false;
+                continue;
+            }
+            if (inside) {
+                int colon = line.index_of (":");
+                if (colon > 0) {
+                    string key = line.substring (0, colon).strip ();
+                    if (mine.lookup (key) == null) {
+                        order += key;
+                    }
+                    mine.insert (key, line.substring (colon + 1).strip ());
+                }
+                continue;
+            }
+            if (line.strip () != "") {
+                kept.append (line);
+                kept.append_c ('\n');
+            }
+        }
+        if (mine.lookup (resource) == null) {
+            order += resource;
+        }
+        mine.insert (resource, value);
+
+        var text = new StringBuilder ();
+        text.append (kept.str);
+        text.append (XRES_BEGIN);
+        text.append_c ('\n');
+        foreach (unowned string key in order) {
+            text.append_printf ("%s: %s\n", key, mine.lookup (key));
+        }
+        text.append (XRES_END);
+        text.append_c ('\n');
+        try {
+            FileUtils.set_contents (path, text.str);
+        } catch (Error e) {
+            warning ("kavis-settings: could not write ~/.Xresources: %s",
+                     e.message);
+            return;
+        }
+        Run.fire ({ "xrdb", "-merge", path });
+    }
+
     /* percent: 100/125/150/200 → Xft DPI (xsettingsd wants it ×1024). */
     /* Scale (feedback F3). Two mechanisms, the same split GNOME uses:
      * the WINDOW scale is an integer (GTK can only draw at 1x or 2x),
@@ -297,6 +368,10 @@ namespace Kavis.Settings.Apply {
         xsettings_set ("Gdk/WindowScalingFactor", window_factor.to_string ());
         xsettings_set ("Gdk/UnscaledDPI", (unscaled_dpi * 1024).to_string ());
         xsettings_set ("Xft/DPI", (total_dpi * 1024).to_string ());
+        /* Title bars and Qt do not speak XSETTINGS — same number, other
+         * channel. Openbox re-reads it on --reconfigure. */
+        xresources_set ("Xft.dpi", total_dpi.to_string ());
+        Run.fire ({ "openbox", "--reconfigure" });
         session_env_set ({
             "GDK_SCALE=%d".printf (window_factor),
             "GDK_DPI_SCALE=%.3f".printf (

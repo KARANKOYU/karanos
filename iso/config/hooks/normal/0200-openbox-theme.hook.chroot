@@ -44,9 +44,31 @@ mv "$RC.new" "$RC"
 # Windows-like title bar: icon, title, then minimize/maximize/close
 sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$RC"
 
-if grep -q '<name>Kavis</name>' "$RC"; then
-	echo "I: Openbox theme set to Kavis"
-else
+# Title bar and menu font (A1). Debian ships "sans 8 bold", which is a
+# different face and weight from everything else on the screen — that
+# mismatch is half of why the VM round called the look amateur. All the
+# <font> blocks inside <theme> become the system UI face at the system
+# size; the weight drops to Normal because Windows 11 title text is not
+# bold. The themerc padding.height is tuned to THIS font so the frame
+# stays 46px — change one and re-measure the other.
+awk '
+	/<theme>/  { intheme = 1 }
+	/<\/theme>/ { intheme = 0 }
+	intheme && /<font place=/ { infont = 1 }
+	infont && /<\/font>/     { infont = 0 }
+	infont && /<name>/   { sub(/<name>[^<]*<\/name>/,   "<name>Inter</name>") }
+	infont && /<size>/   { sub(/<size>[^<]*<\/size>/,   "<size>10</size>") }
+	infont && /<weight>/ { sub(/<weight>[^<]*<\/weight>/, "<weight>Normal</weight>") }
+	{ print }
+' "$RC" > "$RC.new"
+mv "$RC.new" "$RC"
+
+if ! grep -q '<name>Kavis</name>' "$RC"; then
 	echo "E: could not write the theme name into rc.xml" >&2
 	exit 1
 fi
+if ! grep -q '<name>Inter</name>' "$RC"; then
+	echo "E: could not write the title font into rc.xml" >&2
+	exit 1
+fi
+echo "I: Openbox theme set to Kavis, title font Inter 10"

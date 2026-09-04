@@ -16,6 +16,7 @@ Architecture: all
 Depends:
  ${misc:Depends},
  adwaita-icon-theme,
+ fonts-inter,
  hicolor-icon-theme,
  papirus-icon-theme,
 Description: Kavis look and feel — GTK theme, icons, cursors, wallpapers
