@@ -100,6 +100,72 @@ grep -qF "Xft/DPI $((96 * 1024))" "$AUTOSTART" \
 	|| bad "the xsettingsd Xft/DPI default does not match ${dpi} dpi"
 
 echo
+echo "==> TITLE BAR — the SSD frame and the CSD header bar must match (C2)"
+THEMERC="packages/kavis-theme/src/openbox-3/themerc"
+DARK_CSS="packages/kavis-theme/src/gtk-3.0/gtk-dark.css"
+themerc_value() { sed -n "s/^$1:[[:space:]]*//p" "$THEMERC" | head -1; }
+# The two layers live in different files and different languages, so
+# nothing but a check keeps them equal. This item has come round three
+# times now; the numbers are asserted rather than eyeballed.
+ssd_title_bg=$(themerc_value "window.active.title.bg.color")
+if [[ "$ssd_title_bg" == "#17222C" ]]; then
+	note "themerc title background = $ssd_title_bg (= @kavis_surface)"
+else
+	bad "themerc title background is $ssd_title_bg, the header bar uses #17222C"
+fi
+while read -r key want; do
+	[[ -z "$key" ]] && continue
+	got=$(themerc_value "$key")
+	if [[ "$got" == "$want" ]]; then
+		note "themerc $key = $want"
+	else
+		bad "themerc $key is '$got', expected $want (the CSD side uses it)"
+	fi
+done <<KEYS
+window.active.button.close.hover.bg.color #C42B1C
+window.active.button.close.pressed.bg.color #A02316
+window.active.label.text.color #E6EDF3
+window.inactive.title.bg.color #121C26
+KEYS
+if grep -qF "background-color: #C42B1C;" "$DARK_CSS"; then
+	note "header bar close hover = #C42B1C, same as the frame"
+else
+	bad "the header bar close hover is not #C42B1C"
+fi
+if grep -qF "min-width: 46px;" "$DARK_CSS" && grep -qF "min-height: 32px;" "$DARK_CSS"; then
+	note "header bar buttons 46×32"
+else
+	bad "the header bar buttons are not 46×32"
+fi
+if grep -qF "min-height: 46px;" "$DARK_CSS"; then
+	note "header bar height 46px"
+else
+	bad "the header bar is not 46px tall"
+fi
+# openbox knows no rgba, so its hover colour is the CSD 10%-white
+# overlay precomputed against the title background. Recompute it here so
+# a palette change cannot leave the two sides drifting apart.
+hover=$(themerc_value "window.active.button.hover.bg.color")
+# Channel tolerance 1: the value in themerc was blended by hand, and a
+# rounding difference of one step is invisible. Anything larger means
+# the two hover colours have actually drifted.
+if hover_check=$(/usr/bin/python3 -c '
+import sys
+bg, got, pct = sys.argv[1].lstrip("#"), sys.argv[2].lstrip("#"), float(sys.argv[3])
+want = [round(int(bg[i:i + 2], 16) + (255 - int(bg[i:i + 2], 16)) * pct)
+        for i in (0, 2, 4)]
+have = [int(got[i:i + 2], 16) for i in (0, 2, 4)]
+text = "#%02X%02X%02X" % tuple(want)
+if max(abs(a - b) for a, b in zip(want, have)) > 1:
+    sys.exit("expected about " + text)
+print(text)
+' "$ssd_title_bg" "$hover" 0.10 2>&1); then
+	note "themerc button hover = $hover (title bg + 10% white ≈ $hover_check)"
+else
+	bad "themerc button hover is $hover but the CSD side blends 10% white over $ssd_title_bg — $hover_check"
+fi
+
+echo
 echo "==> CORNER — the radius picom draws on a real window"
 PICOM=""
 if command -v picom >/dev/null 2>&1 \
@@ -166,7 +232,7 @@ fi
 
 echo
 if [[ $fail -eq 0 ]]; then
-	echo "VISUAL-OK: font, DPI and corner radius are what the design language says"
+	echo "VISUAL-OK: font, DPI, title bars and corner radius match the design language"
 else
 	echo "VISUAL-FAIL: see above"
 fi

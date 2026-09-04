@@ -170,10 +170,34 @@ SSD / themerc eşleme:
 | Kapat hover / basılı | #C42B1C / #A02316, beyaz ✕ (CSD ile aynı) |
 | Diğer hover / basılı | #2E3842 / #374149 |
 
+### C2 (v0.4-test4): eşleşme artık denetleniyor
+
+Bu madde iki tur atlandığı için sayılar gözle değil `check-visual.sh`
+ile karşılaştırılıyor: themerc'nin başlık zemini / etkin metin rengi /
+kapat hover-basılı renkleri ile gtk-dark.css'in headerbar değerleri
+birebir aynı olmak zorunda, headerbar 46px ve düğmeleri 46×32 olmak
+zorunda, ve openbox'ın hover rengi (rgba bilmediği için elle
+hesaplanmış) başlık zemini + %10 beyaz ile ±1 kanal içinde uyuşmak
+zorunda. Sapan bir değer push öncesi kırmızı yanar.
+
+Bu turda kapanan iki fark:
+- CSD başlık metni GTK'nın `.title` sınıfı yüzünden **kalın**dı,
+  openbox başlığı normal. İkisi yan yanayken göze çarpan tek şey buydu;
+  headerbar'ın başlığı da normale çekildi.
+- Firefox kendi başlık çubuğunu çiziyordu (sekmeler başlıkta).
+  `browser.tabs.inTitlebar = 0` (policies.json, "default" — kullanıcı
+  geri açabilir) ile artık sistem başlık çubuğunu alıyor.
+
+Kanıt: `docs/gorseller/baslik-cubugu-c2.png` — üstte CSD, altta openbox
+çerçevesi, aynı yükseklik ve aynı renkler.
+(`CSD=1 tools/theme-screenshot.sh` ile yeniden üretilir.)
+
 Kalan openbox sınırları (bilinçli kabul): düğme kutusu kare (46px
-genişlik olmaz), 1-2px düğme arası boşluk, hover kutusu tam yükseklik
-dolmaz, animasyon yok. Yan yana bakışta fark ayrıntı düzeyinde —
-kanıt: v0.4-test2 A ekran görüntüsü (Tilix + Nemo + Ayarlar).
+genişlik olmaz — openbox düğme boyutunu başlık yüksekliğinden türetir,
+themerc'de genişlik seçeneği yok), 1-2px düğme arası boşluk, hover
+kutusu tam yükseklik dolmaz, animasyon yok. Bunlar tema dosyasıyla
+değil ancak openbox'ı yamalamakla çözülür; imzalı Debian paketini
+yamalamak kapsam dışı.
 
 ## Güç diyaloğu / Ctrl+Alt+Del (2D hedef tasarımı)
 

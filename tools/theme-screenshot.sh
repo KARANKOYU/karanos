@@ -9,6 +9,7 @@
 #
 # Usage:
 #   tools/theme-screenshot.sh [output.png]
+#   CSD=1 tools/theme-screenshot.sh out.png   # add a CSD window (C2)
 #
 # Requirements: xvfb, openbox, xwallpaper, python3-gi, gir1.2-gtk-3.0
 
@@ -96,7 +97,9 @@ xrdb -merge "$REPO_ROOT/iso/config/includes.chroot/etc/X11/Xresources/kavis"
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1
 xwallpaper --zoom "$ROOT/usr/share/backgrounds/kavis/kavis.png" || true
-/usr/bin/python3 tools/sample-window.py \
+# CSD=1: also open a client-side-decorated window, so one screenshot
+# shows both title bar kinds side by side (C2 proof).
+KAVIS_SAMPLE_CSD="${CSD:-}" /usr/bin/python3 tools/sample-window.py \
 	>"$ROOT/preview.log" 2>&1 &
 PREVIEW_PID=$!
 

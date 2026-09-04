@@ -6,7 +6,8 @@
       "browser.theme.content-theme": { "Value": 0, "Status": "default" },
       "layout.css.prefers-color-scheme.content-override": { "Value": 0, "Status": "default" },
       "browser.aboutwelcome.enabled": { "Value": false, "Status": "default" },
-      "browser.shell.checkDefaultBrowser": { "Value": false, "Status": "default" }
+      "browser.shell.checkDefaultBrowser": { "Value": false, "Status": "default" },
+      "browser.tabs.inTitlebar": { "Value": 0, "Status": "default" }
     },
     "DisableProfileImport": false,
     "DontCheckDefaultBrowser": true

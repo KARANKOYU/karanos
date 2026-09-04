@@ -135,6 +135,13 @@ headerbar {
 	min-height: 46px;
 	padding: 0 0 0 8px;
 }
+/* C2: GTK makes a header bar's .title bold. The openbox title is
+ * Normal weight (A1), and a bold CSD title next to a regular SSD one is
+ * the difference you actually notice when the two are side by side. */
+headerbar .title,
+headerbar label.title {
+	font-weight: normal;
+}
 headerbar:backdrop {
 	background-color: @kavis_panel;
 	color: @kavis_text2;

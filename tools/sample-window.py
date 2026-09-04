@@ -92,6 +92,41 @@ def build():
 	return win
 
 
+def csd_window():
+	"""A Kavis-style CSD window, next to the SSD one (C2).
+
+	Mirrors packages/kavis-common/headerbar.vala: icon and title on the
+	left, :minimize,maximize,close on the right, no centred title. Put
+	beside a server-decorated window it makes the two title bars
+	comparable in a single screenshot — the C2 claim is that they look
+	the same, and that has to be shown, not asserted.
+	"""
+	win = Gtk.Window(title="Kavis (CSD)")
+	win.set_default_size(420, 200)
+	bar = Gtk.HeaderBar()
+	bar.set_show_close_button(True)
+	bar.set_decoration_layout(":minimize,maximize,close")
+	row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+	row.pack_start(Gtk.Image.new_from_icon_name("kavis", Gtk.IconSize.MENU),
+	               False, False, 0)
+	label = Gtk.Label(label="Kavis (CSD)")
+	label.get_style_context().add_class("title")
+	row.pack_start(label, False, False, 0)
+	row.show_all()
+	bar.pack_start(row)
+	empty = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+	empty.show()
+	bar.set_custom_title(empty)
+	bar.show()
+	win.set_titlebar(bar)
+	body = Gtk.Label(label="Client-side decoration")
+	body.set_margin_top(24)
+	win.add(body)
+	win.move(60, 60)
+	win.show_all()
+	return win
+
+
 def extra_window(index):
 	"""Open one small plain window; used to crowd the taskbar."""
 	win = Gtk.Window(title=f"Kavis {index}")
@@ -102,10 +137,13 @@ def extra_window(index):
 
 
 def main():
+	import os
 	build()
+	# KAVIS_SAMPLE_CSD=1: also open a client-side-decorated window, so
+	# one screenshot carries both title bar kinds (C2).
+	csd = csd_window() if os.environ.get("KAVIS_SAMPLE_CSD") else None  # noqa: F841
 	# KAVIS_SAMPLE_WINDOWS=N: open N-1 extra small windows for the taskbar
 	# crowding test (stage 2: is the clock still visible with 30 windows).
-	import os
 	count = int(os.environ.get("KAVIS_SAMPLE_WINDOWS", "1"))
 	extras = [extra_window(i) for i in range(2, count + 1)]  # noqa: F841
 	# Nobody closes it in CI; staying open until the QEMU test ends is
