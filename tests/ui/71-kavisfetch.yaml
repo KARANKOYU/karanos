@@ -24,7 +24,7 @@ steps:
     expect: ok
     timeout: 20000
     note: plain fastfetch finds the same config through /etc/fastfetch
-  - do: shell '! grep -rq kavisfetch /etc/profile /etc/bash.bashrc /etc/skel 2>/dev/null'
+  - do: shell if grep -rq kavisfetch /etc/profile /etc/bash.bashrc /etc/skel 2>/dev/null; then exit 1; fi
     expect: ok
     note: >
       never run when a terminal opens — a summary nobody asked for is

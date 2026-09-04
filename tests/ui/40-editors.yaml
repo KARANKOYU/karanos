@@ -10,7 +10,7 @@ steps:
     timeout: 40000
     note: the notepad
     shot: true
-  - do: shell '! xdotool search --onlyvisible --name Mousepad'
+  - do: shell test -z "$(xdotool search --onlyvisible --name Mousepad)"
     expect: ok
     timeout: 10000
     note: >
@@ -24,7 +24,7 @@ steps:
   - do: launch tilix
     expect: window tilix visible
     timeout: 40000
-  - do: shell '! xdotool search --onlyvisible --name Tilix'
+  - do: shell test -z "$(xdotool search --onlyvisible --name Tilix)"
     expect: ok
     timeout: 10000
   - do: close window tilix
