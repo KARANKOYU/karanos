@@ -130,7 +130,8 @@ headerbar {
 	border-bottom: 1px solid @kavis_border;
 	color: @kavis_text;
 	/* E2 (test2): 46 px — same height as Tilix's bar and the openbox
-	   title (themerc padding.height 16); buttons 46×32 centered. */
+	   title (themerc padding.height 14 with the Inter 10 title font,
+	   A1); buttons 46×32 centered. */
 	min-height: 46px;
 	padding: 0 0 0 8px;
 }
@@ -166,10 +167,20 @@ headerbar button.titlebutton.close:active {
 	color: #FFFFFF;
 }
 /* CSD frame: the same line as the openbox border + a slight shadow. */
+/* A2: 8px, the window radius from the design table. Until now this was
+ * 0 and CSD windows (Settings, Task Manager, Tilix) were the sharp
+ * corners the VM round reported: picom's 8px clip lands in the
+ * invisible shadow margin of a CSD window, so only the toolkit can
+ * round the visible frame. The header bar has to follow or its
+ * background paints over the top corners. */
 decoration {
-	border-radius: 0;
+	border-radius: 8px;
 	box-shadow: 0 0 0 1px @kavis_border, 0 8px 24px rgba(0, 0, 0, 0.45);
 	margin: 12px;
+}
+window.csd > .titlebar {
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
 }
 
 /* The panel color is used in menus too — the same surface as the taskbar */
@@ -223,4 +234,78 @@ selection,
 .nemo-window toolbar button {
 	padding: 3px 6px;
 	min-height: 0;
+}
+
+/* --- corner radii (feedback A2; table in docs/tasarim-dili.md) -------
+ * The VM round found "some places sharp". Adwaita's own radii are 5px
+ * for controls and 0 for several containers, so three different corner
+ * sizes were on screen at once. These rules restate the design table
+ * for every widget a third-party application can put up; Kavis' own
+ * widgets carry the same numbers in their component CSS.
+ *
+ * Deliberately NOT covered: GtkMenu is a toplevel X window, so its
+ * corners come from picom (8px) and cannot be asked for 12.
+ */
+button,
+spinbutton,
+entry,
+combobox button {
+	border-radius: 6px;
+}
+/* A linked group reads as ONE control: only the outer corners round. */
+.linked > button:not(:first-child):not(:last-child),
+.linked > entry:not(:first-child):not(:last-child),
+.linked > combobox > box > button {
+	border-radius: 0;
+}
+.linked > button:first-child,
+.linked > entry:first-child {
+	border-radius: 6px 0 0 6px;
+}
+.linked > button:last-child,
+.linked > entry:last-child {
+	border-radius: 0 6px 6px 0;
+}
+.linked.vertical > button:first-child,
+.linked.vertical > entry:first-child {
+	border-radius: 6px 6px 0 0;
+}
+.linked.vertical > button:last-child,
+.linked.vertical > entry:last-child {
+	border-radius: 0 0 6px 6px;
+}
+
+/* Cards and framed containers: 8, like a window. */
+frame,
+frame > border,
+.card,
+scrolledwindow.frame,
+list.frame,
+.view.frame,
+tooltip.background {
+	border-radius: 8px;
+}
+
+/* Popups: 12, the same as every Kavis popup. */
+popover > contents,
+popover.background > contents {
+	border-radius: 12px;
+}
+
+/* Tabs round on the top edge only — the bottom sits on the page. */
+notebook > header > tabs > tab {
+	border-radius: 6px 6px 0 0;
+}
+
+/* Sliders are circles, troughs and bars are fully rounded strips. */
+scale slider {
+	border-radius: 50%;
+}
+scale trough,
+scale highlight,
+scale fill,
+progressbar > trough,
+progressbar > trough > progress,
+levelbar block {
+	border-radius: 999px;
 }

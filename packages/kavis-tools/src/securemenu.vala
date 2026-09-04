@@ -24,7 +24,7 @@ namespace Kavis.Tools {
           background-image: none;
           background-color: transparent;
           border: none;
-          border-radius: 8px;
+          border-radius: 6px;
           color: @kavis_text;
           padding: 14px 28px;
           font-size: 18px;

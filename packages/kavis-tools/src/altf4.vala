@@ -49,7 +49,7 @@ namespace Kavis.Tools {
             background-image: none;
             background-color: transparent;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: none;
             color: @kavis_text;
             padding: 12px;

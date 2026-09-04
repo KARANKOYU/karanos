@@ -6,16 +6,26 @@ olmaz.
 
 ## Köşe yarıçapları (J1)
 
+(v0.4-test4 A2 ile güncellendi — VM turunda "bazı yerler keskin"
+denmişti; ekranda üç ayrı köşe boyu vardı.)
+
 | Öğe | Yarıçap | Nerede tanımlı |
 |---|---|---|
-| Popup / panel / menü kutusu | 12px | ilgili dosyanın CSS bloğu (`.kavis-popup`, `.kavis-picker`, `.kavis-snap-menu`, `.kavis-osd`, `.kavis-snip-bar`) |
-| Kutucuk (hızlı ayar) | 10px | `.setting-tile` |
-| Düğme / hover kutusu | 8px | `.kavis-panel button`, popup/picker düğmeleri |
-| Pencere | 8px | picom `corner-radius` (picom-kavis.conf) |
+| Popup / panel / menü kutusu / güç diyaloğu | 12px | ilgili dosyanın CSS bloğu (`.kavis-popup`, `.kavis-picker`, `.kavis-snap-menu`, `.kavis-osd`, `.kavis-snip-bar`, `.kavis-power-menu`), tema CSS'inde `popover > contents` |
+| Pencere (SSD) | 8px | picom `corner-radius` (picom-kavis.conf) |
+| Pencere (CSD) | 8px | tema CSS `decoration` + `window.csd > .titlebar` |
+| Kart / çerçeve / kutucuk / ipucu | 8px | `.kavis-card`, `.desktop-card`, `.setting-tile`, tema CSS `frame, .card, tooltip.background` |
+| Düğme / hover kutusu / görev çubuğu vurgusu / giriş kutusu | 6px | `.kavis-panel button`, popup/picker düğmeleri, tema CSS `button, entry, spinbutton` |
+| Sekme | 6px (üst köşeler) | tema CSS `notebook tab`, `.picker-tab` |
+| Kaydırıcı topu | tam yuvarlak | tema CSS `scale slider`, `.kavis-popup scale slider` |
+| Yiv / ilerleme çubuğu | tam yuvarlak | tema CSS `scale trough`, `progressbar` |
 
 GTK3 CSS'te değişken yok (`@define-color` yalnız renk) — değerlerin
 tek kaynağı BU TABLO; koda yeni yarıçap yazarken buradan al, sapma
 görürsen düzelt.
+
+İç içe kutularda iç yarıçap = dış yarıçap − kenarlık (kutucuk 8, içindeki
+düğme 7): eşit verilirse dolgu köşede kenarlığın dışına taşar.
 
 X menüleri (Gtk.Menu) picom'un genel 8px'iyle yuvarlanır; menü
 kutusuna GTK içinden 12px verilemiyor (kabul edilmiş sınır).
@@ -103,7 +113,7 @@ SSD / themerc eşleme:
 
 | Öğe | Değer |
 |---|---|
-| Başlık yüksekliği | 46px her yerde (test2 E2): openbox font 10 + padding.height 16 + 1px kenarlık; CSD headerbar min-height 46px; Tilix'in çubuğu referans |
+| Başlık yüksekliği | 46px her yerde (test2 E2): openbox Inter 10 + padding.height 14 + 1px kenarlık (A1 ile ölçüldü); CSD headerbar min-height 46px; Tilix'in çubuğu referans |
 | Düğme sırası | – ☐ ✕ sağda; ikon + başlık solda (NLIMC) |
 | Düğme ikonu | 16px xbm, 12px glif — GTK sembolik ikonlarla aynı optik boy |
 | Kapat hover / basılı | #C42B1C / #A02316, beyaz ✕ (CSD ile aynı) |

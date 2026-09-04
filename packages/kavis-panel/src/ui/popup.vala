@@ -25,7 +25,7 @@ namespace Kavis.Ui {
 
         private const string CSS = """
         /* Design language (test8 J): popup 12px corners, 16px inner
-           padding, 8px between items; button corners 8px
+           padding, 8px between items; button corners 6px
            (docs/tasarim-dili.md). */
         .kavis-popup {
           background-color: @kavis_surface;
@@ -49,7 +49,7 @@ namespace Kavis.Ui {
           background-image: none;
           background-color: transparent;
           border: none;
-          border-radius: 8px;
+          border-radius: 6px;
           color: @kavis_text;
           padding: 8px 10px;
           transition: background-color 140ms ease;
@@ -75,23 +75,25 @@ namespace Kavis.Ui {
         .kavis-popup calendar:indeterminate {
           color: @kavis_text3;
         }
-        /* Quick-setting tiles (test8 B4): 1px border, 10px corners,
+        /* Quick-setting tiles (test8 B4): 1px border, 8px corners (A2),
            ~56px height, label BELOW the tile; when on, teal FILL and a
            dark icon (brand rule). A split tile has a thin vertical
            line, the two halves hover separately. */
         .kavis-popup .setting-tile {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
-          border-radius: 10px;
+          border-radius: 8px;
         }
+        /* One less than the tile so the fill does not poke out of the
+           border on the diagonal. */
         .kavis-popup .setting-tile button {
           padding: 16px 0;
-          border-radius: 9px;
+          border-radius: 7px;
         }
         .kavis-popup .setting-tile button.tile-arrow {
           padding: 16px 9px;
           border-left: 1px solid @kavis_border;
-          border-radius: 0 9px 9px 0;
+          border-radius: 0 7px 7px 0;
         }
         /* Sliders (B4): 6px teal fill, 14px round knob. */
         .kavis-popup scale trough {

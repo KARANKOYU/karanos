@@ -22,7 +22,7 @@ namespace Kavis.Ui {
         .kavis-overview .desktop-card {
           background-color: @kavis_surface;
           border: 1px solid @kavis_border;
-          border-radius: 10px;
+          border-radius: 8px;
           padding: 10px;
         }
         .kavis-overview .desktop-card.current {

@@ -431,7 +431,7 @@ namespace Kavis.Tools {
                       background-image: none;
                       background-color: transparent;
                       border: none;
-                      border-radius: 8px;
+                      border-radius: 6px;
                       color: @kavis_text;
                       padding: 4px 10px;
                     }

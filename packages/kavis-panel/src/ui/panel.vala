@@ -81,7 +81,7 @@ namespace Kavis.Ui {
            pixel of the screen must work — Fitts. */
         .kavis-panel button {
           border: none;
-          border-radius: 8px;   /* J1: single value for button corners */
+          border-radius: 6px;   /* A2: button/taskbar highlight corner */
           background-image: none;
           background-color: transparent;
           color: @kavis_text;

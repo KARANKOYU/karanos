@@ -26,7 +26,7 @@ if [[ -z "$DEB" ]]; then
 	DEB=$(ls -1 out/packages/kavis-theme_*_all.deb | head -1)
 fi
 
-for cmd in Xvfb openbox xwallpaper /usr/bin/python3; do
+for cmd in Xvfb openbox xwallpaper xrdb /usr/bin/python3; do
 	command -v "$cmd" >/dev/null || {
 		echo "ERROR: $cmd is not installed" >&2
 		exit 2
@@ -74,6 +74,24 @@ awk '
 	{ print }
 ' /etc/xdg/openbox/rc.xml > "$RC"
 sed -i 's|<titleLayout>[^<]*</titleLayout>|<titleLayout>NLIMC</titleLayout>|' "$RC"
+# Second pass of the hook (A1): the title font. Without it the frame is
+# 4px shorter than the real one and the screenshot cannot be used to
+# judge the title bar.
+awk '
+	/<theme>/  { intheme = 1 }
+	/<\/theme>/ { intheme = 0 }
+	intheme && /<font place=/ { infont = 1 }
+	infont && /<\/font>/     { infont = 0 }
+	infont && /<name>/   { sub(/<name>[^<]*<\/name>/,   "<name>Inter</name>") }
+	infont && /<size>/   { sub(/<size>[^<]*<\/size>/,   "<size>10</size>") }
+	infont && /<weight>/ { sub(/<weight>[^<]*<\/weight>/, "<weight>Normal</weight>") }
+	{ print }
+' "$RC" > "$RC.new"
+mv "$RC.new" "$RC"
+
+# The Xft policy the ISO ships (A1) — hinting and subpixel decide what
+# the text in the screenshot looks like.
+xrdb -merge "$REPO_ROOT/iso/config/includes.chroot/etc/X11/Xresources/kavis"
 
 openbox --config-file "$RC" >/dev/null 2>&1 &
 sleep 1

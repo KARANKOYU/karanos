@@ -34,7 +34,7 @@ namespace Kavis.Ui {
           background-image: none;
           background-color: transparent;
           border: none;
-          border-radius: 8px;
+          border-radius: 6px;
           color: @kavis_text;
           padding: 4px 8px;
           transition: background-color 140ms ease;
@@ -47,7 +47,7 @@ namespace Kavis.Ui {
         }
         /* Tabs: teal line under the active one. */
         .kavis-picker button.picker-tab {
-          border-radius: 8px 8px 0 0;
+          border-radius: 6px 6px 0 0;
           padding: 6px 10px;
         }
         .kavis-picker button.picker-tab:checked {
