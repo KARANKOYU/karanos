@@ -1,0 +1,18 @@
+# Quick preview (item 36): space-bar preview of a file.
+name: 36-preview
+title: Quick preview
+item: 36
+allowed: [kavis-tools]
+steps:
+  - do: shell printf 'preview test\n' > /users/karan/preview-test.txt
+    expect: file /users/karan/preview-test.txt exists
+  - do: launch kavis-tools preview /users/karan/preview-test.txt
+    expect: window kavis-tools visible
+    timeout: 30000
+    note: the preview window opens for a plain text file
+    shot: true
+  - do: close window kavis-tools
+    expect: window kavis-tools absent
+    timeout: 8000
+  - do: shell rm -f /users/karan/preview-test.txt
+    expect: file /users/karan/preview-test.txt absent

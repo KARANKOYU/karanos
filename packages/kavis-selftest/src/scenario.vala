@@ -4,8 +4,12 @@
  * needed at runtime: top-level "key: value" lines, one "steps:" list
  * whose items start with "- do:" and continue with indented
  * "key: value" lines. Quotes around values are stripped, "#" starts a
- * comment, "allowed: [a, b]" is an inline list. Anything else is an
- * error — a scenario that does not parse is reported, never skipped.
+ * comment, "allowed: [a, b]" is an inline list. A value of ">" folds
+ * the more-indented lines under it into one line, which is how a note
+ * long enough to matter can be written without a 200-column file.
+ * Anything else is an error — a scenario that does not parse is
+ * reported, never skipped, and `kavis-selftest --check` parses them all
+ * before a push so a typo never costs a VM round.
  */
 namespace Kavis.Selftest {
 
@@ -41,15 +45,40 @@ namespace Kavis.Selftest {
             Step? cur = null;
             bool in_steps = false;
             int lineno = 0;
+            /* State for a folded ">" value: which key is collecting,
+             * how deeply the line that opened it was indented, and what
+             * has been gathered so far. */
+            string folding_key = "";
+            int folding_indent = 0;
+            var folded = new StringBuilder ();
             foreach (string raw in text.split ("\n")) {
                 lineno++;
                 string line = strip_comment (raw);
-                if (line.strip () == "") {
-                    continue;
-                }
                 int indent = 0;
                 while (indent < line.length && line[indent] == ' ') {
                     indent++;
+                }
+                if (folding_key != "") {
+                    /* A blank line inside a folded block is a paragraph
+                     * break in YAML; here the whole thing becomes one
+                     * line anyway, so it is simply skipped. */
+                    if (line.strip () == "") {
+                        continue;
+                    }
+                    if (indent > folding_indent) {
+                        if (folded.len > 0) {
+                            folded.append_c (' ');
+                        }
+                        folded.append (line.strip ());
+                        continue;
+                    }
+                    /* Less indented: the block ended. */
+                    apply_step_key (cur, folding_key, folded.str);
+                    folding_key = "";
+                    folded = new StringBuilder ();
+                }
+                if (line.strip () == "") {
+                    continue;
                 }
                 string body = line.strip ();
                 if (indent == 0) {
@@ -93,21 +122,43 @@ namespace Kavis.Selftest {
                     sc.parse_error = "line %d: expected 'key: value'".printf (lineno);
                     return sc;
                 }
-                switch (key) {
-                case "do":      cur.action = val; break;
-                case "expect":  cur.expect = val; break;
-                case "timeout": cur.timeout_ms = int.parse (val); break;
-                case "note":    cur.note = val; break;
-                case "shot":    cur.shot = (val == "true" || val == "yes"); break;
-                default:
+                if (val == ">" || val == "|") {
+                    folding_key = key;
+                    folding_indent = indent;
+                    continue;
+                }
+                if (!apply_step_key (cur, key, val)) {
                     sc.parse_error = "line %d: unknown key %s in step".printf (lineno, key);
                     return sc;
                 }
+            }
+            if (folding_key != "" && cur != null) {
+                apply_step_key (cur, folding_key, folded.str);
             }
             if (sc._steps.length == 0 && sc.parse_error == "") {
                 sc.parse_error = "no steps";
             }
             return sc;
+        }
+
+        /* One "key: value" inside a step; false when the key is not one
+         * we know. Separate from the loop so a folded block can be
+         * applied when it ends, with the same rules. */
+        private static bool apply_step_key (Step? step, string key,
+                                            string val) {
+            if (step == null) {
+                return false;
+            }
+            switch (key) {
+            case "do":      step.action = val; return true;
+            case "expect":  step.expect = val; return true;
+            case "timeout": step.timeout_ms = int.parse (val); return true;
+            case "note":    step.note = val; return true;
+            case "shot":
+                step.shot = (val == "true" || val == "yes");
+                return true;
+            }
+            return false;
         }
 
         /* "#" outside quotes starts a comment. */

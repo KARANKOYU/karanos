@@ -248,6 +248,16 @@ jobs:
       # rejected config means the session boots with NO compositor — no
       # corners, no shadows, no animations. This container is trixie, so
       # the picom here is the one the ISO installs.
+      # A scenario with a typo in it would otherwise be discovered in a
+      # VM, forty minutes after the mistake. --check parses them all and
+      # runs nothing.
+      - name: SCENARIOS — every selftest scenario parses
+        run: |
+          set -eu
+          dpkg-deb -x out/packages/kavis-selftest_*.deb /tmp/selftest-root
+          xvfb-run -a /tmp/selftest-root/usr/bin/kavis-selftest \
+            --check --scenarios tests/ui
+
       - name: PICOM — compositor config check
         run: |
           set -eu

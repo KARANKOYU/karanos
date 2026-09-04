@@ -1,0 +1,19 @@
+# Multilingual infrastructure (item 34): the Turkish catalogue is on the
+# system and the interface actually uses it.
+#
+# Asserting the .mo file exists is not enough — it has to be the domain
+# the binaries look up, at the path gettext searches.
+name: 34-i18n
+title: Turkish translation
+item: 34
+allowed: [kavis-settings]
+steps:
+  - do: shell test -f /usr/share/locale/tr/LC_MESSAGES/kavis.mo
+    expect: ok
+  - do: shell test "$(LANGUAGE=tr LANG=tr_TR.UTF-8 gettext -d kavis 'Settings')" != Settings
+    expect: ok
+    timeout: 10000
+    note: the catalogue answers for the kavis domain, not just exists
+  - do: shell locale -a | grep -qi 'tr_TR'
+    expect: ok
+    note: the locale itself is generated, or the translation cannot load

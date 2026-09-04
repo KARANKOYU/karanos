@@ -1,0 +1,22 @@
+# The selftest itself (item 72).
+#
+# A scenario about the machinery running it: the binary, the scenarios
+# it reads, and the report directory it writes. It cannot run the whole
+# suite from inside the suite, so what it checks is that a second run
+# would find everything it needs.
+name: 72-selftest
+title: Selftest
+item: 72
+allowed: []
+steps:
+  - do: shell command -v kavis-selftest
+    expect: ok
+  - do: shell test -d /usr/share/kavis/selftest
+    expect: ok
+    note: the scenarios ship with the binary
+  - do: shell test "$(ls /usr/share/kavis/selftest/*.yaml | wc -l)" -ge 20
+    expect: ok
+    note: every finished task item has one (docs/test-kapsami.md)
+  - do: shell test -d /users/karan/.local/share/kavis/selftest
+    expect: ok
+    note: this run's own report directory

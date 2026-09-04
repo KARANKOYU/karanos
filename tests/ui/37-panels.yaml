@@ -1,0 +1,23 @@
+# Calendar and notification panel (item 37).
+#
+# Both are panel popups: override-redirect windows that never reach the
+# window list, so they are counted rather than looked up.
+name: 37-panels
+title: Calendar and notifications
+item: 37
+allowed: []
+steps:
+  - do: click taskbar clock
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: the calendar and notification panel
+    shot: true
+  - do: key Escape
+    expect: popup kavis-panel hidden
+    timeout: 4000
+  - do: shell gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications --method org.freedesktop.Notifications.Notify kavis-selftest 0 dialog-information Test Body '[]' '{}' 3000
+    expect: ok
+    timeout: 10000
+    note: >
+      the panel owns the notification bus name — if another daemon took
+      it, notifications would vanish silently (the dunst lesson)

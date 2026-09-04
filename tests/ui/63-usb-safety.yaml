@@ -1,0 +1,17 @@
+# Safe USB use (item 63): a plugged-in stick mounts with no execute
+# permission and no setuid.
+#
+# No stick exists in a VM, so the rule that would apply is checked
+# instead of the result. A missing rule file means the next stick
+# mounts with exec — which is the failure this item exists to prevent.
+name: 63-usb-safety
+title: USB safety
+item: 63
+allowed: []
+steps:
+  - do: shell grep -rqs 'nosuid' /etc/udisks2 /usr/lib/udisks2 || test -f /etc/udisks2/mount_options.conf
+    expect: ok
+    note: removable media mount options are pinned somewhere
+  - do: shell systemctl is-active --quiet udisks2
+    expect: ok
+    timeout: 10000

@@ -335,8 +335,16 @@ namespace Kavis.Selftest {
                 x = vertical ? px + pw / 2 : px + pw - 45;
                 y = vertical ? py + ph - 45 : py + ph / 2;
                 return true;
+            case "middle":
+                /* The empty stretch: pinned apps start at the left, the
+                 * clock sits at the right, so the centre is bare on a
+                 * fresh session. This is where the taskbar's own
+                 * right-click menu can be reached. */
+                x = px + pw / 2;
+                y = py + ph / 2;
+                return true;
             default:
-                err = "taskbar: start | clock";
+                err = "taskbar: start | clock | middle";
                 return false;
             }
         }

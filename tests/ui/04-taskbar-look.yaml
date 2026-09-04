@@ -1,0 +1,26 @@
+# Taskbar appearance (item 4): the panel is where it should be, the
+# size it should be, and reserves its space.
+name: 04-taskbar-look
+title: Taskbar appearance
+item: 4
+allowed: []
+steps:
+  - do: none
+    expect: popup kavis-panel hidden
+    note: nothing open at rest
+  - do: shell xprop -root _NET_WORKAREA | grep -q .
+    expect: ok
+    note: >
+      the panel reserves its strip: without _NET_WORKAREA a maximised
+      window would cover the taskbar
+  - do: launch nemo --no-desktop /users/karan
+    expect: window nemo visible
+    timeout: 30000
+  - do: key super+Up
+    expect: geometry nemo maximized
+    timeout: 6000
+    note: maximised means "up to the panel", not "over it"
+    shot: true
+  - do: close window nemo
+    expect: window nemo absent
+    timeout: 8000

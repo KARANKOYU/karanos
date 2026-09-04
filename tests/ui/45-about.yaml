@@ -1,0 +1,20 @@
+# About screen (item 45): the system page, and the copy button giving
+# the same facts as kavisfetch.
+name: 45-about
+title: About
+item: 45
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings system
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: About, with the hardware sections below it
+    shot: true
+  - do: shell grep -q '^NAME=' /etc/os-release
+    expect: ok
+    note: >
+      the page reads the name from here — the same single source the
+      panel, GRUB and kavisfetch use
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

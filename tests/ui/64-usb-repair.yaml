@@ -1,0 +1,21 @@
+# USB filesystem repair (item 64): the repair tool opens.
+#
+# It does not repair anything here — there is no broken filesystem to
+# repair and the tool asks for confirmation before touching one. What
+# is checked is that it starts and finds its way to the disk list.
+name: 64-usb-repair
+title: Drive repair
+item: 64
+allowed: [kavis-tools]
+steps:
+  - do: launch kavis-tools repair-drive
+    expect: window kavis-tools visible
+    timeout: 30000
+    note: the drive repair window
+    shot: true
+  - do: close window kavis-tools
+    expect: window kavis-tools absent
+    timeout: 8000
+  - do: shell command -v fsck.vfat || command -v fsck.fat
+    expect: ok
+    note: the tool calls these; without them Repair can only report

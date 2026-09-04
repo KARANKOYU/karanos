@@ -1,0 +1,21 @@
+# Known hypervisor warnings (item 62): the list that keeps the log
+# readable in a VM.
+#
+# Without it every boot in QEMU or VirtualBox fills the journal with
+# messages about hardware that does not exist, and a real error is lost
+# among them.
+name: 62-hypervisor-noise
+title: Hypervisor log noise
+item: 62
+allowed: []
+steps:
+  - do: shell test -f /usr/share/kavis/log-ignore.d/hypervisor.list
+    expect: ok
+  - do: shell test -s /usr/share/kavis/log-ignore.d/hypervisor.list
+    expect: ok
+    note: not empty — an empty list silences nothing
+  - do: shell grep -q 'DESKTOP-READY' /run/kavis/boot-check.log
+    expect: ok
+    note: >
+      boot-check applies the list when it counts journal errors; that it
+      reached DESKTOP-READY means the count stayed under the limit

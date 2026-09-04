@@ -1,14 +1,18 @@
 /* kavis-selftest — CLI.
  *   kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR]
- *                  [--shots] [--quiet]
- * Exit code: number of failed steps + scenario errors (at most 125). */
+ *                  [--shots] [--quiet] [--check]
+ * Exit code: number of failed steps + scenario errors (at most 125).
+ *
+ * --check parses every scenario and runs nothing. A scenario with a
+ * typo in it would otherwise only be discovered in a VM, forty minutes
+ * after the mistake; this makes it a push-time check instead. */
 int main (string[] args) {
     Gtk.init (ref args);
     string? scen_dir = Environment.get_variable ("KAVIS_SELFTEST_DIR")
         ?? "/usr/share/kavis/selftest";
     string? base_dir = null;
     string[] wanted = {};
-    bool shots = false, quiet = false;
+    bool shots = false, quiet = false, check_only = false;
     for (int i = 1; i < args.length; i++) {
         switch (args[i]) {
         case "--all": break;
@@ -17,6 +21,7 @@ int main (string[] args) {
         case "--scenarios": if (i + 1 < args.length) { scen_dir = args[++i]; } break;
         case "--shots": shots = true; break;
         case "--quiet": quiet = true; break;
+        case "--check": check_only = true; break;
         default:
             stderr.printf ("usage: kavis-selftest [--all] [--scenario NAME ...] [--dir ROOT] [--scenarios DIR] [--shots] [--quiet]\n");
             return 2;
@@ -50,6 +55,34 @@ int main (string[] args) {
             if (strcmp (files[j], files[i]) < 0) { var t = files[i]; files[i] = files[j]; files[j] = t; }
         }
     }
+    if (check_only) {
+        int bad = 0;
+        foreach (string f in files) {
+            var sc = Kavis.Selftest.Scenario.load (f);
+            if (sc.parse_error != "") {
+                stderr.printf ("%s: %s\n", Path.get_basename (f),
+                               sc.parse_error);
+                bad++;
+                continue;
+            }
+            if (sc.get_steps ().length == 0) {
+                stderr.printf ("%s: no steps\n", Path.get_basename (f));
+                bad++;
+                continue;
+            }
+            stdout.printf ("%-28s item %-4s %2d steps  %s\n",
+                           sc.name, sc.item, sc.get_steps ().length,
+                           sc.title);
+        }
+        if (bad > 0) {
+            stderr.printf ("SELFTEST-SCENARIOS-FAIL %d unusable\n", bad);
+            return 1;
+        }
+        stdout.printf ("SELFTEST-SCENARIOS-OK %d scenarios parse\n",
+                       files.length);
+        return 0;
+    }
+
     var rep = new Kavis.Selftest.Report (base_dir);
     rep.echo_stdout = !quiet;
     rep.mem_start = Kavis.Selftest.SysMon.mem_used_mb ();

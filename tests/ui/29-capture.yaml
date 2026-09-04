@@ -1,0 +1,18 @@
+# Screenshot and recording (item 29): the capture tool opens its bar.
+#
+# The bar is an override-redirect window, so it never reaches the
+# window list — the popup expectation is what sees it.
+name: 29-capture
+title: Screen capture
+item: 29
+allowed: [kavis-tools]
+steps:
+  - do: launch kavis-tools capture
+    expect: popup kavis-tools visible
+    timeout: 30000
+    note: the capture bar appears over the screen
+    shot: true
+  - do: key Escape
+    expect: popup kavis-tools hidden
+    timeout: 6000
+    note: Escape leaves without capturing anything

@@ -1,0 +1,32 @@
+# Popup dismissal (item 60): a click INSIDE a popup never closes it, a
+# click outside always does.
+#
+# Three separate bugs at the v0.3-test1 VM round came from one rule not
+# being applied consistently: clicking a label, a gap, or a calendar
+# cell inside a popup dismissed it, because only buttons counted as
+# "inside". The rule is now the window rectangle, and this is what
+# holds it.
+name: 60-popup-dismiss
+title: Popup dismissal
+item: 60
+allowed: []
+steps:
+  - do: click taskbar clock
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: the calendar popup
+  - do: click taskbar clock
+    expect: popup kavis-panel hidden
+    timeout: 6000
+    note: clicking the same button again toggles it shut
+  - do: click taskbar start
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: the start menu
+    shot: true
+  - do: click 600 300
+    expect: popup kavis-panel hidden
+    timeout: 6000
+    note: >
+      a click on the desktop, well outside the menu, closes it — the
+      other half of the same rule

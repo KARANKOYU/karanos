@@ -1,0 +1,20 @@
+# Virtual desktops and focus (item 55).
+#
+# The overview is a panel popup, and the desktop count comes from the
+# window manager's own property rather than from our side of it.
+name: 55-desktops
+title: Virtual desktops
+item: 55
+allowed: []
+steps:
+  - do: shell xprop -root _NET_NUMBER_OF_DESKTOPS | grep -qE '= [1-9]'
+    expect: ok
+    note: openbox reports at least one desktop
+  - do: key super+Tab
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: the overview
+    shot: true
+  - do: key Escape
+    expect: popup kavis-panel hidden
+    timeout: 4000

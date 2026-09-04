@@ -1,0 +1,29 @@
+# Task manager and the small tools (item 7).
+#
+# Each one opens and closes again. Opening is most of the test: these
+# are separate binaries sharing one startup path (item 61), and a
+# missing library or a broken CSS block shows up as "it does not open".
+name: 07-tools
+title: Task manager and tools
+item: 7
+allowed: [kavis-taskmanager, kavis-tools]
+steps:
+  - do: launch kavis-taskmanager
+    expect: window kavis-taskmanager visible
+    timeout: 40000
+    shot: true
+  - do: none
+    expect: process kavis-taskmanager running
+    note: >
+      the name is longer than /proc comm's 15 characters — this
+      assertion is why the selftest reads the executable name (B2)
+  - do: close window kavis-taskmanager
+    expect: window kavis-taskmanager absent
+    timeout: 8000
+  - do: launch kavis-tools calc
+    expect: window kavis-tools visible
+    timeout: 30000
+    shot: true
+  - do: close window kavis-tools
+    expect: window kavis-tools absent
+    timeout: 8000

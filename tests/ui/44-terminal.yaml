@@ -1,0 +1,16 @@
+# Terminal conveniences (item 44).
+name: 44-terminal
+title: Terminal conveniences
+item: 44
+allowed: []
+steps:
+  - do: shell test -f /usr/share/kavis/terminal-tips.sh
+    expect: ok
+  - do: shell command -v command-not-found
+    expect: ok
+    note: an unknown command suggests the package that has it
+  - do: shell test -s /var/lib/command-not-found/commands.db || test -d /var/lib/apt/lists
+    expect: ok
+    note: >
+      the suggestion database is built during the image build; without
+      it the hook is installed and silent

@@ -1,0 +1,16 @@
+# Disks and USB (item 42): the pieces that make a plugged-in stick
+# appear and mount without a password.
+name: 42-disks
+title: Disks and USB
+item: 42
+allowed: []
+steps:
+  - do: shell systemctl is-active --quiet udisks2
+    expect: ok
+    timeout: 10000
+    note: without udisks nothing mounts from the file manager
+  - do: shell test -x /usr/bin/gio || test -d /usr/lib/gvfs
+    expect: ok
+    note: gvfs is what turns a mount into a place in the sidebar
+  - do: shell lsblk -no NAME >/dev/null
+    expect: ok

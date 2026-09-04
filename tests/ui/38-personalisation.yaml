@@ -1,0 +1,19 @@
+# Settings → Personalisation (item 38): appearance settings that reach
+# the running session.
+name: 38-personalisation
+title: Appearance settings
+item: 38
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings appearance
+    expect: window kavis-settings visible
+    timeout: 40000
+    shot: true
+  - do: conf appearance corner_radius 12
+    expect: conf appearance corner_radius 12
+  - do: conf appearance corner_radius 8
+    expect: conf appearance corner_radius 8
+    note: back to the design value, so later scenarios see the shipped look
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000

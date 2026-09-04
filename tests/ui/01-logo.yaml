@@ -1,0 +1,22 @@
+# Logo references (item 1): the dark logo everywhere the rule says.
+#
+# Rule: the boot splash and GRUB ALWAYS use the dark logo; the start
+# button and About follow the active theme. The files are checked
+# rather than the pixels — the drawing is the theme's job, but a
+# missing file is what actually breaks it.
+name: 01-logo
+title: Logo references
+item: 1
+allowed: []
+steps:
+  - do: shell test -f /usr/share/kavis/logo/koyu-k-logo.svg
+    expect: ok
+    note: the dark logo, used by the splash and GRUB
+  - do: shell test -f /usr/share/kavis/logo/acik-k-logo.svg
+    expect: ok
+    note: the light logo, used by the start button in the light theme
+  - do: shell test -d /usr/share/plymouth/themes/kavis
+    expect: ok
+  - do: shell grep -q kavis /boot/grub/grub.cfg || test -f /usr/share/kavis/logo/grub-background.png
+    expect: ok
+    note: GRUB's background comes from the same source

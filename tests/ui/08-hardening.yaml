@@ -1,0 +1,20 @@
+# Security hardening (item 8): the sysctl values are actually applied.
+#
+# A file in /etc/sysctl.d that never gets read looks identical to one
+# that works, so the running values are read, not the file.
+name: 08-hardening
+title: Security hardening
+item: 8
+allowed: []
+steps:
+  - do: shell test "$(sysctl -n kernel.kptr_restrict)" = 2
+    expect: ok
+  - do: shell test "$(sysctl -n kernel.dmesg_restrict)" = 1
+    expect: ok
+  - do: shell test "$(sysctl -n kernel.yama.ptrace_scope)" = 1
+    expect: ok
+  - do: shell test "$(sysctl -n kernel.unprivileged_userns_clone)" = 0
+    expect: ok
+    note: >
+      opened to 1 in Group G for Flatpak and Steam; until then this
+      assertion is what stops it drifting

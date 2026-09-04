@@ -1,0 +1,30 @@
+# Shared GTK startup (item 61).
+#
+# Every Kavis binary goes through the same init: gettext, the locale,
+# and GDK_GL=disable, which is the one that matters — with llvmpipe the
+# GL path makes a GTK window take seconds to appear and sometimes never
+# paint. The proof is that each binary opens quickly.
+name: 61-gtk-startup
+title: Shared GTK startup
+item: 61
+allowed: [kavis-settings, kavis-taskmanager, kavis-tools]
+steps:
+  - do: launch kavis-settings
+    expect: window kavis-settings visible
+    timeout: 30000
+    note: 30 s is generous for TCG; a GL fallback would blow past it
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
+  - do: launch kavis-taskmanager
+    expect: window kavis-taskmanager visible
+    timeout: 30000
+  - do: close window kavis-taskmanager
+    expect: window kavis-taskmanager absent
+    timeout: 8000
+  - do: launch kavis-tools calc
+    expect: window kavis-tools visible
+    timeout: 30000
+  - do: close window kavis-tools
+    expect: window kavis-tools absent
+    timeout: 8000

@@ -1,0 +1,20 @@
+# System health (item 49): the boot-time checks ran and left their
+# record, and the session has no failed unit.
+name: 49-system-health
+title: System health
+item: 49
+allowed: []
+steps:
+  - do: shell test -f /run/kavis/boot-check.log
+    expect: ok
+    note: boot-check ran and kept its log
+  - do: shell grep -q 'DESKTOP-READY' /run/kavis/boot-check.log
+    expect: ok
+    note: it got as far as a visible desktop
+  - do: shell test "$(systemctl --failed --no-legend | wc -l)" = 0
+    expect: ok
+    timeout: 15000
+    note: no failed system unit
+  - do: shell test "$(systemctl --user --failed --no-legend | wc -l)" = 0
+    expect: ok
+    timeout: 15000

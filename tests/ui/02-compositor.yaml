@@ -1,0 +1,22 @@
+# Compositor (item 2): picom is up and the session is composited.
+#
+# Everything visual leans on this — rounded corners, shadows, the
+# animations, the snap preview and the OSD's translucency all quietly
+# stop working without it, which is exactly how the v0.4-test4 round
+# saw "there is no preview".
+name: 02-compositor
+title: Compositor
+item: 2
+allowed: []
+steps:
+  - do: none
+    expect: process picom running
+    note: the compositor survived startup
+  - do: shell xprop -root _NET_WM_CM_S0 >/dev/null 2>&1 || xdpyinfo | grep -q Composite
+    expect: ok
+    note: the X server reports a compositing manager
+  - do: shell test -f /etc/xdg/picom-kavis.conf
+    expect: ok
+  - do: shell grep -q 'corner-radius = 8' /etc/xdg/picom-kavis.conf
+    expect: ok
+    note: the window radius from the design table

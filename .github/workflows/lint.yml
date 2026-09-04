@@ -46,9 +46,11 @@ jobs:
       - name: Test coverage table (item 72)
         run: |
           set -eu
-          # Generated file: the run fails when it is stale, and only
-          # warns about items without a scenario — five scenarios
-          # against seventy items would paint every run red.
+          # Generated file: the run fails when it is stale, and when a
+          # FINISHED group has an item nothing tests. Items whose group
+          # has not been built yet are listed as waiting, not as gaps —
+          # counting future work as a failure is how a report becomes
+          # noise nobody reads.
           python3 tools/gen-test-coverage.py --check
           # The shortcut scenario is generated from the keybind hook, so
           # adding a shortcut without regenerating it is a red run.

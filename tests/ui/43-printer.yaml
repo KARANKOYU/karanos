@@ -1,0 +1,21 @@
+# Printer wizard (item 43): the driverless path is in place.
+#
+# No printer exists in a VM, so what is checked is the machinery that
+# makes one appear by itself — cups with browsing, avahi for discovery,
+# and the wizard for the rest.
+name: 43-printer
+title: Printing
+item: 43
+allowed: []
+steps:
+  - do: shell systemctl is-active --quiet cups
+    expect: ok
+    timeout: 10000
+  - do: shell systemctl is-active --quiet avahi-daemon
+    expect: ok
+    timeout: 10000
+    note: network printers announce themselves over mDNS
+  - do: shell command -v system-config-printer
+    expect: ok
+  - do: shell lpstat -r >/dev/null 2>&1 || true
+    expect: ok

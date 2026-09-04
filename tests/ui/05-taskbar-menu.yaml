@@ -1,0 +1,19 @@
+# Taskbar right-click menu (item 5).
+#
+# Right-click on an empty part of the panel opens the taskbar menu.
+# The click lands near the middle of the bottom edge, which is empty on
+# a fresh session — the pinned apps are on the left, the clock is on
+# the right.
+name: 05-taskbar-menu
+title: Taskbar menu
+item: 5
+allowed: []
+steps:
+  - do: click taskbar middle right
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: the taskbar menu opens where the pointer is
+    shot: true
+  - do: key Escape
+    expect: popup kavis-panel hidden
+    timeout: 4000
