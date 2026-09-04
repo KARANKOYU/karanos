@@ -43,6 +43,14 @@ jobs:
       # The "Translation status" table in the README is refreshed on every
       # run; if it changed, it is written to main with a [skip ci] commit.
       # Does not run on PRs and branches (needs write access to main).
+      - name: Test coverage table (item 72)
+        run: |
+          set -eu
+          # Generated file: the run fails when it is stale, and only
+          # warns about items without a scenario — five scenarios
+          # against seventy items would paint every run red.
+          python3 tools/gen-test-coverage.py --check
+
       - name: Translation status table (README)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |

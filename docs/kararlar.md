@@ -236,6 +236,13 @@ yazıldı; boot-check DESKTOP-READY sonrası `kavis-selftest --all`
 koşturur (SELFTEST-OK/FAIL). Henüz yok: Ayarlar > Sistem "Sistemi test
 et" düğmesi, kayıt modu, docs/test-kapsami.md üretimi, rapor
 artifact'ı (seri günlükte yalnız run.log satırları; klasörün dışarı
-çıkması virtfs ister), rc.xml kısayollarından otomatik senaryo. Senaryo
+çıkması virtfs ister), rc.xml kısayollarından otomatik senaryo.
+**4 Eyl:** Ayarlar > Sistem "Sistemi test et" düğmesi (uyarı → koşu →
+"Raporu aç") ve `docs/test-kapsami.md` üretimi
+(`tools/gen-test-coverage.py`, lint iş akışında `--check`) girdi.
+Kapsam denetimi şimdilik UYARI: 5/71 madde senaryolu, hepsi kırmızı
+yanarsa denetim öğrenilmiş körlüğe dönüşür; başlangıç seti tamamlanınca
+`--strict` varsayılan olacak. Kalan: kayıt modu, rapor artifact'ı,
+kısayol senaryosu. Senaryo
 biçimi YAML alt kümesi: `name/title/madde/allowed` + `steps:` listesi,
 adım = `do` / `expect` / `timeout` / `note` / `shot`.
