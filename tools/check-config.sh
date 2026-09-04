@@ -88,6 +88,31 @@ done
 	|| bad "includes.chroot/usr/share/kavis/build-marker missing — every hook would refuse to run"
 
 echo
+echo "==> Build dependencies reach CI"
+# A Build-Depends the CI container does not install fails the run at
+# dpkg-checkbuilddeps, minutes in, with a message nobody sees until they
+# open the log. libpam0g-dev did exactly that. Every name in every
+# package's Build-Depends must also be in the workflow's install step.
+CI_WORKFLOW=.github/workflows/build-packages.yml
+missing_deps=""
+for control in packages/*/debian/control; do
+	# The Build-Depends block: from that line to the next field.
+	deps=$(sed -n '/^Build-Depends:/,/^[A-Z][A-Za-z-]*:/p' "$control" \
+		| sed '1d;$d' | tr -d ' ' | tr ',' '\n' | sed 's/(.*)//' | grep -v '^$')
+	for dep in $deps; do
+		# debhelper-compat is a virtual build-profile thing; the
+		# container has it through debhelper itself.
+		case "$dep" in debhelper-compat) continue ;; esac
+		grep -q -- "$dep" "$CI_WORKFLOW" || missing_deps="$missing_deps $dep"
+	done
+done
+if [[ -z "$missing_deps" ]]; then
+	ok "every Build-Depends appears in $CI_WORKFLOW"
+else
+	bad "not installed by CI:$missing_deps"
+fi
+
+echo
 echo "==> Application names (D1)"
 # The title bar is rewritten from this map, the menu comes from the
 # .desktop overrides. A name in one and not the other means the same

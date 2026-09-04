@@ -254,27 +254,41 @@ namespace Kavis {
             return Environment.get_user_name ();
         }
 
-        /* A live session where the user has no password at all: PAM
-         * would accept anything, so asking for a password would be
-         * theatre. Detected from the shadow field being empty, which is
-         * what "no password" means to PAM too. */
+        /* A session where the system itself does not ask for a
+         * password: membership of `nopasswdlogin`, which is Debian's
+         * own convention and what lightdm already honours (the live
+         * user is put in it by the bootappend). The lock screen follows
+         * the same rule, so it can never demand something the display
+         * manager did not.
+         *
+         * Reading /etc/shadow was the obvious idea and the wrong one:
+         * a normal user cannot read it, so the answer would always have
+         * been "there is a password" — and on the live image, where the
+         * account has none, PAM would then have refused every attempt
+         * and left the screen locked for good. */
         public bool passwordless () {
-            string? shadow = null;
+            string contents;
             try {
-                string contents;
-                FileUtils.get_contents ("/etc/shadow", out contents);
-                foreach (unowned string line in contents.split ("\n")) {
-                    string[] f = line.split (":");
-                    if (f.length > 1 && f[0] == Environment.get_user_name ()) {
-                        shadow = f[1];
-                    }
-                }
+                FileUtils.get_contents ("/etc/group", out contents);
             } catch (Error e) {
-                /* Not readable as a normal user on a normal system —
-                 * assume a password exists, which is the safe answer. */
                 return false;
             }
-            return shadow != null && shadow == "";
+            string user = Environment.get_user_name ();
+            foreach (unowned string line in contents.split ("\n")) {
+                if (!line.has_prefix ("nopasswdlogin:")) {
+                    continue;
+                }
+                string[] f = line.split (":");
+                if (f.length < 4) {
+                    return false;
+                }
+                foreach (unowned string member in f[3].split (",")) {
+                    if (member.strip () == user) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static int conversation (int num_msg, Pam.Message** msg,
@@ -315,7 +329,11 @@ namespace Kavis {
                 conversation_password = null;
                 return false;
             }
-            rc = Pam.authenticate (handle, Pam.DISALLOW_NULL_AUTHTOK);
+            /* No DISALLOW_NULL_AUTHTOK: on an account with an empty
+             * password that flag makes PAM refuse, which would lock a
+             * live session out of its own desktop. What may unlock is
+             * PAM's decision, not a flag we pass. */
+            rc = Pam.authenticate (handle, 0);
             Pam.end (handle, rc);
             conversation_password = null;
             return rc == Pam.SUCCESS;

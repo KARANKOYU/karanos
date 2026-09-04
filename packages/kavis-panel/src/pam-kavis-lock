@@ -5,10 +5,17 @@
 # unlock either, and a fingerprint or smartcard module added to
 # common-auth works here without this file changing.
 #
+# The nopasswdlogin line first, and for the same reason lightdm has it:
+# on a session where the system does not ask for a password — the live
+# image puts its user in that group — the lock screen must not demand
+# one either. Without this line PAM refuses an empty password and the
+# live desktop locks itself out permanently.
+#
 # common-account is included as well: an expired or disabled account
 # must not be able to unlock a screen it could not log into.
 #
 # No common-session and no common-password: unlocking starts no session
 # and changes no password.
+auth    sufficient      pam_succeed_if.so user ingroup nopasswdlogin
 @include common-auth
 @include common-account
