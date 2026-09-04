@@ -247,6 +247,19 @@ jobs:
           apt-get install -y -qq --no-install-recommends picom > /dev/null
           DISPLAY_NO=79 tools/check-picom.sh
 
+      # A5: the two things the VM round complained about that are
+      # measurable — which face fontconfig resolves with what rendering
+      # policy, and the radius picom actually draws. The font part is
+      # what caught <alias><prefer> losing to Debian's 60-latin.conf.
+      - name: VISUAL — font, DPI and corner radius
+        run: |
+          set -eu
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get install -y -qq --no-install-recommends \
+            fontconfig fonts-inter fonts-noto-core \
+            python3-pil python3-gi gir1.2-gtk-3.0 > /dev/null
+          DISPLAY_NO=80 tools/check-visual.sh
+
       - name: Upload xx screenshot
         uses: actions/upload-artifact@v7
         with:

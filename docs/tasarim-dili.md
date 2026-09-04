@@ -1,5 +1,25 @@
 # Kavis — tasarım dili (test8 J; her yeni widget buna uyar)
 
+## Kalite ölçütleri (A5, v0.4-test4) — tek bakışta
+
+v0.4-test4 VM turunun ilk cümlesi "genel izlenim amatör"di. Aşağıdaki
+beş satır o turdan çıkan ölçütler; ayrıntıları kendi bölümlerinde.
+**Bir widget bunlardan sapıyorsa hatadır**, tasarım tercihi değil.
+
+| Ölçüt | Değer | Denetleyen |
+|---|---|---|
+| Yazı | Inter 10pt; hinting **slight**, subpixel **rgb**, lcdfilter **default**, antialias açık; Xft.dpi 96 (ölçekle değişir) | `tools/check-visual.sh` (fontconfig'in gerçekte çözdüğü aile + politika) |
+| Köşe | pencere/kart 8, popup 12, düğme/giriş 6, kaydırıcı topu tam yuvarlak | `tools/check-visual.sh` (ekran görüntüsünden ölçülen yarıçap) + aşağıdaki tablo |
+| Animasyon | `cubic-bezier(0.2, 0.9, 0.25, 1)`, 180 ms (hover 120 ms) | `tools/check-picom.sh` (gerçek picom 12.5 yapılandırmayı kabul ediyor mu) |
+| Gölge | picom radius 18 / opacity 0.35; her yüzeyde 1px üst ışık çizgisi | gözle + A4 tablosu |
+| Boşluk | popup içi 16, kart içi 12, öğeler arası 8, gruplar arası 12 | gözle + J3 tablosu |
+
+Neden CI'da: "yazı pikselli" ve "bazı köşeler keskin" iki tur boyunca
+kimsenin göremediği hatalardı; ikisi de ölçülebilir. `check-visual.sh`
+fontconfig'e gerçekten ne çözdüğünü sorar ve compositor'ün çizdiği
+köşeyi ekran görüntüsünden ölçer (`tools/corner-radius.py`).
+
+
 İlke: **Windows 11 düzeni + macOS yumuşaklığı.** İki şey macOS'tan
 alınır: yuvarlaklık ve yumuşak animasyon. Sert geçiş hiçbir yerde
 olmaz.
