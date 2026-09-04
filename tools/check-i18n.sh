@@ -6,6 +6,9 @@
 #    committed pot is stale).
 # 2. msgcmp: has tr.po translated every msgid (missing-key scan).
 # 3. msgfmt --check: syntax + format strings of every po file.
+# 4. check-format-strings.py: the arguments each translation actually
+#    consumes. msgfmt only checks entries flagged "#, c-format", and a
+#    hand-written translation carries no flags — see that script.
 # 4. Is xx.po in sync with the pot (was the generator re-run).
 # 5. No "Windows 10/11" in user-visible strings (feedback F5).
 set -euo pipefail
@@ -43,6 +46,14 @@ cp po/xx.po "$fresh/old-xx.po"
 python3 tools/gen-xx-po.py >/dev/null
 if ! diff -q "$fresh/old-xx.po" po/xx.po >/dev/null; then
 	echo "ERROR: xx.po was stale — commit the output of tools/gen-xx-po.py" >&2
+	fail=1
+fi
+
+# 4b. Format strings: does each translation consume the same arguments
+# as the original? msgfmt's own check only looks at entries flagged
+# "#, c-format", and a hand-written one has no flags — a swapped
+# argument then reads a double as an integer at runtime.
+if ! python3 tools/check-format-strings.py po/tr.po po/xx.po; then
 	fail=1
 fi
 

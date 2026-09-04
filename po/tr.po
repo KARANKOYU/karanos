@@ -1481,7 +1481,7 @@ msgid "Not enough free memory to test safely"
 msgstr "Güvenle test etmeye yetecek boş bellek yok"
 
 msgid "%lld errors in %.0f MB — run the full memory test from the boot menu"
-msgstr "%.0f MB içinde %lld hata — açılış menüsünden tam bellek testini çalıştır"
+msgstr "%2$.0f MB içinde %1$lld hata — açılış menüsünden tam bellek testini çalıştır"
 
 msgid "%.0f MB checked with four patterns, no errors"
 msgstr "%.0f MB dört desenle denendi, hata yok"
