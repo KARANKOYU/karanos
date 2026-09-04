@@ -88,6 +88,8 @@ sayılar Xvfb'den yüksek çıkıyor (3 Eyl QEMU: panel 36 MB).
 Kullanıcı ISO'yu indirip VirtualBox'ta deneyecek. Bakılacaklar:
 
 **Ayarlar**
+- Sistem > "Sistemi test et": uyarı diyaloğu, koşu sonunda sonuç
+  diyaloğu ve raporun açılması.
 - F1 Hakkında: Processor/Graphics/Memory/Disk katlanır kartları; gerçek
   donanımda bellek tipi/hızı/CL/yuva dolu geliyor mu (VM'de tire).
 - F2 Ekran: çözünürlük listesi kısa ve tekrarsız mı, "Custom…" tüm
@@ -120,8 +122,11 @@ Kullanıcı ISO'yu indirip VirtualBox'ta deneyecek. Bakılacaklar:
   kavis-tools / kavis-osd / kavis-snap USS tablosu (RAM maddesi 2),
   PANEL-USS ve SETTINGS-USS yeni 20 MB eşiğine göre.
 - Çift `kavis-panel` süreci tekrar ediyor mu (RAM maddesi 6).
-- Selftest: `kavis-selftest --all` beş senaryoyu koşuyor mu, rapor
-  ~/.local/share/kavis/selftest/ altında mı.
+- Selftest: Ayarlar > Sistem > "Sistemi test et" düğmesi (uyarı → koşu
+  → "Raporu aç") ve `kavis-selftest --all` altı senaryoyu koşuyor mu,
+  rapor ~/.local/share/kavis/selftest/ altında mı. Yeni `06-shortcuts`
+  senaryosu YALNIZ gerçek oturumda anlamlı: Xvfb'de Kavis kısayolları
+  bağlı olmadığı için orada düşer.
 - B1 GRUB gizli, Shift ile menü; boot-check günlüğü
   /run/kavis/boot-check.log.
 
