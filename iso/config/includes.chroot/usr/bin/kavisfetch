@@ -1,0 +1,30 @@
+#!/bin/sh
+# Kavis — system summary in the terminal (item 71).
+#
+# fastfetch with the Kavis configuration and a logo coloured for the
+# active theme. Deliberately NOT run when a terminal opens: a summary
+# nobody asked for is noise on every new tab, and it slows the moment
+# the terminal becomes usable.
+#
+# Plain `fastfetch` shows the same thing — /etc/fastfetch/config.jsonc
+# points at the same file — but without the theme-aware logo colour,
+# which needs this wrapper to read kavis.conf.
+set -eu
+
+CONFIG=/etc/kavis/fastfetch/config.jsonc
+
+if ! command -v fastfetch >/dev/null 2>&1; then
+	echo "kavisfetch: fastfetch is not installed" >&2
+	exit 1
+fi
+
+# Accent for the active theme. The light theme darkens the teal for
+# contrast on a white terminal, exactly as the palette does
+# (docs/tasarim-dili.md).
+theme=$(sed -n 's/^theme=//p' "${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf" 2>/dev/null | head -1)
+case "$theme" in
+light) colour="38;2;13;148;136" ;;   # #0D9488
+*)     colour="38;2;45;212;191" ;;   # #2DD4BF
+esac
+
+exec fastfetch --config "$CONFIG" --logo-color-1 "$colour" "$@"

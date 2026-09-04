@@ -1,0 +1,31 @@
+# kavisfetch (item 71): the system summary in a terminal.
+#
+# The distribution name is not asserted as a literal — it comes from
+# /etc/os-release, and hard-coding it here would break the brand rule
+# the config itself follows. What is asserted: the command runs, prints
+# an OS line and the K logo, and does NOT run by itself when a terminal
+# opens.
+name: 71-kavisfetch
+title: kavisfetch
+item: 71
+allowed: []
+steps:
+  - do: shell command -v kavisfetch
+    expect: ok
+  - do: shell kavisfetch --pipe | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' | grep -q '^ *OS  '
+    expect: ok
+    timeout: 20000
+    note: an OS line, read from /etc/os-release
+  - do: shell kavisfetch --pipe | grep -q '██'
+    expect: ok
+    timeout: 20000
+    note: the K logo is drawn
+  - do: shell fastfetch --pipe >/dev/null 2>&1
+    expect: ok
+    timeout: 20000
+    note: plain fastfetch finds the same config through /etc/fastfetch
+  - do: shell '! grep -rq kavisfetch /etc/profile /etc/bash.bashrc /etc/skel 2>/dev/null'
+    expect: ok
+    note: >
+      never run when a terminal opens — a summary nobody asked for is
+      noise on every new tab

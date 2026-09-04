@@ -702,6 +702,29 @@ systemd-analyze blame --no-pager 2>/dev/null | head -5 | while IFS= read -r line
 	log "BOOT-BLAME $(printf '%s' "$line" | tr -s ' ')"
 done
 
+# 5c) System summary (item 71): kavisfetch must run and name the
+# distribution. It reads /etc/os-release, so a wrong name here means the
+# identity file did not reach the image — which is worth catching, since
+# every other place that shows the name reads the same file.
+if command -v kavisfetch >/dev/null 2>&1; then
+	# --pipe still emits cursor moves to place the text beside the
+	# logo, so the escapes are stripped before anything is matched.
+	fetch_out=$(runuser -u karan -- env HOME=/users/karan kavisfetch --pipe 2>&1 \
+		| head -40 | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' || true)
+	fetch_name=$(printf '%s\n' "$fetch_out" | sed -n 's/^ *OS  *//p' | head -1)
+	fetch_logo=$(printf '%s\n' "$fetch_out" | grep -c '██' || true)
+	if [ -n "$fetch_name" ] && [ "${fetch_logo:-0}" -gt 0 ]; then
+		log "FETCH-OK ${fetch_name} (logo ${fetch_logo} lines)"
+	else
+		log "FETCH-WARN kavisfetch printed no OS line or no logo"
+	fi
+	printf '%s\n' "$fetch_out" | while IFS= read -r line; do
+		log "FETCH ${line}"
+	done
+else
+	log "FETCH-WARN kavisfetch not installed"
+fi
+
 # 6) Memory usage — measurement for the 1 GB target in prompt 20
 mem_used_mb=$(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{printf "%d", (t-a)/1024}' /proc/meminfo)
 log "MEM-USED=${mem_used_mb}MB"

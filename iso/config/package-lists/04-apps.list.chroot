@@ -78,6 +78,11 @@ command-not-found
 apt-file
 gettext-base
 
+# fastfetch: the system summary behind `kavisfetch` (item 71). Debian 13
+# has it; writing our own would be a worse version of a tool already in
+# the archive.
+fastfetch
+
 # --- Web browser (4C: Firefox as the pinned default) ---
 # firefox-esr: maintained in Debian — security patches come from apt, no
 # version jumps. l10n-tr: the product's first language is Turkish.
