@@ -1,5 +1,29 @@
 # Sonraki tur — "devam" denince ilk iş bu
 
+## 0. 4 Eylül akşamı — v0.5-test1 etiketlendi, sıradaki iş
+
+Grup F kapandı. v0.4-test4 VM turunun A–F maddeleri ve Grup F'in kalan
+altı maddesi (Ekran, Güç, Ağ, Donanım testi, Kilit ekranı, kavisfetch,
+selftest kapsamı) bitti; ayrıntı ve gerekçeler docs/durum.md'nin
+başındaki 4 Eylül kaydında. **Kullanıcı ISO'yu VirtualBox'ta deneyecek;
+gözle bakılacaklar listesi durum.md "VM'de doğrulanacaklar".**
+
+Sıradaki iş, kullanıcı "devam" deyince:
+
+1. **VM turunun sonuçları** — durum.md'deki listeden geleni düzelt.
+2. **Madde 74** (kısayol grupları + yeniden atanabilir Fn kombinasyonu,
+   Ayarlar'da hiyerarşik alt bölümler, gerçek ayar araması — "light"
+   yazınca tema ayarları da çıksın). Tam metin bu dosyanın 4. bölümü.
+3. **Selftest kayıt modu** — madde 72'nin kalan tek parçası:
+   kullanıcının tıklamalarını/tuşlarını YAML senaryosuna çevirmek.
+4. **RAM temizliği 2/5/6** — VM'deki `MEM-PROC` satırlarından lxpolkit,
+   nemo-desktop ve kavis-tools; boşta `free` used < 380 MB; çift
+   `kavis-panel` süreci hâlâ var mı.
+5. Sonra **Grup G** (mağaza + arama; madde 75 App Files kararı
+   docs/kararlar.md 10'da hazır).
+
+---
+
 3 Eylül 2026 sonunda yazıldı. Kullanıcı gitti; oturum burada durdu.
 Sıra yukarıdan aşağı. Her madde ayrı commit, commit mesajları
 İngilizce (CLAUDE.md dil kuralı), push kullanıcı isteyince.

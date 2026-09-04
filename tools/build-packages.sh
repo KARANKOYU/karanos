@@ -38,7 +38,10 @@ fi
 # drift apart.
 prepare_sources() {
 	# Selftest scenarios (item 72): canonical location tests/ui/, the
-	# copy in the package tree is gitignored.
+	# copy in the package tree is gitignored. Emptied first: install
+	# only adds, so a renamed or deleted scenario used to stay in the
+	# package for ever and run in the VM long after it left the repo.
+	rm -rf packages/kavis-selftest/scenarios
 	mkdir -p packages/kavis-selftest/scenarios
 	install -m644 tests/ui/*.yaml packages/kavis-selftest/scenarios/
 	case "$1" in

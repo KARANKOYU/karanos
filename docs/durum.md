@@ -9,6 +9,139 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 4 Eylül 2026 (v0.4-test4 VM turu + Grup F kapanışı)
+
+Yeni oturum önce bunu okur.
+
+## v0.5-test1 — bu turda ne değişti
+
+### A. Görsel kalite (VM turunun "amatör" izlenimi)
+
+- **A1 yazı.** Sistem yazı tipi **Inter 10pt**; hinting **slight**,
+  subpixel **rgb**, lcdfilter **default**. Üç sebep vardı: fontconfig
+  politikası hiç yoktu (freetype'ın varsayılanı full hinting — "bitmap
+  font" görüntüsünün kaynağı), subpixel hiç açılmamıştı, ve ekranda üç
+  ayrı yazı tipi vardı (GTK DejaVu, openbox "sans 8 bold", Qt başka).
+  Politika okunan her kanala ayrı ayrı yazıldı: fontconfig,
+  Xresources (openbox/Qt/xterm), settings.ini + xsettingsd (GTK).
+  openbox başlık yazısı da Inter 10 oldu; themerc `padding.height`
+  16 → 14 (46 px başlık korunsun diye ölçüldü).
+- **A2 köşeler.** Ekranda üç ayrı köşe boyu vardı. Tablo tek kaynak
+  (docs/tasarim-dili.md) ve tema CSS'i üçüncü parti widget'lar için de
+  aynı değerleri yazıyor. **Asıl keskinlik CSD pencerelerdeydi:**
+  picom'un 8 px kırpması pencere geometrisine uygulanır ve CSD
+  pencerenin geometrisi 12 px görünmez gölge payını içerir, yani kırpma
+  görünen çerçeveye hiç değmiyordu — `decoration` 0 → 8.
+- **A3 animasyon.** Tek eğri `cubic-bezier(0.2, 0.9, 0.25, 1)`, tek
+  süre 180 ms. Eski yapılandırmada açılış 180 kapanış 120'ydi; açılıştan
+  hızlı kapanış göze "kesme" olarak okunuyor. picom preset'leri eğri
+  almadığı için (12.5 man sayfasında doğrulandı) dört tetikleyici elle
+  yazılmış betik. Küçült/geri getir artık animasyonlu (0.82 ölçek),
+  panel popup'ları 12 px kayarak açılıyor.
+- **A4 kenar ve gölge.** Her yüzeyde 1 px üst ışık çizgisi
+  (`@kavis_top_edge`, kenarlık değil inset gölge — kenarlık widget
+  boyutunu değiştirir); picom gölgesi 14/0.45 → 18/0.35.
+- **A5 ölçüm.** `tools/check-visual.sh` fontconfig'in gerçekte ne
+  çözdüğünü, dört yerdeki yazı tipi/DPI'ın aynı olduğunu, SSD/CSD
+  başlık çubuğu değerlerinin birebir eşleştiğini ve ekran
+  görüntüsünden ölçülen köşe yarıçapını denetliyor. İlk koşuşunda
+  A1'in kendi hatasını buldu: `<alias><prefer>` Debian'ın
+  60-latin.conf'una yeniliyordu, DejaVu hâlâ kazanıyordu.
+
+### B. Selftest'in kendi hataları
+
+Rapordaki altı hata sistemin değil testin hatasıydı: `close window`
+libwnck'nin önbelleğine istek gönderiyordu (artık `_NET_CLIENT_LIST` +
+EWMH + 500 ms'de bir yoklama + SIGTERM), `process kavis-taskmanager`
+/proc comm'un 15 karakter kırpmasına takılıyordu (artık exe adı),
+rapor Mousepad'de açılıyordu (mimeapps.list + xdg-open).
+
+### C. Pencere ve imleç
+
+- **C1 snap önizlemesi görünmüyordu.** İki sebep: önizleme
+  override-redirect olduğu için pencere yöneticisi onu asla yukarı
+  taşımıyor ve openbox sürüklenen pencereyi onun üstüne çıkarıyordu;
+  compositor'ün varlığı bir kez, açılışta okunuyordu (kavis-snap
+  picom'dan önce başlarsa oturum boyunca önizleme yok). Ayrıca önizleme
+  180 ms'de beliriyor ve pencere bölgeye animasyonla oturuyor.
+- **C2 başlık çubuğu eşleşmesi artık denetleniyor** (iki tur atlandığı
+  için). İki gerçek fark kapandı: CSD başlığı GTK'nın `.title`
+  sınıfından **kalın**dı, ve Firefox kendi başlık çubuğunu çiziyordu
+  (`browser.tabs.inTitlebar = 0`). Kanıt görüntüsü
+  `docs/gorseller/baslik-cubugu-c2.png`.
+- **C3 imleç Breeze Light** oldu (Bibata 178 MB, Breeze 30 MB). Kendi
+  Kavis-Cursors'ımız 109 ad kapsıyordu, gerisi **Adwaita'ya**
+  düşüyordu — VM turunda görülen o düşüşlerdi. Ad dört yerde geçiyor,
+  check-visual dördünün aynı olmasını şart koşuyor.
+
+### D. Uygulama adları ve başlangıç listesi
+
+Başlık çubuğu uygulamanın kendi `_NET_WM_NAME`'inden gelir, .desktop
+adından değil — kavis-snap artık `/etc/kavis/window-title-map.conf`'u
+her başlık değişiminde uyguluyor ("notes.txt - Mousepad" →
+"…- Notepad"), tam sözcük eşleşmesiyle. Başlangıç listesinden sistem
+altyapısı **kural**la çıkarıldı (menüde olmayan sistem autostart girdisi
+listelenmez; ad listesi tahmin edilemeyeni kapsayamıyordu) ve yönetim
+araçları (GParted, Disks, Baobab, Document Scanner) ad + kategoriyle.
+
+### E. Görev Yöneticisi
+
+Çekirdek grafikleri kendi çerçeveli hücrelerinde ("CPU 0" etiketiyle);
+sağ tık artık önce **odağı** alıyor (satır zaten seçiliyordu ama
+odaksız seçim rengi satır zemininden ayırt edilemiyordu); boşta bellek
+için `MEM-PROC` satırları (USS + RSS, ikisi birlikte çünkü fark
+E3'ün cevabı: RSS paylaşılan GTK sayfalarını her süreçte tekrar sayar).
+
+### F. Grup F'in kalanı
+
+- **Ekran (10):** çoklu monitör yerleşimi (sürüklenen ekran komşusunun
+  kenarına yapışır), birincil seçimi, yansıt/genişlet, döndürme; gece
+  ışığı artık **zamanlı** — gün batımı/gün doğumu saatleri makinenin
+  saat diliminden geliyor (tzdata `zone1970.tab` koordinatları + NOAA
+  denklemleri, ağ yok, izin yok). İstanbul 4 Eyl 2026 için 06:32/19:34
+  çıkıyor, yayımlanan değerle dakikası dakikasına aynı.
+- **Güç (51):** modlar artık CPU governor + EPP yazıyor (kök yardımcı);
+  **üç mod**, dört değil — Oyun modu Performans'la birebir aynıydı ve
+  onu gerçek kılacak şey (C-state kilidi için /dev/cpu_dma_latency'i
+  açık tutan bir servis, bildirim susturma, compositor baypası) madde
+  13'e ait. Boşta zaman aşımları prizde/pilde ayrı, kapak logind
+  drop-in'iyle, düşük pil uyarısı, uyku/hazırda bekletme düğmeleri.
+- **Ağ (52):** Wi-Fi bağlan/unut/hotspot, kablolu, elle IP/DNS, VPN
+  profili içe aktarma (WireGuard/OpenVPN), şifreli DNS. **Not:**
+  systemd-resolved DoH değil **DoT** konuşuyor; arayüz de öyle diyor.
+- **Donanım testi (50):** dokuz denetim, geçti/kaldı/atlandı + tek
+  rapor. Ölçülebilen makineye, ölçülemeyen kişiye soruluyor.
+- **Kilit ekranı (70):** PAM ile; Win+L, logind Lock sinyali (kapak
+  dahil), boşta süre. Parolasız oturumda tek düğme.
+- **kavisfetch (71):** fastfetch + Kavis yapılandırması, K logosu.
+- **Selftest (72):** bitmiş her madde için senaryo (34/34);
+  `kavis-selftest --check` push öncesi hepsini ayrıştırıyor — ilk
+  koşuşunda 14 senaryoyu reddetti.
+
+## VM'de doğrulanacaklar (v0.5-test1 turu)
+
+Otomatik senaryoların göremediği, gözle bakılacaklar:
+
+- **A1/A2/A4:** yazı gerçekten net mi, köşeler her yerde yuvarlak mı,
+  üst ışık çizgisi görünüyor mu (panel, kart, popup).
+- **A3:** açılış/kapanış/küçültme animasyonları yumuşak mı, popup
+  12 px kayıyor mu.
+- **C1:** kenara sürüklerken yarı saydam önizleme çıkıyor mu, köşede
+  çeyrek ekran gösteriyor mu, bırakınca animasyonla mı oturuyor.
+- **C2:** Nemo/Kate/GParted/Firefox başlık çubukları Görev
+  Yöneticisi'ninkiyle aynı görünüyor mu.
+- **C3:** imleç net mi, pencereden pencereye şekil değiştiriyor mu.
+- **Ekran (10):** ikinci monitörle yerleşim, yansıt/genişlet, döndürme.
+- **Güç (51):** kapak kapanınca, boşta uyku, düşük pil bildirimi;
+  `cpupower frequency-info` ile governor gerçekten değişiyor mu.
+- **Ağ (52):** gerçek Wi-Fi'ye bağlanma, hotspot, VPN profili.
+- **Donanım testi (50):** klavye/fare/ses/ekran testleri (kişi gerekli).
+- **Kilit ekranı (70):** gerçek parolayla, kapak kapanınca, boşta.
+- **Bellek:** `MEM-PROC` satırları — lxpolkit, nemo-desktop,
+  kavis-tools eşik aşıyor mu (RAM maddesi 2).
+
+---
+
 # OTURUM DURUMU — 3 Eylül 2026 (v0.4-test2 VM turu + debug turu)
 
 Yeni oturum önce bunu okur; 2 Eylül kaydı altta aynen duruyor.
