@@ -735,6 +735,33 @@ msgstr "⟪About··⟫"
 msgid "Copy details"
 msgstr "⟪Copy details····⟫"
 
+msgid "Self test"
+msgstr "⟪Self test···⟫"
+
+msgid "Test this system"
+msgstr "⟪Test this system······⟫"
+
+msgid "Automatic interface test"
+msgstr "⟪Automatic interface test·········⟫"
+
+msgid "Runs the interface through its own checks and writes a report"
+msgstr "⟪Runs the interface through its own checks and writes a report························⟫"
+
+msgid "Testing…"
+msgstr "⟪Testing…···⟫"
+
+msgid "Everything passed."
+msgstr "⟪Everything passed.·······⟫"
+
+msgid "%d check failed."
+msgstr "⟪%d check failed.······⟫"
+
+msgid "The test stopped before it finished."
+msgstr "⟪The test stopped before it finished.··············⟫"
+
+msgid "Open report"
+msgstr "⟪Open report····⟫"
+
 msgid "Small"
 msgstr "⟪Small··⟫"
 

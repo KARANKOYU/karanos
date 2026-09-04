@@ -1155,3 +1155,39 @@ msgstr ""
 
 msgid "App"
 msgstr "Uygulama"
+
+msgid "Self test"
+msgstr "Kendi kendini test"
+
+msgid "Test this system"
+msgstr "Sistemi test et"
+
+msgid "Automatic interface test"
+msgstr "Otomatik arayüz testi"
+
+msgid "Runs the interface through its own checks and writes a report"
+msgstr "Arayüzü kendi denetimlerinden geçirir ve rapor yazar"
+
+msgid ""
+"The test takes about five minutes. Windows will open and close on their own "
+"— do not touch the mouse or the keyboard until it finishes."
+msgstr ""
+"Test yaklaşık beş dakika sürer. Pencereler kendiliğinden açılıp kapanır — "
+"bitene kadar fareye ve klavyeye dokunmayın."
+
+msgid "Testing…"
+msgstr "Test ediliyor…"
+
+msgid "Everything passed."
+msgstr "Hepsi geçti."
+
+msgid "%d check failed."
+msgid_plural "%d checks failed."
+msgstr[0] "%d denetim kaldı."
+msgstr[1] "%d denetim kaldı."
+
+msgid "The test stopped before it finished."
+msgstr "Test bitmeden durdu."
+
+msgid "Open report"
+msgstr "Raporu aç"

@@ -43,7 +43,102 @@ namespace Kavis.Settings.Pages {
         });
         body.pack_start (copy, false, false, 0);
 
+        /* Selftest (item 72): only when kavis-selftest is installed —
+         * Settings must not depend on the test runner, and a button that
+         * cannot do anything is worse than no button. */
+        if (Environment.find_program_in_path ("kavis-selftest") != null) {
+            body.pack_start (group (_("Self test")), false, false, 0);
+            var test = new Gtk.Button.with_label (_("Test this system"));
+            test.halign = Gtk.Align.START;
+            test.clicked.connect (() => run_selftest (test));
+            body.pack_start (row (_("Automatic interface test"),
+                _("Runs the interface through its own checks and writes a report"),
+                test), false, false, 0);
+        }
+
         return page;
+    }
+
+    /* Warn, run, then offer the report. The run drives the real mouse
+     * and keyboard, so the warning is not decoration: anything the user
+     * types during it lands in whatever window the test focused. */
+    private void run_selftest (Gtk.Button button) {
+        var parent = button.get_toplevel () as Gtk.Window;
+        var ask = new Gtk.MessageDialog (parent, Gtk.DialogFlags.MODAL,
+            Gtk.MessageType.WARNING, Gtk.ButtonsType.OK_CANCEL, "%s",
+            _("The test takes about five minutes. Windows will open and close on their own — do not touch the mouse or the keyboard until it finishes."));
+        ask.set_title (_("Test this system"));
+        bool go = ask.run () == Gtk.ResponseType.OK;
+        ask.destroy ();
+        if (!go) {
+            return;
+        }
+        button.set_sensitive (false);
+        button.set_label (_("Testing…"));
+        try {
+            Pid pid;
+            Process.spawn_async (null, { "kavis-selftest", "--all", "--quiet" },
+                null, SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
+                null, out pid);
+            ChildWatch.add (pid, (p, status) => {
+                Process.close_pid (p);
+                button.set_sensitive (true);
+                button.set_label (_("Test this system"));
+                selftest_result (parent, status, latest_report ());
+            });
+        } catch (Error e) {
+            button.set_sensitive (true);
+            button.set_label (_("Test this system"));
+            warning ("kavis-settings: selftest could not start: %s", e.message);
+        }
+    }
+
+    /* Newest directory under the selftest data dir; empty when none. */
+    private string latest_report () {
+        string root = Path.build_filename (Environment.get_user_data_dir (),
+                                           "kavis", "selftest");
+        string newest = "";
+        try {
+            var dir = Dir.open (root);
+            string? name;
+            while ((name = dir.read_name ()) != null) {
+                /* Names are timestamps, so ordering is lexicographic. */
+                if (strcmp (name, newest) > 0) {
+                    newest = name;
+                }
+            }
+        } catch (Error e) {
+            return "";
+        }
+        return (newest == "") ? "" : Path.build_filename (root, newest);
+    }
+
+    private void selftest_result (Gtk.Window? parent, int status, string dir) {
+        int failures = Process.if_exited (status) ? Process.exit_status (status) : -1;
+        string text = (failures == 0)
+            ? _("Everything passed.")
+            : (failures > 0
+               ? ngettext ("%d check failed.", "%d checks failed.", failures)
+                   .printf (failures)
+               : _("The test stopped before it finished."));
+        var done = new Gtk.MessageDialog (parent, Gtk.DialogFlags.MODAL,
+            failures == 0 ? Gtk.MessageType.INFO : Gtk.MessageType.WARNING,
+            Gtk.ButtonsType.NONE, "%s", text);
+        done.set_title (_("Test this system"));
+        if (dir != "") {
+            done.add_button (_("Open report"), 1);
+        }
+        done.add_button (_("Close"), Gtk.ResponseType.CLOSE);
+        if (done.run () == 1) {
+            try {
+                AppInfo.launch_default_for_uri (
+                    "file://" + Path.build_filename (dir, "report.html"), null);
+            } catch (Error e) {
+                warning ("kavis-settings: report could not be opened: %s",
+                         e.message);
+            }
+        }
+        done.destroy ();
     }
 
     /* Right-hand value of a fact: dim, right aligned, selectable. */

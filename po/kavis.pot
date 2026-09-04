@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 08:53+0000\n"
+"POT-Creation-Date: 2026-09-04 09:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: packages/kavis-common/picker_data.vala:24
 #: packages/kavis-common/picker_data.vala:50
@@ -574,6 +575,7 @@ msgid "Search"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:234
+#: packages/kavis-settings/src/ui/page_system.vala:131
 #: packages/kavis-taskmanager/src/tasks.vala:542
 #: packages/kavis-tools/src/capture.vala:506
 #: packages/kavis-tools/src/repair.vala:89
@@ -1185,6 +1187,55 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_system.vala:34
 #: packages/kavis-settings/src/ui/window.vala:145
 msgid "Copy details"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:50
+msgid "Self test"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:51
+#: packages/kavis-settings/src/ui/page_system.vala:70
+#: packages/kavis-settings/src/ui/page_system.vala:86
+#: packages/kavis-settings/src/ui/page_system.vala:91
+#: packages/kavis-settings/src/ui/page_system.vala:127
+msgid "Test this system"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:54
+msgid "Automatic interface test"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:55
+msgid "Runs the interface through its own checks and writes a report"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:69
+msgid ""
+"The test takes about five minutes. Windows will open and close on their own "
+"— do not touch the mouse or the keyboard until it finishes."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:77
+msgid "Testing…"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:119
+msgid "Everything passed."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:121
+#, c-format
+msgid "%d check failed."
+msgid_plural "%d checks failed."
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:123
+msgid "The test stopped before it finished."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_system.vala:129
+msgid "Open report"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_taskbar.vala:32
