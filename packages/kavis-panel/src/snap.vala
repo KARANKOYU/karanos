@@ -753,7 +753,19 @@ namespace Kavis {
         /* Rewriting _NET_WM_NAME makes the window manager redraw the
          * title. It cannot loop: the replacement contains no vendor
          * name, so the PropertyNotify our own write causes finds
-         * nothing left to change. */
+         * nothing left to change.
+         *
+         * BOTH names are rewritten. _NET_WM_NAME is what the window
+         * manager, the taskbar and wnck read, so rewriting only that
+         * one LOOKS complete — and it was, for two rounds. But the
+         * ICCCM WM_NAME lives on beside it, still carrying the vendor
+         * name, and everything older reads that one instead:
+         * `xdotool search --name`, xprop, xkill, ancient tray helpers.
+         * The v0.5-test2 run caught it: the title bar said Notepad and
+         * `xdotool search --name Mousepad` found the window anyway.
+         * The old check missed it because `xdotool getwindowname` reads
+         * the new property, so both sides of the test agreed with each
+         * other and neither one asked what the legacy property said. */
         private void fix_title (Wnck.Window w) {
             if (title_map.size () == 0) {
                 return;
@@ -768,15 +780,53 @@ namespace Kavis {
             }
             unowned X.Display xd =
                 ((Gdk.X11.Display) Gdk.Display.get_default ()).get_xdisplay ();
-            X.Atom net_name = xd.intern_atom ("_NET_WM_NAME", false);
+            X.Window xid = (X.Window) w.get_xid ();
             X.Atom utf8 = xd.intern_atom ("UTF8_STRING", false);
             Gdk.error_trap_push ();
-            xd.change_property ((X.Window) w.get_xid (), net_name, utf8, 8,
-                                X.PropMode.Replace,
+            /* The modern name, and the icon name beside it: an
+             * iconified window is named by _NET_WM_ICON_NAME, and a
+             * taskbar that falls back to it would show the vendor
+             * name again. */
+            xd.change_property (xid, xd.intern_atom ("_NET_WM_NAME", false),
+                                utf8, 8, X.PropMode.Replace,
+                                (uchar[]) wanted.data, wanted.length);
+            xd.change_property (xid,
+                                xd.intern_atom ("_NET_WM_ICON_NAME", false),
+                                utf8, 8, X.PropMode.Replace,
+                                (uchar[]) wanted.data, wanted.length);
+            /* And the legacy pair. The ICCCM says WM_NAME is
+             * Latin-1 STRING (or COMPOUND_TEXT), which no longer
+             * survives contact with a Turkish file name — "ş" is not a
+             * Latin-1 character. So: STRING while the text is plain
+             * ASCII, where the two encodings are the same bytes, and
+             * UTF8_STRING otherwise. That second case is off-spec by
+             * the letter, and it is what every reader in practice
+             * expects; the alternative is leaving the vendor name
+             * behind on exactly the titles a Turkish desktop produces
+             * most. */
+            X.Atom legacy_type = is_ascii (wanted)
+                ? xd.intern_atom ("STRING", false) : utf8;
+            xd.change_property (xid, xd.intern_atom ("WM_NAME", false),
+                                legacy_type, 8, X.PropMode.Replace,
+                                (uchar[]) wanted.data, wanted.length);
+            xd.change_property (xid, xd.intern_atom ("WM_ICON_NAME", false),
+                                legacy_type, 8, X.PropMode.Replace,
                                 (uchar[]) wanted.data, wanted.length);
             xd.flush ();
             Gdk.error_trap_pop_ignored ();
             dbg ("title '%s' -> '%s'", name, wanted);
+        }
+
+        /* Pure ASCII: the UTF-8 bytes are also the STRING bytes. */
+        private static bool is_ascii (string s) {
+            unichar c;
+            int i = 0;
+            while (s.get_next_char (ref i, out c)) {
+                if (c > 0x7f) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void watch_window (Wnck.Window w) {

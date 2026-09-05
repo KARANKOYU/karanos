@@ -117,13 +117,20 @@ hemen (aynı gün iki commit).
 
 ### 9a. CI sağlamlık denetimleri
 
-- **DPKG-VERIFY-OK:** ISO'da `dpkg -V`; Kavis'in değiştirdiği Debian
-  paket dosyası olmasın. Conffile'lar hariç (listelenir); 9995-cleanup
+- **DPKG-VERIFY-OK:** `dpkg -V`; Kavis'in değiştirdiği Debian paket
+  dosyası olmasın. Conffile'lar hariç (listelenir); 9995-cleanup
   hook'unun sildiği /usr/share/{doc,doc-base,man,locale} "missing"
   satırları sayılır, hata değil (3 Eyl kalibrasyonu: 9 conffile,
   değişmiş dosya 0, TCG'de 9,5 dk). Kural: Debian paketinin dosyasına
   dokunulmaz; override hep `/etc/kavis`, `/usr/share/kavis`, `/etc/xdg`
   altında.
+  **5 Eyl:** md5'ler artık açılışta değil, `9997-dpkg-verify.hook.chroot`
+  ile derleme sırasında bir kez hesaplanıyor
+  (`/usr/share/kavis/dpkg-verify.txt`); boot-check hükmü o dosyadan
+  veriyor. Sebep: 9,5 dakikalık iş, açılışın 300 sn'lik tavanına beş
+  QEMU profilinde de sığmıyordu — hiç bitmeden beş dakika yiyor ve
+  aynı bütçedeki selftest'i kestiriyordu. Denetim imajın özelliği,
+  oturumun değil.
 - **Haftalık zamanlanmış koşu:** pazartesi 03:00 UTC güncel trixie ile
   derle + 5 profil QEMU testi. Kırmızıysa otomatik GitHub issue
   ("trixie güncellemesi kırdı: <denetim>"), aynı issue açıksa yorum.

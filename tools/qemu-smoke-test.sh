@@ -16,7 +16,13 @@ set -euo pipefail
 
 ISO="${1:?usage: $0 <iso-file> [bios|uefi|secureboot]}"
 MODE="${2:-bios}"
-TIMEOUT="${TIMEOUT:-900}"
+# The whole run: boot, boot-check, and the selftest's 38 scenarios on an
+# emulated CPU. 900 s was not enough — v0.5-test2 was cut off four
+# scenarios from the end and then reported it as "no graphical session",
+# which is the opposite of what had happened. The build-time dpkg -V
+# (9997 hook) gave back the five minutes boot-check used to spend on it,
+# so 1200 s is now roughly twice the headroom 900 s never had.
+TIMEOUT="${TIMEOUT:-1200}"
 
 # Multi-arch preparation: this test was written for qemu-system-x86_64 +
 # OVMF. When arm64 support is wanted, a qemu-system-aarch64 + AAVMF path
@@ -393,13 +399,25 @@ PANIC)
 	exit 1
 	;;
 *)
-	echo ">> RESULT: TIMEOUT — no graphical session within ${TIMEOUT}s ($MODE)"
+	echo ">> RESULT: TIMEOUT — the run did not finish within ${TIMEOUT}s ($MODE)"
+	# What the serial log already knows, said out loud. The old wording
+	# was one sentence for three very different failures, and in
+	# v0.5-test2 it picked the wrong one: the desktop was up, the
+	# selftest had run 34 of its 38 scenarios, and the report said no
+	# graphical session had come up.
 	if (( kernel_seen == 0 )); then
 		echo ">> DIAGNOSIS: the kernel never started — the problem is in the"
 		echo ">>            bootloader (GRUB), not the OS. Look at the screenshot."
-	else
+	elif (( desktop_shot == 0 )); then
 		echo ">> DIAGNOSIS: the kernel started but no graphical session came up."
 		echo ">>            Look at the last lines of the serial log."
+	else
+		last_scenario=$(grep -o "SELFTEST .* \[[^]/]*\(/[0-9]*\)\?\] " "$SERIAL" 2>/dev/null \
+			| tail -1 | sed 's/.*\[//; s/\].*//' || true)
+		echo ">> DIAGNOSIS: the desktop came up and the run was CUT OFF, not stuck."
+		echo ">>            Last selftest step seen: ${last_scenario:-none}."
+		echo ">>            Either the run needs more than ${TIMEOUT}s (raise TIMEOUT)"
+		echo ">>            or a step is hanging — the serial log says which."
 	fi
 	exit 1
 	;;

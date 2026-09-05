@@ -73,6 +73,9 @@ SKIP = {
 POPUP_TIMEOUT = 6000
 WINDOW_TIMEOUT = 40000
 
+# The window every window-placement shortcut is aimed at.
+REFERENCE = "nemo"
+
 
 def timeout_for(expect):
     return WINDOW_TIMEOUT if expect.startswith("window ") else POPUP_TIMEOUT
@@ -135,6 +138,16 @@ def scenario():
         if keys is None:
             continue
         expect = EXPECTATIONS.get(entry_id, "ok")
+        if expect.startswith("geometry "):
+            # A window shortcut acts on the ACTIVE window. Earlier in
+            # this same scenario another shortcut opened the task
+            # manager, so in v0.5-test2 Win+Left half-tiled that and the
+            # step reported the untouched geometry of the window it was
+            # watching. The scenario now says which window is in front
+            # instead of hoping.
+            lines.append(f"  - do: focus window {REFERENCE}")
+            lines.append(f"    expect: window {REFERENCE} focused")
+            lines.append("    timeout: 8000")
         lines.append(f"  - do: key {keys}")
         lines.append(f"    expect: {expect}")
         if expect != "ok":
@@ -146,6 +159,15 @@ def scenario():
             lines.append("  - do: key Escape")
             lines.append("    expect: popup kavis-panel hidden")
             lines.append("    timeout: 4000")
+        opened = expect.split(" ")[1] if expect.startswith("window ") else ""
+        if opened and opened != REFERENCE:
+            # And leave nothing behind either: a window still standing
+            # when the scenario ends is an "unknown window" anomaly in
+            # every scenario that follows, and it steals the focus from
+            # the steps above.
+            lines.append(f"  - do: close window {opened}")
+            lines.append(f"    expect: window {opened} absent")
+            lines.append("    timeout: 8000")
     lines += [
         "  - do: close window nemo",
         "    expect: window nemo absent",

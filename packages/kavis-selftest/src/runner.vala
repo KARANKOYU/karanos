@@ -14,6 +14,8 @@ namespace Kavis.Selftest {
         private int coredumps;
         private string[] pillars = { "kavis-panel", "kavis-snap", "openbox", "picom" };
         private bool keep_all_shots;
+        /* The last frame captured, reused as the next step's "before". */
+        private Gdk.Pixbuf? last_frame = null;
 
         public Runner (Report report, bool keep_all_shots) {
             rep = report;
@@ -28,6 +30,7 @@ namespace Kavis.Selftest {
                 return;
             }
             rep.line ("[%s] BEGIN %s (item %s, %d steps)".printf (sc.name, sc.title, sc.item, sc.get_steps ().length));
+            last_frame = null;
             string[] known = xw.window_classes ();
             foreach (string a in sc.allowed) {
                 known += a.down ();
@@ -52,7 +55,15 @@ namespace Kavis.Selftest {
             int64 t0 = new DateTime.now_utc ().to_unix ();
             int mem0 = SysMon.mem_used_mb ();
             var timer = new Timer ();
-            Gdk.Pixbuf? before = capture ();
+            /* The frame before this step is the frame after the last
+             * one: nothing but the runner's own bookkeeping happens in
+             * between, and a second grab of the same screen costs a
+             * fifth of a second on an emulated CPU — around forty
+             * seconds over a full run, which is time the last scenarios
+             * were being cut off for. Attributing a change that happens
+             * during the bookkeeping to the NEXT step is also the more
+             * honest reading: nothing else could have caused it. */
+            Gdk.Pixbuf? before = last_frame ?? capture ();
 
             string err;
             bool act_ok = do_action (st.action, out err);
@@ -70,6 +81,7 @@ namespace Kavis.Selftest {
 
             /* --- frame + diff --- */
             Gdk.Pixbuf? after = capture ();
+            last_frame = after;
             r.diff_percent = diff (before, after);
             string stem = "%03d".printf (step_no);
             if (after != null) {
@@ -81,10 +93,9 @@ namespace Kavis.Selftest {
                     save (after, r.shot, true);
                 }
             }
-            /* --- window list, processes, journal --- */
+            /* --- window list, journal --- */
             string wins = xw.list_windows ();
             rep.write_aux ("windows-" + stem + ".txt", wins);
-            rep.write_aux ("processes-" + stem + ".txt", SysMon.process_table ());
             string jl = SysMon.journal_since (t0);
             rep.journal_lines (tag, jl);
             /* --- anomalies (independent of the expectation) --- */
@@ -125,6 +136,15 @@ namespace Kavis.Selftest {
                     grown += c;
                     known = grown;
                 }
+            }
+            /* The process table used to be written for every step —
+             * two hundred files of which nobody ever opens the ones
+             * next to a green step, each one a full walk of /proc.
+             * It is kept where it answers something: a failed step, or
+             * a step with an anomaly beside it. */
+            if (!ok || r.anomalies.length > 0) {
+                rep.write_aux ("processes-" + stem + ".txt",
+                               SysMon.process_table ());
             }
             if (!ok) {
                 rep.write_aux ("fail-" + stem + "-xprop.txt", xprop_dump ());
@@ -206,10 +226,52 @@ namespace Kavis.Selftest {
                 return do_drag (w, out err);
             case "close":
                 return do_close (w, out err);
+            case "focus":
+                return do_focus (w, out err);
             default:
                 err = "unknown action: " + w[0];
                 return false;
             }
+        }
+
+        /* focus window <class>.
+         *
+         * A window-placement shortcut acts on whatever the window
+         * manager considers active, not on the window the step happens
+         * to name. The generated shortcut scenario learned that the
+         * hard way in v0.5-test2: a shortcut a few steps earlier had
+         * opened the task manager, so Win+Left half-tiled THAT and the
+         * step failed reporting the untouched geometry of the window it
+         * was watching. Saying out loud which window is in front turns
+         * that class of failure into a step that either works or says
+         * why.
+         *
+         * Activation goes through the window manager (EWMH
+         * _NET_ACTIVE_WINDOW, which is what wnck's activate sends) so
+         * openbox raises and focuses it the way a click would. */
+        private bool do_focus (string[] w, out string err) {
+            err = "";
+            if (w.length < 3 || w[1] != "window") {
+                err = "focus window <class>";
+                return false;
+            }
+            unowned Wnck.Window? win = xw.find (w[2]);
+            if (win == null) {
+                err = "no window: " + w[2];
+                return false;
+            }
+            win.activate ((uint32) (get_real_time () / 1000));
+            /* Focus travels through the window manager, so the answer
+             * is polled rather than assumed — two seconds is far more
+             * than openbox needs even under TCG. */
+            for (int i = 0; i < 8; i++) {
+                settle (250);
+                if (xw.is_focused (win)) {
+                    return true;
+                }
+            }
+            err = "the window manager did not put the focus on " + w[2];
+            return false;
         }
 
         /* close window <class> — B1.

@@ -142,9 +142,15 @@ expect "top-right corner → quarter" 640 0 640 400
 read -r tx ty < <(title_xy); drag "$tx" "$ty" 640 1
 expect "top edge → maximize" 0 0 1280 800
 
-# D1: the vendor's name must not survive in a title bar. The map is
-# applied to _NET_WM_NAME, so the check is simply to set a title that
-# contains one and read back what the window ends up called.
+# D1: the vendor's name must not survive in a title bar. A window
+# carries TWO names — _NET_WM_NAME, which the window manager and the
+# taskbar read, and the ICCCM WM_NAME beside it, which xdotool, xprop
+# and everything older read. This check used to read only the first
+# one, with `xdotool getwindowname`, and so it agreed with a daemon
+# that only wrote the first one: the title bar said Notepad while
+# `xdotool search --name Mousepad` still found the window. Both are
+# asserted now, and the negative form (nothing is called Mousepad any
+# more) is asserted the way tests/ui/40-editors.yaml asserts it.
 xdotool set_window --name "notes.txt - Mousepad" "$ID"
 sleep 1
 title=$(xdotool getwindowname "$ID")
@@ -153,6 +159,26 @@ if [ "$title" = "notes.txt - Notepad" ]; then
 else
 	echo "TITLE-FAIL: expected 'notes.txt - Notepad', got '$title'"
 	fail=1
+fi
+legacy=$(xprop -id "$ID" WM_NAME 2>/dev/null)
+case "$legacy" in
+*Mousepad*)
+	echo "TITLE-FAIL: WM_NAME still carries the vendor name ($legacy)"
+	fail=1
+	;;
+*Notepad*)
+	echo "TITLE ok: WM_NAME too ($legacy)"
+	;;
+*)
+	echo "TITLE-FAIL: WM_NAME says nothing useful ($legacy)"
+	fail=1
+	;;
+esac
+if [ -n "$(xdotool search --onlyvisible --name Mousepad)" ]; then
+	echo "TITLE-FAIL: xdotool still finds a window named Mousepad"
+	fail=1
+else
+	echo "TITLE ok: no window answers to the vendor name"
 fi
 # A file that merely CONTAINS the vendor name keeps it — whole words only.
 xdotool set_window --name "mousepadding.txt - Mousepad" "$ID"
@@ -169,4 +195,4 @@ if [ "$fail" -ne 0 ]; then
 	echo "--- kavis-snap log ---"; cat "$TMP/snap.log"
 	exit 1
 fi
-echo "SNAP-OK: 4 scenarios + 2 title rules held ($MODE)"
+echo "SNAP-OK: 4 scenarios + 4 title rules held ($MODE)"

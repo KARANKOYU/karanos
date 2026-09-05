@@ -84,6 +84,32 @@ XDG_PUBLICSHARE_DIR="\$HOME"
 # directory above, so the home directory keeps six folders.
 XDG
 
+	# Autostart entries Kavis turns off, as the user's own override —
+	# the session launcher and Task Manager > Startup both already obey
+	# "the user's file wins on the same name" and "Hidden=true is
+	# skipped", so a disabled entry SHOWS as disabled and can be turned
+	# back on from Task Manager instead of vanishing.
+	#
+	# print-applet: system-config-printer's tray icon is a Python
+	# process — 28 MB of private pages at idle in the v0.5-test2
+	# measurement, third-largest on a desktop with no printer attached.
+	# Its own .desktop already carries NotShowIn=KDE;GNOME;Cinnamon;
+	# LXDE;Unity, so every other desktop reached the same conclusion;
+	# Kavis is simply not on a list written before it existed. CUPS
+	# itself, the wizard and the Settings printer page are untouched.
+	# The override is a COPY of the system entry with Hidden=true, not a
+	# stub: Task Manager's Enable writes Hidden=false into this same
+	# file, so a stub carrying "Exec=true" would come back on as a
+	# switch that starts nothing.
+	mkdir -p "$NEW_HOME/.config/autostart"
+	if [ -f /etc/xdg/autostart/print-applet.desktop ]; then
+		{
+			grep -v '^Hidden=' /etc/xdg/autostart/print-applet.desktop
+			echo "Hidden=true"
+			echo "X-Kavis-Reason=Not started at login by Kavis; turn it back on from Task Manager > Startup"
+		} > "$NEW_HOME/.config/autostart/print-applet.desktop"
+	fi
+
 	# Desktop shortcuts (item 9, feedback H7): Files, Firefox, Settings,
 	# Task Manager, Terminal — deliberately no Trash, that decision is
 	# in docs/kararlar.md. The overrides in /etc/kavis/applications

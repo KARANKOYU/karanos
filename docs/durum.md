@@ -9,7 +9,7 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
-# OTURUM DURUMU — 4 Eylül 2026 gecesi (v0.5-test2)
+# OTURUM DURUMU — 5 Eylül 2026 (v0.5-test3: hata ayıklama + optimizasyon)
 
 Yeni oturum önce bunu okur.
 
@@ -92,58 +92,66 @@ XRecord'un vapi'si yok; `src/xrecord.c` (40 satır) o yüzden var — iki
 bağlantılı, geri çağrımlı bir API için elle yazılmış binding daha
 kırılgan olurdu.
 
-## 552 MB nereden geliyor — kalem kalem
+## 568 MB nereden geliyor — kalem kalem (ÖLÇÜLDÜ, v0.5-test2)
 
-v0.5-test1'de ÖLÇÜLEN (MEM-PROC satırları, USS/RSS MB):
+Önceki tur bunu tahmin etmişti; bu tur boot-check ölçtü. v0.5-test2
+koşusunun (bios/default) `MEM-BREAKDOWN` satırı:
 
-| Süreç | USS | RSS | Not |
-|---|---|---|---|
-| Xorg | 62 | 111 | |
-| nemo-desktop | 45 | 75 | 30 MB eşiğin üstünde — ayrı madde |
-| kavis-panel | 35 | 66 | 20 MB bütçesinin üstünde |
-| lxpolkit | 12 | 68 | 15 MB eşiğinin altında, değişmiyor |
-| kavis-osd | 4 | 20 | tembel pencere işe yaradı |
-| kavis-snap | 4 | 20 | |
-| picom | 1 | 6 | |
-| lightdm (2 süreç) | 1 | 15 | |
-| **adlandırılmış toplam** | **~164** | | |
-| **`free` used** | **552** | | hedef 380 |
+```
+MEM-BREAKDOWN kernel=305MB shmem=29MB cache=1771MB user=266MB total=568MB
+```
 
-Yani **asıl soru adlandırılmış süreçler değil, aradaki ~390 MB.**
-Bu tur tahmin etmek yerine ölçtürüldü: boot-check artık her koşuda
-şunları basıyor —
+| Kalem | MB | Ne demek |
+|---|---|---|
+| **kernel** | **305** | slab + sayfa tabloları + çekirdek yığınları |
+| **user** | **266** | tüm süreçlerin özel sayfaları (USS) toplamı |
+| shmem | 29 | tmpfs: /run, /dev/shm, canlı overlay'in üst katmanı |
+| cache | 1771 | açılmış squashfs sayfaları — geri kazanılabilir, "used"a girmez |
+| **`free` used** | **568** | hedef 380 |
 
-- `MEM-BREAKDOWN kernel=… shmem=… cache=… user=… total=…`
-  - **kernel** = slab + sayfa tabloları + çekirdek yığınları
-  - **shmem** = tmpfs: /run, /dev/shm ve **canlı overlay'in üst katmanı**
-    (kurulu sistemin ödemediği, canlı oturumun ödediği kalem)
-  - **cache** = sayfa önbelleği eksi tmpfs — çoğu açılmış squashfs.
-    Geri kazanılabilir, yani "used"'ı şişirir ama baskı altında
-    maliyeti yoktur
-  - **user** = tüm süreçlerin özel sayfalarının (USS) toplamı
-- `MEM-TOP` — özel sayfaya göre en obur on süreç, adlarına bakılmaksızın.
-  164 MB'lık adlandırılmış liste ile toplam arasındaki fark,
-  adlandırmadığımız bir şeyin bellek tuttuğunu söylüyor; bu satır onu
-  isimlendirecek.
+Yani **hikâyenin yarısı çekirdeğin kendi belleği.** 305 MB slab, canlı
+oturumda squashfs + overlayfs'in dentry/inode önbelleğidir ve **ne
+kadar dosya okunduğuyla** doğru orantılıdır. Bu koşuda imajdaki her
+paketli dosyayı okuyan bir şey vardı: `dpkg -V` (aşağıdaki madde).
+Onu açılış yolundan çıkarmak bu satırın doğrudan testi — bir sonraki
+koşuda 305 düşmezse suçlu başkadır ve tabloda görünecektir.
 
-**test4'te 402, test1'de 552 — arada ne değişti?** Oturuma yeni bir
-autostart süreci GİRMEDİ (fark yalnız xsettingsd'nin yazı ayarları).
-Paket listesine giren ve boşta bellek tutabilecekler:
-`systemd-resolved` (madde 52 ile gelen yeni bir servis — DoT için
-sürekli çalışır), `fonts-noto-core` + `fonts-inter` (RSS değil ama
-fontconfig önbelleği ve her GTK sürecinin eşlediği yazı tipi sayfaları),
-`smartmontools`, `fastfetch`, `breeze-cursor-theme`. ISO da 956 MB'a
-çıktı, yani squashfs önbelleği daha büyük.
+En obur on süreç (`MEM-TOP`, özel sayfalar):
 
-Bunlar **aday**, kanıt değil. `MEM-BREAKDOWN`/`MEM-TOP` satırları bir
-sonraki koşuda geldiğinde tablo sayıyla kapanacak; o zamana kadar
-"552'nin 390'ı çekirdek + tmpfs + squashfs önbelleği" ifadesi bir
-hipotezdir.
+| Süreç | MB | Not |
+|---|---|---|
+| Xorg | 61 | |
+| nemo-desktop | 45 | 30 MB eşiğin üstünde — ayrı madde |
+| kavis-panel | 37 | 20 MB bütçesinin üstünde |
+| **applet.py** | **28** | **beklenmiyordu — aşağıya bak** |
+| lxpolkit | 14 | |
+| NetworkManager | 7 | |
+| udisksd | 5 | |
+| openbox / kavis-snap / kavis-osd | 4+4+4 | |
+| **ilk on toplam** | **209** | user=266'nın geri kalanı kırıntı süreçler |
+
+**Boşta çalışması gerekmeyen süreç — bulundu.** `applet.py`,
+`system-config-printer`'ın tepsi ikonu: 28 MB özel sayfa, takılı yazıcı
+olmayan bir masaüstünde, Python yorumlayıcısı + PyGObject. Kendi
+`.desktop` dosyası zaten `NotShowIn=KDE;GNOME;Cinnamon;LXDE;Unity`
+taşıyor — yani her masaüstü aynı kararı vermiş, Kavis yalnızca kendisi
+doğmadan yazılmış o listede yok. Artık `0031-kavis-dirs` kullanıcının
+kendi `~/.config/autostart/print-applet.desktop`'unu `Hidden=true` ile
+yazıyor: oturum başlatıcısı ve Görev Yöneticisi > Başlangıç zaten
+"kullanıcının dosyası kazanır" kuralını uyguluyor, dolayısıyla giriş
+**kaybolmuyor, kapalı görünüyor** ve oradan geri açılabiliyor. CUPS,
+sihirbaz ve Ayarlar'ın yazıcı sayfası dokunulmadı.
+
+**test4'te 402, şimdi 568.** Oturuma yeni bir autostart süreci girmedi;
+adaylar hâlâ `systemd-resolved`, yeni yazı tipleri, 956 MB'a çıkan ISO
+(daha büyük squashfs önbelleği). Ama artık asıl adayın slab olduğu
+biliniyor, çünkü kalemlerin en büyüğü o.
 
 **Bu turda düzeltilen ölçüm hatası:** `PANEL-USS` panel daha tek ikon
 yüklememişken alınıyordu (1 MB loglanırken aynı panel sondaki tabloda
 35 MB'dı), yani 20 MB eşiği hiçbir zaman tetiklenemezdi. Ölçüm artık
-`DESKTOP-READY`'den sonra alınıyor.
+`DESKTOP-READY`'den sonra alınıyor — ve ilk kez tetikledi:
+`PANEL-USS=37MB > 20MB`.
 
 ## Görev Yöneticisi sahte veri göstermiyor (doğrulandı)
 
@@ -153,15 +161,82 @@ Soruldu, bakıldı: `tasks.vala`/`sysinfo.vala`/`perf.vala` her alanı
 RSS), `smaps_rollup` (USS), `/proc/PID/io`, `/proc/stat` (btime ve
 toplam jiffy), SMBIOS (bellek modülleri; kök yoksa tire).
 
+## v0.5-test2 koşusu — üç kırmızı adım ve bir yanlış teşhis
+
+ISO derlendi (956 MB), beş QEMU profilinin hepsi aynı yerde düştü.
+Ama koşunun kendi verdiği hüküm yanlıştı:
+
+```
+>> RESULT: TIMEOUT — no graphical session within 900s (bios)
+>> DIAGNOSIS: the kernel started but no graphical session came up.
+```
+
+Oysa `DESKTOP-READY` 161. saniyede loglanmış, selftest 38 senaryonun
+34'ünü bitirmişti. Koşu **kesildi**, takılmadı. Tek cümle üç ayrı
+arızayı anlatıyordu ve en olmayanını seçti; artık `DESKTOP-READY`
+görüldüyse "masaüstü açıldı, koşu kesildi, en son şu adım göründü"
+yazıyor.
+
+**Bütçe nereye gitti: `dpkg -V` 300 saniye.** 170. saniyede başlayıp
+470'te tavana çarpıyor — imajdaki her paketli dosyanın md5'i, emüle
+CPU'da squashfs'ten. **Hiçbir koşuda bitmedi**, yani beş dakika
+karşılığında "vazgeçtim" satırından başka bir şey üretmedi; aynı 900
+saniyenin öbür ucunda selftest yer bulamadığı için kesiliyordu.
+Denetimin kendisi değerli (bir hook'un Debian dosyasının üstüne yazması
+başka hiçbir testte görünmez) ama bu **imajın** özelliği, oturumun
+değil. Artık `9997-dpkg-verify.hook.chroot` derleme sırasında bir kez,
+derleme makinesinin kendi diskinde çalışıp sonucu imaja koyuyor;
+boot-check aynı hükmü dosyayı okuyarak veriyor. Bütçe 1200 saniyeye
+çıkarıldı, iş akışı tavanı 50 dakikaya.
+
+Üç gerçek kırmızı:
+
+- **`40-editors/2` — pencere hâlâ "Mousepad" adına cevap veriyordu.**
+  Bir pencerenin İKİ adı var: `_NET_WM_NAME` (pencere yöneticisinin ve
+  görev çubuğunun okuduğu) ve yanındaki ICCCM `WM_NAME` (xdotool,
+  xprop, eski her şey). kavis-snap yalnız birincisini yazıyordu, yani
+  başlık çubuğunda "Notepad" yazarken `xdotool search --name Mousepad`
+  pencereyi buluyordu. Denetim de kaçırmıştı: `xdotool getwindowname`
+  yeni özelliği okuyor, yani test ile daemon aynı yarım işi yapıp
+  birbirini onaylıyordu. İkisi de yazılıyor artık (ASCII ise STRING,
+  değilse UTF8_STRING — "ş" Latin-1'de yok, bir Türkçe dosya adı
+  yüzünden satıcı adı geri gelmesin diye), `check-snap.sh` ikisini de
+  ve `xdotool search`'ün hiçbir şey bulmadığını denetliyor.
+- **`06-shortcuts/13,14` — Win+Sol/Sağ yanlış pencereyi bölüyordu.**
+  Birkaç adım önceki kısayol Görev Yöneticisi'ni açmıştı ve
+  kapatılmıyordu; pencere kısayolu **etkin** pencereye işler, dolayısıyla
+  yarıya bölünen oydu ve adım, izlediği pencerenin hiç değişmemiş
+  geometrisini rapor ediyordu. Üretici artık her yerleştirme adımından
+  önce `focus window nemo` yazıyor ve açtığı her pencereyi kapatıyor
+  (kapatılmayan pencere sonraki her senaryoda "unknown window"
+  anomalisiydi). Runner'a `focus window <sınıf>` eylemi eklendi.
+- **`64-usb-repair/1` — araç aygıt adı olmadan çağrılıyordu.**
+  `kavis-tools repair-drive` kullanım satırını basıp çıkıyor, adım da
+  "pencere yok" diyordu; araç doğru davranıyordu, senaryo eksikti.
+  Senaryo artık `/dev/sr0` veriyor (canlı ortam, QEMU'da her zaman var).
+
+**Selftest hızlandırıldı** — adım başına iki tam ekran yakalaması vardı,
+oysa bir adımın "öncesi" bir öncekinin "sonrası"dır (arada yalnız
+runner'ın kendi defter tutması geçiyor); ayrıca her adım için
+`processes-NNN.txt` yazılıyordu — 200 dosya, hepsi /proc'un tam
+dolaşımı, yeşil adımın yanındakini kimse açmıyor. Yakalama tekrar
+kullanılıyor, süreç tablosu yalnız düşen ya da anomalili adımda
+yazılıyor.
+
 ## Sıradaki iş
 
-1. **v0.5-test2 ISO'sunu VM'de denemek** — gözle bakılacaklar aşağıdaki
+1. **v0.5-test3 ISO'sunu VM'de denemek** — gözle bakılacaklar aşağıdaki
    v0.5-test1 listesi, üstüne madde 74: kenar çubuğu ağacı, alt bölüm
    katlanması, "light" araması, kısayol yeniden atama + sıfırlama.
-2. **`MEM-BREAKDOWN` satırlarını okumak** ve 552'yi kalem kalem kapatmak.
-3. **nemo-desktop 45 MB USS** — tek çare ikon katmanını kendimiz
+2. **`MEM-BREAKDOWN`'un kernel satırını izlemek.** `dpkg -V` açılış
+   yolundan çıktı; 305 MB slab düşerse sebep oydu, düşmezse suçlu
+   başkadır ve aynı satır onu da gösterecek.
+3. **Kesilmeden biten ilk koşu.** 900 → 1200 sn ve eksi 300 sn'lik
+   `dpkg -V` ile 74-shortcuts dahil son dört senaryo ilk kez
+   koşacak — madde 74'ün gerçek oturumdaki kanıtı orada.
+4. **nemo-desktop 45 MB USS** — tek çare ikon katmanını kendimiz
    çizmek; ayrı madde açılacak.
-4. **Grup G** — mağaza + arama (kullanıcı "oraya geçme" dedi, sırada
+5. **Grup G** — mağaza + arama (kullanıcı "oraya geçme" dedi, sırada
    bekliyor). Madde 75 "App Files" kararı `docs/kararlar.md` 10'da.
 
 ---

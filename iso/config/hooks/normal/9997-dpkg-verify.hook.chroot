@@ -1,0 +1,59 @@
+#!/bin/sh
+# Kavis — record what dpkg -V says about the finished image (item 72)
+#
+# WHY HERE AND NOT AT BOOT. The check itself is worth keeping: it says
+# whether any Kavis hook has overwritten a file that belongs to a Debian
+# package, which is the kind of mistake that survives every other test
+# and only shows up as a broken upgrade months later.
+#
+# But it is not a property of the RUNNING session, it is a property of
+# the image — and it was being paid for at boot, in every QEMU profile,
+# five times per tag. dpkg -V md5-sums every file of every package;
+# reading a gigabyte back out of squashfs on an emulated CPU took longer
+# than the 300 s ceiling boot-check gave it, EVERY time. So the check
+# never actually completed, it just cost five minutes of the smoke
+# test's budget and logged that it had given up — while the selftest at
+# the other end of the run was being cut off for lack of time.
+#
+# So the sums are computed once, here, on the build machine's own disk,
+# and the answer is shipped inside the image. boot-check reads the file
+# and reaches the same verdict it used to reach itself, in no time at
+# all.
+#
+# This hook does NOT fail the build. The judgement stays in one place
+# (boot-check, whose FAILED-CHECKS the smoke test already reads); a
+# build that goes red here would report the same fact twice and in the
+# harder place to read.
+#
+# It must run after 9995-cleanup: the doc/man files that hook deletes
+# come out of dpkg -V as "missing", and boot-check's rule for which
+# missing files are expected is written against exactly that state.
+set -e
+
+# --- Host guard (4 Sep 2026 incident) --------------------------------
+# This hook reads the whole package database of the RUNNING system. On a
+# developer machine that is the developer's own system, and the answer
+# would be recorded as if it were the image's.
+if [ ! -f /usr/share/kavis/build-marker ]; then
+	echo "E: $0 runs only inside the live-build chroot (marker missing)" >&2
+	exit 1
+fi
+
+OUT=/usr/share/kavis/dpkg-verify.txt
+mkdir -p /usr/share/kavis
+
+# dpkg -V exits 1 when it has something to report, which is the normal
+# case here (conffiles, and the doc files 9995 deleted); `set -e` must
+# not read that as a build failure.
+raw=$(dpkg -V 2>/dev/null || true)
+packages=$(dpkg-query -f '.\n' -W 2>/dev/null | wc -l)
+
+{
+	echo "# dpkg -V, run by $(basename "$0") at image build time."
+	echo "# packages=${packages}"
+	printf '%s\n' "$raw"
+} > "$OUT"
+chmod 644 "$OUT"
+
+lines=$(printf '%s\n' "$raw" | grep -c . || true)
+echo "I: dpkg -V recorded in $OUT (${packages} packages, ${lines} lines)"

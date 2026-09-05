@@ -316,7 +316,7 @@ jobs:
       needs.build.outputs.arch == 'amd64' &&
       (github.event_name != 'workflow_dispatch' || inputs.smoke_test)
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     strategy:
       fail-fast: false
       # Item 46A: three boot modes with the default profile + two
@@ -353,7 +353,11 @@ jobs:
 
       - name: Smoke test
         env:
-          TIMEOUT: 900
+          # The whole run on an emulated CPU: boot, boot-check and 38
+          # selftest scenarios. At 900 the v0.5-test2 run was cut off
+          # four scenarios from the end; the job ceiling below leaves
+          # room for the longer budget.
+          TIMEOUT: 1200
           SERIAL_OUT: ${{ github.workspace }}/diag/serial-${{ matrix.mode }}-${{ matrix.profile }}.log
           SCREENSHOT_DIR: ${{ github.workspace }}/diag
         run: |

@@ -1,14 +1,24 @@
 # USB filesystem repair (item 64): the repair tool opens.
 #
 # It does not repair anything here — there is no broken filesystem to
-# repair and the tool asks for confirmation before touching one. What
-# is checked is that it starts and finds its way to the disk list.
+# repair, and the tool touches nothing without the Repair button and a
+# pkexec prompt on top of it. What is checked is that the window comes
+# up and reads the drive.
+#
+# The device is named on the command line because that is the whole
+# interface: the panel's "could not be mounted" notification passes the
+# device it failed on. v0.5-test2 launched it with no device at all, so
+# the tool printed its usage line and exited — the step then failed
+# with "no window", which was the tool doing exactly the right thing.
+# /dev/sr0 is the live medium and is always there in QEMU; on a machine
+# without it the window still opens and says the file system is
+# unknown, which is also a fair thing to check.
 name: 64-usb-repair
 title: Drive repair
 item: 64
 allowed: [kavis-tools]
 steps:
-  - do: launch kavis-tools repair-drive
+  - do: launch kavis-tools repair-drive /dev/sr0
     expect: window kavis-tools visible
     timeout: 30000
     note: the drive repair window

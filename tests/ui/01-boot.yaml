@@ -29,3 +29,13 @@ steps:
   - do: none
     expect: window kavis-panel visible
     shot: true
+  - do: shell test -z "$(pgrep -f system-config-printer-applet)"
+    expect: ok
+    note: >
+      the print queue applet does not run at login. 28 MB of private
+      pages for a Python tray icon on a desktop with no printer was the
+      largest single thing on the v0.5-test2 MEM-TOP list that nobody
+      had asked for. It is disabled as the user's own autostart
+      override, so Task Manager > Startup still shows it and can turn
+      it back on — asserted as an absence rather than by reading the
+      override file, because what matters is that nothing is running.

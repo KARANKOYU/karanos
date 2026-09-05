@@ -54,19 +54,34 @@ steps:
     expect: window kavis-taskmanager visible
     timeout: 40000
     note: task-manager (system) — C-S-Escape
+  - do: close window kavis-taskmanager
+    expect: window kavis-taskmanager absent
+    timeout: 8000
   # not pressed — lock-screen: locks the session for every scenario after this one
+  - do: focus window nemo
+    expect: window nemo focused
+    timeout: 8000
   - do: key super+Left
     expect: geometry nemo left-half
     timeout: 6000
     note: snap-left (window) — W-Left
+  - do: focus window nemo
+    expect: window nemo focused
+    timeout: 8000
   - do: key super+Right
     expect: geometry nemo right-half
     timeout: 6000
     note: snap-right (window) — W-Right
+  - do: focus window nemo
+    expect: window nemo focused
+    timeout: 8000
   - do: key super+Up
     expect: geometry nemo maximized
     timeout: 6000
     note: maximize (window) — W-Up
+  - do: focus window nemo
+    expect: window nemo focused
+    timeout: 8000
   - do: key super+Down
     expect: geometry nemo on-screen
     timeout: 6000
@@ -108,6 +123,9 @@ steps:
     expect: window kavis-settings visible
     timeout: 40000
     note: settings (apps) — W-i
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
   - do: key super+1
     expect: ok
     note: pinned-slots (apps) — W-1
