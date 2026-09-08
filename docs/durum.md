@@ -9,6 +9,60 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 8 Eylül 2026 gecesi (v0.5-test13: BEŞ PROFİL YEŞİL — kavis-share çalışıyor)
+
+`v0.5-test13` beş QEMU profilinin hepsinde `RESULT=OK`, `SELFTEST-OK`.
+VM turu için indirilecek ISO bu. kavis-share artık ISO'da gerçekten
+çalışıyor (`76-share` altı adım yeşil).
+
+## kavis-share'in üç turluk hata kovalaması (kalıcı ders)
+
+`76-share/3` (`kavis-share --list`) üç turdur "org.kavis.Share sağlanmadı"
+diyordu. Sebep katman katman soyuldu:
+
+1. **test12: veri yolu sabit yazılmıştı.** boot-check selftest'e
+   `/run/user/1000/bus` diye sabit adres veriyordu; canlı oturumun veri
+   yolu her zaman o değil. Adres artık openbox'ın `/proc/PID/environ`'ından
+   okunuyor, tanımsızsa `XDG_RUNTIME_DIR`'den türetiliyor. **Gerekliydi
+   ama yetmedi:** `SELFTEST-BUS` satırı selftest'in doğru veri yolunda
+   olduğunu gösterdi, hâlâ hata.
+2. **test13: asıl sebep — daemon ağ gelmeden ölüyordu.** `discovery.start()`
+   ile `receiver.start()` tek try bloğundaydı; discovery çoklu yayın
+   grubuna katılıyor, VM'de açılışın hemen ardından çoklu yayın rotası
+   yok, `join_multicast_group` fırlıyor, **daemon D-Bus adını
+   sahiplenmeden çıkıyordu.** Keşif artık en iyi çaba: alıcı + D-Bus önce
+   ve bağımsız başlıyor, keşif hiç fırlatmıyor, ağ gelene kadar
+   yeniden deneniyor. Loopback-only ağ ad-uzayında kanıtlandı.
+3. **Beni üç tur yanıltan:** senaryonun `pgrep -f 'kavis-share --daemon'`
+   adımı **kendi kabuğunu eşleştiriyordu** — daemon ölüyken "ayakta"
+   diyordu. `[k]avis-share` ile düzeltildi. Yazıcı apleti hatasının
+   birebir aynısı; bir `pgrep -f` deseni bir daha köşeli parantezsiz
+   yazılmayacak.
+
+## kavis-share güvenlik sertleştirmesi (ağa açık kod)
+
+- **Yalancı gönderen diski dolduramaz:** `prepare-upload` boyut bildiriyor,
+  akış sırasında baytlar sayılıyor, sınırı aşınca yazma durup yarım dosya
+  siliniyor (boyut bildirmeyen için 16 GB tavanı). curl ile kanıtlandı:
+  1 KB bildirip 2 MB gönderen 0 baytla kesildi.
+- **Yol kaçışı yok:** gönderenin adı `basename`'e indiriliyor.
+- **Ekran yoksa reddet:** sorulacak kimse yoksa aktarım varsayılmaz.
+
+## Bellek + sızıntı (VM'deki 647 MB sorusu)
+
+Sayı gerçek (VBox'ta Xorg 100 MB, açık pencereler, büyük sayfa tabloları).
+Performans sekmesine döküm eklendi (Uygulamalar / Çekirdek / Paylaşılan /
+Önbellek). `tools/check-leaks.sh` panel ve share daemon'ını tekrar tekrar
+çalıştırıp özel bellek büyümesine bakıyor: panel **+0 KB**. CI'da.
+
+## Yeni denetimler (CI'da, her biri saniyeler)
+
+`check-share.sh` (keşif + güvenilen + 40 MB sha256 + boyut sınırı +
+ağsız hayatta kalma), `check-leaks.sh`, `check-titlebars.py`,
+`check-contrast.py`, `check-previews.sh`, `check-reassign.sh`.
+
+---
+
 # OTURUM DURUMU — 8 Eylül 2026 gecesi (v0.5-test10: VM turu 2 + kavis-share + debug)
 
 ## VM turundan gelen ve kapanan
