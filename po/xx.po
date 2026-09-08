@@ -156,14 +156,26 @@ msgstr "⟪Disk··⟫"
 msgid "Password"
 msgstr "⟪Password···⟫"
 
-msgid "Sign in"
-msgstr "⟪Sign in··⟫"
-
 msgid "Unlock"
 msgstr "⟪Unlock··⟫"
 
+msgid "Log out"
+msgstr "⟪Log out··⟫"
+
 msgid "Wrong password"
 msgstr "⟪Wrong password·····⟫"
+
+msgid "Wrong password. Log out to end the session — unsaved work will be lost."
+msgstr "⟪Wrong password. Log out to end the session — unsaved work will be lost.····························⟫"
+
+msgid "Lock screen"
+msgstr "⟪Lock screen····⟫"
+
+msgid "This account has no password"
+msgstr "⟪This account has no password···········⟫"
+
+msgid "Close"
+msgstr "⟪Close··⟫"
 
 msgid "Caps Lock on"
 msgstr "⟪Caps Lock on····⟫"
@@ -365,9 +377,6 @@ msgstr "⟪Clipboard history······⟫"
 
 msgid "Search"
 msgstr "⟪Search··⟫"
-
-msgid "Close"
-msgstr "⟪Close··⟫"
 
 msgid "Remove from favorites"
 msgstr "⟪Remove from favorites········⟫"
@@ -926,9 +935,6 @@ msgstr "⟪Run··⟫"
 
 msgid "Security screen"
 msgstr "⟪Security screen······⟫"
-
-msgid "Lock screen"
-msgstr "⟪Lock screen····⟫"
 
 msgid "Snap to the left half"
 msgstr "⟪Snap to the left half········⟫"

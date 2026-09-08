@@ -1964,3 +1964,15 @@ msgstr "%s zaten “%s”. Önce onu değiştir."
 
 msgid "Nothing matches “%s”"
 msgstr "“%s” ile eşleşen bir şey yok"
+
+msgid "Log out"
+msgstr "Oturumu kapat"
+
+msgid "Wrong password. Log out to end the session — unsaved work will be lost."
+msgstr "Parola yanlış. Oturumu kapatarak çıkabilirsiniz — kaydedilmemiş işler kaybolur."
+
+msgid "This account has no password"
+msgstr "Bu hesabın parolası yok"
+
+msgid "Set a password first — a lock screen that anything can open protects nothing."
+msgstr "Önce bir parola belirleyin — her şeyin açabildiği bir kilit ekranı hiçbir şeyi korumaz."

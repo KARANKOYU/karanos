@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 19:41+0000\n"
+"POT-Creation-Date: 2026-09-08 07:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -272,21 +272,48 @@ msgstr ""
 msgid "Disk"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:112
+#: packages/kavis-panel/src/kavis_lock.vala:172
 #: packages/kavis-settings/src/ui/page_network.vala:227
 msgid "Password"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:118
-msgid "Sign in"
-msgstr ""
-
-#: packages/kavis-panel/src/kavis_lock.vala:118
+#: packages/kavis-panel/src/kavis_lock.vala:177
 msgid "Unlock"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:204
+#: packages/kavis-panel/src/kavis_lock.vala:194
+msgid "Log out"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:263
 msgid "Wrong password"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:286
+msgid "Wrong password. Log out to end the session — unsaved work will be lost."
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:496
+#: packages/kavis-settings/src/logic/shortcuts.vala:156
+msgid "Lock screen"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:505
+msgid "This account has no password"
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:508
+msgid ""
+"Set a password first — a lock screen that anything can open protects nothing."
+msgstr ""
+
+#: packages/kavis-panel/src/kavis_lock.vala:512
+#: packages/kavis-panel/src/ui/picker.vala:236
+#: packages/kavis-settings/src/ui/page_system.vala:133
+#: packages/kavis-taskmanager/src/tasks.vala:551
+#: packages/kavis-tools/src/capture.vala:536
+#: packages/kavis-tools/src/repair.vala:89
+msgid "Close"
 msgstr ""
 
 #: packages/kavis-panel/src/kavis_osd.vala:278
@@ -620,14 +647,6 @@ msgstr ""
 #: packages/kavis-taskmanager/src/logs.vala:40
 #: packages/kavis-taskmanager/src/tasks.vala:167
 msgid "Search"
-msgstr ""
-
-#: packages/kavis-panel/src/ui/picker.vala:236
-#: packages/kavis-settings/src/ui/page_system.vala:133
-#: packages/kavis-taskmanager/src/tasks.vala:551
-#: packages/kavis-tools/src/capture.vala:536
-#: packages/kavis-tools/src/repair.vala:89
-msgid "Close"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:320
@@ -1522,10 +1541,6 @@ msgstr ""
 
 #: packages/kavis-settings/src/logic/shortcuts.vala:154
 msgid "Security screen"
-msgstr ""
-
-#: packages/kavis-settings/src/logic/shortcuts.vala:156
-msgid "Lock screen"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/shortcuts.vala:157

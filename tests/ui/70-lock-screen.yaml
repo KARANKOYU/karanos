@@ -1,14 +1,16 @@
 # Lock screen (item 70).
 #
-# The scenario locks and then unlocks with the live user's password,
-# which is empty in the live session — the passwordless path. On an
-# installed system with a real password the same steps need it typed,
-# so a password entry is NOT part of this scenario; what is asserted is
-# that the screen appears, takes the grab, and goes away again.
+# The live account has no password, and since the v0.5-test1 report the
+# rule is that such an account is NOT locked: the screen could only ever
+# be opened by pressing Enter, and getting the question wrong in the
+# other direction leaves somebody shut out of their own machine with no
+# way back. So what this scenario asserts in a live session is that
+# Win+L explains itself and leaves the desktop alone.
 #
-# The idle and lid triggers are not exercised here: waiting out a
-# five-minute timeout inside a smoke test would double its length, and
-# the lid does not exist in QEMU. Both stay on the VM checklist.
+# The password path cannot be exercised here — there is no password to
+# type. It stays on the VM checklist, together with the escape hatch
+# (three refusals inside thirty seconds reveal Log out), which by
+# definition only appears when a password exists and is being refused.
 name: 70-lock-screen
 title: Lock screen
 item: 70
@@ -17,22 +19,28 @@ steps:
   - do: launch kavis-lock
     expect: window kavis-lock visible
     timeout: 20000
-    note: the lock window appears over everything
-    shot: true
-  - do: shell pgrep -x kavis-lock >/dev/null
-    expect: ok
-    note: still running — a locker that exits on its own is not a locker
-  - do: key Return
-    expect: ok
-    timeout: 4000
     note: >
-      the live user has no password, so the card shows one button and
-      Return activates it
-  - do: wait 2000
+      the notice, not the locker: this account has no password, so
+      kavis-lock says so instead of asking for one
+    shot: true
+  - do: key ctrl+Escape
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: >
+      THE POINT OF THE WHOLE ITEM: the session is not grabbed. The Start
+      menu still opens with the notice on screen, which is what "the
+      user is not locked out" means in a step
+  - do: key Escape
+    expect: popup kavis-panel hidden
+    timeout: 4000
+  - do: wait 12000
     expect: window kavis-lock absent
-    timeout: 10000
-    note: unlocked and gone
+    timeout: 20000
+    note: the notice goes away by itself; nothing is left covering the screen
     shot: true
   - do: shell test -f /etc/pam.d/kavis-lock
     expect: ok
-    note: without the PAM stack the screen could never unlock
+    note: >
+      the PAM stack is still what decides on a machine that DOES have a
+      password — and it is now what decides whether one exists at all,
+      instead of group membership guessing at it

@@ -17,12 +17,19 @@ namespace Kavis {
 
     namespace LockWatch {
 
-        public void lock_now () {
+        /* `by_hand` is false when a timer or the lid asked for this.
+         * kavis-lock refuses to lock an account with no password; the
+         * difference the flag makes is whether it explains that to
+         * somebody, and a timer is not somebody. */
+        public void lock_now (bool by_hand = true) {
             if (Environment.find_program_in_path ("kavis-lock") == null) {
                 return;
             }
+            string[] argv = by_hand
+                ? new string[] { "kavis-lock" }
+                : new string[] { "kavis-lock", "--idle" };
             try {
-                Process.spawn_async (null, { "kavis-lock" }, null,
+                Process.spawn_async (null, argv, null,
                     SpawnFlags.SEARCH_PATH, null, null);
             } catch (SpawnError e) {
                 warning ("kavis-panel: could not start the lock screen: %s",
@@ -61,7 +68,9 @@ namespace Kavis {
                 DBusSignalFlags.NONE,
                 (connection, sender, object_path, interface_name,
                  signal_name, parameters) => {
-                    lock_now ();
+                    /* The lid, or `loginctl lock-session`: nobody is
+                     * looking at the screen to read an explanation. */
+                    lock_now (false);
                 });
         }
     }

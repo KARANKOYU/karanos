@@ -1,5 +1,28 @@
 /* kavis-lock — the lock screen (item 70).
  *
+ * A LOCK SCREEN THAT CANNOT BE UNLOCKED IS THE WORST BUG THIS PROJECT
+ * CAN SHIP, and v0.5-test1 shipped it: the live account has no
+ * password, the screen asked for one anyway, and every answer came back
+ * "Wrong password" with no way out of the session. Three things came
+ * out of that, and all three are here:
+ *
+ *   1. Whether an account can be locked is now asked of PAM, not
+ *      inferred from group membership. Being in `nopasswdlogin` is a
+ *      hint that lightdm honours; it is not the authority on whether a
+ *      password exists, and when the hint was missing the lock believed
+ *      there was a password to type. PAM is the thing that will judge
+ *      the answer later, so it is the thing to ask first.
+ *   2. An account with no password is NOT locked at all. Win+L says
+ *      why and points at where a password would be set. Locking a
+ *      session that anyone can open with Enter protects nothing, and
+ *      the failure mode of getting it wrong is a machine nobody can
+ *      get back into.
+ *   3. There is always a way out. Three refusals inside thirty seconds
+ *      reveal a Log out button — losing an unsaved document is bad,
+ *      being locked out of your own computer is worse, and the person
+ *      who reaches that button has already told us the password is not
+ *      working.
+ *
  * One full-screen window per monitor's worth of screen, over everything,
  * with the keyboard and the pointer grabbed. The password goes to PAM,
  * which is the only way the answer respects the system's own rules:
@@ -33,6 +56,30 @@ namespace Kavis {
                       0 8px 24px rgba(0, 0, 0, 0.35);
           padding: 24px 32px;
         }
+        /* The accent, not the stock GTK "suggested" blue: the lock
+           screen is the one Kavis window a stranger sees first, and it
+           was the one window wearing another desktop's colour. */
+        .kavis-lock-card button.kavis-accent {
+          background-image: none;
+          background-color: @kavis_teal;
+          color: @kavis_on_teal;
+          border: 1px solid @kavis_teal;
+          border-radius: 6px;
+          min-height: 34px;
+          padding: 0 20px;
+          font-weight: 600;
+        }
+        .kavis-lock-card button.kavis-accent:hover {
+          background-color: shade(@kavis_teal, 1.08);
+        }
+        .kavis-lock-notice {
+          font-size: 15px;
+          color: @kavis_text;
+        }
+        .kavis-lock-hint {
+          font-size: 13px;
+          color: @kavis_text2;
+        }
         .kavis-lock-clock {
           font-size: 64px;
           font-weight: 300;
@@ -60,13 +107,20 @@ namespace Kavis {
         private Gtk.Label error_label;
         private Gtk.Entry password;
         private Gtk.Button unlock_button;
+        private Gtk.Button logout_button;
         private Gdk.Pixbuf? background = null;
         private Gdk.Seat? grabbed_seat = null;
-        private bool passwordless;
+
+        /* A2: refusals, and when the first of the current run was. Three
+         * inside thirty seconds means the password is not working —
+         * whatever the reason — and the way out has to be on screen. */
+        private int refusals = 0;
+        private int64 first_refusal = 0;
+        private const int REFUSALS_BEFORE_ESCAPE = 3;
+        private const int64 REFUSAL_WINDOW_US = 30 * 1000000;
 
         public LockWindow () {
             Object (type: Gtk.WindowType.TOPLEVEL);
-            passwordless = Auth.passwordless ();
 
             set_app_paintable (true);
             set_decorated (false);
@@ -89,19 +143,25 @@ namespace Kavis {
 
             background = Wallpaper.blurred ();
 
-            var centre = new Gtk.Box (Gtk.Orientation.VERTICAL, 16);
+            /* A4: ONE card. The clock used to float above a second,
+             * narrower card and the two were centred independently, so
+             * they never lined up with each other at any screen size.
+             * Everything the lock screen shows is one thing the person
+             * is looking at, so it is one card. */
+            var centre = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             centre.set_halign (Gtk.Align.CENTER);
             centre.set_valign (Gtk.Align.CENTER);
+
+            var card = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
+            card.get_style_context ().add_class ("kavis-lock-card");
 
             clock_label = new Gtk.Label ("");
             clock_label.get_style_context ().add_class ("kavis-lock-clock");
             date_label = new Gtk.Label ("");
             date_label.get_style_context ().add_class ("kavis-lock-date");
-            centre.pack_start (clock_label, false, false, 0);
-            centre.pack_start (date_label, false, false, 0);
+            card.pack_start (clock_label, false, false, 0);
+            card.pack_start (date_label, false, false, 8);
 
-            var card = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
-            card.get_style_context ().add_class ("kavis-lock-card");
             var user = new Gtk.Label (Auth.display_name ());
             user.get_style_context ().add_class ("kavis-lock-user");
             card.pack_start (user, false, false, 0);
@@ -114,22 +174,12 @@ namespace Kavis {
             password.set_activates_default (true);
             password.activate.connect (() => try_unlock ());
 
-            unlock_button = new Gtk.Button.with_label (
-                passwordless ? _("Sign in") : _("Unlock"));
-            unlock_button.get_style_context ().add_class ("suggested-action");
+            unlock_button = new Gtk.Button.with_label (_("Unlock"));
+            unlock_button.get_style_context ().add_class ("kavis-accent");
             unlock_button.clicked.connect (() => try_unlock ());
 
-            /* A session with no password gets one button, not an empty
-             * field to press Enter in: asking for something that does
-             * not exist is the sort of detail that makes a machine feel
-             * unfinished. */
-            if (!passwordless) {
-                card.pack_start (password, false, false, 0);
-            }
+            card.pack_start (password, false, false, 0);
             card.pack_start (unlock_button, false, false, 0);
-            /* Return must work with no field to type in: with a
-             * password the entry activates the default, without one the
-             * button IS the default, so Enter signs in either way. */
             unlock_button.set_can_default (true);
 
             error_label = new Gtk.Label ("");
@@ -137,7 +187,16 @@ namespace Kavis {
             error_label.set_no_show_all (true);
             card.pack_start (error_label, false, false, 0);
 
-            centre.pack_start (card, false, false, 12);
+            /* A2: hidden until the password has failed enough times to
+             * mean something. Shown from the start it would read as an
+             * invitation to give up; shown after three refusals it is
+             * the only thing on screen that can still help. */
+            logout_button = new Gtk.Button.with_label (_("Log out"));
+            logout_button.set_no_show_all (true);
+            logout_button.clicked.connect (() => log_out ());
+            card.pack_start (logout_button, false, false, 0);
+
+            centre.pack_start (card, false, false, 0);
             add (centre);
 
             draw.connect (on_draw);
@@ -188,7 +247,7 @@ namespace Kavis {
         private void try_unlock () {
             unlock_button.set_sensitive (false);
             error_label.hide ();
-            string secret = passwordless ? "" : password.get_text ();
+            string secret = password.get_text ();
             /* PAM blocks, and pam_unix sleeps for two seconds after a
              * failure. Pumping the main loop first means the button
              * shows as pressed instead of the window looking frozen. */
@@ -205,6 +264,49 @@ namespace Kavis {
             error_label.show ();
             unlock_button.set_sensitive (true);
             password.grab_focus ();
+            note_refusal ();
+        }
+
+        /* A2. The counter restarts when the refusals stop coming: a
+         * password mistyped once this morning and once tonight is not
+         * somebody locked out. */
+        private void note_refusal () {
+            int64 now = get_monotonic_time ();
+            if (refusals == 0 || now - first_refusal > REFUSAL_WINDOW_US) {
+                refusals = 0;
+                first_refusal = now;
+            }
+            refusals++;
+            if (refusals >= REFUSALS_BEFORE_ESCAPE) {
+                logout_button.show ();
+                /* One string literal, not two joined with "+":
+                 * xgettext takes the first literal and the translation
+                 * would end mid-sentence. */
+                error_label.set_text (
+                    _("Wrong password. Log out to end the session — unsaved work will be lost."));
+            }
+        }
+
+        /* End the session rather than the screen. The lock is released
+         * first: a session torn down under a live seat grab leaves the
+         * next one without a keyboard. logind is asked first because it
+         * closes the session properly; openbox is the fallback when
+         * there is no logind session to close. */
+        private void log_out () {
+            release ();
+            string? id = Environment.get_variable ("XDG_SESSION_ID");
+            try {
+                if (id != null && id != "") {
+                    Process.spawn_command_line_sync (
+                        "loginctl terminate-session " + id);
+                } else {
+                    Process.spawn_command_line_sync ("openbox --exit");
+                }
+            } catch (Error e) {
+                warning ("kavis-lock: could not end the session: %s",
+                         e.message);
+            }
+            Gtk.main_quit ();
         }
 
         /* Grab the keyboard and pointer, or the lock is decoration:
@@ -222,11 +324,7 @@ namespace Kavis {
                     true, null, null, null);
                 if (status == Gdk.GrabStatus.SUCCESS) {
                     grabbed_seat = seat;
-                    if (passwordless) {
-                        unlock_button.grab_focus ();
-                    } else {
-                        password.grab_focus ();
-                    }
+                    password.grab_focus ();
                     return true;
                 }
                 Thread.usleep (100000);
@@ -251,23 +349,54 @@ namespace Kavis {
 
         private static string? conversation_password = null;
 
-        /* GLib reads the gecos field for us and copes with it being
-         * empty or absent, which a live user's passwd entry often is;
-         * it answers "Unknown" in that case, so the login name is the
-         * fallback. */
+        /* A3: the login name, not the gecos field.
+         *
+         * The gecos of the live account is written by live-config and
+         * says "Debian Live user" — so the one screen that introduces
+         * the machine was introducing a different distribution. Kavis
+         * has no user profile to read a real name from yet (the user
+         * system is postponed, docs item 0); until it does, the name
+         * Kavis knows is the login name, and that is the honest thing
+         * to show. When the profile arrives this reads it instead —
+         * NOT the gecos, which is a field the distribution below us
+         * fills in. */
         public string display_name () {
-            unowned string? real = Environment.get_real_name ();
-            if (real != null && real != "" && real != "Unknown") {
-                return real;
-            }
             return Environment.get_user_name ();
         }
 
-        /* Whether this session has a password at all — the shared
-         * answer, so the lock screen and the idle watcher cannot
-         * disagree about it. */
+        /* Whether this session has a password at all.
+         *
+         * Group membership is asked first because it costs nothing, but
+         * it is only a hint: `nopasswdlogin` is a lightdm convention,
+         * and a live image whose user did not end up in that group
+         * still has an account with no password. v0.5-test1 was exactly
+         * that case and the lock screen asked for a password that could
+         * not exist. So when the hint says nothing, PAM is asked
+         * directly — the same PAM that would judge the answer later, so
+         * its verdict cannot disagree with itself. */
         public bool passwordless () {
-            return Kavis.Session.passwordless ();
+            if (Kavis.Session.passwordless ()) {
+                return true;
+            }
+            return accepts_empty ();
+        }
+
+        /* One PAM round trip with an empty secret. Kept separate from
+         * check() so it cannot recurse through passwordless(). */
+        private bool accepts_empty () {
+            conversation_password = "";
+            Pam.Conv conv = { conversation, null };
+            unowned Pam.Handle handle;
+            int rc = Pam.start ("kavis-lock", Environment.get_user_name (),
+                                ref conv, out handle);
+            if (rc != Pam.SUCCESS) {
+                conversation_password = null;
+                return false;
+            }
+            rc = Pam.authenticate (handle, 0);
+            Pam.end (handle, rc);
+            conversation_password = null;
+            return rc == Pam.SUCCESS;
         }
 
         private static int conversation (int num_msg, Pam.Message** msg,
@@ -355,14 +484,77 @@ namespace Kavis {
     }
 }
 
+/* A1: what Win+L says on an account that has no password.
+ *
+ * Not a lock: a card that explains why, and goes away by itself. It is
+ * a plain window with no grab — the point is that the session stays
+ * usable. */
+public class Kavis.LockNotice : Gtk.Window {
+
+    public LockNotice () {
+        Object (type: Gtk.WindowType.TOPLEVEL);
+        title = _("Lock screen");
+        set_decorated (false);
+        set_keep_above (true);
+        set_skip_taskbar_hint (true);
+        set_position (Gtk.WindowPosition.CENTER);
+        get_style_context ().add_class ("kavis-lock");
+
+        var card = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
+        card.get_style_context ().add_class ("kavis-lock-card");
+        var head = new Gtk.Label (_("This account has no password"));
+        head.get_style_context ().add_class ("kavis-lock-notice");
+        var hint = new Gtk.Label (
+            _("Set a password first — a lock screen that anything can open protects nothing."));
+        hint.set_line_wrap (true);
+        hint.set_max_width_chars (44);
+        hint.get_style_context ().add_class ("kavis-lock-hint");
+        var close = new Gtk.Button.with_label (_("Close"));
+        close.get_style_context ().add_class ("kavis-accent");
+        close.clicked.connect (() => Gtk.main_quit ());
+        card.pack_start (head, false, false, 0);
+        card.pack_start (hint, false, false, 0);
+        card.pack_start (close, false, false, 0);
+        add (card);
+        /* Long enough to read, short enough that a card nobody asked
+         * for is not still there a minute later. */
+        Timeout.add_seconds (8, () => { Gtk.main_quit (); return false; });
+    }
+}
+
 int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
     Kavis.Theme.install ();
 
+    /* --idle: started by the idle watcher rather than by a person. The
+     * difference matters in one place — a session that cannot be locked
+     * explains itself to somebody who pressed Win+L, and says nothing
+     * at all to a timer. */
+    bool idle = false;
+    foreach (unowned string arg in args) {
+        if (arg == "--idle") {
+            idle = true;
+        }
+    }
+
     /* One locker at a time. A second would fight the first for the
      * grab and leave the screen half covered. */
     if (Kavis.LockGuard.already_running ()) {
+        return 0;
+    }
+
+    /* A1. An account with no password is not locked: the screen could
+     * only be opened by pressing Enter, and getting the question wrong
+     * in the other direction locks somebody out of their own machine. */
+    if (Kavis.Auth.passwordless ()) {
+        if (idle) {
+            return 0;
+        }
+        var notice = new Kavis.LockNotice ();
+        notice.show_all ();
+        notice.destroy.connect (Gtk.main_quit);
+        Gtk.main ();
         return 0;
     }
 
