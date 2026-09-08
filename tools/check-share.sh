@@ -146,5 +146,36 @@ else
 	bad "the 40 MB transfer failed"
 fi
 
+# A sender that lies about the size must not fill the disk. This is
+# checked by hand-driving the protocol: prepare-upload declaring 1 KB,
+# then an upload body of 2 MB. The receiver must stop at the declared
+# size and keep no oversized file. curl carries the raw bytes because
+# the CLI would send the honest size.
+if command -v curl >/dev/null 2>&1; then
+	# prepare-upload as leak-a, which peer B trusts, so it is accepted.
+	FP=$(sed -n 's/^fingerprint=//p' "$T/a/config/kavis/kavis.conf")
+	PREP=$(printf '{"info":{"alias":"leak-a","fingerprint":"%s","port":53317},"files":{"0":{"id":"0","fileName":"lie.bin","size":1024}}}' "$FP")
+	RESP=$(curl -s -X POST -H 'Content-Type: application/json' \
+		--data "$PREP" \
+		"http://127.0.0.1:53318/api/localsend/v2/prepare-upload" 2>/dev/null || true)
+	SID=$(printf '%s' "$RESP" | sed -n 's/.*"sessionId":"\([^"]*\)".*/\1/p')
+	TOK=$(printf '%s' "$RESP" | sed -n 's/.*"0":"\([^"]*\)".*/\1/p')
+	if [ -n "$SID" ] && [ -n "$TOK" ]; then
+		head -c 2000000 /dev/urandom > "$T/lie.bin"
+		curl -s -X POST --data-binary "@$T/lie.bin" \
+			"http://127.0.0.1:53318/api/localsend/v2/upload?sessionId=$SID&fileId=0&token=$TOK" \
+			>/dev/null 2>&1 || true
+		sleep 1
+		SIZE=$(stat -c %s "$T/b/home/downloads/kavis-share/lie.bin" 2>/dev/null || echo 0)
+		if [ "$SIZE" -le 1100000 ]; then
+			ok "a sender that declared 1 KB and streamed 2 MB was cut off (${SIZE} bytes)"
+		else
+			bad "a lying sender wrote ${SIZE} bytes past its declared size"
+		fi
+	else
+		bad "could not drive prepare-upload to test the size cap"
+	fi
+fi
+
 [ "$fail" -eq 0 ] || { echo "SHARE-FAIL"; exit 1; }
 echo "SHARE-OK: two devices, one protocol, a file across and a stranger refused"

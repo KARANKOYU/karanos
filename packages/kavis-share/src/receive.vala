@@ -29,6 +29,13 @@ namespace Kavis.Share {
             new HashTable<string, string> (str_hash, str_equal);
         public HashTable<string, string> names =
             new HashTable<string, string> (str_hash, str_equal);
+        /* The size the sender DECLARED, per file. Kept because the
+         * upload is streamed and nothing else caps it: a sender that
+         * announced a 1 KB file and then streams for ever would fill
+         * the disk. The person accepted the sizes they were shown, so
+         * those sizes are the contract. */
+        public HashTable<string, int64?> sizes =
+            new HashTable<string, int64?> (str_hash, str_equal);
         public int64 total = 0;
     }
 
@@ -40,6 +47,11 @@ namespace Kavis.Share {
         public string target;
         public FileOutputStream stream;
         public bool failed = false;
+        public int64 written = 0;
+        /* The declared size plus a small slack, or -1 when the sender
+         * declared none — an undeclared size still needs a ceiling, so
+         * one is applied below. */
+        public int64 limit = -1;
     }
 
     public class Receiver : Object {
@@ -168,7 +180,9 @@ namespace Kavis.Share {
                         entry.has_member ("fileName")
                         ? entry.get_string_member ("fileName") : id);
                     if (entry.has_member ("size")) {
-                        session.total += entry.get_int_member ("size");
+                        int64 size = entry.get_int_member ("size");
+                        session.total += size;
+                        session.sizes.insert (id, size);
                     }
                     answer.set_member_name (id);
                     answer.add_string_value (token);
@@ -224,6 +238,14 @@ namespace Kavis.Share {
             landing.session = session;
             landing.file_id = file_id;
             landing.target = target;
+            /* A file may run a little over its declared size (a client
+             * that rounds, a trailing block) but not without bound. A
+             * sender that declared nothing is not allowed to stream
+             * without limit either: 16 GB is past any real transfer and
+             * still stops a hostile stream from filling the disk. */
+            int64? declared = session.sizes.lookup (file_id);
+            landing.limit = (declared != null)
+                ? declared + 1024 * 1024 : (int64) 16 * 1024 * 1024 * 1024;
             try {
                 landing.stream = File.new_for_path (target).replace (
                     null, false, FileCreateFlags.PRIVATE);
@@ -238,6 +260,17 @@ namespace Kavis.Share {
             body.set_accumulate (false);
             message.got_chunk.connect ((chunk) => {
                 if (landing.failed) {
+                    return;
+                }
+                landing.written += chunk.get_size ();
+                if (landing.written > landing.limit) {
+                    /* More than was agreed to. Stop writing and let the
+                     * body handler clean up the partial file — a sender
+                     * does not get to decide how much of the disk it
+                     * uses after the person said yes to a number. */
+                    warning ("kavis-share: %s exceeded its declared size,"
+                             + " refused", target);
+                    landing.failed = true;
                     return;
                 }
                 try {

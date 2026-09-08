@@ -165,7 +165,7 @@ jobs:
           # here, NOT in the ISO package list — CI tooling only).
           apt-get install -y -qq --no-install-recommends \
             xvfb openbox dbus dbus-x11 x11-xserver-utils x11-utils \
-            xdotool xterm > /dev/null
+            xdotool xterm curl > /dev/null
           apt-get install -y -qq --no-install-recommends \
             ./out/packages/kavis-theme_*.deb \
             ./out/packages/kavis-panel_*.deb > /dev/null
