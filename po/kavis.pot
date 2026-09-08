@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 08:13+0000\n"
+"POT-Creation-Date: 2026-09-08 08:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -285,29 +285,29 @@ msgstr ""
 msgid "Log out"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:267
+#: packages/kavis-panel/src/kavis_lock.vala:279
 msgid "Wrong password"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:290
+#: packages/kavis-panel/src/kavis_lock.vala:302
 msgid "Wrong password. Log out to end the session — unsaved work will be lost."
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:500
+#: packages/kavis-panel/src/kavis_lock.vala:518
 #: packages/kavis-settings/src/logic/shortcuts.vala:156
 msgid "Lock screen"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:509
+#: packages/kavis-panel/src/kavis_lock.vala:527
 msgid "This account has no password"
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:512
+#: packages/kavis-panel/src/kavis_lock.vala:530
 msgid ""
 "Set a password first — a lock screen that anything can open protects nothing."
 msgstr ""
 
-#: packages/kavis-panel/src/kavis_lock.vala:516
+#: packages/kavis-panel/src/kavis_lock.vala:534
 #: packages/kavis-panel/src/ui/picker.vala:236
 #: packages/kavis-settings/src/ui/page_system.vala:133
 #: packages/kavis-taskmanager/src/tasks.vala:551
@@ -685,7 +685,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_network.vala:532
 #: packages/kavis-taskmanager/src/logs.vala:134
 #: packages/kavis-taskmanager/src/tasks.vala:510
-#: packages/kavis-tools/src/altf4.vala:118
+#: packages/kavis-tools/src/altf4.vala:118 packages/kavis-tools/src/run.vala:97
 msgid "Cancel"
 msgstr ""
 
@@ -1603,6 +1603,7 @@ msgid "Start menu (second key)"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/shortcuts.vala:151
+#: packages/kavis-tools/src/run.vala:42 packages/kavis-tools/src/run.vala:51
 msgid "Run"
 msgstr ""
 
@@ -2918,21 +2919,21 @@ msgstr ""
 msgid "Screen recording saved"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:87
+#: packages/kavis-tools/src/main.vala:95
 #, c-format
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:96
+#: packages/kavis-tools/src/main.vala:104
 #, c-format
 msgid "usage: kavis-tools repair-drive <device>\n"
 msgstr ""
 
-#: packages/kavis-tools/src/main.vala:107
+#: packages/kavis-tools/src/main.vala:115
 #, c-format
 msgid ""
-"usage: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-"
-"menu|alt-f4]\n"
+"usage: kavis-tools [calc|emoji|run|capture|preview|repair-drive|open-with|"
+"secure-menu|alt-f4]\n"
 msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:35
@@ -2950,6 +2951,7 @@ msgid "Search the Store"
 msgstr ""
 
 #: packages/kavis-tools/src/openwith.vala:72
+#: packages/kavis-tools/src/run.vala:68
 msgid "Open"
 msgstr ""
 
@@ -3032,6 +3034,23 @@ msgstr ""
 msgid ""
 "If the drive keeps failing, the hardware itself may be dying — software "
 "cannot fix that."
+msgstr ""
+
+#: packages/kavis-tools/src/run.vala:60
+msgid "Type the name of a program, folder, document or address."
+msgstr ""
+
+#: packages/kavis-tools/src/run.vala:85
+msgid "Run as administrator"
+msgstr ""
+
+#: packages/kavis-tools/src/run.vala:99
+msgid "OK"
+msgstr ""
+
+#: packages/kavis-tools/src/run.vala:294
+#, c-format
+msgid "There is no program called “%s”."
 msgstr ""
 
 #: packages/kavis-tools/src/securemenu.vala:81

@@ -39,7 +39,7 @@
 start-menu | system | XF86Launch5 | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false
 # Ctrl+Esc reaches the start menu when a hypervisor swallows Super.
 start-menu-alt | system | C-Escape | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu false
-run | system | W-r | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowStartMenu true
+run | system | W-r | exec kavis-tools run
 clipboard | system | W-v | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowClipboard
 emoji | system | W-period | exec gdbus call --session --dest org.kavis.Panel --object-path /org/kavis/Panel --method org.kavis.Panel.ShowPicker last
 security-screen | system | C-A-Delete | exec kavis-tools secure-menu

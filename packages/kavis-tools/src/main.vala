@@ -25,6 +25,14 @@ int main (string[] args) {
     case "calc":
         window = new Kavis.Tools.CalculatorWindow ();
         break;
+    case "run":
+        /* Win+R. Single instance for the same reason Alt+F4 is: the key
+         * repeats while it is held and every repeat is a new process. */
+        if (!Kavis.Tools.SingleInstance.acquire ("kavis-run")) {
+            return 0;
+        }
+        window = new Kavis.Tools.RunWindow ();
+        break;
     case "emoji":
         /* The emoji picker moved into the unified panel (sonraki-isler
          * 5): the .desktop entry opens the picker in the running panel. */
@@ -104,7 +112,7 @@ int main (string[] args) {
         return Kavis.Tools.Preview.run (
             (args.length > 2) ? args[2] : null);
     default:
-        stderr.printf (_("usage: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"));
+        stderr.printf (_("usage: kavis-tools [calc|emoji|run|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"));
         return 2;
     }
     window.destroy.connect (Gtk.main_quit);

@@ -650,6 +650,16 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     aygıtta durur ve X yeniden başlayınca gider; `openbox/autostart`
     oturum açılışında kavis.conf'tan geri uygular.
 
+82. **ÇALIŞTIR PENCERESİ — Win+R (2026-09-08 eki).** Win+R, arama
+    kutusu odaklanmış Başlat menüsünü açıyordu; oysa Başlat
+    *uygulama* arar, Çalıştır ise komut/yol/adres alır. Ayrı pencere
+    (`kavis-tools run`): geçmiş (son 30, yukarı/aşağı ile gezilir,
+    0600), PATH'teki tüm çalıştırılabilirler üzerinden tamamlama,
+    "Yönetici olarak çalıştır" (pkexec). Girilen şey önce var olan bir
+    yol mu (xdg-open), sonra adres mi (tarayıcı), değilse komut satırı
+    (`sh -c`). Olmayan program kabuğa verilmeden önce yakalanır, yoksa
+    `sh -c` her zaman başarılı olur ve hata görünmez.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,

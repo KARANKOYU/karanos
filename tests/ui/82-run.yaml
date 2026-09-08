@@ -1,0 +1,59 @@
+# Run — Win+R (item 82).
+#
+# Win+R used to open the Start menu with its search box focused, which
+# is a different thing wearing the same key: Start searches for
+# APPLICATIONS, Run takes a command, a path or an address. The person
+# pressing Win+R has usually already decided what to type.
+#
+# What cannot be asserted here is the completion popup and the history
+# walk — both need a real keyboard going into a real entry, which the
+# runner can do, but the assertion would be "a popup window appeared",
+# which is what every other popup step already covers. The VM checklist
+# has them.
+name: 82-run
+title: Run dialog
+item: 82
+allowed: [kavis-tools, nemo]
+steps:
+  - do: key super+r
+    expect: window kavis-tools visible
+    timeout: 40000
+    note: the Run dialog, on the key Windows uses for it
+    shot: true
+  - do: key Escape
+    expect: window kavis-tools absent
+    timeout: 8000
+    note: >
+      Escape closes it. A dialog that takes the whole keyboard and
+      cannot be dismissed with Escape is the same class of bug as the
+      lock screen that would not open
+
+  - do: shell test ! -e "$HOME/.local/share/kavis/run-history"
+    expect: ok
+    note: nothing typed yet, so there is nothing remembered
+  - do: key super+r
+    expect: window kavis-tools visible
+    timeout: 40000
+  - do: type nemo --no-desktop /users/karan
+    expect: ok
+  - do: key Return
+    expect: window nemo visible
+    timeout: 40000
+    note: a command line, run through the shell so arguments behave
+    shot: true
+  - do: shell grep -q 'nemo --no-desktop' "$HOME/.local/share/kavis/run-history"
+    expect: ok
+    note: >
+      and remembered — only on success, because a typo does not deserve
+      a place in the list
+  - do: shell test "$(stat -c %a "$HOME/.local/share/kavis/run-history")" = 600
+    expect: ok
+    note: >
+      what somebody typed on their own machine is nobody else's
+      business
+  - do: close window nemo
+    expect: window nemo absent
+    timeout: 8000
+  - do: shell rm -f "$HOME/.local/share/kavis/run-history"
+    expect: ok
+    note: leave the session as it was found

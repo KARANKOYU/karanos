@@ -8,7 +8,7 @@ Durum sütunu: **var** = senaryosu yazılmış · **EKSİK** =
 grubu bitmiş ama testi yok (hata) · **sırada** = grubu henüz
 yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 
-**Kapsam: 35 / 78 madde; bitmiş gruplarda 34 / 34.**
+**Kapsam: 36 / 79 madde; bitmiş gruplarda 34 / 34.**
 
 | Madde | Başlık | Durum | Senaryo |
 |---|---|---|---|
@@ -90,6 +90,7 @@ yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 | 79 | KAVIS MESSENGER — UZAK MOD | sırada | — |
 | 80 | KAVIS MESSENGER — TARAYICI KÖPRÜSÜ | sırada | — |
 | 81 | FARE VE İMLEÇ AYARLARI | var | `81-mouse` |
+| 82 | ÇALIŞTIR PENCERESİ — Win+R | var | `82-run` |
 
 ## Listede karşılığı olmayan senaryolar
 

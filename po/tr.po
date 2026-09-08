@@ -503,8 +503,6 @@ msgstr "%s aç"
 msgid "usage: kavis-tools open-with <file>\n"
 msgstr "kullanım: kavis-tools open-with <dosya>\n"
 
-msgid "usage: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
-msgstr "kullanım: kavis-tools [calc|emoji|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
 
 msgid "Showing the first part of a large file"
 msgstr "Büyük dosyanın yalnız baş kısmı gösteriliyor"
@@ -2066,3 +2064,18 @@ msgstr "Elin aynı hareketinde imlecin ne kadar yol alacağı"
 
 msgid "The content follows the fingers, the way a phone scrolls"
 msgstr "İçerik parmakları izler, telefonun kaydırdığı gibi"
+
+msgid "usage: kavis-tools [calc|emoji|run|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
+msgstr "kullanım: kavis-tools [calc|emoji|run|capture|preview|repair-drive|open-with|secure-menu|alt-f4]\n"
+
+msgid "Type the name of a program, folder, document or address."
+msgstr "Bir program, klasör, belge ya da adres adı yazın."
+
+msgid "Run as administrator"
+msgstr "Yönetici olarak çalıştır"
+
+msgid "OK"
+msgstr "Tamam"
+
+msgid "There is no program called “%s”."
+msgstr "“%s” adında bir program yok."

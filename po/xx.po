@@ -1920,6 +1920,18 @@ msgstr "⟪Repair could not fix the drive.············⟫"
 msgid "Deeper NTFS repair needs Windows: run chkdsk /f there."
 msgstr "⟪Deeper NTFS repair needs Windows: run chkdsk /f there.·····················⟫"
 
+msgid "Type the name of a program, folder, document or address."
+msgstr "⟪Type the name of a program, folder, document or address.······················⟫"
+
+msgid "Run as administrator"
+msgstr "⟪Run as administrator········⟫"
+
+msgid "OK"
+msgstr "⟪OK··⟫"
+
+msgid "There is no program called “%s”."
+msgstr "⟪There is no program called “%s”.············⟫"
+
 msgid "Sign out"
 msgstr "⟪Sign out···⟫"
 

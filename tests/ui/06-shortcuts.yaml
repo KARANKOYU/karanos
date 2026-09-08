@@ -29,12 +29,12 @@ steps:
     expect: popup kavis-panel hidden
     timeout: 4000
   - do: key super+r
-    expect: popup kavis-panel visible
-    timeout: 6000
+    expect: window kavis-tools visible
+    timeout: 40000
     note: run (system) — W-r
-  - do: key Escape
-    expect: popup kavis-panel hidden
-    timeout: 4000
+  - do: close window kavis-tools
+    expect: window kavis-tools absent
+    timeout: 8000
   - do: key super+v
     expect: popup kavis-panel visible
     timeout: 6000

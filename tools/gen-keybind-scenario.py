@@ -40,7 +40,9 @@ EXPECTATIONS = {
     "restore":        "geometry nemo on-screen",
     "start-menu":     "popup kavis-panel visible",
     "start-menu-alt": "popup kavis-panel visible",
-    "run":            "popup kavis-panel visible",
+    # Win+R is its own dialog since 8 Sep, not the Start menu with its
+    # search box focused, so the scenario waits for a WINDOW.
+    "run":            "window kavis-tools visible",
     "overview":       "popup kavis-panel visible",
     "snap-menu":      "popup kavis-panel visible",
     "clipboard":      "popup kavis-panel visible",
