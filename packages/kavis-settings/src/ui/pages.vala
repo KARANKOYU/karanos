@@ -205,6 +205,7 @@ namespace Kavis.Settings.Pages {
         case "power":      return power (title);
         case "network":    return network (title);
         case "taskbar":    return taskbar (title);
+        case "security":   return security (title);
         case "system":     return system_page (title);
         case "hardware":   return hardware (title);
         }

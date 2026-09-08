@@ -168,6 +168,7 @@ namespace Kavis.Settings {
                  * quietly picking something else. */
                 { "hardware", "drive-harddisk-symbolic",
                   _("Hardware test") },
+                { "security", "security-high-symbolic", _("Security") },
                 { "system", "computer-symbolic", _("System") }
             };
 

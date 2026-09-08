@@ -210,6 +210,9 @@ msgstr "⟪Battery critically low (%d%%)···········⟫"
 msgid "Battery low (%d%%)"
 msgstr "⟪Battery low (%d%%)·······⟫"
 
+msgid "an application that did not identify itself"
+msgstr "⟪an application that did not identify itself·················⟫"
+
 msgid "Focus session finished"
 msgstr "⟪Focus session finished········⟫"
 
@@ -612,6 +615,15 @@ msgstr "⟪Buttons··⟫"
 msgid "Speed and scrolling"
 msgstr "⟪Speed and scrolling·······⟫"
 
+msgid "Status"
+msgstr "⟪Status··⟫"
+
+msgid "Clipboard privacy"
+msgstr "⟪Clipboard privacy······⟫"
+
+msgid "Malware scan"
+msgstr "⟪Malware scan····⟫"
+
 msgid "About"
 msgstr "⟪About··⟫"
 
@@ -860,6 +872,33 @@ msgstr "⟪Natural scrolling······⟫"
 
 msgid "Content follows the fingers"
 msgstr "⟪Content follows the fingers··········⟫"
+
+msgid "Kernel hardening"
+msgstr "⟪Kernel hardening······⟫"
+
+msgid "What the running kernel actually has switched on"
+msgstr "⟪What the running kernel actually has switched on···················⟫"
+
+msgid "Secure Boot"
+msgstr "⟪Secure Boot····⟫"
+
+msgid "Whether the firmware is verifying what boots"
+msgstr "⟪Whether the firmware is verifying what boots·················⟫"
+
+msgid "Firewall"
+msgstr "⟪Firewall···⟫"
+
+msgid "Whether anything is filtering connections"
+msgstr "⟪Whether anything is filtering connections················⟫"
+
+msgid "Watch clipboard reads"
+msgstr "⟪Watch clipboard reads········⟫"
+
+msgid "Which application reads the clipboard"
+msgstr "⟪Which application reads the clipboard··············⟫"
+
+msgid "Scans the downloads folder with ClamAV"
+msgstr "⟪Scans the downloads folder with ClamAV···············⟫"
 
 msgid "What this machine is"
 msgstr "⟪What this machine is········⟫"
@@ -1596,6 +1635,69 @@ msgstr "⟪Highest clocks, more heat and fan noise···············
 msgid "Clocks follow the load"
 msgstr "⟪Clocks follow the load········⟫"
 
+msgid "Screen lock"
+msgstr "⟪Screen lock····⟫"
+
+msgid "Clear the list"
+msgstr "⟪Clear the list·····⟫"
+
+msgid "Clipboard read history"
+msgstr "⟪Clipboard read history········⟫"
+
+msgid "Kept on this machine only, the last 200 reads"
+msgstr "⟪Kept on this machine only, the last 200 reads··················⟫"
+
+msgid "This kernel does not offer the settings"
+msgstr "⟪This kernel does not offer the settings···············⟫"
+
+msgid "On — %d of %d kernel protections active"
+msgstr "⟪On — %d of %d kernel protections active···············⟫"
+
+msgid "Partly on — %d of %d"
+msgstr "⟪Partly on — %d of %d········⟫"
+
+msgid "Not applicable — this machine booted in BIOS mode"
+msgstr "⟪Not applicable — this machine booted in BIOS mode···················⟫"
+
+msgid "On"
+msgstr "⟪On··⟫"
+
+msgid "Off — the screen does not lock by itself"
+msgstr "⟪Off — the screen does not lock by itself················⟫"
+
+msgid "After %d minute of inactivity"
+msgstr "⟪After %d minute of inactivity···········⟫"
+
+msgid "No firewall installed — nothing accepts connections by default either"
+msgstr "⟪No firewall installed — nothing accepts connections by default either···························⟫"
+
+msgid "Rules are loaded"
+msgstr "⟪Rules are loaded······⟫"
+
+msgid "Installed, no rules loaded"
+msgstr "⟪Installed, no rules loaded··········⟫"
+
+msgid "Nothing has read the clipboard yet."
+msgstr "⟪Nothing has read the clipboard yet.··············⟫"
+
+msgid "Not watching. Turn the switch above on to start recording."
+msgstr "⟪Not watching. Turn the switch above on to start recording.·······················⟫"
+
+msgid "%s · %s"
+msgstr "⟪%s · %s··⟫"
+
+msgid "Not installed"
+msgstr "⟪Not installed·····⟫"
+
+msgid "Scan downloads"
+msgstr "⟪Scan downloads·····⟫"
+
+msgid "Scanning…"
+msgstr "⟪Scanning…···⟫"
+
+msgid "Nothing found"
+msgstr "⟪Nothing found·····⟫"
+
 msgid "Applies to newly started applications"
 msgstr "⟪Applies to newly started applications··············⟫"
 
@@ -1649,6 +1751,9 @@ msgstr "⟪Language···⟫"
 
 msgid "Taskbar"
 msgstr "⟪Taskbar··⟫"
+
+msgid "Security"
+msgstr "⟪Security···⟫"
 
 msgid "Find a setting"
 msgstr "⟪Find a setting·····⟫"

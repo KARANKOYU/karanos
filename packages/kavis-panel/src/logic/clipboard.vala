@@ -49,11 +49,48 @@ namespace Kavis {
          * back. */
         private int64 suppress_image_until = 0;
 
+        /* Security section: with "watch clipboard reads" on, Kavis
+         * takes ownership after every copy so that every paste is a
+         * request to a window we own and can therefore attribute. Off
+         * by default, because owning the selection means serving the
+         * content as text or image and a copy carrying something richer
+         * loses that richness. */
+        private bool watch_reads = false;
+        private FileMonitor? conf_monitor = null;
+
         public ClipboardHistory () {
             load ();
             clipboard = Gtk.Clipboard.get_default (
                 Gdk.Display.get_default ());
             clipboard.owner_change.connect (() => on_owner_change ());
+            read_watch_setting ();
+            /* The monitor is kept alive by this field: a FileMonitor
+             * that nothing holds is collected and stops watching. */
+            conf_monitor = Config.watch (() => read_watch_setting ());
+        }
+
+        private void read_watch_setting () {
+            bool wanted = false;
+            try {
+                wanted = Config.load ().get_boolean ("clipboard",
+                                                     "watch-reads");
+            } catch (Error e) { }
+            watch_reads = wanted;
+            if (wanted) {
+                ClipWatch.start ();
+            }
+        }
+
+        /* Become the owner of what was just copied, so the reads of it
+         * are visible. The content is the same content, so nothing a
+         * person can see changes; `last_set_text` keeps our own write
+         * from being captured back as a new copy. */
+        private void take_ownership (string text) {
+            if (!watch_reads) {
+                return;
+            }
+            last_set_text = text;
+            clipboard.set_text (text, -1);
         }
 
         private string store_dir () {
@@ -236,6 +273,7 @@ namespace Kavis {
             items.insert (0, entry);
             prune ();
             changed ();
+            take_ownership (text);
         }
 
         private void store_image (Gdk.Pixbuf pixbuf) {

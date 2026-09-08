@@ -694,6 +694,28 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     klavye kullanan insan gerçek. Depolama `[keyboard] languages=tr,en`;
     ilk sıra ile `[keyboard] language` birlikte yürür.
 
+86. **GÜVENLİK BÖLÜMÜ (2026-09-08 eki).** Windows Security gibi bir
+    durum panosu: çekirdek sertleştirme (item 8'in değerleri **çalışan
+    çekirdekten** okunur), Güvenli Önyükleme (EFI değişkeni), ekran
+    kilidi, güvenlik duvarı. Hiçbir satır yapılandırmanın *niyetini*
+    bildirmez — niyeti bildiren güvenlik sayfası, "güvendesin çünkü
+    birisi öyle yazmış" demektir.
+    **Pano gizliliği:** "panomu hangi uygulama okuyor". X11'de pano
+    okuması, seçimin SAHİBİNE giden bir SelectionRequest'tir; yalnız
+    sahip görebilir. Bu yüzden isteğe bağlı: açıkken Kavis her
+    kopyalamadan sonra panonun sahipliğini alır (zaten pano
+    yöneticilerinin yaptığı şey; uygulama kapanınca panonun boşalması
+    sorununu da çözer) ve her okuma sahibi olduğumuz bir pencereye
+    gelen istek olur. **Bedeli arayüzde yazıyor:** sahiplik alınca
+    içerik metin ya da resim olarak sunulur, biçimli kopya düz yapışır.
+    Okumalar **gözlemlenir, karşılanmaz** — filtre CONTINUE döner, isteği
+    yine GTK cevaplar; TARGETS/MULTIPLE/INCR'ı yeniden yazmak, kimsenin
+    istemediği bir günlük için herkesin yapıştırmasını bozma riskidir.
+    **Antivirüs:** ClamAV ISO'ya konmuyor (imza veritabanı sistemin
+    çoğundan büyük, imzasız tarayıcı tiyatrodur); kurulu ise
+    indirilenler klasörü taranabiliyor, değilse satır ne gerektiğini
+    söylüyor.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,

@@ -8,7 +8,7 @@ Durum sütunu: **var** = senaryosu yazılmış · **EKSİK** =
 grubu bitmiş ama testi yok (hata) · **sırada** = grubu henüz
 yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 
-**Kapsam: 38 / 82 madde; bitmiş gruplarda 34 / 34.**
+**Kapsam: 39 / 83 madde; bitmiş gruplarda 34 / 34.**
 
 | Madde | Başlık | Durum | Senaryo |
 |---|---|---|---|
@@ -94,6 +94,7 @@ yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 | 83 | GÖREV ÇUBUĞU PENCERE ÖNİZLEMELERİ | var | `83-previews` |
 | 84 | AÇIKLAYAN İPUÇLARI | sırada | — |
 | 85 | DİL BÖLÜMÜ — LİSTE, ÜSTTEKİ SİSTEM DİLİ | var | `85-language` |
+| 86 | GÜVENLİK BÖLÜMÜ | var | `86-security` |
 
 ## Listede karşılığı olmayan senaryolar
 

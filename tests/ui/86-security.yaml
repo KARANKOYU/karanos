@@ -1,0 +1,61 @@
+# Security section (item 86).
+#
+# A status board, and every row on it is MEASURED rather than assumed:
+# the kernel values are read from /proc when the page is built, Secure
+# Boot from the firmware variable, the clipboard log from the file the
+# panel writes. A security page that reports what the configuration
+# INTENDED is worse than none — it tells you you are safe because
+# somebody wrote that you would be.
+#
+# That is also why this scenario checks the SOURCES and not the labels:
+# a label can say "On" for either reason, and only one of them is the
+# one worth having.
+name: 86-security
+title: Security
+item: 86
+allowed: [kavis-settings]
+steps:
+  - do: shell test "$(cat /proc/sys/kernel/kptr_restrict)" = 2
+    expect: ok
+    note: >
+      what the Kernel hardening row reads. Asserted here as well, so a
+      green row and a green step cannot disagree
+  - do: shell test -r "$HOME/.config/kavis/kavis.conf" || true
+    expect: ok
+
+  - do: launch kavis-settings security
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the status board
+    shot: true
+  - do: type clipboard
+    expect: ok
+    note: >
+      the search reaches the clipboard privacy switch by the word
+      somebody worried about it would type
+  - do: wait 1500
+    expect: ok
+    shot: true
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
+
+  - do: conf clipboard watch-reads true
+    expect: conf clipboard watch-reads true
+    note: >
+      with this on the panel takes the clipboard after each copy, which
+      is the only way an X11 desktop can see who reads it
+  - do: wait 2000
+    expect: ok
+    note: the panel watches kavis.conf and picks the setting up live
+  - do: shell pgrep -x kavis-panel >/dev/null
+    expect: ok
+    note: >
+      THE THING THAT COULD GO WRONG: taking ownership of the clipboard
+      means answering selection requests, and a panel that crashes
+      doing it takes the desktop's taskbar with it
+  - do: conf clipboard watch-reads false
+    expect: conf clipboard watch-reads false
+  - do: shell rm -f "$HOME/.local/share/kavis/clipboard-reads.log"
+    expect: ok
+    note: leave the session as it was found

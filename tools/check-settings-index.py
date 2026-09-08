@@ -43,6 +43,7 @@ PAGE = {
     "network": "page_network.vala",
     "taskbar": "page_taskbar.vala",
     "hardware": "page_hardware.vala",
+    "security": "page_security.vala",
     "system": "page_system.vala",
 }
 

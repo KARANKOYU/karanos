@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 08:48+0000\n"
+"POT-Creation-Date: 2026-09-08 08:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -234,7 +234,7 @@ msgstr ""
 #: packages/kavis-common/sysinfo.vala:736
 #: packages/kavis-panel/src/logic/apps.vala:24
 #: packages/kavis-settings/src/logic/shortcuts.vala:136
-#: packages/kavis-settings/src/ui/window.vala:171
+#: packages/kavis-settings/src/ui/window.vala:172
 #: packages/kavis-taskmanager/src/logs.vala:25
 #: packages/kavis-taskmanager/src/startup.vala:297
 #, c-format
@@ -374,6 +374,10 @@ msgstr ""
 msgid "Battery low (%d%%)"
 msgstr ""
 
+#: packages/kavis-panel/src/logic/clipwatch.vala:141
+msgid "an application that did not identify itself"
+msgstr ""
+
 #: packages/kavis-panel/src/logic/focus.vala:50
 msgid "Focus session finished"
 msgstr ""
@@ -414,7 +418,7 @@ msgid "Clear"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:298
-#: packages/kavis-settings/src/logic/catalog.vala:131
+#: packages/kavis-settings/src/logic/catalog.vala:134
 #: packages/kavis-settings/src/ui/page_language.vala:232
 #: packages/kavis-settings/src/ui/page_language.vala:268
 msgid "Keyboard layout"
@@ -540,7 +544,7 @@ msgid "Close all windows"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/panel.vala:1390
-#: packages/kavis-settings/src/logic/catalog.vala:167
+#: packages/kavis-settings/src/logic/catalog.vala:170
 #: packages/kavis-settings/src/ui/page_taskbar.vala:31
 msgid "Position"
 msgstr ""
@@ -567,7 +571,7 @@ msgid "Right"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/panel.vala:1420
-#: packages/kavis-settings/src/logic/catalog.vala:169
+#: packages/kavis-settings/src/logic/catalog.vala:172
 #: packages/kavis-settings/src/ui/page_taskbar.vala:42
 msgid "Size"
 msgstr ""
@@ -586,7 +590,7 @@ msgid "Thick"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/panel.vala:1451
-#: packages/kavis-settings/src/logic/catalog.vala:171
+#: packages/kavis-settings/src/logic/catalog.vala:174
 #: packages/kavis-settings/src/ui/page_taskbar.vala:51
 msgid "Alignment"
 msgstr ""
@@ -755,7 +759,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:218
 #: packages/kavis-settings/src/logic/catalog.vala:48
-#: packages/kavis-settings/src/logic/catalog.vala:113
+#: packages/kavis-settings/src/logic/catalog.vala:116
 #: packages/kavis-settings/src/ui/page_display.vala:115
 msgid "Night light"
 msgstr ""
@@ -784,7 +788,7 @@ msgid "Accessibility"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:299
-#: packages/kavis-settings/src/logic/catalog.vala:107
+#: packages/kavis-settings/src/logic/catalog.vala:110
 #: packages/kavis-settings/src/ui/page_display.vala:102
 msgid "Brightness"
 msgstr ""
@@ -805,7 +809,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/quick_settings.vala:382
 #: packages/kavis-panel/src/ui/quick_settings.vala:477
-#: packages/kavis-settings/src/logic/catalog.vala:121
+#: packages/kavis-settings/src/logic/catalog.vala:124
 #: packages/kavis-settings/src/ui/page_sound.vala:24
 msgid "Output device"
 msgstr ""
@@ -937,7 +941,7 @@ msgid "Effects"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:44
-#: packages/kavis-settings/src/logic/catalog.vala:95
+#: packages/kavis-settings/src/logic/catalog.vala:98
 msgid "Wallpaper"
 msgstr ""
 
@@ -960,13 +964,13 @@ msgid "Output"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:51
-#: packages/kavis-settings/src/logic/catalog.vala:125
+#: packages/kavis-settings/src/logic/catalog.vala:128
 #: packages/kavis-settings/src/ui/page_sound.vala:48
 msgid "System sounds"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:53
-#: packages/kavis-settings/src/logic/catalog.vala:133
+#: packages/kavis-settings/src/logic/catalog.vala:136
 #: packages/kavis-settings/src/ui/page_keyboard.vala:53
 msgid "Shortcuts"
 msgstr ""
@@ -980,7 +984,7 @@ msgid "Typing"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:57
-#: packages/kavis-settings/src/logic/catalog.vala:137
+#: packages/kavis-settings/src/logic/catalog.vala:140
 msgid "Power mode"
 msgstr ""
 
@@ -993,12 +997,12 @@ msgid "Now"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:63
-#: packages/kavis-settings/src/logic/catalog.vala:159
+#: packages/kavis-settings/src/logic/catalog.vala:162
 msgid "Wired"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:64
-#: packages/kavis-settings/src/logic/catalog.vala:161
+#: packages/kavis-settings/src/logic/catalog.vala:164
 msgid "VPN"
 msgstr ""
 
@@ -1011,7 +1015,7 @@ msgid "Layout"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:68
-#: packages/kavis-settings/src/logic/catalog.vala:175
+#: packages/kavis-settings/src/logic/catalog.vala:178
 msgid "Pinned apps"
 msgstr ""
 
@@ -1032,318 +1036,333 @@ msgid "Speed and scrolling"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:75
-#: packages/kavis-settings/src/logic/catalog.vala:195
-msgid "About"
+msgid "Status"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:76
+msgid "Clipboard privacy"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:77
+#: packages/kavis-settings/src/logic/catalog.vala:206
+#: packages/kavis-settings/src/ui/page_security.vala:223
+#: packages/kavis-settings/src/ui/page_security.vala:258
+msgid "Malware scan"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:78
+#: packages/kavis-settings/src/logic/catalog.vala:208
+msgid "About"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:79
 msgid "Self test"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:83
+#: packages/kavis-settings/src/logic/catalog.vala:86
 #: packages/kavis-settings/src/ui/page_appearance.vala:27
 msgid "Theme"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:84
+#: packages/kavis-settings/src/logic/catalog.vala:87
 msgid "Dark or light, the whole desktop"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:85
+#: packages/kavis-settings/src/logic/catalog.vala:88
 #: packages/kavis-settings/src/ui/page_appearance.vala:77
 msgid "Accent color"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:86
+#: packages/kavis-settings/src/logic/catalog.vala:89
 msgid "The teal of the brand"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:87
+#: packages/kavis-settings/src/logic/catalog.vala:90
 #: packages/kavis-settings/src/ui/page_appearance.vala:83
 msgid "Corner roundness"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:88
+#: packages/kavis-settings/src/logic/catalog.vala:91
 msgid "How round window corners are"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:89
+#: packages/kavis-settings/src/logic/catalog.vala:92
 #: packages/kavis-settings/src/ui/page_appearance.vala:86
 msgid "Animation speed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:90
+#: packages/kavis-settings/src/logic/catalog.vala:93
 msgid "How fast windows open and close"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:91
+#: packages/kavis-settings/src/logic/catalog.vala:94
 #: packages/kavis-settings/src/ui/page_appearance.vala:88
 msgid "Popup animation"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:92
+#: packages/kavis-settings/src/logic/catalog.vala:95
 msgid "How the panel's popups appear"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:93
+#: packages/kavis-settings/src/logic/catalog.vala:96
 #: packages/kavis-settings/src/ui/page_appearance.vala:100
 msgid "Transparency effects"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:94
+#: packages/kavis-settings/src/logic/catalog.vala:97
 msgid "Blur behind the taskbar and menus"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:96
+#: packages/kavis-settings/src/logic/catalog.vala:99
 msgid "The desktop background"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:99
+#: packages/kavis-settings/src/logic/catalog.vala:102
 #: packages/kavis-settings/src/ui/page_display.vala:68
 #: packages/kavis-settings/src/ui/page_display.vala:583
 msgid "Resolution"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:100
+#: packages/kavis-settings/src/logic/catalog.vala:103
 msgid "How many pixels the screen shows"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:101
+#: packages/kavis-settings/src/logic/catalog.vala:104
 #: packages/kavis-settings/src/ui/page_display.vala:590
 msgid "Refresh rate"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:102
+#: packages/kavis-settings/src/logic/catalog.vala:105
 msgid "How many times a second the screen redraws"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:103
+#: packages/kavis-settings/src/logic/catalog.vala:106
 #: packages/kavis-settings/src/ui/page_display.vala:89
 msgid "Scale"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:104
+#: packages/kavis-settings/src/logic/catalog.vala:107
 msgid "How large everything is drawn"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:105
+#: packages/kavis-settings/src/logic/catalog.vala:108
 #: packages/kavis-settings/src/ui/page_display.vala:238
 msgid "Orientation"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:106
+#: packages/kavis-settings/src/logic/catalog.vala:109
 msgid "Rotate the screen"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:108
+#: packages/kavis-settings/src/logic/catalog.vala:111
 msgid "How bright the screen is"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:109
+#: packages/kavis-settings/src/logic/catalog.vala:112
 #: packages/kavis-settings/src/ui/page_display.vala:314
 msgid "Main display"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:110
+#: packages/kavis-settings/src/logic/catalog.vala:113
 msgid "Which screen the taskbar is on"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:111
+#: packages/kavis-settings/src/logic/catalog.vala:114
 #: packages/kavis-settings/src/ui/page_display.vala:327
 msgid "Multiple displays"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:112
+#: packages/kavis-settings/src/logic/catalog.vala:115
 msgid "Mirror or extend"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:114
+#: packages/kavis-settings/src/logic/catalog.vala:117
 msgid "Warmer colors after sunset"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:115
+#: packages/kavis-settings/src/logic/catalog.vala:118
 #: packages/kavis-settings/src/ui/page_display.vala:155
 msgid "Color temperature"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:116
+#: packages/kavis-settings/src/logic/catalog.vala:119
 msgid "How warm the night colors are"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:117
+#: packages/kavis-settings/src/logic/catalog.vala:120
 #: packages/kavis-settings/src/ui/page_display.vala:157
 msgid "Schedule"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:118
+#: packages/kavis-settings/src/logic/catalog.vala:121
 msgid "Sunset to sunrise, or hours you choose"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:122
+#: packages/kavis-settings/src/logic/catalog.vala:125
 msgid "Where sound comes out"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:123
+#: packages/kavis-settings/src/logic/catalog.vala:126
 #: packages/kavis-settings/src/ui/page_sound.vala:36
 msgid "Master volume"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:124
+#: packages/kavis-settings/src/logic/catalog.vala:127
 msgid "How loud everything is"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:126
+#: packages/kavis-settings/src/logic/catalog.vala:129
 msgid "The sounds the desktop itself makes"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:129
+#: packages/kavis-settings/src/logic/catalog.vala:132
 #: packages/kavis-settings/src/ui/page_language.vala:175
 #: packages/kavis-settings/src/ui/page_language.vala:200
 msgid "Add a language"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:130
+#: packages/kavis-settings/src/logic/catalog.vala:133
 msgid "Endonym and how much of the interface is translated"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:132
+#: packages/kavis-settings/src/logic/catalog.vala:135
 msgid "Which of the added layouts the keyboard uses"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:134
+#: packages/kavis-settings/src/logic/catalog.vala:137
 msgid "Every key combination, and how to change one"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:138
+#: packages/kavis-settings/src/logic/catalog.vala:141
 msgid "Efficiency, balanced or performance"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:139
+#: packages/kavis-settings/src/logic/catalog.vala:142
 #: packages/kavis-settings/src/ui/page_power.vala:45
 #: packages/kavis-settings/src/ui/page_power.vala:52
 #: packages/kavis-settings/src/ui/page_power.vala:96
 msgid "Lock the screen after"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:140
+#: packages/kavis-settings/src/logic/catalog.vala:143
 msgid "Idle time before the screen locks"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:141
+#: packages/kavis-settings/src/logic/catalog.vala:144
 #: packages/kavis-settings/src/ui/page_power.vala:47
 #: packages/kavis-settings/src/ui/page_power.vala:54
 #: packages/kavis-settings/src/ui/page_power.vala:98
 msgid "Turn off screen after"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:142
+#: packages/kavis-settings/src/logic/catalog.vala:145
 msgid "Idle time before the screen goes dark"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:143
+#: packages/kavis-settings/src/logic/catalog.vala:146
 #: packages/kavis-settings/src/ui/page_power.vala:49
 #: packages/kavis-settings/src/ui/page_power.vala:56
 #: packages/kavis-settings/src/ui/page_power.vala:100
 msgid "Sleep after"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:144
+#: packages/kavis-settings/src/logic/catalog.vala:147
 msgid "Idle time before the machine sleeps"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:145
+#: packages/kavis-settings/src/logic/catalog.vala:148
 #: packages/kavis-settings/src/ui/page_power.vala:74
 msgid "Warn me at"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:146
+#: packages/kavis-settings/src/logic/catalog.vala:149
 #: packages/kavis-settings/src/ui/page_power.vala:75
 msgid "A notification when the charge drops this low"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:147
+#: packages/kavis-settings/src/logic/catalog.vala:150
 #: packages/kavis-settings/src/ui/page_power.vala:91
 msgid "When I close the lid"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:148
+#: packages/kavis-settings/src/logic/catalog.vala:151
 msgid "What closing the lid does"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:149
+#: packages/kavis-settings/src/logic/catalog.vala:152
 #: packages/kavis-settings/src/ui/page_power.vala:123
 msgid "Sleep or hibernate"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:150
+#: packages/kavis-settings/src/logic/catalog.vala:153
 msgid "Sleep or hibernate right now"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:154
+#: packages/kavis-settings/src/logic/catalog.vala:157
 msgid "Turn wireless on or off"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:155
+#: packages/kavis-settings/src/logic/catalog.vala:158
 #: packages/kavis-settings/src/ui/page_network.vala:125
 msgid "Available networks"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:156
+#: packages/kavis-settings/src/logic/catalog.vala:159
 msgid "Networks in range"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:157
+#: packages/kavis-settings/src/logic/catalog.vala:160
 #: packages/kavis-settings/src/ui/page_network.vala:139
 msgid "Wi-Fi actions"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:158
+#: packages/kavis-settings/src/logic/catalog.vala:161
 msgid "Saved networks and the hotspot"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:160
+#: packages/kavis-settings/src/logic/catalog.vala:163
 msgid "The cable connection, and manual IP"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:162
+#: packages/kavis-settings/src/logic/catalog.vala:165
 msgid "Import and use a VPN profile"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:163
+#: packages/kavis-settings/src/logic/catalog.vala:166
 #: packages/kavis-settings/src/ui/page_network.vala:487
 msgid "Encrypted DNS"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:164
+#: packages/kavis-settings/src/logic/catalog.vala:167
 msgid "DNS over TLS, and which resolver"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:168
+#: packages/kavis-settings/src/logic/catalog.vala:171
 msgid "Which edge the taskbar is on"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:170
+#: packages/kavis-settings/src/logic/catalog.vala:173
 msgid "How tall the taskbar is"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:172
+#: packages/kavis-settings/src/logic/catalog.vala:175
 msgid "Centred or to the left"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:173
+#: packages/kavis-settings/src/logic/catalog.vala:176
 #: packages/kavis-settings/src/ui/page_taskbar.vala:60
 msgid "Automatically hide the taskbar"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:174
+#: packages/kavis-settings/src/logic/catalog.vala:177
 msgid "The taskbar gets out of the way"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:176
+#: packages/kavis-settings/src/logic/catalog.vala:179
 msgid "Which apps sit on the taskbar"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:179
+#: packages/kavis-settings/src/logic/catalog.vala:182
 #: packages/kavis-settings/src/logic/hwtest.vala:378
 #: packages/kavis-settings/src/logic/hwtest.vala:383
 #: packages/kavis-settings/src/ui/page_hardware.vala:85
@@ -1351,75 +1370,116 @@ msgstr ""
 msgid "Hardware test"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:180
+#: packages/kavis-settings/src/logic/catalog.vala:183
 msgid "Nine checks: does this machine work"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:183
+#: packages/kavis-settings/src/logic/catalog.vala:186
 #: packages/kavis-settings/src/ui/page_mouse.vala:90
 msgid "Pointer colour"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:184
+#: packages/kavis-settings/src/logic/catalog.vala:187
 msgid "White or black pointer, and the Breeze themes"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:185
+#: packages/kavis-settings/src/logic/catalog.vala:188
 #: packages/kavis-settings/src/ui/page_mouse.vala:93
 msgid "Pointer size"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:186
+#: packages/kavis-settings/src/logic/catalog.vala:189
 msgid "24, 32, 48 or 64 pixels"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:187
+#: packages/kavis-settings/src/logic/catalog.vala:190
 #: packages/kavis-settings/src/ui/page_mouse.vala:107
 msgid "Left-handed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:188
+#: packages/kavis-settings/src/logic/catalog.vala:191
 #: packages/kavis-settings/src/ui/page_mouse.vala:108
 msgid "Swaps the left and right buttons"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:189
+#: packages/kavis-settings/src/logic/catalog.vala:192
 #: packages/kavis-settings/src/ui/page_mouse.vala:125
 msgid "Double-click speed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:190
+#: packages/kavis-settings/src/logic/catalog.vala:193
 msgid "How far apart two clicks may be"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:191
+#: packages/kavis-settings/src/logic/catalog.vala:194
 #: packages/kavis-settings/src/ui/page_mouse.vala:144
 msgid "Pointer speed"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:192
+#: packages/kavis-settings/src/logic/catalog.vala:195
 msgid "Acceleration of the pointer"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:193
+#: packages/kavis-settings/src/logic/catalog.vala:196
 #: packages/kavis-settings/src/ui/page_mouse.vala:154
 msgid "Natural scrolling"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:194
+#: packages/kavis-settings/src/logic/catalog.vala:197
 msgid "Content follows the fingers"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:196
+#: packages/kavis-settings/src/logic/catalog.vala:198
+#: packages/kavis-settings/src/ui/page_security.vala:29
+msgid "Kernel hardening"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:199
+msgid "What the running kernel actually has switched on"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:200
+#: packages/kavis-settings/src/ui/page_security.vala:31
+msgid "Secure Boot"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:201
+msgid "Whether the firmware is verifying what boots"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:202
+#: packages/kavis-settings/src/ui/page_security.vala:35
+msgid "Firewall"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:203
+msgid "Whether anything is filtering connections"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:204
+#: packages/kavis-settings/src/ui/page_security.vala:47
+msgid "Watch clipboard reads"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:205
+msgid "Which application reads the clipboard"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:207
+#: packages/kavis-settings/src/ui/page_security.vala:259
+msgid "Scans the downloads folder with ClamAV"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:209
 msgid "What this machine is"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:197
+#: packages/kavis-settings/src/logic/catalog.vala:210
 #: packages/kavis-settings/src/ui/page_system.vala:56
 msgid "Automatic interface test"
 msgstr ""
 
-#: packages/kavis-settings/src/logic/catalog.vala:198
+#: packages/kavis-settings/src/logic/catalog.vala:211
 msgid "Kavis tests its own interface and writes a report"
 msgstr ""
 
@@ -1784,6 +1844,7 @@ msgid "Dark is the default"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:37
+#: packages/kavis-settings/src/ui/page_security.vala:133
 msgid "Off"
 msgstr ""
 
@@ -1926,6 +1987,7 @@ msgid "Custom…"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_display.vala:676
+#: packages/kavis-settings/src/ui/page_security.vala:137
 msgid "Unknown"
 msgstr ""
 
@@ -2549,6 +2611,110 @@ msgstr ""
 msgid "Clocks follow the load"
 msgstr ""
 
+#: packages/kavis-settings/src/ui/page_security.vala:33
+msgid "Screen lock"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:48
+msgid ""
+"Records which application reads the clipboard. Kavis has to hold the "
+"clipboard to see this, so a copy carrying formatting pastes as plain text "
+"while it is on."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:55
+msgid "Clear the list"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:62
+msgid "Clipboard read history"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:63
+msgid "Kept on this machine only, the last 200 reads"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:108
+msgid "This kernel does not offer the settings"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:111
+#, c-format
+msgid "On — %d of %d kernel protections active"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:112
+#, c-format
+msgid "Partly on — %d of %d"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:119
+msgid "Not applicable — this machine booted in BIOS mode"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:133
+msgid "On"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:143
+msgid "Off — the screen does not lock by itself"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:145
+#, c-format
+msgid "After %d minute of inactivity"
+msgid_plural "After %d minutes of inactivity"
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:156
+msgid "No firewall installed — nothing accepts connections by default either"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:160
+msgid "Rules are loaded"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:162
+msgid "Installed, no rules loaded"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:180
+#: packages/kavis-settings/src/ui/page_security.vala:208
+msgid "Nothing has read the clipboard yet."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:181
+msgid "Not watching. Turn the switch above on to start recording."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:203
+#, c-format
+msgid "%s · %s"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:221
+msgid "Not installed"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:224
+msgid ""
+"Kavis does not ship a scanner — its signature database is larger than most "
+"of the system. Install ClamAV to scan on demand."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:227
+msgid "Scan downloads"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:232
+msgid "Scanning…"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:248
+msgid "Nothing found"
+msgstr ""
+
 #: packages/kavis-settings/src/ui/page_sound.vala:25
 msgid "Applies to newly started applications"
 msgstr ""
@@ -2631,11 +2797,15 @@ msgstr ""
 msgid "Taskbar"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:194
+#: packages/kavis-settings/src/ui/window.vala:171
+msgid "Security"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/window.vala:195
 msgid "Find a setting"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:415
+#: packages/kavis-settings/src/ui/window.vala:416
 #, c-format
 msgid "Nothing matches “%s”"
 msgstr ""

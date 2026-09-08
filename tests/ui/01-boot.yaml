@@ -29,7 +29,7 @@ steps:
   - do: none
     expect: window kavis-panel visible
     shot: true
-  - do: shell test -z "$(pgrep -f system-config-printer-applet)"
+  - do: shell test -z "$(pgrep -f '[s]ystem-config-printer-applet')"
     expect: ok
     note: >
       the print queue applet does not run at login. 28 MB of private
@@ -39,3 +39,7 @@ steps:
       override, so Task Manager > Startup still shows it and can turn
       it back on — asserted as an absence rather than by reading the
       override file, because what matters is that nothing is running.
+      The brackets are not decoration: `pgrep -f` matches full command
+      lines, and the first version of this step matched the shell
+      running the step itself. It failed on a session where the applet
+      was demonstrably gone — MEM-TOP no longer listed it.

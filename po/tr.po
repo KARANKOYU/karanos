@@ -2138,3 +2138,116 @@ msgstr "Başka bir düzen"
 
 msgid "Anything in the xkb catalogue, whether a language on the list uses it or not"
 msgstr "Listedeki bir dil kullansın kullanmasın, xkb katalogundaki her şey"
+
+msgid "Security"
+msgstr "Güvenlik"
+
+msgid "Status"
+msgstr "Durum"
+
+msgid "Clipboard privacy"
+msgstr "Pano gizliliği"
+
+msgid "Malware scan"
+msgstr "Kötü amaçlı yazılım taraması"
+
+msgid "Kernel hardening"
+msgstr "Çekirdek sertleştirme"
+
+msgid "Secure Boot"
+msgstr "Güvenli Önyükleme"
+
+msgid "Screen lock"
+msgstr "Ekran kilidi"
+
+msgid "Firewall"
+msgstr "Güvenlik duvarı"
+
+msgid "Watch clipboard reads"
+msgstr "Pano okumalarını izle"
+
+msgid "Records which application reads the clipboard. Kavis has to hold the clipboard to see this, so a copy carrying formatting pastes as plain text while it is on."
+msgstr "Panoyu hangi uygulamanın okuduğunu kaydeder. Bunu görebilmek için panoyu Kavis'in tutması gerekir; bu açıkken biçimli bir kopya düz metin olarak yapışır."
+
+msgid "Clipboard read history"
+msgstr "Pano okuma geçmişi"
+
+msgid "Kept on this machine only, the last 200 reads"
+msgstr "Yalnız bu makinede tutulur, son 200 okuma"
+
+msgid "Clear the list"
+msgstr "Listeyi temizle"
+
+msgid "Nothing has read the clipboard yet."
+msgstr "Panoyu henüz hiçbir şey okumadı."
+
+msgid "Not watching. Turn the switch above on to start recording."
+msgstr "İzlenmiyor. Kaydetmeye başlamak için yukarıdaki anahtarı açın."
+
+msgid "%s · %s"
+msgstr "%s · %s"
+
+msgid "What the running kernel actually has switched on"
+msgstr "Çalışan çekirdekte gerçekten açık olanlar"
+
+msgid "Whether the firmware is verifying what boots"
+msgstr "Ürün yazılımı ne açıldığını doğruluyor mu"
+
+msgid "Whether anything is filtering connections"
+msgstr "Bağlantıları süzen bir şey var mı"
+
+msgid "Which application reads the clipboard"
+msgstr "Panoyu hangi uygulama okuyor"
+
+msgid "On — %d of %d kernel protections active"
+msgstr "Açık — %d / %d çekirdek koruması etkin"
+
+msgid "Partly on — %d of %d"
+msgstr "Kısmen açık — %d / %d"
+
+msgid "This kernel does not offer the settings"
+msgstr "Bu çekirdek bu ayarları sunmuyor"
+
+msgid "Not applicable — this machine booted in BIOS mode"
+msgstr "Geçerli değil — bu makine BIOS kipinde açıldı"
+
+msgid "On"
+msgstr "Açık"
+
+msgid "Off — the screen does not lock by itself"
+msgstr "Kapalı — ekran kendiliğinden kilitlenmez"
+
+msgid "No firewall installed — nothing accepts connections by default either"
+msgstr "Kurulu güvenlik duvarı yok — varsayılan olarak bağlantı kabul eden bir şey de yok"
+
+msgid "Rules are loaded"
+msgstr "Kurallar yüklü"
+
+msgid "Installed, no rules loaded"
+msgstr "Kurulu, yüklü kural yok"
+
+msgid "Not installed"
+msgstr "Kurulu değil"
+
+msgid "Kavis does not ship a scanner — its signature database is larger than most of the system. Install ClamAV to scan on demand."
+msgstr "Kavis bir tarayıcı getirmiyor — imza veritabanı sistemin çoğundan büyük. İstediğinizde taramak için ClamAV kurun."
+
+msgid "Scan downloads"
+msgstr "İndirilenleri tara"
+
+msgid "Scanning…"
+msgstr "Taranıyor…"
+
+msgid "Nothing found"
+msgstr "Bir şey bulunamadı"
+
+msgid "Scans the downloads folder with ClamAV"
+msgstr "İndirilenler klasörünü ClamAV ile tarar"
+
+msgid "an application that did not identify itself"
+msgstr "kendini tanıtmayan bir uygulama"
+
+msgid "After %d minute of inactivity"
+msgid_plural "After %d minutes of inactivity"
+msgstr[0] "%d dakika hareketsizlikten sonra"
+msgstr[1] "%d dakika hareketsizlikten sonra"
