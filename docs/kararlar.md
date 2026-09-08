@@ -327,3 +327,191 @@ silinir, veri dizini olduğu gibi kalır.
 - Windows'taki gibi "Belgeler altında" DEĞİL: ev dizini kökü, çünkü
   `/users/karan/Belgeler` kullanıcının kendi belgeleri; uygulama verisi
   onunla karışmamalı.
+
+
+## 11. Kavis Paylaş — dosya ve pano (8 Eylül 2026)
+
+**Temel ilke: sunucusuz, hesapsız, bulutsuz.** Kavis hiçbir kullanıcı
+verisini kendi sunucusunda saklamaz. Dosya, mesaj ve pano içeriği yalnız
+iki cihaz arasında gider; geçmiş yalnız iki cihazın kendi diskinde
+durur. İnternet üzerinden bağlantıda kullanılan tek dış hizmet
+**buluşma (signaling)** sunucusudur ve o da sadece adres değişimini
+görür, içeriği göremez.
+
+**Kapalı ekosistem yok.** Dosya aktarımı **LocalSend protokolüyle
+uyumlu** olacak; Android/iOS/Windows/macOS'taki LocalSend uygulamaları
+Kavis'i görebilecek. Kendi protokolümüzü icat etmenin bedeli, karşı
+tarafta Kavis olmayan herkesi dışarıda bırakmaktır.
+
+### Keşif ve bağlantı (yakın)
+
+- mDNS/DNS-SD yayını: cihaz adı, tür, açık anahtar parmak izi.
+  **Gerçek hostname ve kullanıcı adı yayılmaz** — varsayılan ad
+  `Kavis-<iki rastgele kelime>`, kullanıcı değiştirebilir.
+- İlk eşleşmede 6 haneli PIN. Eşleşen cihaz "güvenilir" listesine girer,
+  sonraki aktarımlar PIN'siz (kullanıcı "her seferinde sor" diyebilir).
+- Aktarım doğrudan TCP + TLS, kendi imzalı sertifika + **parmak izi
+  sabitleme**. Aracı sunucu yok.
+
+### Taşıyıcı
+
+- Birincil: Wi-Fi / yerel ağ.
+- Aynı ağda değilken **"Doğrudan bağlan"**: biri geçici hotspot açar ya
+  da Wi-Fi Direct (wpa_supplicant P2P). Kullanıcıya tek düğme.
+- Bluetooth: keşif, eşleşme el sıkışması, pano ve kısa mesaj için.
+  Dosyada yalnız Wi-Fi yoksa ve kullanıcı hız uyarısını onaylarsa
+  (OBEX — telefonlar da görsün).
+
+### Görünürlük (Ayarlar > Paylaş)
+
+| Kip | Ne olur |
+|---|---|
+| Kapalı | Hiç yayın yok, cihaz dışarıdan görünmez; kendi göndermek serbest. |
+| Sadece güvenilenler (**varsayılan**) | Yayın var, yalnız eşleşmiş cihazlar bağlanır. Ek seçenek **"yayını da gizle"**: mDNS kaydı yayılmaz, güvenilen cihazlar son bilinen adres + parmak iziyle bulur. |
+| Herkes | Yakındaki tüm LocalSend uyumlu cihazlar görür; her aktarım yine onay ister. |
+
+Panelde tek tık **"30 dakika görünür ol"**.
+
+### Dosya
+
+- Nemo sağ tık > **Paylaş** → yakındaki cihazlar → gönder. Çoklu dosya
+  ve klasör, **akış hâlinde** (zip yok).
+- Panelde Paylaş ikonu: alıcı modu anahtarı, aktarım ilerlemesi.
+- Gelen dosya: bildirim + kabul/ret → `~/downloads/kavis-share`;
+  bildirimde "Klasörü aç".
+- Kesilirse **kaldığı yerden devam**; hız ve kalan süre gösterilir.
+- Masaüstündeki cihaz ikonuna sürükle-bırak ile gönderme.
+- Gelen dosya çalıştırılabilirse (`.sh`/`.AppImage`/`.deb`/ELF)
+  **Güvenlik Merkezi'nin indirme kontrolü** devreye girer.
+
+### Pano
+
+- Ayarlar > Paylaş > "Pano paylaşımı": **kapalı (varsayılan)** /
+  güvenilen cihazlarla.
+- Kavis'te kopyalanan metin ve resim diğer Kavis'te Ctrl+V ile yapışır.
+  Boyut sınırı ayarlanabilir (varsayılan 1 MB).
+- Tek seferlik "panoyu şu cihaza gönder" seçeneği.
+- **Gizlilik:** pano sahibi bilinen bir parola yöneticisiyse içerik hiç
+  gönderilmez; kullanıcıya bir kez açıklanır.
+
+### Onay kuralı (v0.5-test1 VM turu eki)
+
+- **Uzak bağlantıda kod girmek yeterli değildir.** Kod doğru olsa bile
+  karşı tarafa "X sana bağlanmak istiyor" isteği gider; kabul edilmeden
+  bağlantı kurulmaz.
+- **Aynı yerel ağda bu istek gerekmez** — fiziksel yakınlık zaten bir
+  doğrulamadır; yalnız ilk eşleşmede PIN sorulur.
+- **"Rahatsız etme" açıkken hiç kimse mesaj ve dosya gönderemez** — ne
+  uzaktan ne aynı ağdan. Gönderen tarafta "alıcı rahatsız edilmek
+  istemiyor" bilgisi çıkar. Bildirim birikmez, kuyruğa da alınmaz.
+
+## 12. Kavis Messenger — ayrı uygulama (8 Eylül 2026)
+
+`kavis-messenger`, Vala/GTK3, Kavis tasarım diliyle. İçinde gömülü küçük
+HTTPS + WebSocket sunucusu taşır — **Node ya da ayrı bir sunucu yazılımı
+gerekmez**, libsoup yeterli.
+
+- Sol sütun cihaz listesi: "Yakındakiler" ve "Uzak cihazlar" başlıkları;
+  her satırda ad, çevrimiçi noktası, son mesaj. Sağda sohbet.
+- Sohbet: düz metin + bağlantı + dosya. Dosya sohbetin içinden gönderilir
+  (yakınsa doğrudan, uzaksa WebRTC veri kanalı).
+- **Grup sohbeti YOK** (1.0 sonrası değerlendirilir).
+
+### Yakın mod
+
+Kavis Paylaş'ın keşif ve güvenilir cihaz altyapısını kullanır. Aynı
+ağdaki eşleşmiş cihazla ek onay istemez.
+
+### Uzak mod (WebRTC + oda kodu)
+
+Referans mimari Enes'in TurboWarp çoklu oyuncu eklentisinden alınan
+YAPIDIR; **kodun tek satırı kopyalanmaz** (değişmez kural).
+
+1. **Yedekli buluşma sunucusu listesi**, sırayla denenir: Kavis'in
+   ücretsiz katman sunucusu → genel PeerJS bulutu → kullanıcının
+   Ayarlar'a girdiği adres. Herkes aynı sırayı denediği için taraflar
+   yine aynı sunucuda buluşur.
+2. **ICE:** birden çok STUN + isteğe bağlı TURN. **Kavis TURN
+   barındırmaz**; katı NAT'ta kullanıcı kendi TURN bilgisini girer.
+3. **Oda modeli:** bir taraf oda kurar ve bir **oda kodu** üretir; diğer
+   taraf kodu (varsa şifreyi) girerek katılır. Oda sahibi yöneticidir.
+4. **Uygulama imzası:** her bağlantıda sabit `kavis-messenger-v1` dizesi
+   aranır; tutmayan bağlantı reddedilir, aynı buluşma sunucusundaki
+   alakasız istemciler karışmaz.
+5. **Katılma isteği:** kod doğru olsa bile bağlantı otomatik kurulmaz —
+   oda sahibine "X katılmak istiyor" düşer. Kabul edilirse eşleşme
+   kalıcıdır, sonraki seferlerde kod istenmez.
+6. **Moderasyon:** engelleme/engel kaldırma listesi, engellenen kimliğin
+   tekrar katılamaması, katılan-ayrılan olayları, bağlı taraf listesi.
+7. **Durum:** bağlandı / koptu / son hata, gecikme (ping) — arayüzdeki
+   çevrimiçi noktası bunlardan beslenir.
+8. **Paket düzeni:** her ileti "ad + kimlik + veri"; alıcıda ada göre
+   ayrıştırılır (mesaj, dosya parçası, okundu, yazıyor ayrı adlar).
+   Belirli bir tarafa yönlendirilmiş paket de gönderilebilir.
+9. **WebRTC kütüphanesi ISO'ya gömülü gelir; CDN'den indirme YOK** — dış
+   servis kapanırsa özellik ölmesin.
+
+### Geçmiş ve bildirim
+
+- Sohbet geçmişi yalnız yerelde:
+  `~/.local/share/kavis/messenger/<cihaz-id>.jsonl`. Sunucuda kopya yok.
+- Çevrimdışı cihaza gönderilen mesaj **yerel kuyrukta** bekler.
+- Sohbet başına "geçmişi temizle", genel "tümünü sil".
+- Gelen mesaj panelde bildirim; **bildirimden satır içi cevap**.
+- Uygulama kapalıyken de dinleyici çalışır — `kavis-share` daemon'ının
+  parçası, **ayrı süreç değil** (USS < 8 MB hedefi).
+
+### Tarayıcı köprüsü (Windows / telefondan cevap)
+
+- Kavis'ten gönderilen mesaj LocalSend uyumlu cihazlarda metin bildirimi
+  olarak görünür ve içinde bağlantı taşır:
+  `https://<ip>:<port>/m/#<64 karakter anahtar>`
+- **`#` sonrası tarayıcıda kalır:** sunucuya gitmez, ağda görünmez. Bu
+  anahtar hem erişim hakkı hem şifreleme anahtarıdır; bilmeyen ne okur
+  ne yazar.
+- Tıklayınca **tek dosyalık (~20 KB, framework yok)** sohbet sayfası
+  açılır: son 50 mesaj, cevap yazma, dosya gönderme. Sayfayı Kavis'in
+  gömülü sunucusu servis eder.
+- Kendi imzalı sertifika olduğu için tarayıcı bir kez uyarı verir;
+  kullanıcıya bunun beklenen olduğu açıklanır.
+- Kavis ekranında ve tarayıcı sayfasında **parmak izinin ilk 4 hanesi**
+  gösterilir; aynıysa doğru kişiyle konuşuluyordur.
+- Anahtar süreli: varsayılan 1 saat sessizlikten sonra ölür, Kavis
+  kapanınca geçersiz.
+- **AÇIK SORU (Enes karar verecek):** tarayıcıda "beni hatırla" olsun mu
+  (anahtarı saklayıp aynı linkle sonra da giriş), yoksa link tek
+  seferlik mi kalsın. **Karar verilene kadar tek seferlik varsayılır.**
+
+### Güvenlik (her iki mod)
+
+- Uçtan uca şifreleme: ilk eşleşmede X25519 anahtar değişimi, sonrası
+  kimliği doğrulanmış şifreli kanal (Noise ya da TLS + parmak izi
+  sabitleme).
+- Her mesaj gönderenin anahtarıyla imzalı; **parmak izi değişirse
+  bağlantı reddedilir** ve kullanıcı uyarılır.
+- Engelleme listesi: engellenen cihaz ne mesaj ne dosya gönderebilir.
+- Aktarım ve bağlantı günlüğü Görev Yöneticisi > Günlükler'de.
+- Güvenlik Merkezi'nde durum satırı: paylaşım açık mı, kaç güvenilen
+  cihaz, uzak mod açık mı.
+- Kilit ekranındayken gelen aktarım kabul edilmez; bildirim birikir
+  (rahatsız etme kapalıysa).
+
+### Yapılmayacaklar (karar)
+
+- **Kavis hesabı, bulut depolama, sunucuda mesaj saklama, TURN sunucusu
+  barındırma: YOK.** Sebep: maliyet, gizlilik sorumluluğu, KVKK ve tek
+  kişilik projenin bakım yükü.
+- Uzaktan senkron isteyen kullanıcı mağazadan Syncthing/Nextcloud kurar.
+- Telefon entegrasyonu (bildirim aktarımı, SMS, uzaktan kumanda) için
+  kendi çözümümüzü yazmıyoruz: 1.0 sonrası **KDE Connect** paketlenip
+  Kavis temasına uydurulacak — ayrı madde.
+
+### Selftest kapsamı
+
+- Aynı makinede iki örnek: keşif, PIN eşleşme, 10 MB dosya aktarımı,
+  pano gönderimi, mesaj gidiş-geliş, kesinti sonrası devam.
+- Uzak mod: sahte buluşma sunucusuyla oda kodu, katılma isteği
+  kabul/ret, engellenen cihazın reddedilmesi.
+- Rahatsız etme açıkken gönderimin reddedildiğinin doğrulanması.
+- Tarayıcı köprüsü: anahtarsız erişim ve süresi dolmuş anahtar
+  reddediliyor mu.

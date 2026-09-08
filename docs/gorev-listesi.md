@@ -587,6 +587,55 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     `Name=` alanı, kaldırınca bağ silinir ve veri kalır. Nemo kenar
     çubuğunda yer imi. Tam tasarım ve gerekçeler: docs/kararlar.md 10.
 
+76. **KAVIS PAYLAŞ — DOSYA (2026-09-08 eki, 0.7 / Grup G sonrası).**
+    Sunucusuz, hesapsız cihazdan cihaza dosya aktarımı. mDNS/DNS-SD
+    keşfi (gerçek hostname yayılmaz, ad `Kavis-<iki kelime>`), ilk
+    eşleşmede 6 haneli PIN, doğrudan TCP+TLS + parmak izi sabitleme.
+    **LocalSend protokolüyle uyumlu** — telefondaki LocalSend Kavis'i
+    görür. Nemo sağ tık > Paylaş, panel ikonu + alıcı modu, gelen dosya
+    onayı → `~/downloads/kavis-share`, kesintiden devam, masaüstü
+    cihaz ikonuna sürükle-bırak. Görünürlük üç kip (kapalı / sadece
+    güvenilenler / herkes) + "30 dakika görünür ol". Çalıştırılabilir
+    gelen dosya Güvenlik Merkezi'nin indirme kontrolüne girer.
+    Tam karar: docs/kararlar.md 11.
+
+77. **KAVIS PAYLAŞ — PANO (2026-09-08 eki, 0.7).** Ayarlar > Paylaş >
+    "Pano paylaşımı": kapalı (varsayılan) / güvenilen cihazlarla.
+    Kopyalanan metin ve resim diğer Kavis'te Ctrl+V ile yapışır, boyut
+    sınırı ayarlanabilir (varsayılan 1 MB), tek seferlik "panoyu şu
+    cihaza gönder". Pano sahibi bilinen bir parola yöneticisiyse
+    içerik hiç gönderilmez. docs/kararlar.md 11.
+
+78. **KAVIS MESSENGER — YAKIN MOD (2026-09-08 eki, 0.7).** Ayrı
+    uygulama `kavis-messenger` (Vala/GTK3, gömülü libsoup HTTPS +
+    WebSocket sunucusu — Node yok). Sol sütun cihaz listesi, sağda
+    sohbet; metin + bağlantı + dosya. Madde 76'nın keşif ve güvenilir
+    cihaz altyapısını kullanır, aynı ağdaki eşleşmiş cihazla ek onay
+    istemez. Geçmiş yalnız yerelde
+    (`~/.local/share/kavis/messenger/<cihaz-id>.jsonl`), çevrimdışı
+    mesaj yerel kuyrukta. Grup sohbeti YOK. Dinleyici `kavis-share`
+    daemon'ının parçası, ayrı süreç değil (USS < 8 MB).
+    docs/kararlar.md 12.
+
+79. **KAVIS MESSENGER — UZAK MOD (2026-09-08 eki, 0.7).** WebRTC + oda
+    kodu. Yedekli buluşma sunucusu listesi sırayla denenir, çoklu STUN
+    + isteğe bağlı kullanıcı TURN'ü (Kavis TURN barındırmaz), sabit
+    uygulama imzası `kavis-messenger-v1`, oda sahibine düşen katılma
+    isteği (kod doğru olsa bile otomatik bağlanmaz), engelleme listesi,
+    bağlantı durumu + ping. WebRTC kütüphanesi ISO'ya gömülü — CDN'den
+    indirme yok. Uçtan uca X25519 + imzalı mesaj; parmak izi değişirse
+    bağlantı reddedilir. docs/kararlar.md 12.
+
+80. **KAVIS MESSENGER — TARAYICI KÖPRÜSÜ (2026-09-08 eki, 0.7).**
+    Windows ya da telefondan cevap: `https://<ip>:<port>/m/#<64 karakter
+    anahtar>`. `#` sonrası tarayıcıda kalır, sunucuya gitmez; anahtar
+    hem erişim hakkı hem şifreleme anahtarı. Tek dosyalık ~20 KB sohbet
+    sayfası (framework yok), son 50 mesaj + cevap + dosya. Parmak
+    izinin ilk 4 hanesi iki tarafta da gösterilir. Anahtar 1 saat
+    sessizlikten sonra ölür, Kavis kapanınca geçersiz. **Açık soru:**
+    tarayıcıda "beni hatırla" olacak mı — karar verilene kadar link tek
+    seferlik. docs/kararlar.md 12.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,
