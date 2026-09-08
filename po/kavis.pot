@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 08:54+0000\n"
+"POT-Creation-Date: 2026-09-08 08:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -144,6 +144,7 @@ msgid "Version"
 msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:654
+#: packages/kavis-taskmanager/src/reliability.vala:179
 msgid "Kernel"
 msgstr ""
 
@@ -259,8 +260,8 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:54
 #: packages/kavis-settings/src/ui/page_system.vala:30
 #: packages/kavis-taskmanager/src/perf.vala:128
-#: packages/kavis-taskmanager/src/tasks.vala:227
-#: packages/kavis-taskmanager/src/tasks.vala:753
+#: packages/kavis-taskmanager/src/tasks.vala:229
+#: packages/kavis-taskmanager/src/tasks.vala:755
 #, c-format
 msgid "Memory"
 msgstr ""
@@ -268,7 +269,7 @@ msgstr ""
 #: packages/kavis-common/sysinfo.vala:740
 #: packages/kavis-settings/src/ui/page_system.vala:32
 #: packages/kavis-taskmanager/src/perf.vala:130
-#: packages/kavis-taskmanager/src/tasks.vala:228
+#: packages/kavis-taskmanager/src/tasks.vala:230
 msgid "Disk"
 msgstr ""
 
@@ -310,7 +311,7 @@ msgstr ""
 #: packages/kavis-panel/src/kavis_lock.vala:534
 #: packages/kavis-panel/src/ui/picker.vala:236
 #: packages/kavis-settings/src/ui/page_system.vala:133
-#: packages/kavis-taskmanager/src/tasks.vala:551
+#: packages/kavis-taskmanager/src/tasks.vala:553
 #: packages/kavis-tools/src/capture.vala:536
 #: packages/kavis-tools/src/repair.vala:89
 msgid "Close"
@@ -666,7 +667,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:180
 #: packages/kavis-taskmanager/src/logs.vala:40
-#: packages/kavis-taskmanager/src/tasks.vala:167
+#: packages/kavis-taskmanager/src/tasks.vala:169
 msgid "Search"
 msgstr ""
 
@@ -705,7 +706,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_network.vala:438
 #: packages/kavis-settings/src/ui/page_network.vala:532
 #: packages/kavis-taskmanager/src/logs.vala:134
-#: packages/kavis-taskmanager/src/tasks.vala:510
+#: packages/kavis-taskmanager/src/tasks.vala:512
 #: packages/kavis-tools/src/altf4.vala:118 packages/kavis-tools/src/run.vala:97
 msgid "Cancel"
 msgstr ""
@@ -2835,6 +2836,7 @@ msgid "Info and above"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/logs.vala:45
+#: packages/kavis-taskmanager/src/reliability.vala:68
 msgid "Refresh"
 msgstr ""
 
@@ -2859,9 +2861,9 @@ msgid "Save log"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:127
-#: packages/kavis-taskmanager/src/tasks.vala:226
-#: packages/kavis-taskmanager/src/tasks.vala:580
-#: packages/kavis-taskmanager/src/tasks.vala:751
+#: packages/kavis-taskmanager/src/tasks.vala:228
+#: packages/kavis-taskmanager/src/tasks.vala:582
+#: packages/kavis-taskmanager/src/tasks.vala:753
 #, c-format
 msgid "CPU"
 msgstr ""
@@ -2931,6 +2933,35 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
+#: packages/kavis-taskmanager/src/reliability.vala:141
+msgid "Crash"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/reliability.vala:179
+msgid "Service"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/reliability.vala:217
+#, c-format
+msgid "%s — nothing went wrong"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/reliability.vala:218
+#, c-format
+msgid "%s — %d crashes, %d service failures, %d kernel errors"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/reliability.vala:231
+#, c-format
+msgid "%d of the last %d days had nothing go wrong."
+msgid_plural "%d of the last %d days had nothing go wrong."
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/kavis-taskmanager/src/reliability.vala:243
+msgid "Nothing has crashed or failed in the last two weeks."
+msgstr ""
+
 #: packages/kavis-taskmanager/src/startup.vala:152
 msgid ""
 "Apps you can start with your session. Everything is off until you turn it on."
@@ -2941,7 +2972,7 @@ msgid "Add"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/startup.vala:298
-#: packages/kavis-taskmanager/src/tasks.vala:573
+#: packages/kavis-taskmanager/src/tasks.vala:575
 msgid "User"
 msgstr ""
 
@@ -2961,111 +2992,115 @@ msgstr ""
 msgid "Startup"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:156
+#: packages/kavis-taskmanager/src/tasks.vala:157
+msgid "Reliability"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/tasks.vala:158
 msgid "Logs"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:173
+#: packages/kavis-taskmanager/src/tasks.vala:175
 msgid "Right-click a process for actions"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:180
+#: packages/kavis-taskmanager/src/tasks.vala:182
 msgid "Advanced columns"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:182
+#: packages/kavis-taskmanager/src/tasks.vala:184
 msgid "Show the RSS and PID columns"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:225
-#: packages/kavis-taskmanager/src/tasks.vala:571
+#: packages/kavis-taskmanager/src/tasks.vala:227
+#: packages/kavis-taskmanager/src/tasks.vala:573
 msgid "Name"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:229
-#: packages/kavis-taskmanager/src/tasks.vala:581
+#: packages/kavis-taskmanager/src/tasks.vala:231
+#: packages/kavis-taskmanager/src/tasks.vala:583
 msgid "Memory (RSS)"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:231
-#: packages/kavis-taskmanager/src/tasks.vala:572
+#: packages/kavis-taskmanager/src/tasks.vala:233
+#: packages/kavis-taskmanager/src/tasks.vala:574
 msgid "PID"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:243
+#: packages/kavis-taskmanager/src/tasks.vala:245
 #, c-format
 msgid ""
 "Share of the whole processor — all %d logical cores together, so the column "
 "adds up to the total."
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:394
+#: packages/kavis-taskmanager/src/tasks.vala:396
 msgid ""
 "Private memory (USS): what is really freed when this process ends. Shared "
 "libraries are not counted twice."
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:395
+#: packages/kavis-taskmanager/src/tasks.vala:397
 msgid ""
 "Private memory cannot be read for another user's process — this is RSS, "
 "which counts shared libraries too."
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:426
+#: packages/kavis-taskmanager/src/tasks.vala:428
 msgid "End task"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:429
+#: packages/kavis-taskmanager/src/tasks.vala:431
 msgid "Kill"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:435
+#: packages/kavis-taskmanager/src/tasks.vala:437
 msgid "Open file location"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:449
-#: packages/kavis-taskmanager/src/tasks.vala:549
+#: packages/kavis-taskmanager/src/tasks.vala:451
+#: packages/kavis-taskmanager/src/tasks.vala:551
 msgid "Properties"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:482
+#: packages/kavis-taskmanager/src/tasks.vala:484
 msgid "Ending this system process may cause problems. Continue?"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:498
+#: packages/kavis-taskmanager/src/tasks.vala:500
 #, c-format
 msgid "Kill %s (PID %d)?"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:499
+#: packages/kavis-taskmanager/src/tasks.vala:501
 msgid "The process is stopped at once. Unsaved work is lost."
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:511
+#: packages/kavis-taskmanager/src/tasks.vala:513
 msgid "Continue"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:574
+#: packages/kavis-taskmanager/src/tasks.vala:576
 msgid "Command line"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:576
+#: packages/kavis-taskmanager/src/tasks.vala:578
 msgid "Working directory"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:578
+#: packages/kavis-taskmanager/src/tasks.vala:580
 msgid "Executable"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:583
+#: packages/kavis-taskmanager/src/tasks.vala:585
 msgid "Memory (USS)"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:584
+#: packages/kavis-taskmanager/src/tasks.vala:586
 msgid "Start time"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/tasks.vala:747
+#: packages/kavis-taskmanager/src/tasks.vala:749
 #, c-format
 msgid "CPU %.0f%%   ·   Memory %s / %s (%.0f%%)   ·   %d processes"
 msgstr ""

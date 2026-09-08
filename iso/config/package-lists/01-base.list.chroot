@@ -31,6 +31,13 @@ user-setup
 # --- init and session infrastructure ---
 systemd-sysv
 systemd-timesyncd
+# systemd-coredump: where coredumpctl comes from. boot-check has always
+# checked for crash records, and Task Manager > Reliability is built on
+# them — a fortnight of "nothing crashed" is only worth reading if
+# something WOULD have been recorded had it crashed. Without this the
+# kernel writes cores wherever core_pattern points and nothing keeps an
+# index of them.
+systemd-coredump
 libpam-systemd
 dbus
 dbus-user-session

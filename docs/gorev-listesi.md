@@ -716,6 +716,20 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     indirilenler klasörü taranabiliyor, değilse satır ne gerektiğini
     söylüyor.
 
+87. **GÜVENİLİRLİK İZLEYİCİ — Görev Yöneticisi sekmesi (2026-09-08
+    eki).** Windows'un Reliability Monitor'ünün cevapladığı soru
+    Günlükler sekmesinin cevaplayamadığı sorudur: "bu makine kötüye mi
+    gidiyor?" Günlük bir satır listesidir ve ne aradığınızı zaten
+    bilmeniz gerekir; bu, her birine bir işaret konmuş iki haftadır ve
+    işaretler gerçekten birine bir şeye mal olmuş olaylardır: çöken
+    uygulama (coredump), başarısız systemd birimi, çekirdek hatası
+    (oops/segfault/OOM). **Uyarılar bilerek sayılmıyor** — uyarı
+    yüzünden oynayan bir kararlılık puanı insanlara onu görmezden
+    gelmeyi öğretir; kimsenin güvenmediği sayı, sayı olmamasından
+    kötüdür. Her şey istendiğinde okunur, arka planda hiçbir şey
+    toplanmaz: gün boyu bellek harcayıp "makinen iyi" diyen bir
+    güvenilirlik görünümü kendi işinde başarısız olmuştur.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,

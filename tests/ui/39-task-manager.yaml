@@ -16,6 +16,21 @@ steps:
   - do: key ctrl+f
     expect: ok
     note: search box (if any) — no expectation, only the anomaly scan
+  - do: shell command -v coredumpctl
+    expect: ok
+    note: >
+      the Reliability tab reads coredumpctl and journalctl; without
+      them the page would be permanently empty and would look like a
+      machine with a clean record rather than one with no source of
+      truth
+  - do: wait 2500
+    expect: window kavis-taskmanager visible
+    timeout: 8000
+    note: >
+      the Reliability tab builds its fortnight on construction — one
+      journalctl call, not fourteen. A page that took a second per day
+      would be a Task Manager that hangs when it opens
+    shot: true
   - do: close window kavis-taskmanager
     expect: window kavis-taskmanager absent
     timeout: 8000

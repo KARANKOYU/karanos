@@ -1848,6 +1848,24 @@ msgstr "⟪Receive··⟫"
 msgid "Send"
 msgstr "⟪Send··⟫"
 
+msgid "Crash"
+msgstr "⟪Crash··⟫"
+
+msgid "Service"
+msgstr "⟪Service··⟫"
+
+msgid "%s — nothing went wrong"
+msgstr "⟪%s — nothing went wrong·········⟫"
+
+msgid "%s — %d crashes, %d service failures, %d kernel errors"
+msgstr "⟪%s — %d crashes, %d service failures, %d kernel errors·····················⟫"
+
+msgid "%d of the last %d days had nothing go wrong."
+msgstr "⟪%d of the last %d days had nothing go wrong.·················⟫"
+
+msgid "Nothing has crashed or failed in the last two weeks."
+msgstr "⟪Nothing has crashed or failed in the last two weeks.····················⟫"
+
 msgid "Add"
 msgstr "⟪Add··⟫"
 
@@ -1865,6 +1883,9 @@ msgstr "⟪Processes···⟫"
 
 msgid "Startup"
 msgstr "⟪Startup··⟫"
+
+msgid "Reliability"
+msgstr "⟪Reliability····⟫"
 
 msgid "Logs"
 msgstr "⟪Logs··⟫"

@@ -2251,3 +2251,26 @@ msgid "After %d minute of inactivity"
 msgid_plural "After %d minutes of inactivity"
 msgstr[0] "%d dakika hareketsizlikten sonra"
 msgstr[1] "%d dakika hareketsizlikten sonra"
+
+msgid "Reliability"
+msgstr "Güvenilirlik"
+
+msgid "Crash"
+msgstr "Çökme"
+
+msgid "Service"
+msgstr "Servis"
+
+msgid "Nothing has crashed or failed in the last two weeks."
+msgstr "Son iki haftada hiçbir şey çökmedi ya da başarısız olmadı."
+
+msgid "%s — nothing went wrong"
+msgstr "%s — hiçbir şey ters gitmedi"
+
+msgid "%s — %d crashes, %d service failures, %d kernel errors"
+msgstr "%s — %d çökme, %d servis hatası, %d çekirdek hatası"
+
+msgid "%d of the last %d days had nothing go wrong."
+msgid_plural "%d of the last %d days had nothing go wrong."
+msgstr[0] "Son %2$d günün %1$d gününde hiçbir şey ters gitmedi."
+msgstr[1] "Son %2$d günün %1$d gününde hiçbir şey ters gitmedi."

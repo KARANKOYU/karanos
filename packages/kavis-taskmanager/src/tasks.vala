@@ -153,6 +153,8 @@ namespace Kavis.TaskManager {
             stack.add_titled (root, "processes", _("Processes"));
             stack.add_titled (new PerformancePage (), "performance", _("Performance"));
             stack.add_titled (new StartupPage (), "startup", _("Startup"));
+            stack.add_titled (new ReliabilityPage (), "reliability",
+                              _("Reliability"));
             stack.add_titled (new LogsPage (), "logs", _("Logs"));
             set_default_size (920, 600);
 
