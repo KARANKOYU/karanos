@@ -827,12 +827,39 @@ if [ "$mem_used_mb" -gt 380 ]; then
 	log "MEM-USED-WARN ${mem_used_mb}MB > 380MB target (live session, see MEM-PROC lines)"
 fi
 
-# 12) Selftest (item 72): if the desktop is ready the scenarios run in
-# the real session; run.log lines land in the serial log with the
-# SELFTEST prefix. AFTER the idle RAM measurement (it opens and closes
-# applications). 15 min limit (slow on TCG); exceeding the limit or an
-# error is SELFTEST-FAIL = red.
-if [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
+# 12) Selftest (item 72): the scenarios run in the real session and
+# their run.log lines land in the serial log with the SELFTEST prefix.
+# AFTER the idle RAM measurement (it opens and closes applications).
+# 15 min limit (slow on TCG); exceeding it or an error is SELFTEST-FAIL.
+#
+# ONLY WHEN ASKED. The v0.5-test1 VM round reported that the desktop
+# "does things by itself" on first boot and could not be used — and it
+# was right: this ran on EVERY live boot. The selftest presses
+# shortcuts, drags windows, opens and closes applications and types
+# text. That is exactly what somebody sitting in front of a new machine
+# sees as the computer taking over.
+#
+# The trigger is an SMBIOS OEM string, because it has to cross the VM
+# boundary: the ISO the smoke test boots is byte-for-byte the ISO the
+# user boots, so nothing inside the image can tell the two apart. QEMU
+# is told to set the machine serial (tools/qemu-smoke-test.sh);
+# VirtualBox and real hardware never carry it. KAVIS_SELFTEST=1 does the
+# same thing for a run started by hand inside the system.
+#
+# product_serial, not the type-11 OEM strings: those are only readable
+# through /sys/firmware/dmi/entries, which exists only when the
+# dmi-sysfs module happens to be loaded. product_serial comes from the
+# kernel's own DMI scan and is always there (root-only, which this is).
+selftest_asked=0
+if [ "${KAVIS_SELFTEST:-0}" = "1" ]; then
+	selftest_asked=1
+elif grep -aqs "kavis-selftest" /sys/class/dmi/id/product_serial; then
+	selftest_asked=1
+fi
+
+if [ "$selftest_asked" -eq 0 ]; then
+	log "SELFTEST-SKIP not asked for (no CI marker) — Settings > System runs it"
+elif [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
 	selftest_rc=0
 	runuser -u karan -- env DISPLAY=:0 HOME=/users/karan \
 		XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \

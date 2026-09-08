@@ -120,6 +120,18 @@ qemu_args=(
 	-audiodev none,id=snd0
 	-device intel-hda
 	-device hda-duplex,audiodev=snd0
+	# The one thing that tells this boot apart from the same ISO booted
+	# by a person. boot-check runs the selftest ONLY when it finds this
+	# string in the SMBIOS OEM entries, because the selftest presses
+	# keys and drags windows and doing that unasked is what made the
+	# v0.5-test1 desktop unusable on first boot. An SMBIOS string is the
+	# only channel that reaches the guest without changing the image:
+	# VirtualBox and real hardware never carry it. Type 1's serial, not
+	# type 11's OEM strings, because type 11 is only readable through
+	# /sys/firmware/dmi/entries, which needs the dmi-sysfs module
+	# loaded; /sys/class/dmi/id/product_serial comes from the kernel's
+	# own DMI scan and is always there.
+	-smbios type=1,serial=kavis-selftest
 )
 
 case "$MODE" in

@@ -20,3 +20,13 @@ steps:
   - do: shell test -d /users/karan/.local/share/kavis/selftest
     expect: ok
     note: this run's own report directory
+  - do: shell test -z "$(grep -rl kavis-selftest /etc/xdg/autostart /usr/lib/systemd/system /etc/systemd/system 2>/dev/null)"
+    expect: ok
+    note: >
+      B2: the scenarios ship, the TRIGGER does not. Nothing may start
+      the selftest on its own — no autostart entry, no unit, no timer.
+      The v0.5-test1 VM round found it running on every live boot,
+      pressing keys and dragging windows while somebody was trying to
+      use the machine for the first time. Asserted structurally rather
+      than by watching a boot, because a boot that happens not to
+      trigger it proves nothing about the next one.
