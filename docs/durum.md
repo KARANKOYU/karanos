@@ -9,6 +9,53 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 8 Eylül 2026 (v0.5-test8: BEŞ PROFİL DE YEŞİL)
+
+`v0.5-test8` koşusu **beş QEMU profilinin hepsinde `RESULT=OK`**, 49
+senaryo, `SELFTEST-OK`. VM turu için indirilecek ISO bu.
+
+| | test2 | test8 |
+|---|---|---|
+| `MEM-USED` | 568 MB | **463 MB** |
+| çekirdek (slab + sayfa tabloları) | 305 MB | **64 MB** |
+| koşu süresi | 900+ sn (kesildi) | 723 sn |
+
+## Üç turdur kırmızı olan kısayol hatası kapandı
+
+`74-shortcuts/8` (yeniden atanmış Win+Y ile Dosyalar açılıyor) **OK**.
+Sebep openbox'ın yapılandırma yolunu açılışta bir kez çözmesiydi;
+tasarım artık buna bağlı değil (kararlar.md 13): kullanıcı rc.xml'i
+oturumdan önce var, her girişte sistem dosyasından yeniden üretiliyor,
+override kalmayınca silinmiyor — sistem dosyasının aynısı oluyor.
+
+## Bu turda yakalanan ve kapanan hatalar
+
+1. **Takılı önizleme** — bir tıklama işaretçiyi düğmede park ediyor,
+   önizleme açılıyor ve hiç kapanmıyordu; beş ilgisiz senaryoda altı
+   adımı düşürdü. Kural artık "hareketle açılır", ve
+   `tools/check-previews.sh` bunu 40 saniyede tutuyor.
+2. **`theme.vala` gitignore'lu kopyada düzenlenmişti** — açık tema
+   düzeltmesi commit'e girmemişti. `check-config.sh` artık paylaşılan
+   her kaynağı aslıyla karşılaştırıyor.
+3. **Dört pencere openbox'ın başlığını takıyordu** (hesap makinesi,
+   Bununla aç, önizleme, sürücü onarımı). `check-titlebars.py`.
+4. **İmleç rengi listesi boştu** — temalar yalnız `/usr/share/icons`'ta
+   aranıyordu; artık XCursor'ın kendi sırası.
+5. **Açık tema paleti** — Kavis'in kendi vurgusu beyaz üstünde 1.7:1'di.
+   `check-contrast.py` 94 çifti WCAG 4.5:1'de tutuyor.
+6. **`pgrep -f` kendini yakalıyordu** — aplet gerçekten yokken adım
+   düşüyordu.
+
+## VM'de gözle bakılacaklar (hiçbir test kanıtlayamaz)
+
+- Önizleme kartları ve peek nasıl hissettiriyor
+- Animasyonlar, yazı tipleri, açık temanın gerçek ekrandaki hâli
+- Kilit ekranının **parolalı** yolu ve 3 redden sonra çıkan "Oturumu
+  kapat" düğmesi — canlı oturumda parola olmadığı için sınanamıyor
+- Boşta 463 MB, hedef 380 (canlı oturum squashfs önbellekli)
+
+---
+
 # OTURUM DURUMU — 8 Eylül 2026 akşamı (v0.5-test5: Windows araçları + güvenlik)
 
 ## v0.5-test4 koşusu ne gösterdi
