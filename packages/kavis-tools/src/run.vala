@@ -296,18 +296,35 @@ namespace Kavis.Tools {
             return spawn (argv);
         }
 
+        /* The endings a bare host is allowed to have. Written out
+         * rather than "two letters after a dot", because "notes.txt"
+         * passes that test and is a file, and a Run box that opens a
+         * browser on https://notes.txt when somebody wanted their notes
+         * is the kind of wrong that costs trust. A host with an ending
+         * not on the list can still be reached by typing the scheme. */
+        private const string[] HOST_ENDINGS = {
+            "com", "org", "net", "dev", "io", "app", "edu", "gov",
+            "info", "tr", "uk", "de", "fr", "eu", "me", "co", "tv",
+            "xyz", "ai", "wiki", "local", "lan"
+        };
+
         private static bool looks_like_url (string line) {
-            if (line.contains ("://")) {
+            if (line.contains ("://") || line.has_prefix ("www.")) {
                 return true;
             }
             if (line.contains (" ") || !line.contains (".")) {
                 return false;
             }
-            /* A file name with an extension is not a host: the dot has
-             * to be inside something that looks like a domain. */
-            string last = line.substring (line.last_index_of (".") + 1);
-            return last.length >= 2 && !last.contains ("/")
-                && last.get_char ().isalpha ();
+            string host = line.contains ("/")
+                ? line.substring (0, line.index_of ("/")) : line;
+            string last = host.substring (host.last_index_of (".") + 1)
+                .down ();
+            foreach (unowned string ending in HOST_ENDINGS) {
+                if (last == ending) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private string? spawn (string[] argv) {

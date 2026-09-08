@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 13:30+0000\n"
+"POT-Creation-Date: 2026-09-08 13:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -144,7 +144,7 @@ msgid "Version"
 msgstr ""
 
 #: packages/kavis-common/sysinfo.vala:654
-#: packages/kavis-taskmanager/src/reliability.vala:179
+#: packages/kavis-taskmanager/src/reliability.vala:195
 msgid "Kernel"
 msgstr ""
 
@@ -420,8 +420,8 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:298
 #: packages/kavis-settings/src/logic/catalog.vala:134
-#: packages/kavis-settings/src/ui/page_language.vala:242
-#: packages/kavis-settings/src/ui/page_language.vala:277
+#: packages/kavis-settings/src/ui/page_language.vala:251
+#: packages/kavis-settings/src/ui/page_language.vala:286
 msgid "Keyboard layout"
 msgstr ""
 
@@ -1046,8 +1046,8 @@ msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:77
 #: packages/kavis-settings/src/logic/catalog.vala:206
-#: packages/kavis-settings/src/ui/page_security.vala:223
-#: packages/kavis-settings/src/ui/page_security.vala:258
+#: packages/kavis-settings/src/ui/page_security.vala:242
+#: packages/kavis-settings/src/ui/page_security.vala:277
 msgid "Malware scan"
 msgstr ""
 
@@ -1217,8 +1217,8 @@ msgid "The sounds the desktop itself makes"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:132
-#: packages/kavis-settings/src/ui/page_language.vala:175
-#: packages/kavis-settings/src/ui/page_language.vala:200
+#: packages/kavis-settings/src/ui/page_language.vala:184
+#: packages/kavis-settings/src/ui/page_language.vala:209
 msgid "Add a language"
 msgstr ""
 
@@ -1468,7 +1468,7 @@ msgid "Which application reads the clipboard"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:207
-#: packages/kavis-settings/src/ui/page_security.vala:259
+#: packages/kavis-settings/src/ui/page_security.vala:278
 msgid "Scans the downloads folder with ClamAV"
 msgstr ""
 
@@ -2285,67 +2285,67 @@ msgstr ""
 msgid "Move up — the top language is the system language"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:145
+#: packages/kavis-settings/src/ui/page_language.vala:152
 msgid "Remove this language"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:165
+#: packages/kavis-settings/src/ui/page_language.vala:174
 #, c-format
 msgid "System language · %s translated · keyboard %s"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:167
+#: packages/kavis-settings/src/ui/page_language.vala:176
 #, c-format
 msgid "%s translated · keyboard %s"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:174
+#: packages/kavis-settings/src/ui/page_language.vala:183
 msgid "Search languages"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:201
+#: packages/kavis-settings/src/ui/page_language.vala:210
 msgid ""
 "Adding one does not change the system language — move it to the top for that"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:212
+#: packages/kavis-settings/src/ui/page_language.vala:221
 #, c-format
 msgid ""
 "This language is not translated yet; the interface will appear in English. "
 "Contribute at %s"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:215
+#: packages/kavis-settings/src/ui/page_language.vala:224
 #, c-format
 msgid "%d%% translated — untranslated parts appear in English"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:218
+#: packages/kavis-settings/src/ui/page_language.vala:227
 msgid "Applying…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:243
+#: packages/kavis-settings/src/ui/page_language.vala:252
 msgid ""
 "Add a second language to be able to switch between layouts — a language "
 "brings its keyboard with it"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:248
-#: packages/kavis-settings/src/ui/page_language.vala:286
+#: packages/kavis-settings/src/ui/page_language.vala:257
+#: packages/kavis-settings/src/ui/page_language.vala:295
 msgid "Search layouts"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:278
+#: packages/kavis-settings/src/ui/page_language.vala:287
 msgid ""
 "One global layout for every window; right-click the taskbar indicator to "
 "switch between the ones you have used"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:280
+#: packages/kavis-settings/src/ui/page_language.vala:289
 msgid "Another layout"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:281
+#: packages/kavis-settings/src/ui/page_language.vala:290
 msgid ""
 "Anything in the xkb catalogue, whether a language on the list uses it or not"
 msgstr ""
@@ -2689,62 +2689,70 @@ msgstr ""
 msgid "On"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:143
+#: packages/kavis-settings/src/ui/page_security.vala:148
 msgid "Off — the screen does not lock by itself"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:145
+#: packages/kavis-settings/src/ui/page_security.vala:150
 #, c-format
 msgid "After %d minute of inactivity"
 msgid_plural "After %d minutes of inactivity"
 msgstr[0] ""
 msgstr[1] ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:156
+#: packages/kavis-settings/src/ui/page_security.vala:161
 msgid "No firewall installed — nothing accepts connections by default either"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:160
-msgid "Rules are loaded"
+#: packages/kavis-settings/src/ui/page_security.vala:175
+msgid "Installed — could not ask it"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:162
-msgid "Installed, no rules loaded"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_security.vala:180
-#: packages/kavis-settings/src/ui/page_security.vala:208
-msgid "Nothing has read the clipboard yet."
+#: packages/kavis-settings/src/ui/page_security.vala:178
+msgid "Installed — reading the rules needs administrator rights"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_security.vala:181
+msgid "Rules are loaded"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:181
+msgid "Installed, no rules loaded"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:199
+#: packages/kavis-settings/src/ui/page_security.vala:227
+msgid "Nothing has read the clipboard yet."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_security.vala:200
 msgid "Not watching. Turn the switch above on to start recording."
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:203
+#: packages/kavis-settings/src/ui/page_security.vala:222
 #, c-format
 msgid "%s · %s"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:221
+#: packages/kavis-settings/src/ui/page_security.vala:240
 msgid "Not installed"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:224
+#: packages/kavis-settings/src/ui/page_security.vala:243
 msgid ""
 "Kavis does not ship a scanner — its signature database is larger than most "
 "of the system. Install ClamAV to scan on demand."
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:227
+#: packages/kavis-settings/src/ui/page_security.vala:246
 msgid "Scan downloads"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:232
+#: packages/kavis-settings/src/ui/page_security.vala:251
 msgid "Scanning…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_security.vala:248
+#: packages/kavis-settings/src/ui/page_security.vala:267
 msgid "Nothing found"
 msgstr ""
 
@@ -2843,17 +2851,17 @@ msgstr ""
 msgid "Nothing matches “%s”"
 msgstr ""
 
-#: packages/kavis-share/src/main.vala:65
+#: packages/kavis-share/src/main.vala:73
 #, c-format
 msgid "No device called “%s” is nearby"
 msgstr ""
 
-#: packages/kavis-share/src/main.vala:197
+#: packages/kavis-share/src/main.vala:206
 #, c-format
 msgid "usage: kavis-share --send <file>... --to <device>\n"
 msgstr ""
 
-#: packages/kavis-share/src/main.vala:218
+#: packages/kavis-share/src/main.vala:235
 #, c-format
 msgid "usage: kavis-share [--daemon|--list|--send <file>... --to <device>]\n"
 msgstr ""
@@ -2879,7 +2887,7 @@ msgstr ""
 msgid "Always allow this device"
 msgstr ""
 
-#: packages/kavis-share/src/receive.vala:252
+#: packages/kavis-share/src/receive.vala:310
 #, c-format
 msgid "%u file"
 msgid_plural "%u files"
@@ -3026,32 +3034,32 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/reliability.vala:141
+#: packages/kavis-taskmanager/src/reliability.vala:155
 msgid "Crash"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/reliability.vala:179
+#: packages/kavis-taskmanager/src/reliability.vala:195
 msgid "Service"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/reliability.vala:217
+#: packages/kavis-taskmanager/src/reliability.vala:233
 #, c-format
 msgid "%s — nothing went wrong"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/reliability.vala:218
+#: packages/kavis-taskmanager/src/reliability.vala:234
 #, c-format
 msgid "%s — %d crashes, %d service failures, %d kernel errors"
 msgstr ""
 
-#: packages/kavis-taskmanager/src/reliability.vala:231
+#: packages/kavis-taskmanager/src/reliability.vala:247
 #, c-format
 msgid "%d of the last %d days had nothing go wrong."
 msgid_plural "%d of the last %d days had nothing go wrong."
 msgstr[0] ""
 msgstr[1] ""
 
-#: packages/kavis-taskmanager/src/reliability.vala:243
+#: packages/kavis-taskmanager/src/reliability.vala:259
 msgid "Nothing has crashed or failed in the last two weeks."
 msgstr ""
 

@@ -9,6 +9,48 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 8 Eylül 2026 gecesi (v0.5-test10: VM turu 2 + kavis-share + debug)
+
+## VM turundan gelen ve kapanan
+
+- **Açılışta Ayarlar kendi kendine açılıyordu** — `boot-check` her canlı
+  açılışta Ayarlar'ı açıp belleğini ölçüyordu. Selftest'le aynı hata:
+  ölçüm ancak kimse bakmıyorken tanıdır. İkisi tek bayrağa bağlandı.
+- **Tek dilde klavye seçicisi** çıkmıyor; satır yalnız hangi klavyenin
+  kullanıldığını söylüyor.
+- **Düzen listesi şekil söylüyor:** "Türkçe Q — Turkish", "QWERTY —
+  English (US)"; ülke adı önde değil.
+- **İngilizce varyantları %100** — kaynak dil.
+- **İmleç rengi gerçek renk seçici** (`Gtk.ColorButton`); seçilen renkte
+  imleç teması `~/.local/share/icons/Kavis-Cursors-Custom` altına
+  çalışma anında üretiliyor (`/usr/lib/kavis/gen-cursors <dizin>
+  #RRGGBB`). `librsvg2-bin` + `x11-apps` ISO'ya girdi.
+
+## kavis-share (madde 76, ilk kesit) — çalışıyor
+
+LocalSend v2 protokolü: multicast duyuru + doğrudan `/register` cevabı,
+`prepare-upload`/`upload` çifti. `tools/check-share.sh` iki örneği
+birbirine karşı koşturuyor: keşif, güvenilmeyen cihazın reddi, güvenilen
+cihazın geçişi ve **40 MB'lık dosyanın aynı sha256 ile inmesi**.
+
+## Debug taramasında bulunan ve kapanan (kodu okuyarak)
+
+| Nerede | Hata | Düzeltme |
+|---|---|---|
+| kavis-share `send_files` | D-Bus çağrısı aktarım bitene kadar iç döngüde bekliyordu — **gönderirken daemon duyuru vermiyor, dosya almıyordu** | async metod + iş parçacığı |
+| kavis-share `on_upload` | gövde belleğe toplanıyordu — 2 GB video 2 GB RAM | erken handler + `set_accumulate(false)` + parça parça diske |
+| kavis-share `on_upload` | oturumlar hiç silinmiyordu | son dosyayla birlikte gidiyor |
+| kavis-share keşif | UDP arabelleği NUL'suz `string`e çevriliyordu | 8193 bayt + sonlandırıcı |
+| kavis-share `registration` | JSON metnini `replace` ile yamalıyordu | üreteç parametre alıyor |
+| Çalıştır penceresi | `notes.txt` adres sanılıp tarayıcıda açılıyordu | tanınan sonek listesi |
+| Güvenilirlik sekmesi | `coredumpctl` tablosunun son sütunu program değil **boyut** — her çökme "1.2M" görünürdü | `--json=short` |
+| Güvenlik sayfası | `nft list ruleset` kök ister; başarısızlık "kural yok" diye okunuyordu | "okumak yönetici hakkı ister" |
+| Güvenlik sayfası | ekran kilidi `lock-after` anahtarını okuyordu, gerçek anahtar `lock_after_ac` | doğru anahtar, doğru sırayla |
+| Dil sayfası | ikinci dili kaldırmak/sıralamak, en üst değişmese de `locale-gen` + panel restart tetikliyordu | yalnız üst değişince |
+| 76-share senaryosu | `^name=` başka bölümün anahtarıyla eşleşebilirdi | bölüm bilinçli awk |
+
+---
+
 # OTURUM DURUMU — 8 Eylül 2026 (v0.5-test8: BEŞ PROFİL DE YEŞİL)
 
 `v0.5-test8` koşusu **beş QEMU profilinin hepsinde `RESULT=OK`**, 49

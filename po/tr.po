@@ -2342,3 +2342,9 @@ msgid "%u file"
 msgid_plural "%u files"
 msgstr[0] "%u dosya"
 msgstr[1] "%u dosya"
+
+msgid "Installed — could not ask it"
+msgstr "Kurulu — sorgulanamadı"
+
+msgid "Installed — reading the rules needs administrator rights"
+msgstr "Kurulu — kuralları okumak yönetici hakkı ister"

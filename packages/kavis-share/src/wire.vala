@@ -15,6 +15,16 @@
 namespace Kavis.Share.Wire {
 
     public string announcement (Device me) {
+        return describe (me, true);
+    }
+
+    /* The same object without the announce flag — what goes in the body
+     * of a /register call and comes back as its answer. */
+    public string registration (Device me) {
+        return describe (me, false);
+    }
+
+    private string describe (Device me, bool announce) {
         var builder = new Json.Builder ();
         builder.begin_object ();
         builder.set_member_name ("alias");
@@ -38,19 +48,12 @@ namespace Kavis.Share.Wire {
          * false knows not to, which is what stops two machines
          * answering each other in a loop. */
         builder.set_member_name ("announce");
-        builder.add_boolean_value (true);
+        builder.add_boolean_value (announce);
         builder.end_object ();
 
         var generator = new Json.Generator ();
         generator.set_root (builder.get_root ());
         return generator.to_data (null);
-    }
-
-    /* The same object without the announce flag — what goes in the body
-     * of a /register call and comes back as its answer. */
-    public string registration (Device me) {
-        string text = announcement (me);
-        return text.replace ("\"announce\":true", "\"announce\":false");
     }
 
     public Device? parse_device (string json) {

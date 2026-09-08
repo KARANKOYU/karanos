@@ -23,7 +23,8 @@ namespace Kavis.Share {
     public interface ShareBus : Object {
         public abstract string list_devices () throws Error;
         public abstract string this_device () throws Error;
-        public abstract string send_files (string target, string[] paths)
+        public abstract async string send_files (string target,
+                                                 string[] paths)
             throws Error;
     }
 
@@ -58,7 +59,14 @@ namespace Kavis.Share {
         /* Returns "" on success, otherwise what went wrong — the caller
          * is a menu item, and a menu item that fails silently is worse
          * than one that says why. */
-        public string send_files (string target, string[] paths)
+        /* ASYNC, and it matters: the first version ran a nested main
+         * loop here until the transfer finished, which meant that for
+         * the whole of a large send the daemon answered no announcement
+         * and accepted no incoming file. A device that disappears from
+         * everybody's list because it is busy sending is a device that
+         * looks broken. The work runs in a thread; the reply is sent
+         * from the main loop when it is done. */
+        public async string send_files (string target, string[] paths)
             throws Error {
             Device? peer = find (target);
             if (peer == null) {
@@ -66,16 +74,17 @@ namespace Kavis.Share {
             }
             var sender = new Sender (me);
             string outcome = "";
-            var loop = new MainLoop ();
-            sender.finished.connect ((ok, detail) => {
-                outcome = ok ? "" : detail;
-                loop.quit ();
-            });
+            SourceFunc resume = send_files.callback;
+            string[] copy = paths;
             new Thread<void*> ("kavis-share-send", () => {
-                sender.send (peer, paths);
+                sender.finished.connect ((ok, detail) => {
+                    outcome = ok ? "" : detail;
+                });
+                sender.send (peer, copy);
+                Idle.add ((owned) resume);
                 return null;
             });
-            loop.run ();
+            yield;
             return outcome;
         }
 
@@ -201,14 +210,22 @@ int main (string[] args) {
         if (sending == null) {
             return 1;
         }
-        try {
-            string problem = sending.send_files (target, paths);
-            if (problem != "") {
-                stderr.printf ("kavis-share: %s\n", problem);
-                return 1;
+        /* The daemon's method is asynchronous so the daemon stays
+         * alive during a transfer; this end is a command line and has
+         * nothing else to do, so it simply waits for the answer. */
+        string problem = "";
+        var waiting = new MainLoop ();
+        sending.send_files.begin (target, paths, (obj, res) => {
+            try {
+                problem = sending.send_files.end (res);
+            } catch (Error e) {
+                problem = e.message;
             }
-        } catch (Error e) {
-            stderr.printf ("kavis-share: %s\n", e.message);
+            waiting.quit ();
+        });
+        waiting.run ();
+        if (problem != "") {
+            stderr.printf ("kavis-share: %s\n", problem);
             return 1;
         }
         return 0;

@@ -9,7 +9,8 @@ export DH_VERBOSE = 1
 
 DEST := debian/kavis-taskmanager
 
-VALA_PKGS := --pkg gtk+-3.0 --pkg posix --pkg gio-unix-2.0
+# json-glib: coredumpctl --json=short for the Reliability tab.
+VALA_PKGS := --pkg gtk+-3.0 --pkg posix --pkg gio-unix-2.0 --pkg json-glib-1.0
 VALA_CFLAGS := -X -O2 -X -w -X -lm -X -DGETTEXT_PACKAGE='"kavis"'
 
 SOURCES := $(wildcard src/*.vala)

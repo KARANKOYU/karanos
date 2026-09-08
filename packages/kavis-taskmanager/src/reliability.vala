@@ -118,29 +118,45 @@ namespace Kavis.TaskManager {
 
         private void collect_coredumps (HashTable<string, Day> by_key,
                                         GenericArray<Event> found) {
+            /* JSON, not the table: the table's last column is the core
+             * file's SIZE, not the program, and the first version of
+             * this read it as the program and listed every crash as
+             * "1.2M". Column layouts are for eyes. */
             string? listing = Kavis.SysInfo.capture (
-                { "coredumpctl", "--no-pager", "--no-legend", "list" });
-            if (listing == null) {
+                { "coredumpctl", "--no-pager", "--json=short", "list" });
+            if (listing == null || listing.strip () == "") {
                 return;
             }
-            foreach (unowned string line in listing.split ("\n")) {
-                string trimmed = line.strip ();
-                if (trimmed == "") {
+            var parser = new Json.Parser ();
+            try {
+                parser.load_from_data (listing);
+            } catch (Error e) {
+                return;
+            }
+            var root = parser.get_root ();
+            if (root == null || root.get_node_type () != Json.NodeType.ARRAY) {
+                return;
+            }
+            foreach (unowned Json.Node node in root.get_array ().get_elements ()) {
+                var entry = node.get_object ();
+                if (entry == null) {
                     continue;
                 }
-                /* "Mon 2026-09-08 11:41:27 +03  1234  1000 ... program" */
-                string[] parts = trimmed.split (" ");
-                if (parts.length < 2) {
-                    continue;
-                }
-                var day = by_key.lookup (parts[1]);
+                /* "time" is microseconds since the epoch. */
+                int64 when = entry.has_member ("time")
+                    ? entry.get_int_member ("time") / 1000000 : 0;
+                string key = new DateTime.from_unix_local (when)
+                    .format ("%Y-%m-%d");
+                var day = by_key.lookup (key);
                 if (day != null) {
                     day.crashes++;
                 }
                 var event = new Event ();
                 event.kind = _("Crash");
-                event.what = parts[parts.length - 1];
-                event.when = 0;
+                event.what = entry.has_member ("exe")
+                    ? Path.get_basename (entry.get_string_member ("exe"))
+                    : "?";
+                event.when = when;
                 found.add (event);
             }
         }

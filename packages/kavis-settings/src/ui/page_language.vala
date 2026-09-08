@@ -131,11 +131,18 @@ namespace Kavis.Settings.Pages {
             up.set_sensitive (i > 0);
             up.clicked.connect (() => {
                 string[] moved = added_languages ();
+                string top_before = moved[0];
                 string swap = moved[index - 1];
                 moved[index - 1] = moved[index];
                 moved[index] = swap;
                 save_languages (moved);
-                apply_system_language (moved[0], note);
+                /* Applying the system language runs locale-gen under
+                 * pkexec and restarts the panel. Only worth it when the
+                 * TOP changed — swapping the second and third entries
+                 * changes nothing the system reads. */
+                if (moved[0] != top_before) {
+                    apply_system_language (moved[0], note);
+                }
                 rebuild_languages (list, note, keyboard_block);
             });
             controls.pack_start (up, false, false, 0);
@@ -155,7 +162,9 @@ namespace Kavis.Settings.Pages {
                     }
                 }
                 save_languages (kept);
-                apply_system_language (kept[0], note);
+                if (kept[0] != before[0]) {
+                    apply_system_language (kept[0], note);
+                }
                 rebuild_languages (list, note, keyboard_block);
             });
             controls.pack_start (remove, false, false, 0);

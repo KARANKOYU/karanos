@@ -127,5 +127,24 @@ else
 	bad "the file did not arrive (or arrived wrong)"
 fi
 
+# A file that does not fit in a JSON body. Uploads are streamed to disk
+# chunk by chunk rather than collected in memory — the first version
+# needed as much RAM as the file was long — and the only proof of that
+# worth having is a big file arriving byte for byte.
+head -c 40000000 /dev/urandom > "$T/a/home/big.bin"
+WANT=$(sha256sum "$T/a/home/big.bin" | cut -d' ' -f1)
+if ask "$T/a" "$A_BUS" --send "$T/a/home/big.bin" --to peer-b \
+		>/dev/null 2>&1; then
+	sleep 1
+	GOT=$(sha256sum "$T/b/home/downloads/kavis-share/big.bin" 2>/dev/null | cut -d' ' -f1)
+	if [[ "$GOT" == "$WANT" ]]; then
+		ok "a 40 MB file arrived with the same sha256"
+	else
+		bad "the 40 MB file arrived different (or not at all)"
+	fi
+else
+	bad "the 40 MB transfer failed"
+fi
+
 [ "$fail" -eq 0 ] || { echo "SHARE-FAIL"; exit 1; }
 echo "SHARE-OK: two devices, one protocol, a file across and a stranger refused"

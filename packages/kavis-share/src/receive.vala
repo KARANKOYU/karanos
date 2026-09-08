@@ -32,6 +32,16 @@ namespace Kavis.Share {
         public int64 total = 0;
     }
 
+    /* One file on its way to disk. Held on the message while the body
+     * streams, so the chunks have somewhere to go. */
+    private class Landing : Object {
+        public Session session;
+        public string file_id;
+        public string target;
+        public FileOutputStream stream;
+        public bool failed = false;
+    }
+
     public class Receiver : Object {
 
         public signal void arrived (string path, string from);
@@ -53,7 +63,14 @@ namespace Kavis.Share {
             server = new Soup.Server ("server-header", "kavis-share", null);
             server.add_handler (API + "/register", on_register);
             server.add_handler (API + "/prepare-upload", on_prepare);
-            server.add_handler (API + "/upload", on_upload);
+            /* EARLY, before the body: the first version let libsoup
+             * collect the whole upload in memory and wrote it out at
+             * the end, so a two-gigabyte video needed two gigabytes of
+             * RAM on a machine with a 380 MB idle target. An early
+             * handler runs when the headers arrive, decides yes or no
+             * on the token, and if yes turns off accumulation and
+             * writes each chunk to the file as it comes. */
+            server.add_early_handler (API + "/upload", on_upload);
             server.add_handler (API + "/info", on_info);
             server.listen_all (me.device.port, 0);
             return true;
@@ -188,6 +205,11 @@ namespace Kavis.Share {
                 reply_json (message, 403, "{}");
                 return;
             }
+            /* One token, one file: a replay must not write again, so
+             * it is spent the moment the upload starts, not when it
+             * ends — a second request racing the first would otherwise
+             * find it still there. */
+            session.tokens.remove (file_id);
 
             string name = Path.get_basename (
                 session.names.lookup (file_id) ?? file_id);
@@ -197,19 +219,55 @@ namespace Kavis.Share {
             string dir = download_dir ();
             DirUtils.create_with_parents (dir, 0755);
             string target = unique_path (dir, name);
-            var body = message.get_request_body ();
+
+            var landing = new Landing ();
+            landing.session = session;
+            landing.file_id = file_id;
+            landing.target = target;
             try {
-                FileUtils.set_data (target, body.data);
+                landing.stream = File.new_for_path (target).replace (
+                    null, false, FileCreateFlags.PRIVATE);
             } catch (Error e) {
-                warning ("kavis-share: could not write %s: %s", target,
+                warning ("kavis-share: could not open %s: %s", target,
                          e.message);
                 reply_json (message, 500, "{}");
                 return;
             }
-            /* One token, one file: replaying it must not write again. */
-            session.tokens.remove (file_id);
-            arrived (target, session.sender.display ());
-            reply_json (message, 200, "{}");
+
+            var body = message.get_request_body ();
+            body.set_accumulate (false);
+            message.got_chunk.connect ((chunk) => {
+                if (landing.failed) {
+                    return;
+                }
+                try {
+                    landing.stream.write_all (chunk.get_data (), null);
+                } catch (Error e) {
+                    warning ("kavis-share: writing %s: %s", target,
+                             e.message);
+                    landing.failed = true;
+                }
+            });
+            message.got_body.connect (() => {
+                try {
+                    landing.stream.close ();
+                } catch (Error e) {
+                    landing.failed = true;
+                }
+                if (landing.failed) {
+                    FileUtils.remove (target);
+                    reply_json (message, 500, "{}");
+                    return;
+                }
+                arrived (target, session.sender.display ());
+                reply_json (message, 200, "{}");
+                /* The last file of a session takes the session with it;
+                 * without this every transfer ever made stays in the
+                 * table for the life of the daemon. */
+                if (session.tokens.size () == 0) {
+                    sessions.remove (session.id);
+                }
+            });
         }
 
         /* --- decisions -------------------------------------------- */

@@ -137,8 +137,13 @@ namespace Kavis.Settings.Pages {
         return _("Unknown");
     }
 
+    /* The same keys the idle watcher reads, in the same order: the
+     * per-source value first, the old single one for an installation
+     * that predates it. A row that read a key nobody writes would say
+     * "Off" on every machine forever. */
     private string lock_state () {
-        int minutes = conf_get_int ("power", "lock-after", 0);
+        int minutes = conf_get_int ("power", "lock_after_ac",
+                                    conf_get_int ("power", "lock_after", 0));
         if (minutes <= 0) {
             return _("Off — the screen does not lock by itself");
         }
@@ -155,11 +160,25 @@ namespace Kavis.Settings.Pages {
             && Environment.find_program_in_path ("ufw") == null) {
             return _("No firewall installed — nothing accepts connections by default either");
         }
-        string? rules = Run.capture ({ "nft", "list", "ruleset" });
-        if (rules != null && rules.strip () != "") {
-            return _("Rules are loaded");
+        /* Reading the ruleset needs root, and a settings page must not
+         * throw a password prompt at somebody for opening it. So the
+         * honest answer without rights is "cannot tell", not "no rules"
+         * — the first version said the latter, which on a machine with
+         * a firewall configured was simply false. */
+        string output;
+        int status;
+        try {
+            Process.spawn_sync (null, { "nft", "list", "ruleset" }, null,
+                SpawnFlags.SEARCH_PATH | SpawnFlags.STDERR_TO_DEV_NULL,
+                null, out output, null, out status);
+        } catch (Error e) {
+            return _("Installed — could not ask it");
         }
-        return _("Installed, no rules loaded");
+        if (status != 0) {
+            return _("Installed — reading the rules needs administrator rights");
+        }
+        return (output.strip () != "")
+            ? _("Rules are loaded") : _("Installed, no rules loaded");
     }
 
     private string clipboard_log () {

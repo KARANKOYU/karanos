@@ -121,18 +121,23 @@ namespace Kavis.Share {
         }
 
         private void receive () {
-            uint8 buffer[8192];
+            /* One byte spare: the datagram is not NUL-terminated and a
+             * string cast reads until it finds one. Receiving into all
+             * but the last byte and writing the terminator there is
+             * what makes the cast safe for a full-size packet. */
+            uint8 buffer[8193];
             SocketAddress? from;
             ssize_t length;
             try {
-                length = socket.receive_from (out from, buffer);
+                length = socket.receive_from (out from, buffer[0:8192]);
             } catch (Error e) {
                 return;
             }
             if (length <= 0) {
                 return;
             }
-            string text = (string) buffer[0:length];
+            buffer[length] = 0;
+            string text = (string) buffer;
             var announced = Wire.parse_device (text);
             if (announced == null
                 || announced.fingerprint == me.device.fingerprint) {

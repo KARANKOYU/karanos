@@ -1686,6 +1686,12 @@ msgstr "⟪After %d minute of inactivity···········⟫"
 msgid "No firewall installed — nothing accepts connections by default either"
 msgstr "⟪No firewall installed — nothing accepts connections by default either···························⟫"
 
+msgid "Installed — could not ask it"
+msgstr "⟪Installed — could not ask it···········⟫"
+
+msgid "Installed — reading the rules needs administrator rights"
+msgstr "⟪Installed — reading the rules needs administrator rights······················⟫"
+
 msgid "Rules are loaded"
 msgstr "⟪Rules are loaded······⟫"
 

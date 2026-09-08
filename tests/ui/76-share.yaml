@@ -30,13 +30,13 @@ steps:
       the Nemo menu will ask it, so a broken bus name is worth catching
       here rather than there
 
-  - do: shell grep -q '^name=Kavis-' "$HOME/.config/kavis/kavis.conf"
+  - do: shell awk '/^\[share\]/{f=1;next} /^\[/{f=0} f&&/^name=Kavis-/{ok=1} END{exit !ok}' "$HOME/.config/kavis/kavis.conf"
     expect: ok
     note: >
       the default device name is two random words. NOT the hostname and
       NOT the user name: a device that announces who is sitting in front
       of it has told every stranger on the network
-  - do: shell test -z "$(grep -E '^name=.*(karan|kavis-vm|localhost)$' "$HOME/.config/kavis/kavis.conf")"
+  - do: shell test -z "$(awk '/^\[share\]/{f=1;next} /^\[/{f=0} f&&/^name=/' "$HOME/.config/kavis/kavis.conf" | grep -E 'karan|localhost')"
     expect: ok
     note: and specifically not the login name
   - do: shell test "$(kavis-share --list | wc -l)" -ge 0
