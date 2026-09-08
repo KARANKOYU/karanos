@@ -9,6 +9,82 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 8 Eylül 2026 akşamı (v0.5-test5: Windows araçları + güvenlik)
+
+## v0.5-test4 koşusu ne gösterdi
+
+**Bellek hipotezi doğrulandı, kalem kalem:**
+
+| | test2 | test4 | Fark |
+|---|---|---|---|
+| `MEM-USED` | 568 MB | **461 MB** | −107 |
+| **kernel** (slab + sayfa tabloları) | 305 MB | **64 MB** | **−241** |
+| cache | 1771 MB | 587 MB | −1184 |
+| user (süreçlerin özel sayfaları) | 266 MB | 239 MB | −27 |
+
+Yani şüphelendiğimiz şey doğruydu: **`dpkg -V`'nin açılışta imajdaki her
+paketli dosyayı okuması**, çekirdeğin dentry/inode önbelleğini
+şişiriyordu. Derleme zamanına taşımak 241 MB çekirdek belleği geri
+verdi. `applet.py` (yazıcı apleti) MEM-TOP listesinden tamamen gitti —
+user'daki 27 MB'lık düşüş o.
+
+Ayrıca: **`DPKG-VERIFY-OK` ilk kez temiz geçti** (7 conffile, değişmiş
+dosya yok), `PASSWORDLESS-OK` (kilit ekranı tuzağı kapandı), koşu
+900+ saniye yerine **607 saniyede** bitti.
+
+Tek kırmızı adım testin kendi hatasıydı: `pgrep -f` tam komut satırını
+eşleştirir ve adımın kendi kabuğu deseni taşıyordu, yani aplet
+gerçekten yokken adım düşüyordu. Köşeli parantez numarasıyla kapandı.
+
+## Bu turda eklenenler
+
+**Çalıştır penceresi — Win+R (madde 82).** Win+R arama kutusu odaklı
+Başlat menüsünü açıyordu; Başlat *uygulama* arar, Çalıştır komut/yol/
+adres alır. Geçmiş (son 30, yukarı/aşağı, 0600), PATH tamamlaması,
+"Yönetici olarak çalıştır" (pkexec). Olmayan program kabuğa verilmeden
+yakalanır — `sh -c` her zaman başarılı olur ve hata görünmezdi.
+
+**Görev çubuğu önizlemeleri (madde 83).** Üç penceresi olan uygulama
+tek düğmeydi ve tıklamalar kimsenin göremediği bir sırada dönüyordu.
+Artık pencere başına kart; karta gelince o pencere **odak verilmeden**
+öne alınıyor (ekrandaymış gibi), ayrılınca eskisi geri yükseliyor,
+küçültülmüş olan yeniden küçültülüyor. Geri alınabilir olması işin
+bütün noktası. Küçük görüntü pencerenin kendi pikselleri, okunamıyorsa
+uygulama ikonu.
+
+**Açıklayan ipuçları (madde 84).** Düğmeler adlarını değil ne
+yaptıklarını söylüyor ve varsa kısayolu taşıyorlar; kısayol
+**katalogdan** okunuyor, kullanıcının yeniden atamaları kazanıyor.
+
+**Dil bölümü (madde 85).** Klavye düzeni kutusu her makinede dil
+kutusunun altındaydı — tek düzeni olan makinede seçecek bir şey yokken
+sorulan soru, insanlara ayar sayfasını görmezden gelmeyi öğretir.
+Artık dil **listesi**: en üstteki sistem dili (yukarı taşımak sistem
+dilini seçme hareketi), her dil bir düzen getiriyor ve **"hangi klavye"
+seçicisi ancak birden fazla düzen varken** çıkıyor.
+
+**Güvenlik bölümü (madde 86).** Durum panosu; her satır ölçülüyor,
+yapılandırmanın niyeti bildirilmiyor. **"Panomu hangi uygulama
+okuyor":** X11'de pano okuması seçimin sahibine giden bir
+SelectionRequest'tir, yalnız sahip görebilir — bu yüzden isteğe bağlı
+ve bedeli anahtarın altında yazıyor (Kavis panoyu tutarken biçimli
+kopya düz yapışır). Okumalar **gözlemleniyor, karşılanmıyor**: filtre
+CONTINUE dönüyor, isteği yine GTK cevaplıyor. Antivirüs: ClamAV ISO'ya
+konmuyor (imza veritabanı sistemin çoğundan büyük), kuruluysa
+indirilenler taranıyor.
+
+**Güvenilirlik izleyici (madde 87).** Görev Yöneticisi'nde iki haftalık
+gün çubukları: çökme, servis hatası, çekirdek hatası. **Uyarılar
+sayılmıyor** — uyarı yüzünden oynayan puan, insanlara puanı görmezden
+gelmeyi öğretir. `systemd-coredump` ISO'ya girdi; "hiçbir şey çökmedi"
+ancak çökse kaydedilecek olsaydı okumaya değer.
+
+**Fare bölümü (madde 81).** İmleç rengi (Kavis beyaz / Kavis siyah /
+kurulu Breeze temaları) ve boyutu, solak, çift tıklama hızı, imleç
+hızı, doğal kaydırma.
+
+---
+
 # OTURUM DURUMU — 8 Eylül 2026 (v0.5-test4: VM geri bildirimi A–E)
 
 ## A. Kilit ekranı — sistemi kilitliyordu
