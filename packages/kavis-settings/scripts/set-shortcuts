@@ -46,24 +46,27 @@ if [ -f "$CONF" ]; then
 fi
 
 
-# Reload openbox after the user rc.xml appears or disappears.
+# THE USER rc.xml ALWAYS EXISTS. It is not an optimisation, it is what
+# makes reassignment work at all.
 #
 # `openbox --reconfigure` re-reads the config file openbox resolved AT
-# STARTUP. On a session that began with no ~/.config/openbox/rc.xml that
-# path is /etc/xdg/openbox/rc.xml, so writing a user copy and asking for
-# a reconfigure re-reads the system file and the new key does nothing —
-# the v0.5-test5 run pressed the reassigned key for forty seconds and
-# nothing opened, with a correct rc.xml sitting on disk.
+# STARTUP, and openbox resolves it once: with no ~/.config/openbox/rc.xml
+# present at login it picks /etc/xdg/openbox/rc.xml and keeps that path
+# for the life of the session. Creating a user copy afterwards and asking
+# for a reconfigure therefore re-reads the SYSTEM file, and the first
+# shortcut anybody ever moves silently does nothing — three ISO runs
+# pressed a reassigned key for forty seconds each with a correct rc.xml
+# sitting on disk. Asking for --restart instead was the obvious fix and
+# did not work either, for a reason I could not observe from outside the
+# session; so the dependency is removed rather than explained.
 #
-# So: when the file's EXISTENCE changes, openbox has to resolve the path
-# again, and only --restart does that. When it merely changed contents,
-# --reconfigure is enough and does not disturb the session.
+# The file is seeded before the session starts (0031-kavis-dirs) and
+# regenerated from the system rc at every login (openbox autostart), so
+# it is always openbox's own path and always current — a system update
+# still reaches the user, which is the property that made deleting it
+# attractive in the first place.
 reload_openbox() {
-	if [ "$1" = path-changed ]; then
-		openbox --restart >/dev/null 2>&1 || true
-	else
-		openbox --reconfigure >/dev/null 2>&1 || true
-	fi
+	openbox --reconfigure >/dev/null 2>&1 || true
 }
 
 if [ -z "$overrides" ]; then
@@ -71,13 +74,13 @@ if [ -z "$overrides" ]; then
 		echo "set-shortcuts: no overrides — the defaults are in use"
 		exit 0
 	fi
-	if [ -e "$USER_RC" ]; then
-		rm -f "$USER_RC"
-		reload_openbox path-changed
-	else
-		reload_openbox contents
-	fi
-	echo "set-shortcuts: no overrides left, back to the shipped defaults"
+	# No overrides: the user copy becomes the system file verbatim.
+	# NOT deleted — see the comment above; a session that loses the file
+	# it resolved at startup keeps reading the one that is gone.
+	mkdir -p "$(dirname "$USER_RC")"
+	cp "$SYSTEM_RC" "$USER_RC"
+	reload_openbox
+	echo "set-shortcuts: no overrides, the user copy mirrors the defaults"
 	exit 0
 fi
 
@@ -162,12 +165,7 @@ if command -v python3 >/dev/null 2>&1; then
 	python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse(sys.argv[1])" \
 		"$TMP" || { rm -f "$TMP"; echo "E: rewritten rc.xml is not valid XML" >&2; exit 1; }
 fi
-existed=no
-[ -e "$USER_RC" ] && existed=yes
+mkdir -p "$(dirname "$USER_RC")"
 mv "$TMP" "$USER_RC"
-if [ "$existed" = yes ]; then
-	reload_openbox contents
-else
-	reload_openbox path-changed
-fi
+reload_openbox
 echo "set-shortcuts: $USER_RC rewritten ($map)"

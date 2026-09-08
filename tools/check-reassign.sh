@@ -8,15 +8,18 @@
 # pressing the key opened nothing.
 #
 # `openbox --reconfigure` re-reads the config file openbox resolved AT
-# STARTUP. A session that began with no user rc.xml resolved the system
-# one, so writing a user copy and asking for a reconfigure re-reads the
-# system file — the FIRST reassignment a person ever makes is the one
-# that silently fails, and so is removing the last one.
+# STARTUP, and openbox resolves it once. A session that began with no
+# user rc.xml resolved the system one, so writing a user copy afterwards
+# and asking for a reconfigure re-reads the system file — the FIRST
+# reassignment anybody makes is the one that silently fails.
 #
-# The setup mirrors a real session exactly, which is the whole point:
-# openbox is started with NO --config-file, the "system" rc lives in an
-# XDG_CONFIG_DIRS directory and the user rc is absent, so openbox
-# resolves the same way it does on the ISO.
+# Kavis' answer is that the user copy ALWAYS exists: seeded before the
+# session (0031-kavis-dirs) and regenerated from the system file at
+# every login (openbox autostart), so it is always openbox's own path
+# and always current. This check mirrors that: openbox is started with
+# NO --config-file, the "system" rc lives in an XDG_CONFIG_DIRS
+# directory, and the user copy is in place before openbox starts —
+# exactly the ISO's arrangement.
 #
 # Usage: tools/check-reassign.sh
 # Exit: 0 = REASSIGN-OK
@@ -52,6 +55,11 @@ cat > "$T/bin/nemo" <<EOS
 echo "nemo \$*" >> "$LOG"
 EOS
 chmod +x "$T/bin/nemo"
+
+# The user copy, seeded the way 0031-kavis-dirs seeds it — BEFORE
+# openbox starts, which is the whole point.
+mkdir -p "$T/config/openbox"
+cp "$T/xdg/openbox/rc.xml" "$T/config/openbox/rc.xml"
 
 export DISPLAY=":$DISPLAY_NO"
 export XDG_CONFIG_HOME="$T/config"
@@ -114,7 +122,10 @@ expect "THE POINT: the reassigned key (Win+Y) opens Files" yes
 press super+e
 expect "and the old key no longer does" no
 
-# And removing the last override has to come back the same way.
+# And removing the last override has to come back the same way. The
+# user copy is not deleted — it becomes the system file verbatim,
+# because a session that loses the file it resolved at startup keeps
+# reading a file that is gone.
 printf '[shortcuts]\n' > "$T/config/kavis/kavis.conf"
 KAVIS_SHORTCUT_CATALOG="$PWD/$CATALOG" \
 KAVIS_SYSTEM_RC="$T/xdg/openbox/rc.xml" \
@@ -125,6 +136,10 @@ sleep 2
 : > "$LOG"
 press super+e
 expect "removing the override brings Win+E back" yes
+[ -e "$T/config/openbox/rc.xml" ] || {
+	echo "  ✗ the user copy was deleted — openbox would keep reading a file that is gone" >&2
+	fail=1
+}
 
 [ "$fail" -eq 0 ] || { echo "REASSIGN-FAIL"; exit 1; }
 echo "REASSIGN-OK: a moved shortcut works, and moving it back works too"

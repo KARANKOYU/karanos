@@ -19,11 +19,16 @@ steps:
   - do: shell grep -q 'key=.W-e.' /etc/xdg/openbox/rc.xml
     expect: ok
     note: the hook put the catalogue's default into the system rc.xml
-  - do: shell test ! -e "$HOME/.config/openbox/rc.xml"
+  - do: shell diff -q /etc/xdg/openbox/rc.xml "$HOME/.config/openbox/rc.xml"
     expect: ok
     note: >
-      nothing reassigned yet, so there is no user copy at all — that is
-      what makes a later system update reach the user
+      Nothing reassigned yet, so the user copy is the system file
+      VERBATIM. It exists — it has to. openbox resolves its config path
+      once at startup, so a copy created later is a copy the running
+      openbox never reads, which is why a reassigned key did nothing in
+      three ISO runs. The copy is seeded before the session and
+      regenerated from the system file at every login, so an update
+      still reaches the user; this step is what proves the second half.
 
   - do: conf shortcuts files W-y
     expect: conf shortcuts files W-y
@@ -40,19 +45,6 @@ steps:
     note: >
       and the old one is gone. Counted rather than negated: a bare "!"
       in front of the command is what broke the editors scenario
-  - do: shell logger -t kavis-diag "openbox argv: $(pgrep -a openbox | tr '\n' ' ') | user rc: $(ls -l "$HOME/.config/openbox/rc.xml" 2>&1)"
-    expect: ok
-    note: >
-      A DIAGNOSTIC, not an assertion. The next step has failed twice on
-      the ISO with a correct rc.xml on disk, and it cannot be
-      reproduced on a development machine: tools/check-reassign.sh does
-      the same thing against a real openbox — system rc in
-      XDG_CONFIG_DIRS, no user rc, openbox started the way the session
-      starts it — and passes. So the difference is in the session, and
-      this line puts openbox's own command line into the journal, which
-      the runner captures per step. `openbox --reconfigure` re-reads
-      the config file openbox resolved AT STARTUP, so how it was
-      started is the question.
   - do: key super+y
     expect: window nemo visible
     timeout: 40000
@@ -68,11 +60,12 @@ steps:
   - do: shell /usr/lib/kavis/set-shortcuts
     expect: ok
     timeout: 20000
-  - do: shell test ! -e "$HOME/.config/openbox/rc.xml"
+  - do: shell diff -q /etc/xdg/openbox/rc.xml "$HOME/.config/openbox/rc.xml"
     expect: ok
     note: >
-      with no overrides left the copy is DELETED, not left as a frozen
-      snapshot of the system file
+      with no overrides left the copy is the system file again — not
+      deleted, because openbox would go on reading the path it resolved
+      at startup and that path would no longer exist
 
   - do: launch kavis-settings keyboard
     expect: window kavis-settings visible

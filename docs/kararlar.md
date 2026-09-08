@@ -515,3 +515,36 @@ YAPIDIR; **kodun tek satırı kopyalanmaz** (değişmez kural).
 - Rahatsız etme açıkken gönderimin reddedildiğinin doğrulanması.
 - Tarayıcı köprüsü: anahtarsız erişim ve süresi dolmuş anahtar
   reddediliyor mu.
+
+
+## 13. Kullanıcının openbox rc.xml'i her zaman vardır (8 Eylül 2026)
+
+Madde 74 kısayolları yeniden atanabilir yaptı: Ayarlar `kavis.conf`'a
+tek satır yazıyor, `set-shortcuts` sistem rc.xml'inden kullanıcı
+kopyasını üretiyor. İlk tasarımda **override kalmayınca kopya
+siliniyordu** — gerekçe iyiydi: kullanıcıda donmuş bir kopya kalmasın,
+sistem güncellemesi kullanıcıya ulaşsın.
+
+**Bu tasarım çalışmıyor.** openbox yapılandırma dosyasını **açılışta bir
+kez** çözer ve o yolu oturum boyunca korur. Kullanıcı kopyası yokken
+açılan oturum `/etc/xdg/openbox/rc.xml`'i çözer; sonradan yazılan
+kullanıcı kopyası, çalışan openbox'ın hiç bakmadığı bir dosyadır.
+`--reconfigure` sistem dosyasını yeniden okur. Yani **birinin
+taşıdığı ilk kısayol sessizce hiçbir şey yapmaz** — üç ISO koşusu
+(v0.5-test5/6/7) yeniden atanmış tuşa kırkar saniye bastı, diskte doğru
+rc.xml dururken hiçbir şey açılmadı. `--restart` denendi, o da çözmedi;
+sebebi oturumun dışından gözlemlenemedi.
+
+**Karar:** kullanıcı kopyası **her zaman vardır.**
+
+- `0031-kavis-dirs` oturum başlamadan önce sistem dosyasını kopyalar —
+  openbox açılışta kullanıcı yolunu çözsün diye.
+- openbox autostart her girişte `set-shortcuts` çalıştırır: kopya
+  güncel sistem dosyasından + kullanıcının override'larından yeniden
+  üretilir. **Sistem güncellemesi böyle ulaşır**, silme yoluyla değil.
+- Override kalmayınca kopya silinmez, sistem dosyasının **birebir
+  aynısı** olur.
+
+Gözlemleyemediğim bir openbox davranışını açıklamak yerine ona olan
+bağımlılığı kaldırmak; `tools/check-reassign.sh` gerçek openbox'la bu
+düzeni doğruluyor.

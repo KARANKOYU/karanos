@@ -112,6 +112,24 @@ XDG_PUBLICSHARE_DIR="\$HOME"
 # directory above, so the home directory keeps six folders.
 XDG
 
+	# openbox's config file, resolved ONCE at startup.
+	#
+	# openbox picks its rc.xml when it starts and keeps that path for the
+	# life of the session: with no user copy present it resolves
+	# /etc/xdg/openbox/rc.xml, and every later --reconfigure re-reads
+	# THAT file. A shortcut reassigned from Settings writes a perfectly
+	# correct ~/.config/openbox/rc.xml that the running openbox never
+	# looks at — three ISO runs pressed a reassigned key for forty
+	# seconds each and nothing happened.
+	#
+	# So the copy exists before the session does. The openbox autostart
+	# regenerates it from the system file at every login (through
+	# set-shortcuts), so a system update still reaches the user.
+	mkdir -p "$NEW_HOME/.config/openbox"
+	if [ -f /etc/xdg/openbox/rc.xml ]; then
+		cp /etc/xdg/openbox/rc.xml "$NEW_HOME/.config/openbox/rc.xml"
+	fi
+
 	# Autostart entries Kavis turns off, as the user's own override —
 	# the session launcher and Task Manager > Startup both already obey
 	# "the user's file wins on the same name" and "Hidden=true is

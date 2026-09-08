@@ -38,6 +38,16 @@ fi
 # in windows.
 xsetroot -cursor_name left_ptr &
 
+# --- Shortcuts (item 74) ---------------------------------------------
+# The user's rc.xml is regenerated from the SYSTEM one plus whatever
+# shortcuts they have moved. That is how a system update reaches a
+# machine whose user copy exists — and the copy has to exist, because
+# openbox resolves its config path once at startup and a copy created
+# later is a copy the running openbox never reads.
+if [ -x /usr/lib/kavis/set-shortcuts ]; then
+	/usr/lib/kavis/set-shortcuts >/dev/null 2>&1 || true
+fi
+
 # --- Mouse (Settings > Mouse) ----------------------------------------
 # libinput properties live on the DEVICE and are gone the moment X
 # restarts, so what Settings applied last time has to be applied again
