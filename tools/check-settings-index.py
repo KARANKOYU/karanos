@@ -37,6 +37,7 @@ PAGE = {
     "display": "page_display.vala",
     "sound": "page_sound.vala",
     "keyboard": "page_keyboard.vala",
+    "language": "page_language.vala",
     "mouse": "page_mouse.vala",
     "power": "page_power.vala",
     "network": "page_network.vala",

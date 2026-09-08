@@ -200,6 +200,7 @@ namespace Kavis.Settings.Pages {
         case "display":    return display (title);
         case "sound":      return sound (title);
         case "keyboard":   return keyboard (title);
+        case "language":   return language (title);
         case "mouse":      return mouse (title);
         case "power":      return power (title);
         case "network":    return network (title);

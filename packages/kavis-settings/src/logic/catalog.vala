@@ -50,9 +50,9 @@ namespace Kavis.Settings.Catalog {
             { "sound",      "output",      _("Output") },
             { "sound",      "system",      _("System sounds") },
 
-            { "keyboard",   "language",    _("Language") },
-            { "keyboard",   "layout",      _("Keyboard layout") },
             { "keyboard",   "shortcuts",   _("Shortcuts") },
+            { "language",   "languages",   _("Languages") },
+            { "language",   "typing",      _("Typing") },
 
             { "power",      "mode",        _("Power mode") },
             { "power",      "timeouts",    _("Screen and sleep") },
@@ -126,10 +126,10 @@ namespace Kavis.Settings.Catalog {
               _("The sounds the desktop itself makes") + " sounds beep notification startup" },
 
             /* --- Keyboard & Language ---------------------------- */
-            { "keyboard", "language", _("Display language"),
-              _("The language of the interface") + " language locale translation english turkish" },
-            { "keyboard", "layout", _("Layout"),
-              _("Which letters the keys type") + " layout keyboard qwerty azerty q f" },
+            { "language", "languages", _("Add a language"),
+              _("Endonym and how much of the interface is translated") + " language locale translation interface display add remove system english turkish endonym" },
+            { "language", "typing", _("Keyboard layout"),
+              _("Which of the added layouts the keyboard uses") + " keyboard layout xkb typing turkish english us tr switch qwerty azerty q f which letters keys type" },
             { "keyboard", "shortcuts", _("Shortcuts"),
               _("Every key combination, and how to change one") + " shortcut hotkey keybinding key combination fn reassign" },
 

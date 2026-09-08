@@ -681,6 +681,19 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     atamaları kazanıyor — ipucunda yanlış tuş yazması madde 74'ün
     kapattığı kaymanın küçük çaplı hâlidir.
 
+85. **DİL BÖLÜMÜ — LİSTE, ÜSTTEKİ SİSTEM DİLİ (2026-09-08 eki).**
+    Klavye düzeni açılır kutusu her makinede dil kutusunun altındaydı;
+    tek düzeni olan makinede seçecek bir şey yokken sorulan soru,
+    insanlara ayar sayfasını görmezden gelmeyi öğretir. Windows düzeni:
+    eklenen dillerin **sırası**, en üstteki sistem dili (yukarı taşıma
+    sistem dilini seçme hareketidir), her dil bir klavye düzeni getirir
+    ve **"hangi klavye" seçicisi ancak birden fazla düzen varken**
+    çıkar. Tek global düzen kuralı (karar 2F) duruyor — seçici hangi
+    düzenin kullanılacağını seçer, pencere başına düzen açmaz.
+    "Başka bir düzen" tam xkb katalogunu açık tutar: Türkçe sistemde US
+    klavye kullanan insan gerçek. Depolama `[keyboard] languages=tr,en`;
+    ilk sıra ile `[keyboard] language` birlikte yürür.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,

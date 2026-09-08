@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 08:43+0000\n"
+"POT-Creation-Date: 2026-09-08 08:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -234,7 +234,7 @@ msgstr ""
 #: packages/kavis-common/sysinfo.vala:736
 #: packages/kavis-panel/src/logic/apps.vala:24
 #: packages/kavis-settings/src/logic/shortcuts.vala:136
-#: packages/kavis-settings/src/ui/window.vala:169
+#: packages/kavis-settings/src/ui/window.vala:171
 #: packages/kavis-taskmanager/src/logs.vala:25
 #: packages/kavis-taskmanager/src/startup.vala:297
 #, c-format
@@ -414,7 +414,9 @@ msgid "Clear"
 msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:298
-#: packages/kavis-settings/src/logic/catalog.vala:54
+#: packages/kavis-settings/src/logic/catalog.vala:131
+#: packages/kavis-settings/src/ui/page_language.vala:232
+#: packages/kavis-settings/src/ui/page_language.vala:268
 msgid "Keyboard layout"
 msgstr ""
 
@@ -693,7 +695,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/picker.vala:522
 #: packages/kavis-settings/src/ui/page_display.vala:792
-#: packages/kavis-settings/src/ui/page_keyboard.vala:251
+#: packages/kavis-settings/src/ui/page_keyboard.vala:176
 #: packages/kavis-settings/src/ui/page_network.vala:217
 #: packages/kavis-settings/src/ui/page_network.vala:321
 #: packages/kavis-settings/src/ui/page_network.vala:438
@@ -848,7 +850,7 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/start_menu.vala:73
 #: packages/kavis-panel/src/ui/start_menu.vala:78
-#: packages/kavis-settings/src/ui/window.vala:159
+#: packages/kavis-settings/src/ui/window.vala:161
 msgid "Power"
 msgstr ""
 
@@ -964,13 +966,17 @@ msgid "System sounds"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:53
-msgid "Language"
+#: packages/kavis-settings/src/logic/catalog.vala:133
+#: packages/kavis-settings/src/ui/page_keyboard.vala:53
+msgid "Shortcuts"
+msgstr ""
+
+#: packages/kavis-settings/src/logic/catalog.vala:54
+msgid "Languages"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:55
-#: packages/kavis-settings/src/logic/catalog.vala:133
-#: packages/kavis-settings/src/ui/page_keyboard.vala:128
-msgid "Shortcuts"
+msgid "Typing"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:57
@@ -1001,8 +1007,6 @@ msgid "DNS privacy"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:67
-#: packages/kavis-settings/src/logic/catalog.vala:131
-#: packages/kavis-settings/src/ui/page_keyboard.vala:102
 msgid "Layout"
 msgstr ""
 
@@ -1193,16 +1197,17 @@ msgid "The sounds the desktop itself makes"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:129
-#: packages/kavis-settings/src/ui/page_keyboard.vala:74
-msgid "Display language"
+#: packages/kavis-settings/src/ui/page_language.vala:175
+#: packages/kavis-settings/src/ui/page_language.vala:200
+msgid "Add a language"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:130
-msgid "The language of the interface"
+msgid "Endonym and how much of the interface is translated"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:132
-msgid "Which letters the keys type"
+msgid "Which of the added layouts the keyboard uses"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:134
@@ -1342,7 +1347,7 @@ msgstr ""
 #: packages/kavis-settings/src/logic/hwtest.vala:378
 #: packages/kavis-settings/src/logic/hwtest.vala:383
 #: packages/kavis-settings/src/ui/page_hardware.vala:85
-#: packages/kavis-settings/src/ui/window.vala:168
+#: packages/kavis-settings/src/ui/window.vala:170
 msgid "Hardware test"
 msgstr ""
 
@@ -1956,6 +1961,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:264
 #: packages/kavis-settings/src/ui/page_hardware.vala:268
 #: packages/kavis-settings/src/ui/page_hardware.vala:271
+#: packages/kavis-settings/src/ui/window.vala:157
 msgid "Keyboard"
 msgstr ""
 
@@ -1968,7 +1974,7 @@ msgstr ""
 #: packages/kavis-settings/src/ui/page_hardware.vala:338
 #: packages/kavis-settings/src/ui/page_hardware.vala:343
 #: packages/kavis-settings/src/ui/page_hardware.vala:346
-#: packages/kavis-settings/src/ui/window.vala:158
+#: packages/kavis-settings/src/ui/window.vala:160
 msgid "Mouse"
 msgstr ""
 
@@ -2166,83 +2172,117 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:35
+#: packages/kavis-settings/src/ui/page_keyboard.vala:54
+msgid "The shortcut list is missing from this system"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:77
+msgid "Reset every shortcut"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:98
+msgid "Change"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:110
+#, c-format
+msgid "Back to %s"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:122
+#, c-format
+msgid "Changed from %s"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:140
+#, c-format
+msgid "The shortcut could not be applied: %s"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:174
+msgid "Change shortcut"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:178
+#, c-format
+msgid "Press the new combination for “%s”."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:182
+msgid "Esc cancels. The keys are taken as they are pressed."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_keyboard.vala:226
+#, c-format
+msgid "%s is already “%s”. Change that one first."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_language.vala:130
+msgid "Move up — the top language is the system language"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_language.vala:145
+msgid "Remove this language"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_language.vala:165
+#, c-format
+msgid "System language · %s translated · keyboard %s"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_language.vala:167
+#, c-format
+msgid "%s translated · keyboard %s"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_language.vala:174
 msgid "Search languages"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:61
+#: packages/kavis-settings/src/ui/page_language.vala:201
+msgid ""
+"Adding one does not change the system language — move it to the top for that"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_language.vala:212
 #, c-format
 msgid ""
 "This language is not translated yet; the interface will appear in English. "
 "Contribute at %s"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:64
+#: packages/kavis-settings/src/ui/page_language.vala:215
 #, c-format
 msgid "%d%% translated — untranslated parts appear in English"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:67
+#: packages/kavis-settings/src/ui/page_language.vala:218
 msgid "Applying…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:75
-msgid "Endonym and how much of the interface is translated"
+#: packages/kavis-settings/src/ui/page_language.vala:233
+#, c-format
+msgid "%s — add a second language to be able to switch between layouts"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:82
+#: packages/kavis-settings/src/ui/page_language.vala:239
+#: packages/kavis-settings/src/ui/page_language.vala:277
 msgid "Search layouts"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:103
+#: packages/kavis-settings/src/ui/page_language.vala:269
 msgid ""
 "One global layout for every window; right-click the taskbar indicator to "
 "switch between the ones you have used"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:129
-msgid "The shortcut list is missing from this system"
+#: packages/kavis-settings/src/ui/page_language.vala:271
+msgid "Another layout"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_keyboard.vala:152
-msgid "Reset every shortcut"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:173
-msgid "Change"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:185
-#, c-format
-msgid "Back to %s"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:197
-#, c-format
-msgid "Changed from %s"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:215
-#, c-format
-msgid "The shortcut could not be applied: %s"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:249
-msgid "Change shortcut"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:253
-#, c-format
-msgid "Press the new combination for “%s”."
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:257
-msgid "Esc cancels. The keys are taken as they are pressed."
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_keyboard.vala:301
-#, c-format
-msgid "%s is already “%s”. Change that one first."
+#: packages/kavis-settings/src/ui/page_language.vala:272
+msgid ""
+"Anything in the xkb catalogue, whether a language on the list uses it or not"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_mouse.vala:40
@@ -2309,7 +2349,7 @@ msgid "The content follows the fingers, the way a phone scrolls"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_network.vala:62
-#: packages/kavis-settings/src/ui/window.vala:160
+#: packages/kavis-settings/src/ui/window.vala:162
 #: packages/kavis-taskmanager/src/perf.vala:133
 msgid "Network"
 msgstr ""
@@ -2583,19 +2623,19 @@ msgstr ""
 msgid "Sound"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:157
-msgid "Keyboard & Language"
+#: packages/kavis-settings/src/ui/window.vala:159
+msgid "Language"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:161
+#: packages/kavis-settings/src/ui/window.vala:163
 msgid "Taskbar"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:192
+#: packages/kavis-settings/src/ui/window.vala:194
 msgid "Find a setting"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/window.vala:413
+#: packages/kavis-settings/src/ui/window.vala:415
 #, c-format
 msgid "Nothing matches “%s”"
 msgstr ""

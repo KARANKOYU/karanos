@@ -1,0 +1,55 @@
+# Language section (item 85).
+#
+# The keyboard-layout dropdown used to sit under the language one on
+# every machine, including the ones with a single layout and therefore
+# nothing to choose. It is a list of languages now: the top one is the
+# system language, each brings a layout, and the "which keyboard"
+# chooser appears only when there is more than one to choose between.
+#
+# The system language is NOT switched here. Applying it runs locale-gen
+# under pkexec and restarts the panel, which would leave every scenario
+# after this one in another language and every screenshot unreadable to
+# whoever reads the report. The switch itself is on the VM checklist;
+# what is asserted here is the list, the ordering rule, and the
+# condition under which the layout chooser appears.
+name: 85-language
+title: Language and keyboard layout
+item: 85
+allowed: [kavis-settings]
+steps:
+  - do: launch kavis-settings language
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the Language section, on its own now
+    shot: true
+  - do: type layout
+    expect: ok
+    note: the search finds the layout chooser under Language, not Keyboard
+  - do: wait 1500
+    expect: ok
+    shot: true
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
+
+  - do: shell grep -q '^languages=' "$HOME/.config/kavis/kavis.conf" || true
+    expect: ok
+    note: >
+      a machine that has never opened the page has no list yet; the
+      page migrates the single [keyboard] language into one
+  - do: conf keyboard languages tr,en
+    expect: conf keyboard languages tr,en
+    note: two languages, Turkish at the top
+  - do: launch kavis-settings language
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: >
+      with two languages the layout chooser is there. What the picture
+      is for: the same page one step earlier had no chooser at all
+    shot: true
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
+  - do: shell sed -i '/^languages=/d' "$HOME/.config/kavis/kavis.conf"
+    expect: ok
+    note: leave the session as it was found

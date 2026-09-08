@@ -23,86 +23,11 @@ namespace Kavis.Settings.Pages {
         Gtk.Box body;
         var page = frame (title, out body);
 
-        /* --- Language --- */
-        var lang_block = subsection (body, "language",
-            Catalog.sub_title ("keyboard", "language"));
-        var note = new Gtk.Label ("");
-        note.set_xalign (0);
-        note.set_line_wrap (true);
-        note.get_style_context ().add_class ("dim-label");
-
-        string current = conf_get ("keyboard", "language", "en");
-        var lang_drop = new SearchDropdown (_("Search languages"), true);
-        Langs.Lang[] langs = Langs.list ();
-        foreach (unowned Langs.Lang lang in langs) {
-            /* An endonym the current fonts cannot draw falls back to
-             * the English name (Noto fonts arrive in group G). */
-            string name = Langs.display_name (note, lang.code,
-                                              lang.endonym);
-            string percent = "%d%%".printf (lang.percent);
-            lang_drop.add_item (lang.code, name, percent,
-                                lang.percent == 0);
-            if (lang.code == current) {
-                lang_drop.select (lang.code);
-            }
-        }
-        lang_drop.chosen.connect ((code) => {
-            if (code == conf_get ("keyboard", "language", "en")) {
-                return;
-            }
-            int percent = 0;
-            foreach (unowned Langs.Lang lang in langs) {
-                if (lang.code == code) {
-                    percent = lang.percent;
-                }
-            }
-            conf_set ("keyboard", "language", code);
-            if (percent == 0) {
-                note.label = _("This language is not translated yet; the interface will appear in English. Contribute at %s")
-                    .printf (CONTRIB_URL);
-            } else if (percent < 100) {
-                note.label = _("%d%% translated — untranslated parts appear in English")
-                    .printf (percent);
-            } else {
-                note.label = _("Applying…");
-            }
-            /* B6: system language — file writes, locale-gen (pkexec),
-             * the panel watches the conf and restarts, a notification,
-             * and Settings re-opens itself in the new language. */
-            Apply.language (code, Langs.locale_of (code));
-        });
-        lang_block.pack_start (row (_("Display language"),
-            _("Endonym and how much of the interface is translated"),
-            lang_drop), false, false, 0);
-        lang_block.pack_start (note, false, false, 0);
-
-        /* --- Keyboard layout --- */
-        var layout_block = subsection (body, "layout",
-            Catalog.sub_title ("keyboard", "layout"));
-        var layout_drop = new SearchDropdown (_("Search layouts"));
-        foreach (unowned Xkb.Entry entry in Xkb.list ()) {
-            /* The id ("fr(azerty)") is shown next to the description
-             * and is searchable too: that is how people who know xkb
-             * look a layout up. */
-            layout_drop.add_item (entry.id, entry.description,
-                                  entry.id, false);
-        }
-        string layout_id = Xkb.make_id (
-            conf_get ("keyboard", "layout", "tr"),
-            conf_get ("keyboard", "variant", ""));
-        layout_drop.select (layout_id);
-        layout_drop.chosen.connect ((id) => {
-            string chosen_layout, chosen_variant;
-            Xkb.split_id (id, out chosen_layout, out chosen_variant);
-            conf_set ("keyboard", "layout", chosen_layout);
-            conf_set ("keyboard", "variant", chosen_variant);
-            remember_layout (id);
-            Apply.keyboard_layout (chosen_layout, chosen_variant);
-        });
-        layout_block.pack_start (row (_("Layout"),
-            _("One global layout for every window; right-click the taskbar indicator to switch between the ones you have used"),
-            layout_drop), false, false, 0);
-
+        /* Language and the keyboard layout moved to their own
+         * section (8 Sep): the layout dropdown sat under the language
+         * one on every machine, including the ones with a single
+         * layout and therefore nothing to choose. What is left here is
+         * what the section is named after. */
         /* --- Shortcuts (item 74) ---
          *
          * The list is the CATALOGUE, grouped, and every row can be
@@ -310,8 +235,9 @@ namespace Kavis.Settings.Pages {
 
     /* The right-click menu of the panel indicator offers the layouts
      * the user has actually picked, so every choice is remembered here
-     * ([keyboard] layouts, most recent first). */
-    private void remember_layout (string id) {
+     * ([keyboard] layouts, most recent first). Called from the Language
+     * page, which is where layouts are chosen since 8 Sep. */
+    internal void remember_layout (string id) {
         string[] ids = { id };
         foreach (unowned string old in
                  conf_get ("keyboard", "layouts", "").split (",")) {

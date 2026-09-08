@@ -2102,3 +2102,39 @@ msgstr "%s — çalışmıyor; açmak için tıklayın"
 
 msgid "Close this window"
 msgstr "Bu pencereyi kapat"
+
+msgid "Languages"
+msgstr "Diller"
+
+msgid "Typing"
+msgstr "Yazma"
+
+msgid "Add a language"
+msgstr "Dil ekle"
+
+msgid "Which of the added layouts the keyboard uses"
+msgstr "Eklenen düzenlerden hangisinin kullanılacağı"
+
+msgid "Move up — the top language is the system language"
+msgstr "Yukarı taşı — en üstteki dil sistem dilidir"
+
+msgid "Remove this language"
+msgstr "Bu dili kaldır"
+
+msgid "System language · %s translated · keyboard %s"
+msgstr "Sistem dili · %s çevrildi · klavye %s"
+
+msgid "%s translated · keyboard %s"
+msgstr "%s çevrildi · klavye %s"
+
+msgid "Adding one does not change the system language — move it to the top for that"
+msgstr "Dil eklemek sistem dilini değiştirmez — bunun için en üste taşıyın"
+
+msgid "%s — add a second language to be able to switch between layouts"
+msgstr "%s — düzenler arasında geçebilmek için ikinci bir dil ekleyin"
+
+msgid "Another layout"
+msgstr "Başka bir düzen"
+
+msgid "Anything in the xkb catalogue, whether a language on the list uses it or not"
+msgstr "Listedeki bir dil kullansın kullanmasın, xkb katalogundaki her şey"

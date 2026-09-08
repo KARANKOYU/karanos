@@ -567,11 +567,14 @@ msgstr "⟪Output··⟫"
 msgid "System sounds"
 msgstr "⟪System sounds·····⟫"
 
-msgid "Language"
-msgstr "⟪Language···⟫"
-
 msgid "Shortcuts"
 msgstr "⟪Shortcuts···⟫"
+
+msgid "Languages"
+msgstr "⟪Languages···⟫"
+
+msgid "Typing"
+msgstr "⟪Typing··⟫"
 
 msgid "Power mode"
 msgstr "⟪Power mode····⟫"
@@ -720,14 +723,14 @@ msgstr "⟪How loud everything is········⟫"
 msgid "The sounds the desktop itself makes"
 msgstr "⟪The sounds the desktop itself makes··············⟫"
 
-msgid "Display language"
-msgstr "⟪Display language······⟫"
+msgid "Add a language"
+msgstr "⟪Add a language·····⟫"
 
-msgid "The language of the interface"
-msgstr "⟪The language of the interface···········⟫"
+msgid "Endonym and how much of the interface is translated"
+msgstr "⟪Endonym and how much of the interface is translated····················⟫"
 
-msgid "Which letters the keys type"
-msgstr "⟪Which letters the keys type··········⟫"
+msgid "Which of the added layouts the keyboard uses"
+msgstr "⟪Which of the added layouts the keyboard uses·················⟫"
 
 msgid "Every key combination, and how to change one"
 msgstr "⟪Every key combination, and how to change one·················⟫"
@@ -1359,21 +1362,6 @@ msgstr "⟪No··⟫"
 msgid "Yes"
 msgstr "⟪Yes··⟫"
 
-msgid "Search languages"
-msgstr "⟪Search languages······⟫"
-
-msgid "%d%% translated — untranslated parts appear in English"
-msgstr "⟪%d%% translated — untranslated parts appear in English·····················⟫"
-
-msgid "Applying…"
-msgstr "⟪Applying…···⟫"
-
-msgid "Endonym and how much of the interface is translated"
-msgstr "⟪Endonym and how much of the interface is translated····················⟫"
-
-msgid "Search layouts"
-msgstr "⟪Search layouts·····⟫"
-
 msgid "The shortcut list is missing from this system"
 msgstr "⟪The shortcut list is missing from this system··················⟫"
 
@@ -1403,6 +1391,36 @@ msgstr "⟪Esc cancels. The keys are taken as they are pressed.········�
 
 msgid "%s is already “%s”. Change that one first."
 msgstr "⟪%s is already “%s”. Change that one first.················⟫"
+
+msgid "Move up — the top language is the system language"
+msgstr "⟪Move up — the top language is the system language···················⟫"
+
+msgid "Remove this language"
+msgstr "⟪Remove this language········⟫"
+
+msgid "System language · %s translated · keyboard %s"
+msgstr "⟪System language · %s translated · keyboard %s··················⟫"
+
+msgid "%s translated · keyboard %s"
+msgstr "⟪%s translated · keyboard %s··········⟫"
+
+msgid "Search languages"
+msgstr "⟪Search languages······⟫"
+
+msgid "%d%% translated — untranslated parts appear in English"
+msgstr "⟪%d%% translated — untranslated parts appear in English·····················⟫"
+
+msgid "Applying…"
+msgstr "⟪Applying…···⟫"
+
+msgid "%s — add a second language to be able to switch between layouts"
+msgstr "⟪%s — add a second language to be able to switch between layouts·························⟫"
+
+msgid "Search layouts"
+msgstr "⟪Search layouts·····⟫"
+
+msgid "Another layout"
+msgstr "⟪Another layout·····⟫"
 
 msgid "Kavis white"
 msgstr "⟪Kavis white····⟫"
@@ -1626,8 +1644,8 @@ msgstr "⟪Display··⟫"
 msgid "Sound"
 msgstr "⟪Sound··⟫"
 
-msgid "Keyboard & Language"
-msgstr "⟪Keyboard & Language·······⟫"
+msgid "Language"
+msgstr "⟪Language···⟫"
 
 msgid "Taskbar"
 msgstr "⟪Taskbar··⟫"
