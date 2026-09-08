@@ -59,12 +59,54 @@ namespace Kavis.Xkb {
         return cache;
     }
 
+    /* What KIND of keyboard this is: QWERTY, AZERTY, Turkish F…
+     *
+     * The xkb catalogue is organised by PLACE — "English (Ghana)",
+     * "English (Nigeria)" — because a layout is defined by the country
+     * that standardised it. Nobody chooses a keyboard that way. People
+     * know the shape of the thing in front of them: the top-left row
+     * spells QWERTY, or AZERTY, or it is a Turkish F. So the shape
+     * leads and the catalogue's own name follows it.
+     *
+     * Only the shapes that actually differ are named. A table that
+     * tried to classify all six hundred entries would be a table full
+     * of guesses; anything not listed keeps the catalogue's name,
+     * which is still true, just less useful. */
+    public string? kind (string id) {
+        string layout, variant;
+        split_id (id, out layout, out variant);
+        switch (variant) {
+        case "f":        return (layout == "tr") ? "Turkish F" : null;
+        case "dvorak":   return "Dvorak";
+        case "colemak":  return "Colemak";
+        case "workman":  return "Workman";
+        case "qwerty":   return "QWERTY";
+        case "azerty":   return "AZERTY";
+        case "qwertz":   return "QWERTZ";
+        }
+        if (variant != "") {
+            return null;   /* a regional variant, not a different shape */
+        }
+        switch (layout) {
+        case "tr":                       return "Turkish Q";
+        case "us": case "gb": case "au":
+        case "ca": case "nz": case "ie": return "QWERTY";
+        case "fr": case "be":            return "AZERTY";
+        case "de": case "ch": case "at":
+        case "cz": case "sk": case "hu": return "QWERTZ";
+        }
+        return null;
+    }
+
     /* Human readable name for an id; the id itself when the catalogue
      * does not know it (a hand-edited kavis.conf, or xkb-data missing). */
     public string describe (string id) {
         foreach (unowned Entry entry in list ()) {
             if (entry.id == id) {
-                return entry.description;
+                string? shape = kind (id);
+                return (shape != null)
+                    ? "%s — %s".printf (shape, entry.description)
+                    : entry.description;
             }
         }
         return id;

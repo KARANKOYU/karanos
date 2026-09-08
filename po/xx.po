@@ -1452,9 +1452,6 @@ msgstr "⟪%d%% translated — untranslated parts appear in English······�
 msgid "Applying…"
 msgstr "⟪Applying…···⟫"
 
-msgid "%s — add a second language to be able to switch between layouts"
-msgstr "⟪%s — add a second language to be able to switch between layouts·························⟫"
-
 msgid "Search layouts"
 msgstr "⟪Search layouts·····⟫"
 
@@ -1488,6 +1485,9 @@ msgstr "⟪Large (48)····⟫"
 msgid "Extra large (64)"
 msgstr "⟪Extra large (64)······⟫"
 
+msgid "Your own colour"
+msgstr "⟪Your own colour······⟫"
+
 msgid "No pointer themes installed"
 msgstr "⟪No pointer themes installed··········⟫"
 
@@ -1508,6 +1508,15 @@ msgstr "⟪How far the pointer travels for the same movement of the hand····
 
 msgid "The content follows the fingers, the way a phone scrolls"
 msgstr "⟪The content follows the fingers, the way a phone scrolls······················⟫"
+
+msgid "The pointer generator is not installed"
+msgstr "⟪The pointer generator is not installed···············⟫"
+
+msgid "Building…"
+msgstr "⟪Building…···⟫"
+
+msgid "Could not build the pointer"
+msgstr "⟪Could not build the pointer··········⟫"
 
 msgid "Network"
 msgstr "⟪Network··⟫"

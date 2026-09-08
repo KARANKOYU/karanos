@@ -184,6 +184,12 @@ override_dh_auto_install:
 	# disappears on a white document. Settings > Mouse offers the two
 	# as a colour choice, which is only cheap because the shapes are
 	# generated rather than checked in.
+	# The generator itself ships too: Settings > Mouse builds a pointer
+	# in whatever colour somebody picks, and it builds it from the same
+	# drawings these two came from. A second copy of the drawings would
+	# be a second thing to keep in step.
+	install -d $(DEST)/usr/lib/kavis
+	install -m755 tools/gen-cursors.py $(DEST)/usr/lib/kavis/gen-cursors
 	install -d $(CURSORS)-Black/cursors
 	python3 tools/gen-cursors.py $(CURSORS)-Black/cursors black
 	printf '[Icon Theme]\nName=Kavis Black\nComment=Kavis cursors, dark body\nInherits=Breeze_Light\n' \

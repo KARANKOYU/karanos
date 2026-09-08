@@ -18,6 +18,29 @@ log() {
 	chmod 644 /run/kavis/boot-check.log 2>/dev/null
 }
 
+# IS ANYBODY WATCHING?
+#
+# Some of what this script does is measurement that OPENS WINDOWS: it
+# starts Settings to weigh it, and it runs the selftest, which presses
+# keys and drags windows. In front of a person that is not a diagnostic,
+# it is a computer doing things by itself — the v0.5-test1 round reported
+# the selftest that way and the VM round after it reported Settings
+# "opening and closing on its own at startup". Both are this flag now.
+#
+# The marker is the SMBIOS machine serial, because it has to cross the VM
+# boundary: the ISO CI boots is byte-for-byte the ISO a person boots, so
+# nothing inside the image can tell the two apart. QEMU is told to set it
+# (tools/qemu-smoke-test.sh); VirtualBox and real hardware never carry
+# it. product_serial rather than the type-11 OEM strings, because those
+# need the dmi-sysfs module loaded and this comes from the kernel's own
+# DMI scan.
+ci_run=0
+if [ "${KAVIS_SELFTEST:-0}" = "1" ]; then
+	ci_run=1
+elif grep -aqs "kavis-selftest" /sys/class/dmi/id/product_serial; then
+	ci_run=1
+fi
+
 # Errors counted as fatal accumulate here. RESULT=FAIL is given at the end.
 # WHY: in stages 1 and 2 this script wrote RESULT=OK even though the
 # graphical session never opened, because the absence of the window
@@ -574,7 +597,9 @@ fi
 # 8b) Settings application (item 9): does the window really open.
 # Started as karan in the panel session; after 3 s it is searched by
 # class name (xdotool is on the ISO — clipboard paste already uses it).
-if command -v kavis-settings >/dev/null 2>&1; then
+if [ "$ci_run" -eq 0 ]; then
+	log "SETTINGS-SKIP not measured — opening a window in front of somebody is not a diagnostic"
+elif command -v kavis-settings >/dev/null 2>&1; then
 	runuser -u karan -- env DISPLAY=:0 kavis-settings >/dev/null 2>&1 &
 	settings_shell_pid=$!
 	sleep 3
@@ -861,14 +886,7 @@ fi
 # through /sys/firmware/dmi/entries, which exists only when the
 # dmi-sysfs module happens to be loaded. product_serial comes from the
 # kernel's own DMI scan and is always there (root-only, which this is).
-selftest_asked=0
-if [ "${KAVIS_SELFTEST:-0}" = "1" ]; then
-	selftest_asked=1
-elif grep -aqs "kavis-selftest" /sys/class/dmi/id/product_serial; then
-	selftest_asked=1
-fi
-
-if [ "$selftest_asked" -eq 0 ]; then
+if [ "$ci_run" -eq 0 ]; then
 	log "SELFTEST-SKIP not asked for (no CI marker) — Settings > System runs it"
 elif [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
 	selftest_rc=0

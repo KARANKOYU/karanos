@@ -2283,3 +2283,21 @@ msgstr "Kurulu imleç teması yok"
 
 msgid "The Kavis pointers come with the theme package"
 msgstr "Kavis imleçleri tema paketiyle gelir"
+
+msgid "Add a second language to be able to switch between layouts — a language brings its keyboard with it"
+msgstr "Düzenler arasında geçebilmek için ikinci bir dil ekleyin — her dil klavyesini de getirir"
+
+msgid "Your own colour"
+msgstr "Kendi rengin"
+
+msgid "Builds a pointer in this colour from the Kavis drawings. The outline stays black or white, whichever keeps it visible."
+msgstr "Kavis çizimlerinden bu renkte bir imleç üretir. Kontur siyah ya da beyaz kalır — hangisi görünürlüğü koruyorsa."
+
+msgid "Building…"
+msgstr "Üretiliyor…"
+
+msgid "Could not build the pointer"
+msgstr "İmleç üretilemedi"
+
+msgid "The pointer generator is not installed"
+msgstr "İmleç üreteci kurulu değil"

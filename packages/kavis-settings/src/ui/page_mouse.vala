@@ -134,6 +134,42 @@ namespace Kavis.Settings.Pages {
             _("Applications already open keep the old size until their next window"),
             size), false, false, 0);
 
+        /* A colour of one's own.
+         *
+         * The dropdown offers the pointers that EXIST; this builds one
+         * that does not. The cursors were always generated from SVG at
+         * package build time, so generating one more at the moment
+         * somebody picks a colour is the same operation with a
+         * different argument — and it is the only way an X11 pointer
+         * can take an arbitrary colour, because a cursor theme is a
+         * directory of images and not a stylesheet.
+         *
+         * It goes in the user's own icon directory, which is where
+         * XCursor looks first, so nothing needs root and nothing the
+         * package manager owns is touched. */
+        var custom = new Gtk.ColorButton ();
+        custom.set_use_alpha (false);
+        var chosen = Gdk.RGBA ();
+        chosen.parse (conf_get ("mouse", "pointer-colour", "#2DD4BF"));
+        custom.set_rgba (chosen);
+        var building = new Gtk.Label ("");
+        building.get_style_context ().add_class ("dim-label");
+        custom.color_set.connect (() => {
+            var rgba = custom.get_rgba ();
+            string hex = "#%02X%02X%02X".printf (
+                (int) (rgba.red * 255), (int) (rgba.green * 255),
+                (int) (rgba.blue * 255));
+            conf_set ("mouse", "pointer-colour", hex);
+            build_pointer (hex, building, size);
+        });
+        var custom_side = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
+        custom_side.pack_start (building, false, false, 0);
+        custom_side.pack_start (custom, false, false, 0);
+        pointer_block.pack_start (row (_("Your own colour"),
+            _("Builds a pointer in this colour from the Kavis drawings. The outline stays black or white, whichever keeps it visible."),
+            custom_side), false, false, 0);
+
+
         /* --- Buttons ------------------------------------------------ */
         var buttons = subsection (body, "buttons",
             Catalog.sub_title ("mouse", "buttons"));
@@ -196,5 +232,61 @@ namespace Kavis.Settings.Pages {
             natural), false, false, 0);
 
         return page;
+    }
+
+    /* Build the pointer theme and switch to it.
+     *
+     * In a thread: on this machine it is four hundred images and a few
+     * seconds, and a Settings window that stops answering while it
+     * happens would look like the thing that just broke. The label says
+     * what is going on, because a colour button that does nothing for
+     * five seconds is a colour button somebody presses again. */
+    private void build_pointer (string hex, Gtk.Label status,
+                                Gtk.ComboBoxText size) {
+        if (!FileUtils.test ("/usr/lib/kavis/gen-cursors",
+                             FileTest.IS_EXECUTABLE)) {
+            status.set_text (_("The pointer generator is not installed"));
+            return;
+        }
+        string dir = Path.build_filename (Environment.get_user_data_dir (),
+                                          "icons", "Kavis-Cursors-Custom");
+        status.set_text (_("Building…"));
+        new Thread<void*> ("kavis-cursors", () => {
+            int rc = 1;
+            try {
+                DirUtils.create_with_parents (
+                    Path.build_filename (dir, "cursors"), 0755);
+                Process.spawn_sync (null,
+                    { "/usr/lib/kavis/gen-cursors",
+                      Path.build_filename (dir, "cursors"), hex },
+                    null, SpawnFlags.SEARCH_PATH
+                    | SpawnFlags.STDOUT_TO_DEV_NULL, null, null, null,
+                    out rc);
+                /* Without index.theme XCursor does not consider the
+                 * directory a theme at all, and the setting would apply
+                 * to nothing. */
+                FileUtils.set_contents (
+                    Path.build_filename (dir, "index.theme"),
+                    "[Icon Theme]\nName=Kavis Custom\n"
+                    + "Comment=Kavis cursors, chosen colour\n"
+                    + "Inherits=Breeze_Light\n");
+            } catch (Error e) {
+                rc = 1;
+            }
+            bool ok = (rc == 0);
+            Idle.add (() => {
+                if (ok) {
+                    status.set_text ("");
+                    conf_set ("mouse", "pointer", "Kavis-Cursors-Custom");
+                    string? id = size.get_active_id ();
+                    Apply.pointer ("Kavis-Cursors-Custom",
+                                   (id != null) ? int.parse (id) : 24);
+                } else {
+                    status.set_text (_("Could not build the pointer"));
+                }
+                return false;
+            });
+            return null;
+        });
     }
 }

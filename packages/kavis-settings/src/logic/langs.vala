@@ -276,6 +276,18 @@ namespace Kavis.Settings.Langs {
         return endonym;
     }
 
+    /* English is the SOURCE language, so every English variant is
+     * complete by definition.
+     *
+     * The stats file has one entry per .po file and no English ones,
+     * so English (UK) came out of it as "0% translated" — which is
+     * nonsense on its face: the interface is written in English, and
+     * an English variant needs no .po to be readable. The VM round
+     * asked exactly that ("english nasıl 0 translated"). */
+    private bool is_source_language (string code) {
+        return code == "en" || code.has_prefix ("en_");
+    }
+
     /* Selector order (dil-secici.md): 100% first, then percent desc,
      * 0% alphabetical at the end. English (the msgid source) is put on
      * top as a synthetic 100% entry. */
@@ -300,12 +312,18 @@ namespace Kavis.Settings.Langs {
             MatchInfo info;
             re.match (json, 0, out info);
             while (info.matches ()) {
+                string code = info.fetch (1);
                 Lang lang = {
-                    info.fetch (1),
-                    endonym_of (info.fetch (1)),
-                    int.parse (info.fetch (2))
+                    code,
+                    endonym_of (code),
+                    is_source_language (code)
+                        ? 100 : int.parse (info.fetch (2))
                 };
-                parsed += lang;
+                /* "en" is already on the list as the synthetic entry
+                 * above; a second one would be a duplicate row. */
+                if (code != "en") {
+                    parsed += lang;
+                }
                 info.next ();
             }
         } catch (RegexError e) { }

@@ -117,6 +117,13 @@ xdotool
 # enumerated first. xsetroot and xmodmap (the root cursor and the
 # button map) come from x11-xserver-utils, already on line 12.
 xinput
+# librsvg2-bin (rsvg-convert) and x11-apps (xcursorgen): Settings >
+# Mouse generates a pointer theme in the colour somebody picks, from
+# the same SVG drawings the shipped white and black ones come from.
+# Without these the colour button is a setting that cannot work, so
+# they are a dependency and not an optional extra.
+librsvg2-bin
+x11-apps
 fonts-noto-color-emoji
 
 # --- touchpad gestures (next-tasks 6g) ---

@@ -7,11 +7,12 @@ generate them at build time from a single source (the SVG drawings
 here). When we want to change a color we change one line and rebuild.
 
 Requirements: rsvg-convert (librsvg2-bin), xcursorgen (x11-apps)
-Usage:        gen-cursors.py <cursors-dir>
+Usage:        gen-cursors.py <cursors-dir> [white|black|#RRGGBB]
 """
 
 import math
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -34,11 +35,31 @@ FILL = "#FFFFFF"
 # capture them as default arguments. Rebinding them later would produce
 # a theme that is white however it was asked for.
 VARIANTS = {"white": ("#FFFFFF", "#0D141B"), "black": ("#0D141B", "#FFFFFF")}
+
+
+def _outline_for(body):
+    """A pointer is only visible because of the line around it, so the
+    outline is whichever of black and white the body is not. Rec. 709
+    luminance, the same measure the contrast checker uses."""
+    r, g, b = (int(body[i:i + 2], 16) / 255.0 for i in (1, 3, 5))
+    def channel(c):
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    lum = 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+    return "#0D141B" if lum > 0.35 else "#FFFFFF"
+
+
 if len(sys.argv) == 3:
-    if sys.argv[2] not in VARIANTS:
-        sys.exit("unknown variant %r (have: %s)"
-                 % (sys.argv[2], ", ".join(sorted(VARIANTS))))
-    FILL, OUTLINE = VARIANTS[sys.argv[2]]
+    arg = sys.argv[2]
+    if arg in VARIANTS:
+        FILL, OUTLINE = VARIANTS[arg]
+    elif re.fullmatch(r"#[0-9A-Fa-f]{6}", arg):
+        # A colour the person picked in Settings > Mouse. The body is
+        # theirs; the outline is not a choice, it is what keeps the
+        # pointer visible on a background the same colour as the body.
+        FILL, OUTLINE = arg.upper(), _outline_for(arg)
+    else:
+        sys.exit("unknown variant %r (have: %s, or #RRGGBB)"
+                 % (arg, ", ".join(sorted(VARIANTS))))
 ACCENT = "#2DD4BF"
 ACCENT2 = "#4F92F7"
 # A teal "forbidden" cursor does not read as a warning; red as the single

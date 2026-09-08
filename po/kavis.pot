@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 10:51+0000\n"
+"POT-Creation-Date: 2026-09-08 13:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -420,8 +420,8 @@ msgstr ""
 
 #: packages/kavis-panel/src/ui/indicator_popups.vala:298
 #: packages/kavis-settings/src/logic/catalog.vala:134
-#: packages/kavis-settings/src/ui/page_language.vala:232
-#: packages/kavis-settings/src/ui/page_language.vala:268
+#: packages/kavis-settings/src/ui/page_language.vala:242
+#: packages/kavis-settings/src/ui/page_language.vala:277
 msgid "Keyboard layout"
 msgstr ""
 
@@ -1376,8 +1376,8 @@ msgid "Nine checks: does this machine work"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:186
-#: packages/kavis-settings/src/ui/page_mouse.vala:125
-#: packages/kavis-settings/src/ui/page_mouse.vala:129
+#: packages/kavis-settings/src/ui/page_mouse.vala:160
+#: packages/kavis-settings/src/ui/page_mouse.vala:164
 msgid "Pointer colour"
 msgstr ""
 
@@ -1386,7 +1386,7 @@ msgid "White or black pointer, and the Breeze themes"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:188
-#: packages/kavis-settings/src/ui/page_mouse.vala:133
+#: packages/kavis-settings/src/ui/page_mouse.vala:168
 msgid "Pointer size"
 msgstr ""
 
@@ -1395,17 +1395,17 @@ msgid "24, 32, 48 or 64 pixels"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:190
-#: packages/kavis-settings/src/ui/page_mouse.vala:147
+#: packages/kavis-settings/src/ui/page_mouse.vala:182
 msgid "Left-handed"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:191
-#: packages/kavis-settings/src/ui/page_mouse.vala:148
+#: packages/kavis-settings/src/ui/page_mouse.vala:183
 msgid "Swaps the left and right buttons"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:192
-#: packages/kavis-settings/src/ui/page_mouse.vala:165
+#: packages/kavis-settings/src/ui/page_mouse.vala:200
 msgid "Double-click speed"
 msgstr ""
 
@@ -1414,7 +1414,7 @@ msgid "How far apart two clicks may be"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:194
-#: packages/kavis-settings/src/ui/page_mouse.vala:184
+#: packages/kavis-settings/src/ui/page_mouse.vala:219
 msgid "Pointer speed"
 msgstr ""
 
@@ -1423,7 +1423,7 @@ msgid "Acceleration of the pointer"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:196
-#: packages/kavis-settings/src/ui/page_mouse.vala:194
+#: packages/kavis-settings/src/ui/page_mouse.vala:229
 msgid "Natural scrolling"
 msgstr ""
 
@@ -1851,7 +1851,7 @@ msgid "Off"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:38
-#: packages/kavis-settings/src/ui/page_mouse.vala:157
+#: packages/kavis-settings/src/ui/page_mouse.vala:192
 msgid "Fast"
 msgstr ""
 
@@ -1860,7 +1860,7 @@ msgid "Normal"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:40
-#: packages/kavis-settings/src/ui/page_mouse.vala:159
+#: packages/kavis-settings/src/ui/page_mouse.vala:194
 msgid "Slow"
 msgstr ""
 
@@ -2324,27 +2324,28 @@ msgstr ""
 msgid "Applying…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:233
-#, c-format
-msgid "%s — add a second language to be able to switch between layouts"
+#: packages/kavis-settings/src/ui/page_language.vala:243
+msgid ""
+"Add a second language to be able to switch between layouts — a language "
+"brings its keyboard with it"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:239
-#: packages/kavis-settings/src/ui/page_language.vala:277
+#: packages/kavis-settings/src/ui/page_language.vala:248
+#: packages/kavis-settings/src/ui/page_language.vala:286
 msgid "Search layouts"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:269
+#: packages/kavis-settings/src/ui/page_language.vala:278
 msgid ""
 "One global layout for every window; right-click the taskbar indicator to "
 "switch between the ones you have used"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:271
+#: packages/kavis-settings/src/ui/page_language.vala:280
 msgid "Another layout"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_language.vala:272
+#: packages/kavis-settings/src/ui/page_language.vala:281
 msgid ""
 "Anything in the xkb catalogue, whether a language on the list uses it or not"
 msgstr ""
@@ -2385,39 +2386,61 @@ msgstr ""
 msgid "Extra large (64)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:123
+#: packages/kavis-settings/src/ui/page_mouse.vala:149
+msgid "Your own colour"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:150
+msgid ""
+"Builds a pointer in this colour from the Kavis drawings. The outline stays "
+"black or white, whichever keeps it visible."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:158
 msgid "No pointer themes installed"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:126
+#: packages/kavis-settings/src/ui/page_mouse.vala:161
 msgid "The Kavis pointers come with the theme package"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:130
+#: packages/kavis-settings/src/ui/page_mouse.vala:165
 msgid ""
 "A white pointer disappears on a white page; a dark one disappears on the "
 "desktop"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:134
+#: packages/kavis-settings/src/ui/page_mouse.vala:169
 msgid "Applications already open keep the old size until their next window"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:158
-#: packages/kavis-settings/src/ui/page_mouse.vala:178
+#: packages/kavis-settings/src/ui/page_mouse.vala:193
+#: packages/kavis-settings/src/ui/page_mouse.vala:213
 msgid "Default"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:166
+#: packages/kavis-settings/src/ui/page_mouse.vala:201
 msgid "How long two clicks may be apart and still count as one double click"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:185
+#: packages/kavis-settings/src/ui/page_mouse.vala:220
 msgid "How far the pointer travels for the same movement of the hand"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:195
+#: packages/kavis-settings/src/ui/page_mouse.vala:230
 msgid "The content follows the fingers, the way a phone scrolls"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:247
+msgid "The pointer generator is not installed"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:252
+msgid "Building…"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:284
+msgid "Could not build the pointer"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_network.vala:62

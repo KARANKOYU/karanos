@@ -22,6 +22,14 @@ steps:
     note: this run's own report directory
   - do: shell test -z "$(grep -rl kavis-selftest /etc/xdg/autostart /usr/lib/systemd/system /etc/systemd/system 2>/dev/null)"
     expect: ok
+  - do: shell grep -q 'ci_run=0' /usr/lib/kavis/boot-check
+    expect: ok
+    note: >
+      and boot-check asks the same question before ANY measurement that
+      opens a window. It used to start Settings on every live boot to
+      weigh it — the VM round reported that as "Settings opens and
+      closes on its own at startup", which is exactly what it looked
+      like. A diagnostic that a person can see is not a diagnostic.
     note: >
       B2: the scenarios ship, the TRIGGER does not. Nothing may start
       the selftest on its own — no autostart entry, no unit, no timer.

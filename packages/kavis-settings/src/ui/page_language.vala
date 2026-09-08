@@ -228,11 +228,20 @@ namespace Kavis.Settings.Pages {
         string current = Xkb.make_id (conf_get ("keyboard", "layout", "tr"),
                                       conf_get ("keyboard", "variant", ""));
 
+        /* ONE LANGUAGE, NO CHOOSER. A dropdown offering a choice
+         * between one thing teaches people that this page is not worth
+         * reading. What the row says instead is which keyboard is in
+         * use and how to get a second one — adding a language is how,
+         * because a language brings its layout with it. */
         if (codes.length < 2) {
+            var single = new Gtk.Label (Xkb.describe (current));
+            single.set_line_wrap (true);
+            single.set_max_width_chars (28);
+            single.set_xalign (1);
+            single.get_style_context ().add_class ("dim-label");
             block.pack_start (row (_("Keyboard layout"),
-                _("%s — add a second language to be able to switch between layouts")
-                    .printf (Xkb.describe (current)),
-                other_layout_button (block, codes)), false, false, 0);
+                _("Add a second language to be able to switch between layouts — a language brings its keyboard with it"),
+                single), false, false, 0);
             return;
         }
 
@@ -276,7 +285,11 @@ namespace Kavis.Settings.Pages {
     private Gtk.Widget other_layout_button (Gtk.Box block, string[] codes) {
         var drop = new SearchDropdown (_("Search layouts"));
         foreach (unowned Xkb.Entry entry in Xkb.list ()) {
-            drop.add_item (entry.id, entry.description, entry.id, false);
+            /* The shape leads: somebody looking for their keyboard
+             * knows it is a QWERTY or a Turkish F, not that it was
+             * standardised in Ghana. */
+            drop.add_item (entry.id, Xkb.describe (entry.id), entry.id,
+                           false);
         }
         drop.select (Xkb.make_id (conf_get ("keyboard", "layout", "tr"),
                                   conf_get ("keyboard", "variant", "")));
