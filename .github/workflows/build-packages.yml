@@ -234,6 +234,14 @@ jobs:
       # did not work in a real drag. This step does not move the window
       # with xdotool; it presses the title bar and drags the mouse — openbox
       # does the move.
+      - name: LEAKS — the long-running parts do not grow
+        run: |
+          set -eu
+          # Forty hovers, forty Start menus, thirty transfers; private
+          # memory before and after the second half. A leak is invisible
+          # to every other check because nothing else repeats anything.
+          DISPLAY_NO=90 tools/check-leaks.sh
+
       - name: SHARE — two devices, one protocol, a file across
         run: |
           set -eu

@@ -301,8 +301,8 @@ namespace Kavis.TaskManager {
                          "uptime", "procs", "board" };
             }
             if (id == "mem") {
-                return { "used", "cached", "swap", "speed",
-                         "type", "cas", "slots" };
+                return { "used", "apps", "kernel", "shmem", "cached",
+                         "swap", "speed", "type", "cas", "slots" };
             }
             if (id.has_prefix ("disk:")) {
                 return { "model", "size", "read", "write", "temp" };
@@ -327,7 +327,10 @@ namespace Kavis.TaskManager {
             case "procs":  return _("Processes / threads");
             case "board":  return _("Motherboard");
             case "used":   return _("In use");
-            case "cached": return _("Cached");
+            case "apps":   return _("Applications (private pages)");
+            case "kernel": return _("Kernel (slab, page tables)");
+            case "shmem":  return _("Shared memory (tmpfs)");
+            case "cached": return _("Cached (not counted as used)");
             case "swap":   return _("Swap");
             case "speed":  return _("Speed");
             case "size":   return _("Capacity");
@@ -448,6 +451,13 @@ namespace Kavis.TaskManager {
             set_fact ("mem", "used", "%s (%.0f%%)".printf (
                 SysInfo.format_bytes (mu), mem_pct));
             set_fact ("mem", "cached", SysInfo.format_bytes (mc));
+            /* The three parts of "used", so the number above is one a
+             * person can check rather than one they have to believe. */
+            uint64 mk, msh, ma;
+            SysInfo.memory_breakdown (out mk, out msh, out ma);
+            set_fact ("mem", "apps", SysInfo.format_bytes (ma));
+            set_fact ("mem", "kernel", SysInfo.format_bytes (mk));
+            set_fact ("mem", "shmem", SysInfo.format_bytes (msh));
             set_fact ("mem", "swap", (st > 0)
                 ? "%s / %s".printf (SysInfo.format_bytes (su),
                                     SysInfo.format_bytes (st)) : "—");

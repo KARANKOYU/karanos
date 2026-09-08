@@ -451,6 +451,36 @@ YAPIDIR; **kodun tek satırı kopyalanmaz** (değişmez kural).
 9. **WebRTC kütüphanesi ISO'ya gömülü gelir; CDN'den indirme YOK** — dış
    servis kapanırsa özellik ölmesin.
 
+### Buluşma sunucusu olmadan da çalışır (8 Eyl akşamı eki)
+
+Uzak modun tek dış bağımlılığı buluşma sunucusu; **o yoksa özellik
+ölmez**, aşağıdaki merdivenden iner. Her basamak bir üsttekinden
+bağımsız ve hepsi arayüzde tek yerde ("Bağlanamıyor musun?"):
+
+1. **Aynı ağ hiçbir sunucu istemez** — yakın mod LocalSend keşfiyle
+   doğrudan bulur; buluşma sunucusu yalnız internet üstünden aynı ağda
+   olmayan iki cihaz içindir.
+2. **Yedekli sunucu listesi** sırayla denenir (Kavis → genel PeerJS →
+   kullanıcının girdiği adres); biri yanıt vermezse sıradaki.
+3. **Doğrudan adres** — bir tarafın ulaşılabilir adresi varsa
+   (IPv6, yönlendirilmiş port, VPN/Tailscale benzeri) oda kodu yerine
+   `adres:port` yazılır; sunucu hiç aranmaz. `kavis-share --send ...
+   --to <adres>` bugün zaten bunu yapıyor.
+4. **Elle el sıkışma (sunucusuz WebRTC)** — WebRTC'nin sunucuya
+   ihtiyacı yalnız adres değişimi içindir; o değişim iki metin bloğunun
+   karşılıklı kopyalanmasıyla da yapılabilir. Kavis "bağlantı davetiyesi"
+   üretir (teklif + adayların sıkıştırılmış hâli), karşı taraf yapıştırıp
+   "cevap"ını geri verir; QR olarak da gösterilir. Yavaştır ama **hiçbir
+   dış hizmete bağlı değildir** ve tam da sunucular çöktüğünde işe yarar.
+5. **STUN/TURN da kullanıcınındır** — Kavis TURN barındırmadığı gibi,
+   listedeki STUN'lar da değiştirilebilir; katı NAT'ta kullanıcı kendi
+   TURN'ünü girer.
+
+Arayüz kuralı: hangi basamağın kullanıldığı **söylenir** ("buluşma
+sunucusu yanıt vermedi, yedeğe geçildi"; "davetiyeyle bağlanıldı").
+Sessizce geri düşen bir bağlantı, kullanıcının bir sonraki sefer neyin
+işe yaradığını bilmemesi demektir.
+
 ### Geçmiş ve bildirim
 
 - Sohbet geçmişi yalnız yerelde:

@@ -33,6 +33,42 @@ LocalSend v2 protokolü: multicast duyuru + doğrudan `/register` cevabı,
 birbirine karşı koşturuyor: keşif, güvenilmeyen cihazın reddi, güvenilen
 cihazın geçişi ve **40 MB'lık dosyanın aynı sha256 ile inmesi**.
 
+## Bellek: 647 MB gerçek mi, sızıntı var mı
+
+**Sayı gerçek.** Görev Yöneticisi `free`'nin formülünü kullanıyor
+(`MemTotal − MemAvailable`), boot-check ve selftest de aynısını.
+VirtualBox'taki 647 ile QEMU'daki 463 arasındaki fark ölçüm hatası
+değil, gerçekten farklı şeyler: VBox'ın SVGA sürücüsüyle Xorg 100 MB
+(QEMU'da 61), ekran görüntüsü anında Ayarlar (~40) ve Görev
+Yöneticisi'nin kendisi (37) açıktı, 4 GB RAM'de sayfa tabloları daha
+büyük. Toplarsan çıkıyor.
+
+**Ama sayı açıklanmıyordu** ve açıklanmayan toplama kimse inanmaz.
+Performans sekmesinin bellek kartına üç satır eklendi — boot-check'in
+`MEM-BREAKDOWN` satırıyla **aynı tanım**, yani insan ve CI tek tanımı
+okuyor:
+
+| Satır | Ne |
+|---|---|
+| Uygulamalar (özel sayfalar) | süreçlerin kendi belleği |
+| Çekirdek (slab, sayfa tabloları) | hiçbir sürece ait olmayan, dokunulan dosya sayısı ve RAM miktarıyla büyüyen kısım |
+| Paylaşılan bellek (tmpfs) | /run, /dev/shm, canlı imajda overlay |
+| Önbellek (kullanılana **sayılmaz**) | geri alınabilir |
+
+**Sızıntı: ölçüldü, yok.** `tools/check-leaks.sh` bir insanın bir haftada
+yaptığını bir dakikada yapıyor — 40 önizleme hover'ı + 40 Başlat menüsü,
+30 dosya aktarımı — ve ikinci yarıdaki özel bellek büyümesine bakıyor:
+
+| Süreç | 2. yarı büyümesi |
+|---|---|
+| kavis-panel (40 hover + 40 Başlat) | **+0 KB** |
+| kavis-share gönderen (30 aktarım) | +16 KB |
+| kavis-share alan (30 aktarım) | +144 KB |
+
+Eşik gevşek bırakıldı (birkaç MB): GLib'in slab ayırıcıları ve yazı tipi
+önbellekleri serbest bırakmak yerine oturur; 300 KB'de bağıran bir
+denetim, görmezden gelinmeyi öğretir. CI'da koşuyor.
+
 ## Debug taramasında bulunan ve kapanan (kodu okuyarak)
 
 | Nerede | Hata | Düzeltme |

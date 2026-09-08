@@ -2348,3 +2348,15 @@ msgstr "Kurulu — sorgulanamadı"
 
 msgid "Installed — reading the rules needs administrator rights"
 msgstr "Kurulu — kuralları okumak yönetici hakkı ister"
+
+msgid "Applications (private pages)"
+msgstr "Uygulamalar (özel sayfalar)"
+
+msgid "Kernel (slab, page tables)"
+msgstr "Çekirdek (slab, sayfa tabloları)"
+
+msgid "Shared memory (tmpfs)"
+msgstr "Paylaşılan bellek (tmpfs)"
+
+msgid "Cached (not counted as used)"
+msgstr "Önbellek (kullanılana sayılmaz)"

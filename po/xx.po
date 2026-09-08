@@ -1887,8 +1887,17 @@ msgstr "⟪Processes / threads·······⟫"
 msgid "In use"
 msgstr "⟪In use··⟫"
 
-msgid "Cached"
-msgstr "⟪Cached··⟫"
+msgid "Applications (private pages)"
+msgstr "⟪Applications (private pages)···········⟫"
+
+msgid "Kernel (slab, page tables)"
+msgstr "⟪Kernel (slab, page tables)··········⟫"
+
+msgid "Shared memory (tmpfs)"
+msgstr "⟪Shared memory (tmpfs)········⟫"
+
+msgid "Cached (not counted as used)"
+msgstr "⟪Cached (not counted as used)···········⟫"
 
 msgid "Swap"
 msgstr "⟪Swap··⟫"

@@ -268,6 +268,28 @@ namespace Kavis.SysInfo {
         swap_used = swap_total - meminfo_kb ("SwapFree") * 1024;
     }
 
+    /* Where "used" actually goes (feedback, 8 Sep: "the Task Manager
+     * says 650 MB and I do not believe it"). The number is right — it is
+     * free(1)'s own formula — but a total nobody can decompose is a
+     * total nobody trusts. Three parts, all from /proc/meminfo:
+     *   kernel   slab + page tables + kernel stacks: the kernel's own
+     *            bookkeeping, which grows with files touched and RAM
+     *            installed and belongs to no process
+     *   shmem    tmpfs — /run, /dev/shm and, on a live image, the
+     *            overlay every written file lands in
+     *   apps     what is left: the private pages of every process
+     * The same split boot-check logs as MEM-BREAKDOWN, so a person and
+     * the CI are reading one definition. */
+    public void memory_breakdown (out uint64 kernel, out uint64 shmem,
+                                  out uint64 apps) {
+        kernel = (meminfo_kb ("Slab") + meminfo_kb ("PageTables")
+                  + meminfo_kb ("KernelStack")) * 1024;
+        shmem = meminfo_kb ("Shmem") * 1024;
+        uint64 total, used, cached, st, su;
+        memory (out total, out used, out cached, out st, out su);
+        apps = (used > kernel + shmem) ? used - kernel - shmem : 0;
+    }
+
     /* --- board / gpu / disk -------------------------------------------- */
 
     public string board () {

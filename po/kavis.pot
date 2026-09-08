@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 13:42+0000\n"
+"POT-Creation-Date: 2026-09-08 13:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -134,105 +134,105 @@ msgstr ""
 msgid "Punctuation"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:391
+#: packages/kavis-common/sysinfo.vala:413
 #, c-format
 msgid "%s used of %s"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:651
+#: packages/kavis-common/sysinfo.vala:673
 msgid "Version"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:654
+#: packages/kavis-common/sysinfo.vala:676
 #: packages/kavis-taskmanager/src/reliability.vala:195
 msgid "Kernel"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:655
+#: packages/kavis-common/sysinfo.vala:677
 msgid "Desktop"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:657
+#: packages/kavis-common/sysinfo.vala:679
 msgid "Hostname"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:661
+#: packages/kavis-common/sysinfo.vala:683
 #: packages/kavis-taskmanager/src/perf.vala:328
 msgid "Motherboard"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:672
-#: packages/kavis-common/sysinfo.vala:690
-#: packages/kavis-common/sysinfo.vala:721
+#: packages/kavis-common/sysinfo.vala:694
+#: packages/kavis-common/sysinfo.vala:712
+#: packages/kavis-common/sysinfo.vala:743
 #: packages/kavis-taskmanager/src/perf.vala:318
 msgid "Model"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:673
+#: packages/kavis-common/sysinfo.vala:695
 #: packages/kavis-taskmanager/src/perf.vala:319
 msgid "Cores / threads"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:675
+#: packages/kavis-common/sysinfo.vala:697
 msgid "Base frequency"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:677
+#: packages/kavis-common/sysinfo.vala:699
 msgid "Turbo frequency"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:679
+#: packages/kavis-common/sysinfo.vala:701
 msgid "Cache"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:691
+#: packages/kavis-common/sysinfo.vala:713
 msgid "Driver"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:693
-#: packages/kavis-taskmanager/src/perf.vala:340
+#: packages/kavis-common/sysinfo.vala:715
+#: packages/kavis-taskmanager/src/perf.vala:343
 msgid "Video memory"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:704
+#: packages/kavis-common/sysinfo.vala:726
 msgid "Total"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:705
+#: packages/kavis-common/sysinfo.vala:727
 #: packages/kavis-taskmanager/src/perf.vala:320
 msgid "Type"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:706
-#: packages/kavis-taskmanager/src/perf.vala:332
+#: packages/kavis-common/sysinfo.vala:728
+#: packages/kavis-taskmanager/src/perf.vala:335
 msgid "Speed"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:707
+#: packages/kavis-common/sysinfo.vala:729
 #: packages/kavis-taskmanager/src/perf.vala:321
 msgid "CAS latency"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:709
+#: packages/kavis-common/sysinfo.vala:731
 #: packages/kavis-taskmanager/src/perf.vala:322
 msgid "Slots in use"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:723
-#: packages/kavis-taskmanager/src/perf.vala:333
+#: packages/kavis-common/sysinfo.vala:745
+#: packages/kavis-taskmanager/src/perf.vala:336
 msgid "Capacity"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:726
+#: packages/kavis-common/sysinfo.vala:748
 msgid "File system"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:729
-#: packages/kavis-taskmanager/src/perf.vala:339
+#: packages/kavis-common/sysinfo.vala:751
+#: packages/kavis-taskmanager/src/perf.vala:342
 msgid "Usage"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:736
+#: packages/kavis-common/sysinfo.vala:758
 #: packages/kavis-panel/src/logic/apps.vala:24
 #: packages/kavis-settings/src/logic/shortcuts.vala:136
 #: packages/kavis-settings/src/ui/window.vala:172
@@ -242,17 +242,17 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:737
+#: packages/kavis-common/sysinfo.vala:759
 #: packages/kavis-settings/src/ui/page_system.vala:26
 msgid "Processor"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:738
+#: packages/kavis-common/sysinfo.vala:760
 #: packages/kavis-settings/src/ui/page_system.vala:28
 msgid "Graphics"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:739
+#: packages/kavis-common/sysinfo.vala:761
 #: packages/kavis-settings/src/logic/hwtest.vala:115
 #: packages/kavis-settings/src/logic/hwtest.vala:129
 #: packages/kavis-settings/src/logic/hwtest.vala:150
@@ -266,7 +266,7 @@ msgstr ""
 msgid "Memory"
 msgstr ""
 
-#: packages/kavis-common/sysinfo.vala:740
+#: packages/kavis-common/sysinfo.vala:762
 #: packages/kavis-settings/src/ui/page_system.vala:32
 #: packages/kavis-taskmanager/src/perf.vala:130
 #: packages/kavis-taskmanager/src/tasks.vala:230
@@ -3007,30 +3007,42 @@ msgid "In use"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:330
-msgid "Cached"
+msgid "Applications (private pages)"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:331
-msgid "Swap"
+msgid "Kernel (slab, page tables)"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/perf.vala:332
+msgid "Shared memory (tmpfs)"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/perf.vala:333
+msgid "Cached (not counted as used)"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:334
-msgid "Read"
-msgstr ""
-
-#: packages/kavis-taskmanager/src/perf.vala:335
-msgid "Write"
-msgstr ""
-
-#: packages/kavis-taskmanager/src/perf.vala:336
-msgid "IP address"
+msgid "Swap"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:337
-msgid "Receive"
+msgid "Read"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/perf.vala:338
+msgid "Write"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/perf.vala:339
+msgid "IP address"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/perf.vala:340
+msgid "Receive"
+msgstr ""
+
+#: packages/kavis-taskmanager/src/perf.vala:341
 msgid "Send"
 msgstr ""
 

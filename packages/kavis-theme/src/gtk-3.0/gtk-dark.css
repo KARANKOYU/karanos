@@ -202,16 +202,37 @@ popover > contents {
  * Tree and icon views carry their own selector (the Task Manager's
  * process list came up Adwaita blue, G1 screenshots), and so do menu
  * items, which is why they are listed here rather than left to the
- * generic :selected rule below. */
+ * generic :selected rule below.
+ *
+ * :backdrop as well (8 Sep): Adwaita gives an UNFOCUSED window's selected
+ * row its own, darker blue, and that rule outranks the plain :selected
+ * one — so the Task Manager's memory card was teal while the window had
+ * focus and #2B62A6 the moment another window was clicked. A selection
+ * does not change colour because somebody looked elsewhere.
+ *
+ * And `row.activatable`, which is what actually turned the Task Manager's
+ * memory card blue: Adwaita styles a hovered, selected, clickable row
+ * as `row.activatable:selected:hover` with its compiled blue, and that
+ * selector has a class in it, so it outranks a rule with none. The
+ * pixel was #2B62A6 with the pointer on the card and teal the moment it
+ * left. Same specificity here, loaded later, so ours wins. */
 list row:selected,
 list row:selected:hover,
+list row:selected:backdrop,
+list row:selected:backdrop:hover,
+list row.activatable:selected,
+list row.activatable:selected:hover,
+list row.activatable:selected:backdrop,
 stacksidebar row:selected,
 stacksidebar row:selected:hover,
+stacksidebar row:selected:backdrop,
 treeview.view:selected,
 treeview.view:selected:hover,
 treeview.view:selected:focus,
+treeview.view:selected:backdrop,
 iconview:selected,
 iconview:selected:hover,
+iconview:selected:backdrop,
 menu menuitem:hover,
 menu menuitem:selected {
 	background-color: @kavis_teal;
