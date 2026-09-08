@@ -53,6 +53,31 @@ namespace Kavis {
             clipboard_requested ();
         }
 
+        /* Where a taskbar button IS, in root coordinates.
+         *
+         * For the selftest, and it earns its place: 83-previews used to
+         * aim at "the middle of the taskbar", which is empty on a
+         * left-aligned panel — the scenario failed while the feature
+         * worked. A test that has to guess the layout of the thing it
+         * is testing will keep guessing wrong every time the layout
+         * changes, and the panel is the only thing that knows.
+         *
+         * Answers 0x0 at 0,0 when no slot matches, which the caller can
+         * tell apart from a real rectangle. */
+        public void slot_rect (string cls, out int x, out int y,
+                               out int width, out int height)
+            throws Error {
+            x = 0; y = 0; width = 0; height = 0;
+            int rx = 0, ry = 0, rw = 0, rh = 0;
+            slot_rect_requested (cls, ref rx, ref ry, ref rw, ref rh);
+            x = rx; y = ry; width = rw; height = rh;
+        }
+
+        [DBus (visible = false)]
+        public signal void slot_rect_requested (string cls, ref int x,
+                                                ref int y, ref int width,
+                                                ref int height);
+
         /* Volume keys moved to kavis-osd (sonraki-isler 6a) — the OSD
          * is a separate process, not the panel. */
     }

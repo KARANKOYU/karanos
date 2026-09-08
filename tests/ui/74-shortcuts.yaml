@@ -40,6 +40,19 @@ steps:
     note: >
       and the old one is gone. Counted rather than negated: a bare "!"
       in front of the command is what broke the editors scenario
+  - do: shell logger -t kavis-diag "openbox argv: $(pgrep -a openbox | tr '\n' ' ') | user rc: $(ls -l "$HOME/.config/openbox/rc.xml" 2>&1)"
+    expect: ok
+    note: >
+      A DIAGNOSTIC, not an assertion. The next step has failed twice on
+      the ISO with a correct rc.xml on disk, and it cannot be
+      reproduced on a development machine: tools/check-reassign.sh does
+      the same thing against a real openbox — system rc in
+      XDG_CONFIG_DIRS, no user rc, openbox started the way the session
+      starts it — and passes. So the difference is in the session, and
+      this line puts openbox's own command line into the journal, which
+      the runner captures per step. `openbox --reconfigure` re-reads
+      the config file openbox resolved AT STARTUP, so how it was
+      started is the question.
   - do: key super+y
     expect: window nemo visible
     timeout: 40000

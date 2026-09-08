@@ -233,6 +233,14 @@ jobs:
       # did not work in a real drag. This step does not move the window
       # with xdotool; it presses the title bar and drags the mouse — openbox
       # does the move.
+      - name: REASSIGN — a moved shortcut actually works
+        run: |
+          set -eu
+          # Two ISO runs failed on a reassigned key with a correct
+          # rc.xml on disk. This does the same thing against a real
+          # openbox in forty seconds.
+          DISPLAY_NO=79 tools/check-reassign.sh
+
       - name: PREVIEWS — taskbar window previews
         run: |
           set -eu

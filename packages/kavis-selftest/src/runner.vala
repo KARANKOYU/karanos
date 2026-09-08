@@ -228,10 +228,70 @@ namespace Kavis.Selftest {
                 return do_close (w, out err);
             case "focus":
                 return do_focus (w, out err);
+            case "hover":
+                return do_hover (w, out err);
             default:
                 err = "unknown action: " + w[0];
                 return false;
             }
+        }
+
+        /* hover taskbar <class> — put the pointer on an application's
+         * taskbar button, the way a person does.
+         *
+         * TWO MOVES, not one. The panel shows window previews on
+         * pointer MOTION rather than on entry, because a click parks
+         * the pointer on the button it pressed and previews that appear
+         * under a resting cursor never go away (v0.5-test5 lost six
+         * steps to exactly that). A single warp straight onto the
+         * button is an entry with no motion; moving somewhere else
+         * first and then onto it is what a hand does.
+         *
+         * The button's position comes from the PANEL, over D-Bus. The
+         * scenario used to aim at "the middle of the taskbar", which is
+         * empty space on a left-aligned panel: the test failed while
+         * the feature worked. A test that guesses the layout of the
+         * thing it tests keeps guessing wrong. */
+        private bool do_hover (string[] w, out string err) {
+            err = "";
+            if (w.length < 3 || w[1] != "taskbar") {
+                err = "hover taskbar <class>";
+                return false;
+            }
+            int rc;
+            string answer = SysMon.run_shell (
+                "gdbus call --session --dest org.kavis.Panel "
+                + "--object-path /org/kavis/Panel "
+                + "--method org.kavis.Panel.SlotRect " + w[2], out rc);
+            /* "(320, 756, 46, 44)" */
+            int[] numbers = {};
+            foreach (unowned string piece in answer.replace ("(", " ")
+                     .replace (")", " ").replace (",", " ").split (" ")) {
+                string trimmed = piece.strip ();
+                if (trimmed != "" && trimmed[0].isdigit ()) {
+                    numbers += int.parse (trimmed);
+                }
+            }
+            if (numbers.length < 4 || numbers[2] == 0) {
+                err = "the panel has no button for " + w[2];
+                return false;
+            }
+            int cx = numbers[0] + numbers[2] / 2;
+            int cy = numbers[1] + numbers[3] / 2;
+            string ignore;
+            if (!xdo ({ "mousemove", "%d".printf (cx), "%d".printf (cy - 200) },
+                      out ignore)) {
+                err = ignore;
+                return false;
+            }
+            settle (200);
+            if (!xdo ({ "mousemove", "%d".printf (cx), "%d".printf (cy) },
+                      out err)) {
+                return false;
+            }
+            /* The panel waits 400 ms before showing them. */
+            settle (900);
+            return true;
         }
 
         /* focus window <class>.

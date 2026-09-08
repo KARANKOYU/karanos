@@ -27,18 +27,27 @@ steps:
     timeout: 10000
     note: two windows, so the button has something to preview
 
-  - do: click taskbar middle
+  - do: hover taskbar nemo
     expect: popup kavis-panel visible
     timeout: 8000
     note: >
-      clicking the button shows the previews instead of cycling. The
-      previews are a panel-owned override-redirect window, so they
-      count as a panel popup
+      the pointer MOVES onto the button, which is what a hand does and
+      what the panel waits for — a pointer parked by a click is not a
+      hover, and previews that appeared under a resting cursor never
+      went away. The button's position comes from the panel over D-Bus:
+      the first version of this step aimed at "the middle of the
+      taskbar", which is empty space on a left-aligned panel, and it
+      failed while the feature worked
     shot: true
-  - do: key Escape
+  - do: click 600 300
     expect: ok
     timeout: 4000
+    note: the pointer leaves the taskbar
   - do: wait 1500
+    expect: popup kavis-panel hidden
+    timeout: 8000
+    note: the pointer left, so they close by themselves
+  - do: none
     expect: count window nemo 2
     timeout: 8000
     note: >

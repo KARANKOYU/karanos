@@ -295,6 +295,11 @@ namespace Kavis.Ui {
                 PanelBus.service.snap_menu_requested.connect (() => {
                     snap_menu.open ();
                 });
+                PanelBus.service.slot_rect_requested.connect (
+                    (cls, ref x, ref y, ref width, ref height) => {
+                        answer_slot_rect (cls, ref x, ref y,
+                                          ref width, ref height);
+                    });
             }
             start_menu = new StartMenu ();
             start_menu.taskbar_changed.connect (() => refresh_windows ());
@@ -1164,6 +1169,34 @@ namespace Kavis.Ui {
         private const int PREVIEW_DELAY_MS = 400;
         private WindowPreviews previews = new WindowPreviews ();
         private uint hover_timer = 0;
+
+        /* Where the button of an application is, in root coordinates,
+         * for the selftest — see PanelService.slot_rect. Matched on the
+         * slot key, which carries either the .desktop id or the window
+         * class, so "nemo" finds the nemo button either way. */
+        private void answer_slot_rect (string cls, ref int x, ref int y,
+                                       ref int width, ref int height) {
+            for (int i = 0; i < slots.length; i++) {
+                var slot = slots[i];
+                if (slot.button == null || !slot.key.down ().contains (
+                        cls.down ())) {
+                    continue;
+                }
+                var window = slot.button.get_window ();
+                if (window == null) {
+                    continue;
+                }
+                int ox, oy;
+                window.get_origin (out ox, out oy);
+                Gtk.Allocation alloc;
+                slot.button.get_allocation (out alloc);
+                x = ox + alloc.x;
+                y = oy + alloc.y;
+                width = alloc.width;
+                height = alloc.height;
+                return;
+            }
+        }
 
         /* One card per window, including when there is only one: that
          * window may be behind three others, which is exactly when
