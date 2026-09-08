@@ -1485,9 +1485,6 @@ msgstr "⟪Large (48)····⟫"
 msgid "Extra large (64)"
 msgstr "⟪Extra large (64)······⟫"
 
-msgid "Your own colour"
-msgstr "⟪Your own colour······⟫"
-
 msgid "No pointer themes installed"
 msgstr "⟪No pointer themes installed··········⟫"
 
@@ -1496,6 +1493,9 @@ msgstr "⟪The Kavis pointers come with the theme package···········�
 
 msgid "Applications already open keep the old size until their next window"
 msgstr "⟪Applications already open keep the old size until their next window··························⟫"
+
+msgid "Your own colour"
+msgstr "⟪Your own colour······⟫"
 
 msgid "Default"
 msgstr "⟪Default··⟫"
@@ -1775,6 +1775,45 @@ msgstr "⟪Find a setting·····⟫"
 
 msgid "Nothing matches “%s”"
 msgstr "⟪Nothing matches “%s”········⟫"
+
+msgid "No device called “%s” is nearby"
+msgstr "⟪No device called “%s” is nearby············⟫"
+
+msgid "usage: kavis-share --send <file>... --to <device>\n"
+msgstr "⟪usage: kavis-share --send <file>... --to <device>····················⟫\n"
+
+msgid "usage: kavis-share [--daemon|--list|--send <file>... --to <device>]\n"
+msgstr "⟪usage: kavis-share [--daemon|--list|--send <file>... --to <device>]···························⟫\n"
+
+msgid "Incoming file"
+msgstr "⟪Incoming file·····⟫"
+
+msgid "Decline"
+msgstr "⟪Decline··⟫"
+
+msgid "Accept"
+msgstr "⟪Accept··⟫"
+
+msgid "%s wants to send you something"
+msgstr "⟪%s wants to send you something············⟫"
+
+msgid "Always allow this device"
+msgstr "⟪Always allow this device·········⟫"
+
+msgid "%u file"
+msgstr "⟪%u file··⟫"
+
+msgid "The other device declined"
+msgstr "⟪The other device declined··········⟫"
+
+msgid "The other device answered %u"
+msgstr "⟪The other device answered %u···········⟫"
+
+msgid "The other device sent no session"
+msgstr "⟪The other device sent no session············⟫"
+
+msgid "Sending %s failed"
+msgstr "⟪Sending %s failed······⟫"
 
 msgid "Session"
 msgstr "⟪Session··⟫"

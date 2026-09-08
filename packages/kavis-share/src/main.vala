@@ -1,0 +1,221 @@
+/* kavis-share — device to device, with no account and no server
+ * (items 76/77, docs/kararlar.md 11).
+ *
+ *   kavis-share --daemon          announce, discover, receive
+ *   kavis-share --list            what is nearby, one device per line
+ *   kavis-share --send F... --to X   send to a fingerprint, name or address
+ *
+ * ONE PROCESS, not one per job: the daemon holds the socket on port
+ * 53317 and the list of who is nearby, so `--list` and `--send` ask it
+ * rather than starting a second discovery that would fight it for the
+ * port. They ask over the session bus, which is also how the panel and
+ * Nemo will ask later.
+ */
+
+namespace Kavis.Share {
+
+    /* The client's view of the daemon. Vala builds a proxy from an
+     * INTERFACE; the class below is what the daemon exports, and the
+     * two are kept in step by having the same D-Bus name and the same
+     * three methods — which is what D-Bus itself checks at the moment
+     * of the call. */
+    [DBus (name = "org.kavis.Share")]
+    public interface ShareBus : Object {
+        public abstract string list_devices () throws Error;
+        public abstract string this_device () throws Error;
+        public abstract string send_files (string target, string[] paths)
+            throws Error;
+    }
+
+    [DBus (name = "org.kavis.Share")]
+    public class Service : Object {
+
+        [DBus (visible = false)]
+        public Discovery discovery;
+        [DBus (visible = false)]
+        public Self me;
+        [DBus (visible = false)]
+        public Trust trust;
+
+        /* "fingerprint\talias\taddress\ttrusted" per device. A table
+         * rather than a structure because the callers are a shell
+         * script, a panel and a settings page, and every one of them
+         * wants a different two of the four columns. */
+        public string list_devices () throws Error {
+            var text = new StringBuilder ();
+            foreach (unowned Device peer in discovery.known ()) {
+                text.append_printf ("%s\t%s\t%s\t%s\n",
+                    peer.fingerprint, peer.alias, peer.address,
+                    trust.is_trusted (peer.fingerprint) ? "trusted" : "new");
+            }
+            return text.str;
+        }
+
+        public string this_device () throws Error {
+            return "%s\t%s".printf (me.device.fingerprint, me.device.alias);
+        }
+
+        /* Returns "" on success, otherwise what went wrong — the caller
+         * is a menu item, and a menu item that fails silently is worse
+         * than one that says why. */
+        public string send_files (string target, string[] paths)
+            throws Error {
+            Device? peer = find (target);
+            if (peer == null) {
+                return _("No device called “%s” is nearby").printf (target);
+            }
+            var sender = new Sender (me);
+            string outcome = "";
+            var loop = new MainLoop ();
+            sender.finished.connect ((ok, detail) => {
+                outcome = ok ? "" : detail;
+                loop.quit ();
+            });
+            new Thread<void*> ("kavis-share-send", () => {
+                sender.send (peer, paths);
+                return null;
+            });
+            loop.run ();
+            return outcome;
+        }
+
+        [DBus (visible = false)]
+        private Device? find (string target) {
+            foreach (unowned Device peer in discovery.known ()) {
+                if (peer.fingerprint == target || peer.alias == target
+                    || peer.address == target) {
+                    return peer;
+                }
+            }
+            /* A bare address is allowed: a device on another subnet
+             * never announced, and typing its address is the only way
+             * to reach it. */
+            if (target.contains (".")) {
+                var direct = new Device ();
+                direct.alias = target;
+                direct.fingerprint = target;
+                direct.address = target;
+                return direct;
+            }
+            return null;
+        }
+    }
+}
+
+private int run_daemon () {
+    var me = new Kavis.Share.Self ();
+    var trust = new Kavis.Share.Trust ();
+    var discovery = new Kavis.Share.Discovery (me);
+    var receiver = new Kavis.Share.Receiver (me, discovery, trust);
+    Kavis.Share.Prompt.use (trust);
+
+    try {
+        discovery.start ();
+        receiver.start ();
+    } catch (Error e) {
+        stderr.printf ("kavis-share: could not start: %s\n", e.message);
+        return 1;
+    }
+
+    receiver.arrived.connect ((path, from) => {
+        stdout.printf ("kavis-share: received %s from %s\n", path, from);
+        stdout.flush ();
+    });
+
+    var service = new Kavis.Share.Service ();
+    service.discovery = discovery;
+    service.me = me;
+    service.trust = trust;
+    Bus.own_name (BusType.SESSION, "org.kavis.Share",
+                  BusNameOwnerFlags.NONE,
+                  (connection) => {
+                      try {
+                          connection.register_object (
+                              "/org/kavis/Share", service);
+                      } catch (IOError e) {
+                          warning ("kavis-share: bus: %s", e.message);
+                      }
+                  }, null, null);
+
+    stdout.printf ("kavis-share: %s listening on %u\n",
+                   me.device.alias, me.device.port);
+    stdout.flush ();
+    new MainLoop ().run ();
+    return 0;
+}
+
+private Kavis.Share.ShareBus? bus_service () {
+    try {
+        return Bus.get_proxy_sync<Kavis.Share.ShareBus> (
+            BusType.SESSION, "org.kavis.Share", "/org/kavis/Share");
+    } catch (Error e) {
+        stderr.printf ("kavis-share: the daemon is not running (%s)\n",
+                       e.message);
+        return null;
+    }
+}
+
+int main (string[] args) {
+    Kavis.AppInit.init ();
+    /* init_check, not init: a share daemon with no display is a
+     * perfectly reasonable thing (a machine that only receives, a test
+     * harness), and dying at startup because nobody is logged in is
+     * not. What a missing display costs is the ability to ASK, and
+     * Prompt says no rather than guessing when it cannot. */
+    Kavis.Share.Prompt.display_available = Gtk.init_check (ref args);
+
+    string mode = (args.length > 1) ? args[1] : "";
+    switch (mode) {
+    case "--daemon":
+        return run_daemon ();
+
+    case "--list":
+        var service = bus_service ();
+        if (service == null) {
+            return 1;
+        }
+        try {
+            stdout.printf ("%s", service.list_devices ());
+        } catch (Error e) {
+            stderr.printf ("kavis-share: %s\n", e.message);
+            return 1;
+        }
+        return 0;
+
+    case "--send":
+        string target = "";
+        string[] paths = {};
+        for (int i = 2; i < args.length; i++) {
+            if (args[i] == "--to" && i + 1 < args.length) {
+                target = args[++i];
+            } else {
+                paths += args[i];
+            }
+        }
+        if (target == "" || paths.length == 0) {
+            stderr.printf (
+                _("usage: kavis-share --send <file>... --to <device>\n"));
+            return 2;
+        }
+        var sending = bus_service ();
+        if (sending == null) {
+            return 1;
+        }
+        try {
+            string problem = sending.send_files (target, paths);
+            if (problem != "") {
+                stderr.printf ("kavis-share: %s\n", problem);
+                return 1;
+            }
+        } catch (Error e) {
+            stderr.printf ("kavis-share: %s\n", e.message);
+            return 1;
+        }
+        return 0;
+
+    default:
+        stderr.printf (
+            _("usage: kavis-share [--daemon|--list|--send <file>... --to <device>]\n"));
+        return 2;
+    }
+}

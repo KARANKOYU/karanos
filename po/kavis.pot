@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 13:15+0000\n"
+"POT-Creation-Date: 2026-09-08 13:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1376,8 +1376,8 @@ msgid "Nine checks: does this machine work"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:186
-#: packages/kavis-settings/src/ui/page_mouse.vala:160
-#: packages/kavis-settings/src/ui/page_mouse.vala:164
+#: packages/kavis-settings/src/ui/page_mouse.vala:125
+#: packages/kavis-settings/src/ui/page_mouse.vala:129
 msgid "Pointer colour"
 msgstr ""
 
@@ -1386,7 +1386,7 @@ msgid "White or black pointer, and the Breeze themes"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:188
-#: packages/kavis-settings/src/ui/page_mouse.vala:168
+#: packages/kavis-settings/src/ui/page_mouse.vala:133
 msgid "Pointer size"
 msgstr ""
 
@@ -1395,17 +1395,17 @@ msgid "24, 32, 48 or 64 pixels"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:190
-#: packages/kavis-settings/src/ui/page_mouse.vala:182
+#: packages/kavis-settings/src/ui/page_mouse.vala:183
 msgid "Left-handed"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:191
-#: packages/kavis-settings/src/ui/page_mouse.vala:183
+#: packages/kavis-settings/src/ui/page_mouse.vala:184
 msgid "Swaps the left and right buttons"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:192
-#: packages/kavis-settings/src/ui/page_mouse.vala:200
+#: packages/kavis-settings/src/ui/page_mouse.vala:201
 msgid "Double-click speed"
 msgstr ""
 
@@ -1414,7 +1414,7 @@ msgid "How far apart two clicks may be"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:194
-#: packages/kavis-settings/src/ui/page_mouse.vala:219
+#: packages/kavis-settings/src/ui/page_mouse.vala:220
 msgid "Pointer speed"
 msgstr ""
 
@@ -1423,7 +1423,7 @@ msgid "Acceleration of the pointer"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:196
-#: packages/kavis-settings/src/ui/page_mouse.vala:229
+#: packages/kavis-settings/src/ui/page_mouse.vala:230
 msgid "Natural scrolling"
 msgstr ""
 
@@ -1851,7 +1851,7 @@ msgid "Off"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:38
-#: packages/kavis-settings/src/ui/page_mouse.vala:192
+#: packages/kavis-settings/src/ui/page_mouse.vala:193
 msgid "Fast"
 msgstr ""
 
@@ -1860,7 +1860,7 @@ msgid "Normal"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:40
-#: packages/kavis-settings/src/ui/page_mouse.vala:194
+#: packages/kavis-settings/src/ui/page_mouse.vala:195
 msgid "Slow"
 msgstr ""
 
@@ -2386,60 +2386,60 @@ msgstr ""
 msgid "Extra large (64)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:149
-msgid "Your own colour"
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_mouse.vala:150
-msgid ""
-"Builds a pointer in this colour from the Kavis drawings. The outline stays "
-"black or white, whichever keeps it visible."
-msgstr ""
-
-#: packages/kavis-settings/src/ui/page_mouse.vala:158
+#: packages/kavis-settings/src/ui/page_mouse.vala:123
 msgid "No pointer themes installed"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:161
+#: packages/kavis-settings/src/ui/page_mouse.vala:126
 msgid "The Kavis pointers come with the theme package"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:165
+#: packages/kavis-settings/src/ui/page_mouse.vala:130
 msgid ""
 "A white pointer disappears on a white page; a dark one disappears on the "
 "desktop"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:169
+#: packages/kavis-settings/src/ui/page_mouse.vala:134
 msgid "Applications already open keep the old size until their next window"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:193
-#: packages/kavis-settings/src/ui/page_mouse.vala:213
+#: packages/kavis-settings/src/ui/page_mouse.vala:168
+msgid "Your own colour"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:169
+msgid ""
+"Builds a pointer in this colour from the Kavis drawings. The outline stays "
+"black or white, whichever keeps it visible."
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:194
+#: packages/kavis-settings/src/ui/page_mouse.vala:214
 msgid "Default"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:201
+#: packages/kavis-settings/src/ui/page_mouse.vala:202
 msgid "How long two clicks may be apart and still count as one double click"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:220
+#: packages/kavis-settings/src/ui/page_mouse.vala:221
 msgid "How far the pointer travels for the same movement of the hand"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:230
+#: packages/kavis-settings/src/ui/page_mouse.vala:231
 msgid "The content follows the fingers, the way a phone scrolls"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:247
+#: packages/kavis-settings/src/ui/page_mouse.vala:248
 msgid "The pointer generator is not installed"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:252
+#: packages/kavis-settings/src/ui/page_mouse.vala:253
 msgid "Building…"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:284
+#: packages/kavis-settings/src/ui/page_mouse.vala:285
 msgid "Could not build the pointer"
 msgstr ""
 
@@ -2841,6 +2841,67 @@ msgstr ""
 #: packages/kavis-settings/src/ui/window.vala:416
 #, c-format
 msgid "Nothing matches “%s”"
+msgstr ""
+
+#: packages/kavis-share/src/main.vala:65
+#, c-format
+msgid "No device called “%s” is nearby"
+msgstr ""
+
+#: packages/kavis-share/src/main.vala:197
+#, c-format
+msgid "usage: kavis-share --send <file>... --to <device>\n"
+msgstr ""
+
+#: packages/kavis-share/src/main.vala:218
+#, c-format
+msgid "usage: kavis-share [--daemon|--list|--send <file>... --to <device>]\n"
+msgstr ""
+
+#: packages/kavis-share/src/prompt.vala:33
+msgid "Incoming file"
+msgstr ""
+
+#: packages/kavis-share/src/prompt.vala:36
+msgid "Decline"
+msgstr ""
+
+#: packages/kavis-share/src/prompt.vala:37
+msgid "Accept"
+msgstr ""
+
+#: packages/kavis-share/src/prompt.vala:46
+#, c-format
+msgid "%s wants to send you something"
+msgstr ""
+
+#: packages/kavis-share/src/prompt.vala:57
+msgid "Always allow this device"
+msgstr ""
+
+#: packages/kavis-share/src/receive.vala:252
+#, c-format
+msgid "%u file"
+msgid_plural "%u files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: packages/kavis-share/src/send.vala:47
+msgid "The other device declined"
+msgstr ""
+
+#: packages/kavis-share/src/send.vala:51
+#, c-format
+msgid "The other device answered %u"
+msgstr ""
+
+#: packages/kavis-share/src/send.vala:65 packages/kavis-share/src/send.vala:71
+msgid "The other device sent no session"
+msgstr ""
+
+#: packages/kavis-share/src/send.vala:89
+#, c-format
+msgid "Sending %s failed"
 msgstr ""
 
 #: packages/kavis-taskmanager/src/logs.vala:26

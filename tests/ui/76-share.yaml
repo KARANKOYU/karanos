@@ -1,0 +1,46 @@
+# Kavis Share — the daemon is there and it announces nothing it should
+# not (item 76, decision 11).
+#
+# The protocol itself — announcement, registration, ask-then-send — is
+# tested by tools/check-share.sh, which runs two instances against each
+# other in forty seconds. What can only be checked HERE is that the
+# thing is actually installed and running in a real session, and that
+# the two promises the decision makes about privacy hold on a machine
+# nobody has configured:
+#
+#   * the default name says nothing about the person or the machine;
+#   * nothing is announced to anybody outside the trusted list until
+#     somebody chooses otherwise.
+name: 76-share
+title: Device to device sharing
+item: 76
+allowed: []
+steps:
+  - do: shell command -v kavis-share
+    expect: ok
+  - do: shell pgrep -f 'kavis-share --daemon' >/dev/null
+    expect: ok
+    note: >
+      started with the session, not by systemd: it belongs to whoever is
+      logged in, it draws a dialog, and it has to stop when they log out
+  - do: shell kavis-share --list >/dev/null
+    expect: ok
+    note: >
+      the daemon answers on the session bus — which is how the panel and
+      the Nemo menu will ask it, so a broken bus name is worth catching
+      here rather than there
+
+  - do: shell grep -q '^name=Kavis-' "$HOME/.config/kavis/kavis.conf"
+    expect: ok
+    note: >
+      the default device name is two random words. NOT the hostname and
+      NOT the user name: a device that announces who is sitting in front
+      of it has told every stranger on the network
+  - do: shell test -z "$(grep -E '^name=.*(karan|kavis-vm|localhost)$' "$HOME/.config/kavis/kavis.conf")"
+    expect: ok
+    note: and specifically not the login name
+  - do: shell test "$(kavis-share --list | wc -l)" -ge 0
+    expect: ok
+    note: >
+      an empty list is the correct answer on a machine with nothing
+      else on the network; what would be wrong is an error

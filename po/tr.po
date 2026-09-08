@@ -2301,3 +2301,44 @@ msgstr "İmleç üretilemedi"
 
 msgid "The pointer generator is not installed"
 msgstr "İmleç üreteci kurulu değil"
+
+msgid "Incoming file"
+msgstr "Gelen dosya"
+
+msgid "%s wants to send you something"
+msgstr "%s size bir şey göndermek istiyor"
+
+msgid "Always allow this device"
+msgstr "Bu cihaza her zaman izin ver"
+
+msgid "Accept"
+msgstr "Kabul et"
+
+msgid "Decline"
+msgstr "Reddet"
+
+msgid "No device called “%s” is nearby"
+msgstr "Yakında “%s” adında bir cihaz yok"
+
+msgid "The other device declined"
+msgstr "Karşı cihaz reddetti"
+
+msgid "The other device answered %u"
+msgstr "Karşı cihaz %u yanıtı verdi"
+
+msgid "The other device sent no session"
+msgstr "Karşı cihaz oturum bilgisi göndermedi"
+
+msgid "Sending %s failed"
+msgstr "%s gönderilemedi"
+
+msgid "usage: kavis-share --send <file>... --to <device>\n"
+msgstr "kullanım: kavis-share --send <dosya>... --to <cihaz>\n"
+
+msgid "usage: kavis-share [--daemon|--list|--send <file>... --to <device>]\n"
+msgstr "kullanım: kavis-share [--daemon|--list|--send <dosya>... --to <cihaz>]\n"
+
+msgid "%u file"
+msgid_plural "%u files"
+msgstr[0] "%u dosya"
+msgstr[1] "%u dosya"

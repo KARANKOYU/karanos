@@ -34,7 +34,8 @@ jobs:
             librsvg2-bin x11-apps python3 ca-certificates git \
             ffmpeg fonts-dejavu-core gettext locales \
             valac libgtk-3-dev libwnck-3-dev libx11-dev libxss-dev \
-            libpam0g-dev libgstreamer1.0-dev libxtst-dev
+            libpam0g-dev libgstreamer1.0-dev libxtst-dev \
+            libsoup-3.0-dev libjson-glib-dev dbus-x11
           # gettext: msgfmt in rules + check-i18n (Group D task c).
           # locales/en_US: the xx screenshot step needs a real locale
           # (gettext is disabled under C — seen in the Codespace).
@@ -233,6 +234,14 @@ jobs:
       # did not work in a real drag. This step does not move the window
       # with xdotool; it presses the title bar and drags the mouse — openbox
       # does the move.
+      - name: SHARE — two devices, one protocol, a file across
+        run: |
+          set -eu
+          # The protocol, not the hardware: two instances with their own
+          # configuration, trusted list, downloads folder and session
+          # bus. Also the refusal, which matters more than the transfer.
+          tools/check-share.sh
+
       - name: REASSIGN — a moved shortcut actually works
         run: |
           set -eu

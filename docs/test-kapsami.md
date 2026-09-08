@@ -8,7 +8,7 @@ Durum sütunu: **var** = senaryosu yazılmış · **EKSİK** =
 grubu bitmiş ama testi yok (hata) · **sırada** = grubu henüz
 yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 
-**Kapsam: 39 / 83 madde; bitmiş gruplarda 34 / 34.**
+**Kapsam: 40 / 83 madde; bitmiş gruplarda 34 / 34.**
 
 | Madde | Başlık | Durum | Senaryo |
 |---|---|---|---|
@@ -84,7 +84,7 @@ yapılmadı · **yok** = çalışan sistemde karşılığı olmayan madde.
 | 70 | KİLİT EKRANI | var | `70-lock-screen` |
 | 71 | fastfetch / kavisfetch | var | `71-kavisfetch` |
 | 75 | APP FILES — uygulama verileri klasörü | sırada | — |
-| 76 | KAVIS PAYLAŞ — DOSYA | sırada | — |
+| 76 | KAVIS PAYLAŞ — DOSYA | var | `76-share` |
 | 77 | KAVIS PAYLAŞ — PANO | sırada | — |
 | 78 | KAVIS MESSENGER — YAKIN MOD | sırada | — |
 | 79 | KAVIS MESSENGER — UZAK MOD | sırada | — |

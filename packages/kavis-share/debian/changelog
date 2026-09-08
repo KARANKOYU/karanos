@@ -1,0 +1,14 @@
+kavis-share (1.0) unstable; urgency=medium
+
+  * First cut of Kavis Share (item 76, decision 11): discovery over the
+    LocalSend multicast announcement plus direct registration, and file
+    transfer over its prepare-upload/upload pair — so a device asks
+    before it sends and a stranger can only ask, once, and be refused.
+  * Visibility is enforced where the announcement is made, not at the
+    edges: "off" means nothing leaves this machine, because the
+    announcement is the thing that tells a stranger a device is here.
+  * Files land in ~/downloads/kavis-share and never outside it; the
+    name the sender chose is stripped to its basename first, and an
+    existing file is never overwritten.
+
+ -- Karan <farukyildiz3207@gmail.com>  Mon, 08 Sep 2026 12:00:00 +0300

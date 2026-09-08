@@ -125,6 +125,16 @@ prepare_sources() {
 		install -m644 packages/kavis-common/nightlight.vala \
 			packages/kavis-settings/src/logic/nightlight.vala
 		;;
+	kavis-share)
+		# The share daemon reads kavis.conf (device name, visibility,
+		# download folder) and draws one dialog, so it needs the same
+		# two shared sources every Kavis GTK program needs.
+		install -d packages/kavis-share/src
+		install -m644 packages/kavis-common/appinit.vala \
+			packages/kavis-share/src/appinit.vala
+		install -m644 packages/kavis-common/config.vala \
+			packages/kavis-share/src/config.vala
+		;;
 	kavis-taskmanager)
 		# G1: the task manager is its own package now. It needs the
 		# same shared sources kavis-tools used to give it — canonical

@@ -588,6 +588,20 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     çubuğunda yer imi. Tam tasarım ve gerekçeler: docs/kararlar.md 10.
 
 76. **KAVIS PAYLAŞ — DOSYA (2026-09-08 eki, 0.7 / Grup G sonrası).**
+    **İLK KESİT YAZILDI (8 Eyl akşamı):** `kavis-share` paketi —
+    LocalSend v2 protokolüyle keşif (multicast duyuru + doğrudan
+    `/register` cevabı, iki cihaz tek alışverişte birbirini görüyor),
+    `prepare-upload`/`upload` çifti ile aktarım, güvenilen cihaz listesi
+    ve "her zaman izin ver" onay penceresi. Görünürlük duyurunun
+    yapıldığı yerde uygulanıyor: **kapalıyken hiçbir duyuru bu makineden
+    çıkmıyor.** Dosyalar `~/downloads/kavis-share`'e iniyor ve oradan
+    dışarı çıkamıyor (gönderenin verdiği ad `basename`'e indiriliyor —
+    "../../.bashrc" bir dosya adı değil, bir denemedir), var olan dosya
+    asla üzerine yazılmıyor. `tools/check-share.sh` iki örneği
+    birbirine karşı koşturuyor: keşif, **güvenilmeyen cihazın reddi**
+    (ekran yoksa sorulamaz, o hâlde hayır) ve güvenilen cihazın geçişi.
+    **Kalan:** TLS + parmak izi sabitleme, PIN eşleşme, panel göstergesi,
+    Nemo sağ tık menüsü, aktarım ilerlemesi, kesintiden devam.
     Sunucusuz, hesapsız cihazdan cihaza dosya aktarımı. mDNS/DNS-SD
     keşfi (gerçek hostname yayılmaz, ad `Kavis-<iki kelime>`), ilk
     eşleşmede 6 haneli PIN, doğrudan TCP+TLS + parmak izi sabitleme.

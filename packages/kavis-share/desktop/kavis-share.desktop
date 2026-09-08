@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Kavis Share
+Comment=Receive files from nearby devices
+Exec=kavis-share --daemon
+Icon=folder-remote
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

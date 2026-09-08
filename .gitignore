@@ -80,6 +80,7 @@ packages/*/src/logic/idlewatch.vala
 packages/*/src/logic/session.vala
 packages/kavis-tools/src/config.vala
 packages/kavis-taskmanager/src/config.vala
+packages/kavis-share/src/config.vala
 packages/kavis-taskmanager/src/sysinfo.vala
 packages/kavis-settings/src/logic/sysinfo.vala
 packages/*/src/logic/config.vala
