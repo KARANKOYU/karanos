@@ -148,6 +148,20 @@ else
 fi
 
 echo
+echo "==> Text contrast in both themes (feedback C)"
+# The light theme shipped with Kavis' own accents left at their dark
+# values, so everything the panel painted itself was 1.7:1 on white.
+# Measured now, in both palettes, against WCAG 4.5:1.
+if out=$(tools/check-contrast.py 2>&1); then
+	while IFS= read -r line; do
+		[[ -n "$line" ]] && ok "${line# }"
+	done <<< "$out"
+else
+	printf '%s\n' "$out"
+	bad "text and background are too close in one of the palettes"
+fi
+
+echo
 echo "==> Hand-placed asset files"
 [[ -f assets/logo/koyu-k-logo.svg ]] && ok "assets/logo/koyu-k-logo.svg" \
 	|| bad "assets/logo/koyu-k-logo.svg missing"

@@ -94,7 +94,11 @@ namespace Kavis {
           color: @kavis_text;
         }
         .kavis-lock-error {
-          color: #EF4444;
+          /* The palette's name, not the hex: on the light theme the
+             dark-theme red is 3.8:1 on white and the message telling
+             somebody their password is wrong was the hardest thing on
+             screen to read. */
+          color: @kavis_error;
         }
         .kavis-lock entry {
           border-radius: 6px;

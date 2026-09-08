@@ -1,8 +1,21 @@
-# Settings (item 9): dark/light theme via kavis.conf, panel follows live
+# Settings (item 9): dark/light theme via kavis.conf, panel follows live.
+#
+# Feedback C (v0.5-test1): "switch to the light theme and the text
+# breaks". The measurable half of that is tools/check-contrast.py, which
+# holds every text/background pair in both palettes to WCAG 4.5:1 and
+# would have caught the cause — Kavis' own palette kept the BRIGHT
+# accents while the GTK theme darkened them, so everything Kavis painted
+# itself was 1.7:1 on white.
+#
+# This is the other half: the light theme is put on and the windows that
+# had never been looked at in it are opened and photographed — the Start
+# menu, Settings, the Task Manager. A picture does not prove contrast,
+# which is why the checker exists; it proves the switch reaches every
+# window, and it is what a person can actually look at.
 name: 09-settings-theme
 title: Settings — theme
 item: 9
-allowed: [kavis-settings]
+allowed: [kavis-settings, kavis-taskmanager]
 steps:
   - do: none
     expect: screen panel dark
@@ -14,6 +27,30 @@ steps:
     timeout: 8000
     note: panel switched to the light theme (Config.watch)
     shot: true
+  - do: click taskbar start
+    expect: popup kavis-panel visible
+    timeout: 6000
+    note: the Start menu in the light theme
+    shot: true
+  - do: key Escape
+    expect: popup kavis-panel hidden
+    timeout: 4000
+  - do: launch kavis-settings
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: Settings in the light theme
+    shot: true
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
+  - do: launch kavis-taskmanager
+    expect: window kavis-taskmanager visible
+    timeout: 40000
+    note: the Task Manager in the light theme — its own CSS, its own risk
+    shot: true
+  - do: close window kavis-taskmanager
+    expect: window kavis-taskmanager absent
+    timeout: 8000
   - do: conf appearance theme dark
     expect: conf appearance theme dark
   - do: wait 2000

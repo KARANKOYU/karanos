@@ -21,14 +21,14 @@
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
 
 /* --- identity colors (adapted to a light ground) -------------------- */
-@define-color kavis_teal    #0D9488;
+@define-color kavis_teal    #0F766E;
 @define-color kavis_blue    #2563EB;
 @define-color kavis_ground  #EEF2F6;
 @define-color kavis_surface #FFFFFF;
 @define-color kavis_hover   #E2E9EF;
 @define-color kavis_border  #CBD6DF;
 @define-color kavis_text    #1B2732;
-@define-color kavis_text2   #5C6B78;
+@define-color kavis_text2   #4A5A68;
 
 /* --- override Adwaita's color variables ----------------------------- */
 @define-color theme_selected_bg_color @kavis_teal;
@@ -49,9 +49,9 @@
 @define-color unfocused_borders       #D9E1E8;
 @define-color link_color              @kavis_blue;
 @define-color visited_link_color      #1E4FB8;
-@define-color warning_color           #D97706;
-@define-color error_color             #DC2626;
-@define-color success_color           #16A34A;
+@define-color warning_color           #92400E;
+@define-color error_color             #B91C1C;
+@define-color success_color           #166534;
 
 /* --- accented components -------------------------------------------- */
 progressbar > trough > progress,

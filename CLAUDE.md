@@ -89,10 +89,14 @@ ve logosu (`acik-k-logo.svg`) hazır bekliyor.
 Turkuaz açık bir renk: üstüne gelen yazı **koyu** olmalı (`#0D141B`),
 beyaz değil.
 
-`packages/kavis-theme/src/gtk-3.0/gtk-light.css` depoda duruyor ama
-**pakete henüz girmiyor**; açık tema devreye alınırken (Grup F)
-kullanılacak kaynak bu. (Açık temada turkuaz `#0D9488`, mavi `#2563EB` —
-beyaz zeminde kontrast için koyulaştırılmış değerler, dosyada hazır.)
+`packages/kavis-theme/src/gtk-3.0/gtk-light.css` açık temanın kaynağı;
+Grup F'de devreye girdi ve **pakette** (`Kavis-Light` teması olarak
+kurulur, xsettingsd `Net/ThemeName` ile seçilir). (Açık temada turkuaz `#0F766E`, mavi `#2563EB` —
+beyaz zeminde kontrast için koyulaştırılmış değerler.
+**8 Eyl düzeltmesi:** turkuaz `#0D9488`'di; üstündeki beyaz yazı 3.74:1
+kalıyordu, `#0F766E` ile 4.5:1 eşiğine çıktı. Açık temanın durum
+renkleri de koyulaştırıldı: başarı `#166534`, uyarı `#92400E`, hata
+`#B91C1C`. Ölçen denetim: `tools/check-contrast.py`.)
 
 Renk değiştirmek gerekirse tek kaynak `packages/kavis-theme/` — CSS
 dosyalarındaki `@define-color` blokları ve `tools/gen-*.py` başındaki

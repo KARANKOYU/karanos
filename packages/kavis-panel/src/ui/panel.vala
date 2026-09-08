@@ -167,7 +167,7 @@ namespace Kavis.Ui {
         /* Indicator buttons (stage 4): the labels have their own
            padding, the button must not widen them further. */
         .kavis-panel button.usb-writing image {
-            color: #F59E0B;
+            color: @kavis_warn;
         }
         .kavis-panel button.indicator-button {
           padding: 0 2px;
