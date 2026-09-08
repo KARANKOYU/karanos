@@ -2079,3 +2079,26 @@ msgstr "Tamam"
 
 msgid "There is no program called “%s”."
 msgstr "“%s” adında bir program yok."
+
+msgid "Network, sound, battery — click for quick settings"
+msgstr "Ağ, ses, pil — hızlı ayarlar için tıklayın"
+
+msgid "%s — %d window"
+msgid_plural "%s — %d windows"
+msgstr[0] "%s — %d pencere"
+msgstr[1] "%s — %d pencere"
+
+msgid "New desktop — adds one to the right"
+msgstr "Yeni masaüstü — sağa bir tane ekler"
+
+msgid "Start — applications, search and power"
+msgstr "Başlat — uygulamalar, arama ve güç"
+
+msgid "Show desktop — minimises every window; press again to bring them back"
+msgstr "Masaüstünü göster — tüm pencereleri küçültür; tekrar basınca geri gelirler"
+
+msgid "%s — not running; click to open"
+msgstr "%s — çalışmıyor; açmak için tıklayın"
+
+msgid "Close this window"
+msgstr "Bu pencereyi kapat"

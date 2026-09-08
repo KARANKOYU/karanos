@@ -1,0 +1,53 @@
+# Taskbar window previews (item 83).
+#
+# An application with three windows was one button whose clicks cycled
+# through them in an order nobody could see: reaching the third window
+# meant clicking twice and hoping. Hovering or clicking the button now
+# shows one card per window.
+#
+# What a scenario can prove here is that the cards appear, that the
+# window list behind them is right, and that nothing is left rearranged
+# afterwards — the peek is only worth having if it puts everything back.
+# How the thumbnails LOOK is a VM-checklist item; a screenshot is taken
+# so there is something to look at.
+name: 83-previews
+title: Taskbar window previews
+item: 83
+allowed: [nemo]
+steps:
+  - do: launch nemo --no-desktop /users/karan
+    expect: window nemo visible
+    timeout: 40000
+  - do: launch nemo --no-desktop /users/karan/documents
+    expect: window nemo visible
+    timeout: 40000
+    note: a second window of the SAME application — one taskbar button
+  - do: wait 2000
+    expect: count window nemo 2
+    timeout: 10000
+    note: two windows, so the button has something to preview
+
+  - do: click taskbar middle
+    expect: popup kavis-panel visible
+    timeout: 8000
+    note: >
+      clicking the button shows the previews instead of cycling. The
+      previews are a panel-owned override-redirect window, so they
+      count as a panel popup
+    shot: true
+  - do: key Escape
+    expect: ok
+    timeout: 4000
+  - do: wait 1500
+    expect: count window nemo 2
+    timeout: 8000
+    note: >
+      THE POINT: after the previews are gone both windows are still
+      open and still where they were. A peek that leaves the stacking
+      order rearranged is worse than no peek — nobody asked for
+      anything to move
+
+  - do: close window nemo
+    expect: window nemo absent
+    timeout: 12000
+    note: closes both — the runner sends the request to every match

@@ -237,8 +237,8 @@ msgstr "⟪Clear··⟫"
 msgid "Keyboard layout"
 msgstr "⟪Keyboard layout······⟫"
 
-msgid "Network, sound, battery"
-msgstr "⟪Network, sound, battery·········⟫"
+msgid "Network, sound, battery — click for quick settings"
+msgstr "⟪Network, sound, battery — click for quick settings····················⟫"
 
 msgid "Mute"
 msgstr "⟪Mute··⟫"
@@ -264,8 +264,14 @@ msgstr "⟪Power saver····⟫"
 msgid "Balanced"
 msgstr "⟪Balanced···⟫"
 
-msgid "New desktop"
-msgstr "⟪New desktop····⟫"
+msgid "Desktop %d"
+msgstr "⟪Desktop %d····⟫"
+
+msgid "%s — %d window"
+msgstr "⟪%s — %d window·····⟫"
+
+msgid "New desktop — adds one to the right"
+msgstr "⟪New desktop — adds one to the right··············⟫"
 
 msgid "Only one desktop"
 msgstr "⟪Only one desktop······⟫"
@@ -276,14 +282,17 @@ msgstr "⟪Close the last desktop — its windows move to the previous one···
 msgid "Close the last desktop"
 msgstr "⟪Close the last desktop········⟫"
 
-msgid "Desktop %d"
-msgstr "⟪Desktop %d····⟫"
+msgid "Start — applications, search and power"
+msgstr "⟪Start — applications, search and power···············⟫"
 
 msgid "Start"
 msgstr "⟪Start··⟫"
 
-msgid "Show desktop"
-msgstr "⟪Show desktop····⟫"
+msgid "Show desktop — minimises every window; press again to bring them back"
+msgstr "⟪Show desktop — minimises every window; press again to bring them back···························⟫"
+
+msgid "%s — not running; click to open"
+msgstr "⟪%s — not running; click to open············⟫"
 
 msgid "Open %s"
 msgstr "⟪Open %s··⟫"
@@ -413,6 +422,9 @@ msgstr "⟪Shut down···⟫"
 
 msgid "Restart"
 msgstr "⟪Restart··⟫"
+
+msgid "Close this window"
+msgstr "⟪Close this window······⟫"
 
 msgid "Wi-Fi"
 msgstr "⟪Wi-Fi··⟫"
@@ -1004,6 +1016,9 @@ msgstr "⟪Switch windows·····⟫"
 
 msgid "Task view"
 msgstr "⟪Task view···⟫"
+
+msgid "Show desktop"
+msgstr "⟪Show desktop····⟫"
 
 msgid "Next desktop"
 msgstr "⟪Next desktop····⟫"

@@ -517,7 +517,21 @@ namespace Kavis.Selftest {
                 return (w[2] == "exists") == ex;
             }
             case "count": {
-                if (w.length < 3) { detail = "count <dir> <n>"; return false; }
+                /* Two things worth counting: entries in a directory,
+                 * and windows of a class. The second exists because
+                 * "the previews put everything back" is a statement
+                 * about how many windows are still open afterwards,
+                 * and `window <class> visible` cannot tell one from
+                 * three. */
+                if (w.length >= 4 && w[1] == "window") {
+                    int have = xw.clients_of (w[2]).length;
+                    detail = "%d windows".printf (have);
+                    return have == int.parse (w[3]);
+                }
+                if (w.length < 3) {
+                    detail = "count <dir> <n> | count window <class> <n>";
+                    return false;
+                }
                 int n = 0;
                 try {
                     var d = Dir.open (expand (w[1]));

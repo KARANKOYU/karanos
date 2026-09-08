@@ -158,7 +158,8 @@ namespace Kavis.Ui {
                 row.pack_start (battery_label, false, false, 0);
             }
             add (row);
-            set_tooltip_text (_("Network, sound, battery"));
+            set_tooltip_text (
+                _("Network, sound, battery — click for quick settings"));
 
             clicked.connect (() => {
                 QuickSettingsPopup.get_default ().toggle_at (this);
@@ -451,7 +452,23 @@ namespace Kavis.Ui {
                 int number = workspace.get_number ();
                 var button = new Gtk.Button.with_label ("%d".printf (number + 1));
                 button.set_relief (Gtk.ReliefStyle.NONE);
-                button.set_tooltip_text (workspace.get_name () ?? "");
+                /* The workspace name is usually empty, and an empty
+                 * tooltip is a tooltip that never appears. Say which
+                 * desktop it is and what is on it. */
+                int windows_here = 0;
+                foreach (unowned Wnck.Window w in screen.get_windows ()) {
+                    if (!w.is_skip_tasklist ()
+                        && w.is_on_workspace (workspace)) {
+                        windows_here++;
+                    }
+                }
+                string? given = workspace.get_name ();
+                string desktop_name = (given != null && given != "")
+                    ? given : _("Desktop %d").printf (number + 1);
+                button.set_tooltip_text (
+                    ngettext ("%s — %d window", "%s — %d windows",
+                              windows_here)
+                        .printf (desktop_name, windows_here));
                 unowned Wnck.Workspace target = workspace;
                 button.clicked.connect (() => {
                     target.activate (Gtk.get_current_event_time ());
@@ -464,7 +481,8 @@ namespace Kavis.Ui {
             /* "+" — new desktop (3E), with a fixed "✕" right next to it (C1). */
             var add_button = new Gtk.Button.with_label ("+");
             add_button.set_relief (Gtk.ReliefStyle.NONE);
-            add_button.set_tooltip_text (_("New desktop"));
+            add_button.set_tooltip_text (
+                _("New desktop — adds one to the right"));
             add_button.clicked.connect (() => {
                 int count = screen.get_workspace_count ();
                 if (count < 20) {

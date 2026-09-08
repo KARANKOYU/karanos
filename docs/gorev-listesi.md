@@ -660,6 +660,27 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     (`sh -c`). Olmayan program kabuğa verilmeden önce yakalanır, yoksa
     `sh -c` her zaman başarılı olur ve hata görünmez.
 
+83. **GÖREV ÇUBUĞU PENCERE ÖNİZLEMELERİ (2026-09-08 eki).** Üç
+    penceresi olan uygulama tek düğmeydi ve tıklamalar kimsenin
+    göremediği bir sırada dönüyordu; üçüncü pencereye ulaşmanın yolu
+    iki kez tıklayıp ummaktı. Üzerine gelince (400 ms) ya da tıklayınca
+    pencere başına bir kart: başlık, kapat düğmesi, küçük görüntü.
+    Karta gelince o pencere öne alınır — **odak verilmeden**
+    (`XRaiseWindow`), yani "ekrandaymış gibi"; ayrılınca eskisi geri
+    yükselir, küçültülmüş olan yeniden küçültülür. Geri alınabilir
+    olması işin bütün noktası: kimse hiçbir şeyin yer değiştirmesini
+    istemedi. Küçük görüntü pencerenin kendi pikselleri (compositor
+    varken kapalı pencerede de okunabiliyor), okunamıyorsa uygulama
+    ikonu — gri bir dikdörtgeni resim gibi göstermektense.
+
+84. **AÇIKLAYAN İPUÇLARI (2026-09-08 eki).** Panel düğmeleri adlarını
+    söylüyordu, ne yaptıklarını değil. Artık cümle kuruyorlar
+    ("Masaüstünü göster — tüm pencereleri küçültür; tekrar basınca geri
+    gelirler") ve varsa kısayolu taşıyorlar. Kısayol **katalogdan**
+    okunuyor (`ShortcutHint`), kullanıcının kavis.conf'taki yeniden
+    atamaları kazanıyor — ipucunda yanlış tuş yazması madde 74'ün
+    kapattığı kaymanın küçük çaplı hâlidir.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,

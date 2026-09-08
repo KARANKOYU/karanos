@@ -448,7 +448,10 @@ namespace Kavis.Ui {
             });
             if (centered || config.vertical) {
                 start_button.add (start_logo);
-                start_button.set_tooltip_text (_("Start"));
+                start_button.set_tooltip_text (
+                    Kavis.ShortcutHint.with_key (
+                        _("Start — applications, search and power"),
+                        "start-menu-alt"));
             } else {
                 var start_row = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 8);
                 start_row.pack_start (start_logo, false, false, 0);
@@ -542,7 +545,10 @@ namespace Kavis.Ui {
             var show_desktop = new Gtk.Button ();
             show_desktop.get_style_context ().add_class ("edge");
             show_desktop.set_relief (Gtk.ReliefStyle.NONE);
-            show_desktop.set_tooltip_text (_("Show desktop"));
+            show_desktop.set_tooltip_text (
+                Kavis.ShortcutHint.with_key (
+                    _("Show desktop — minimises every window; press again to bring them back"),
+                    "show-desktop"));
             if (config.vertical) {
                 show_desktop.set_size_request (-1, 8);
             } else {
@@ -743,8 +749,9 @@ namespace Kavis.Ui {
          * (pinned.conf order), unpinned running ones toward the right.
          * When a pinned app runs the SAME icon becomes its window; the
          * windows of one app gather in a single icon (two short lines
-         * underneath, clicks cycle through them). An unmatched window
-         * becomes an unpinned slot keyed by its class name. */
+         * underneath; hovering or clicking shows one preview card per
+         * window). An unmatched window becomes an unpinned slot keyed
+         * by its class name. */
         private class TaskSlot {
             public string key;
             public string? desktop_id;
@@ -754,7 +761,6 @@ namespace Kavis.Ui {
             public Gtk.Button button;
             public Gtk.Image image;
             public Gtk.Box underline_row;
-            public int cycle = 0;
         }
 
         public void refresh_windows () {
@@ -953,6 +959,33 @@ namespace Kavis.Ui {
                 return false;
             });
 
+            /* Window previews: hovering a button with windows open
+             * shows one card per window. The delay is what keeps the
+             * previews from flashing at somebody who is only moving the
+             * pointer across the taskbar on the way somewhere else. */
+            button.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK
+                               | Gdk.EventMask.LEAVE_NOTIFY_MASK);
+            button.enter_notify_event.connect (() => {
+                previews.cancel_close ();
+                if (hover_timer != 0) {
+                    Source.remove (hover_timer);
+                }
+                hover_timer = Timeout.add (PREVIEW_DELAY_MS, () => {
+                    hover_timer = 0;
+                    show_previews (target);
+                    return false;
+                });
+                return false;
+            });
+            button.leave_notify_event.connect (() => {
+                if (hover_timer != 0) {
+                    Source.remove (hover_timer);
+                    hover_timer = 0;
+                }
+                previews.schedule_close ();
+                return false;
+            });
+
             /* Drag-and-drop serves two purposes: pin reordering (pinned
              * only, application/x-kavis-pin) and DROPPING A FILE ON THE
              * ICON (6f, text/uri-list — the app opens the file). Files
@@ -1102,6 +1135,23 @@ namespace Kavis.Ui {
             });
         }
 
+        /* Long enough not to flash at a pointer crossing the taskbar,
+         * short enough to feel like an answer. Windows uses about the
+         * same. */
+        private const int PREVIEW_DELAY_MS = 400;
+        private WindowPreviews previews = new WindowPreviews ();
+        private uint hover_timer = 0;
+
+        /* One card per window, including when there is only one: that
+         * window may be behind three others, which is exactly when
+         * seeing it without switching to it is worth something. */
+        private void show_previews (TaskSlot slot) {
+            if (slot.button == null || slot.windows.length == 0) {
+                return;
+            }
+            previews.show_for (slot.button, slot.windows, config.position);
+        }
+
         private void on_slot_clicked (TaskSlot slot) {
             if (slot.button != null) {
                 flash (slot.button);
@@ -1114,12 +1164,14 @@ namespace Kavis.Ui {
                 activate_window (slot.windows[0]);
                 return;
             }
-            /* Multiple windows: clicks cycle through them. */
-            slot.cycle = (slot.cycle + 1) % (int) slot.windows.length;
-            unowned Wnck.Window next = slot.windows[slot.cycle];
-            uint32 timestamp = Gtk.get_current_event_time ();
-            next.unminimize (timestamp);
-            next.activate (timestamp);
+            /* Several windows: show them instead of cycling. Cycling
+             * moved through an order nobody could see, so the only way
+             * to reach the third window was to click twice and hope. */
+            if (hover_timer != 0) {
+                Source.remove (hover_timer);
+                hover_timer = 0;
+            }
+            show_previews (slot);
         }
 
         /* Refresh underlines and tooltips by state: a pinned app that
@@ -1137,15 +1189,10 @@ namespace Kavis.Ui {
                     slot.underline_row.remove (child);
                 }
                 bool any_active = false;
-                var titles = new StringBuilder ();
                 for (int w = 0; w < slot.windows.length; w++) {
                     if (slot.windows[w] == active_window) {
                         any_active = true;
                     }
-                    if (titles.len > 0) {
-                        titles.append_c ('\n');
-                    }
-                    titles.append (slot.windows[w].get_name () ?? "");
                 }
                 int bars = int.min (2, (int) slot.windows.length);
                 int bar_width = scaled ((bars == 2)
@@ -1168,9 +1215,16 @@ namespace Kavis.Ui {
                     var info = (slot.desktop_id != null)
                         ? AppMatch.info_for (slot.desktop_id) : null;
                     slot.button.set_tooltip_text (
-                        (info != null) ? info.get_display_name () : "");
+                        (info != null)
+                        ? _("%s — not running; click to open")
+                            .printf (info.get_display_name ())
+                        : "");
                 } else {
-                    slot.button.set_tooltip_text (titles.str);
+                    /* No text tooltip while there are windows: the
+                     * previews answer the same question better, and a
+                     * list of titles appearing over a row of cards is
+                     * two answers to one question. */
+                    slot.button.set_tooltip_text (null);
                 }
             }
         }
