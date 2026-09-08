@@ -148,6 +148,28 @@ else
 fi
 
 echo
+echo "==> Shared sources: the canonical file, not the copy"
+# packages/kavis-common/*.vala are the originals; build-packages.sh
+# copies them into each package's src/logic and .gitignore hides the
+# copies. Editing a copy therefore looks like it worked — the build
+# passes, the running binary has the change — and then the next build
+# overwrites it and the commit never carried it. That happened to the
+# light-theme palette in this very round, and it is invisible in
+# `git status` by design.
+shared_drift=0
+for canonical in packages/kavis-common/*.vala; do
+	name=$(basename "$canonical")
+	for copy in packages/*/src/logic/"$name"; do
+		[[ -f "$copy" ]] || continue
+		if ! diff -q "$canonical" "$copy" >/dev/null 2>&1; then
+			bad "$copy differs from $canonical — the edit belongs in the canonical file"
+			shared_drift=1
+		fi
+	done
+done
+[[ "$shared_drift" -eq 0 ]] && ok "every shared source matches its canonical copy"
+
+echo
 echo "==> Text contrast in both themes (feedback C)"
 # The light theme shipped with Kavis' own accents left at their dark
 # values, so everything the panel painted itself was 1.7:1 on white.

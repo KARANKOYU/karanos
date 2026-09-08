@@ -30,6 +30,12 @@ namespace Kavis.Theme {
         @define-color kavis_teal    #2DD4BF;
         @define-color kavis_blue    #4F92F7;
         @define-color kavis_on_teal #0D141B;
+        /* Success / warning / error as NAMES. They used to be typed
+           into each component's CSS as hex, which is why the light
+           theme had an amber warning nobody could read on white. */
+        @define-color kavis_ok      #22C55E;
+        @define-color kavis_warn    #F59E0B;
+        @define-color kavis_error   #F87171;
         @define-color kavis_overlay_faint rgba(255, 255, 255, 0.05);
         @define-color kavis_overlay_hover rgba(255, 255, 255, 0.09);
         @define-color kavis_overlay_press rgba(255, 255, 255, 0.14);
@@ -57,11 +63,20 @@ namespace Kavis.Theme {
         @define-color kavis_hover   #EEF1F4;
         @define-color kavis_border  #D5DBE1;
         @define-color kavis_text    #1A2430;
-        @define-color kavis_text2   #5C6B78;
-        @define-color kavis_text3   #A0ACB8;
-        @define-color kavis_teal    #2DD4BF;
-        @define-color kavis_blue    #4F92F7;
-        @define-color kavis_on_teal #0D141B;
+        @define-color kavis_text2   #4A5A68;
+        @define-color kavis_text3   #8B9BA8;
+        /* THE C1 BUG. gtk-light.css darkened the accents for a white
+           ground; this table kept the bright ones, so every accent
+           Kavis painted itself — the Unlock button, the underline, the
+           OSD, the "on" state of a switch — was 1.7:1 on white. Not
+           low contrast: not there. Same values as gtk-light.css, and
+           the checker now compares the two. */
+        @define-color kavis_teal    #0F766E;
+        @define-color kavis_blue    #2563EB;
+        @define-color kavis_on_teal #FFFFFF;
+        @define-color kavis_ok      #166534;
+        @define-color kavis_warn    #92400E;
+        @define-color kavis_error   #B91C1C;
         @define-color kavis_overlay_faint rgba(0, 0, 0, 0.03);
         @define-color kavis_overlay_hover rgba(0, 0, 0, 0.06);
         @define-color kavis_overlay_press rgba(0, 0, 0, 0.10);
@@ -74,7 +89,7 @@ namespace Kavis.Theme {
         @define-color kavis_border_acrylic  rgba(213, 219, 225, 0.9);
         @define-color kavis_backdrop        rgba(243, 245, 247, 0.92);
         @define-color kavis_underline_idle  rgba(92, 107, 120, 0.75);
-        @define-color kavis_menu_category   #5C6B78;
+        @define-color kavis_menu_category   #4A5A68;
         @define-color kavis_menu_hover      rgba(0, 0, 0, 0.06);
         @define-color kavis_overlay_flash   rgba(0, 0, 0, 0.14);
     """;

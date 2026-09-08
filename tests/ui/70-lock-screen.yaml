@@ -16,6 +16,19 @@ title: Lock screen
 item: 70
 allowed: [kavis-lock]
 steps:
+  - do: shell id -nG | tr ' ' '\n' | grep -qx nopasswdlogin
+    expect: ok
+    note: >
+      THE ROOT CAUSE, asserted first. /etc/pam.d/kavis-lock begins with
+      `pam_succeed_if.so user ingroup nopasswdlogin`, so on an account
+      with no password that group membership is the only thing any
+      answer can succeed through — common-auth below it is pam_unix,
+      which refuses an empty password. The boot parameter asks
+      live-config for the group, and if the group did not exist yet
+      when user-setup ran the request is dropped silently. That is how
+      v0.5-test1 shipped a lock screen that said "Wrong password" to
+      everything. 0031-kavis-dirs now makes it true rather than hoping,
+      and boot-check fails the run without it.
   - do: launch kavis-lock
     expect: window kavis-lock visible
     timeout: 20000

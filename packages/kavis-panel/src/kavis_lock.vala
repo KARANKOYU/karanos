@@ -264,6 +264,18 @@ namespace Kavis {
                 return;
             }
             password.set_text ("");
+            /* Before telling somebody their password is wrong, make
+             * sure this account has one. If an empty password unlocks
+             * it, the group that was supposed to say so is missing and
+             * the lock is refusing everything — including the answer
+             * that would work. Do not trap the session over it. */
+            if (Auth.accepts_empty ()) {
+                warning ("kavis-lock: this account unlocks with an empty "
+                         + "password — not locking");
+                release ();
+                Gtk.main_quit ();
+                return;
+            }
             error_label.set_text (_("Wrong password"));
             error_label.show ();
             unlock_button.set_sensitive (true);
@@ -379,15 +391,21 @@ namespace Kavis {
          * directly — the same PAM that would judge the answer later, so
          * its verdict cannot disagree with itself. */
         public bool passwordless () {
-            if (Kavis.Session.passwordless ()) {
-                return true;
-            }
-            return accepts_empty ();
+            return Kavis.Session.passwordless ();
         }
 
-        /* One PAM round trip with an empty secret. Kept separate from
-         * check() so it cannot recurse through passwordless(). */
-        private bool accepts_empty () {
+        /* One PAM round trip with an empty secret: does this account
+         * unlock with no password at all?
+         *
+         * NOT asked before showing the lock. On an account that HAS a
+         * password an empty one fails, and pam_unix answers a failure
+         * with a two-second delay — two seconds in which Win+L has been
+         * pressed and the desktop is still there, unlocked. It is asked
+         * after the FIRST refusal instead, where the delay has already
+         * been paid and the answer is worth having: an account whose
+         * empty password works, refusing what the person types, is a
+         * session about to be locked out of itself. */
+        public bool accepts_empty () {
             conversation_password = "";
             Pam.Conv conv = { conversation, null };
             unowned Pam.Handle handle;

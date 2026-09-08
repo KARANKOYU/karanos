@@ -83,7 +83,7 @@ namespace Kavis {
                 && !Session.passwordless ()) {
                 if (!locked) {
                     locked = true;
-                    LockWatch.lock_now ();
+                    LockWatch.lock_now (false);
                 }
             } else if (idle < 30) {
                 locked = false;

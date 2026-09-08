@@ -36,7 +36,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PALETTE = ROOT / "packages" / "kavis-panel" / "src" / "logic" / "theme.vala"
+# The CANONICAL palette. packages/*/src/logic/theme.vala are copies
+# that build-packages.sh writes and .gitignore hides — checking one
+# of those would measure a file that is overwritten on every build,
+# and pass while the real palette was never touched.
+PALETTE = ROOT / "packages" / "kavis-common" / "theme.vala"
 GTK_LIGHT = ROOT / "packages" / "kavis-theme" / "src" / "gtk-3.0" / "gtk-light.css"
 GTK_DARK = ROOT / "packages" / "kavis-theme" / "src" / "gtk-3.0" / "gtk.css"
 

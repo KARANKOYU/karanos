@@ -61,6 +61,34 @@ kavis_dirs() {
 			|| echo "kavis-dirs: could not move the home ($old_home)" >&2
 	fi
 
+	# THE LOCK-SCREEN TRAP (v0.5-test1). /etc/pam.d/kavis-lock — like
+	# lightdm's — starts with
+	#     auth sufficient pam_succeed_if.so user ingroup nopasswdlogin
+	# so on an account with no password the group membership is the
+	# ONLY thing that lets anything unlock: common-auth below it is
+	# pam_unix, which refuses an empty password. The boot parameter
+	# asks live-config for that group (iso/auto/config,
+	# user-default-groups), but if the group did not exist yet when
+	# user-setup ran, the request is silently dropped — and the result
+	# is a lock screen that answers "Wrong password" to everything,
+	# with the session behind it. Which is exactly what the VM round
+	# found.
+	#
+	# So it is made true here instead of hoped for. usermod on a real
+	# account is a forbidden command on a development machine; this
+	# runs behind the same two guards as the rest of the function (the
+	# build marker and boot=live), which is the sanctioned place for
+	# it.
+	if ! getent group nopasswdlogin >/dev/null 2>&1; then
+		groupadd --system nopasswdlogin \
+			|| echo "kavis-dirs: could not create nopasswdlogin" >&2
+	fi
+	if ! id -nG "$LIVE_USER" 2>/dev/null | tr ' ' '\n' \
+		| grep -qx nopasswdlogin; then
+		usermod -aG nopasswdlogin "$LIVE_USER" \
+			|| echo "kavis-dirs: could not add $LIVE_USER to nopasswdlogin" >&2
+	fi
+
 	# Folders directly under /users/karan, independent of the link.
 	for d in desktop downloads documents pictures videos music; do
 		mkdir -p "$NEW_HOME/$d"
