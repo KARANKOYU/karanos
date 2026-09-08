@@ -697,9 +697,30 @@ if [ ! -f "$DPKG_REPORT" ]; then
 	log "DPKG-VERIFY-WARN $DPKG_REPORT missing — the 9997 hook did not run"
 else
 	dpkg_out=$(grep -v '^#' "$DPKG_REPORT")
+	# Paths dpkg itself knows are not the package's file any more.
+	# Written by the 9997 hook, which can still ask dpkg-divert.
+	diverted=$(sed -n 's/^# divert //p' "$DPKG_REPORT")
+	# What the 9995 cleanup hook deletes, by the paths it deletes —
+	# the old pattern only forgave things UNDER those directories and
+	# not the directories themselves, so `rm -rf /usr/share/doc-base`
+	# came back as fourteen "modified package files". The apt lists,
+	# the ldconfig cache and debootstrap's leftover os-release go the
+	# same way, and are listed here for the same reason: a file this
+	# image deliberately does not carry is not a file Kavis edited.
+	deleted_re="^/usr/share/(doc|doc-base|man|locale)(/|$)|^/var/lib/apt/lists(/|$)|^/var/cache/(ldconfig|debconf)(/|$)|^/(tmp|var/tmp)(/|$)|^/etc/os-release\\.debootstrap$"
 	conffile_count=$(printf '%s\n' "$dpkg_out" | awk 'NF && $2 == "c"' | wc -l)
-	expected_missing=$(printf '%s\n' "$dpkg_out" | awk 'NF && $1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/")' | wc -l)
-	changed=$(printf '%s\n' "$dpkg_out" | awk 'NF && $2 != "c" && !($1 == "missing" && ($NF ~ "^/usr/share/(doc|doc-base|man|locale)/"))')
+	expected_missing=$(printf '%s\n' "$dpkg_out" \
+		| awk -v re="$deleted_re" 'NF && $1 == "missing" && ($NF ~ re)' | wc -l)
+	changed=$(printf '%s\n' "$dpkg_out" | awk -v re="$deleted_re" -v div="$diverted" '
+		BEGIN {
+			n = split (div, d, "\n")
+			for (i = 1; i <= n; i++) {
+				if (d[i] != "") {
+					skip[d[i]] = 1
+				}
+			}
+		}
+		NF && $2 != "c" && !($1 == "missing" && ($NF ~ re)) && !($NF in skip)')
 	printf '%s\n' "$dpkg_out" | awk 'NF && $2 == "c" {print $NF}' | head -30 | while IFS= read -r line; do
 		log "DPKG-CONFFILE ${line}"
 	done

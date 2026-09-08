@@ -48,9 +48,21 @@ mkdir -p /usr/share/kavis
 raw=$(dpkg -V 2>/dev/null || true)
 packages=$(dpkg-query -f '.\n' -W 2>/dev/null | wc -l)
 
+# Diverted paths come out of dpkg -V as modified, because the file at
+# that path is by definition not the one the package shipped — that is
+# what a diversion IS. live-build diverts update-initramfs for the
+# length of the build, and kavis-theme diverts /usr/lib/os-release.
+# Both are sanctioned, so the list of them is shipped beside the report
+# and boot-check subtracts it.
+diversions=$(dpkg-divert --list 2>/dev/null \
+	| sed -n "s/^diversion of \(.*\) to .* by .*$/\1/p")
+
 {
 	echo "# dpkg -V, run by $(basename "$0") at image build time."
 	echo "# packages=${packages}"
+	printf '%s\n' "$diversions" | while IFS= read -r d; do
+		[ -n "$d" ] && echo "# divert ${d}"
+	done
 	printf '%s\n' "$raw"
 } > "$OUT"
 chmod 644 "$OUT"
