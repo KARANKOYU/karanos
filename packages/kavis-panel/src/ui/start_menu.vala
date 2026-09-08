@@ -98,6 +98,7 @@ namespace Kavis.Ui {
          * computes the corner from its own position (madde 5: the menu
          * opens away from whichever edge the panel is on). */
         public void open (int x, int y) {
+            Ui.WindowPreviews.hide_open ();
             /* Same exclusivity as the indicator popups: at most one
              * floating surface above the panel. */
             PanelPopup.dismiss_open ();

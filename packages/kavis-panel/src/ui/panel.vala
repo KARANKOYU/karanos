@@ -764,6 +764,15 @@ namespace Kavis.Ui {
         }
 
         public void refresh_windows () {
+            /* The cards name windows that existed a moment ago. A
+             * window closing or opening is exactly when they stop being
+             * true, and it is also what destroys the button they were
+             * anchored to. */
+            WindowPreviews.hide_open ();
+            if (hover_timer != 0) {
+                Source.remove (hover_timer);
+                hover_timer = 0;
+            }
             foreach (var child in window_box.get_children ()) {
                 window_box.remove (child);
             }
@@ -959,16 +968,30 @@ namespace Kavis.Ui {
                 return false;
             });
 
-            /* Window previews: hovering a button with windows open
-             * shows one card per window. The delay is what keeps the
-             * previews from flashing at somebody who is only moving the
-             * pointer across the taskbar on the way somewhere else. */
-            button.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK
+            /* Window previews: MOVING the pointer onto a button with
+             * windows open shows one card per window.
+             *
+             * Motion, not entry, is what starts the timer — and the
+             * difference is not pedantry. A click leaves the pointer
+             * sitting on the button it just pressed; if entering were
+             * enough, previews would pop up under the cursor every time
+             * somebody clicked a taskbar button and stay there until
+             * the pointer moved again. Windows does not do that, and
+             * the v0.5-test5 run showed what it costs: one preview
+             * opened by a synthetic click sat over the desktop for the
+             * rest of the run and failed six later steps in five
+             * scenarios. A person who is hovering always moves; a
+             * pointer that was parked never does.
+             *
+             * The delay on top keeps the previews from flashing at
+             * somebody crossing the taskbar on the way somewhere
+             * else. */
+            button.add_events (Gdk.EventMask.POINTER_MOTION_MASK
                                | Gdk.EventMask.LEAVE_NOTIFY_MASK);
-            button.enter_notify_event.connect (() => {
+            button.motion_notify_event.connect (() => {
                 previews.cancel_close ();
                 if (hover_timer != 0) {
-                    Source.remove (hover_timer);
+                    return false;   /* already counting down */
                 }
                 hover_timer = Timeout.add (PREVIEW_DELAY_MS, () => {
                     hover_timer = 0;
@@ -1149,6 +1172,13 @@ namespace Kavis.Ui {
             if (slot.button == null || slot.windows.length == 0) {
                 return;
             }
+            /* Not over a menu or a popup the person opened themselves —
+             * a right-click on a taskbar button opens the slot menu and
+             * leaves the pointer on the button, which would otherwise
+             * put a row of previews on top of the menu. */
+            if (Ui.PanelPopup.any_open ()) {
+                return;
+            }
             previews.show_for (slot.button, slot.windows, config.position);
         }
 
@@ -1232,6 +1262,11 @@ namespace Kavis.Ui {
         /* --- slot right-click menu (sonraki-isler 2) ------------------ */
 
         private void show_slot_menu (TaskSlot slot, Gdk.EventButton event) {
+            WindowPreviews.hide_open ();
+            if (hover_timer != 0) {
+                Source.remove (hover_timer);
+                hover_timer = 0;
+            }
             var menu = new Gtk.Menu ();
             unowned TaskSlot target = slot;
 

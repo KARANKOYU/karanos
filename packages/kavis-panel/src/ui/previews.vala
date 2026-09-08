@@ -43,7 +43,11 @@ namespace Kavis.Ui {
         private Gtk.Box cards;
         private Gtk.Widget? anchor = null;
         private uint close_timer = 0;
+        private uint watch_timer = 0;
         private bool pointer_inside = false;
+        /* The button the previews belong to: while they are open the
+         * pointer being over EITHER of the two keeps them open. */
+        private Gtk.Widget? owner_button = null;
 
         /* Peek state, so leaving puts everything back exactly. */
         private unowned Wnck.Window? peeked = null;
@@ -144,7 +148,81 @@ namespace Kavis.Ui {
             }
             show_all ();
             place (button, position);
+            owner_button = button;
             open_previews = this;
+            start_watching ();
+        }
+
+        /* WHY A POLL AND NOT JUST CROSSING EVENTS. An override-redirect
+         * window gets enter and leave events, but only when the pointer
+         * actually travels; a pointer that is warped — by xdotool, by
+         * an application moving it, by a grab ending somewhere else —
+         * can leave the button without either window hearing about it.
+         * The previews then stay on screen over everything, which is
+         * how the v0.5-test5 run failed six later steps in five
+         * different scenarios: a synthetic click landed on a taskbar
+         * button, the previews opened four hundred milliseconds later,
+         * and nothing ever told them to close.
+         *
+         * So the pointer is asked where it is. Twice a second costs one
+         * XQueryPointer round trip and is the difference between a
+         * feature and a window nobody can get rid of. */
+        private void start_watching () {
+            stop_watching ();
+            watch_timer = Timeout.add (500, () => {
+                if (!get_visible ()) {
+                    watch_timer = 0;
+                    return false;
+                }
+                if (!pointer_over_previews_or_button ()) {
+                    close_now ();
+                    watch_timer = 0;
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        private void stop_watching () {
+            if (watch_timer != 0) {
+                Source.remove (watch_timer);
+                watch_timer = 0;
+            }
+        }
+
+        private bool pointer_over_previews_or_button () {
+            var seat = Gdk.Display.get_default ().get_default_seat ();
+            int px, py;
+            seat.get_pointer ().get_position (null, out px, out py);
+            return contains (get_window (), null, px, py)
+                || (owner_button != null
+                    && contains (owner_button.get_window (), owner_button,
+                                 px, py));
+        }
+
+        /* Root-coordinate hit test. The widget is passed as well as its
+         * GdkWindow because a button shares its parent's window and its
+         * own rectangle is an allocation inside it. */
+        private bool contains (Gdk.Window? window, Gtk.Widget? widget,
+                               int px, int py) {
+            if (window == null) {
+                return false;
+            }
+            int ox, oy;
+            window.get_origin (out ox, out oy);
+            int w, h;
+            if (widget != null) {
+                Gtk.Allocation alloc;
+                widget.get_allocation (out alloc);
+                ox += alloc.x;
+                oy += alloc.y;
+                w = alloc.width;
+                h = alloc.height;
+            } else {
+                w = window.get_width ();
+                h = window.get_height ();
+            }
+            return px >= ox && px < ox + w && py >= oy && py < oy + h;
         }
 
         public void schedule_close () {
@@ -167,6 +245,7 @@ namespace Kavis.Ui {
 
         private void close_now () {
             cancel_close ();
+            stop_watching ();
             unpeek ();
             hide ();
             if (open_previews == this) {

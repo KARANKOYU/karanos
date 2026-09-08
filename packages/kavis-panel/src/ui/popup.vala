@@ -299,6 +299,13 @@ namespace Kavis.Ui {
             if (start_menu != null && start_menu.get_visible ()) {
                 start_menu.dismiss ();
             }
+            /* Hover previews are dismissed by anything the person
+             * deliberately opens: they were a glance, and this is a
+             * decision. It also un-sticks a preview whose pointer never
+             * moved off the button — a synthetic click parks the
+             * pointer and never lifts it, which is how one stale
+             * preview failed six later steps in the v0.5-test5 run. */
+            WindowPreviews.hide_open ();
 
             anchor_widget = anchor;
             /* While the popup is open the anchor indicator's hover box

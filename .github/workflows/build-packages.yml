@@ -233,6 +233,14 @@ jobs:
       # did not work in a real drag. This step does not move the window
       # with xdotool; it presses the title bar and drags the mouse — openbox
       # does the move.
+      - name: PREVIEWS — taskbar window previews
+        run: |
+          set -eu
+          # One stale preview failed six steps in five unrelated
+          # scenarios in the v0.5-test5 ISO run. Forty seconds here
+          # instead of forty minutes there.
+          DISPLAY_NO=92 tools/check-previews.sh
+
       - name: SNAP — edge snapping check
         run: |
           set -eu

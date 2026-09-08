@@ -45,13 +45,38 @@ if [ -f "$CONF" ]; then
 	' "$CONF")
 fi
 
+
+# Reload openbox after the user rc.xml appears or disappears.
+#
+# `openbox --reconfigure` re-reads the config file openbox resolved AT
+# STARTUP. On a session that began with no ~/.config/openbox/rc.xml that
+# path is /etc/xdg/openbox/rc.xml, so writing a user copy and asking for
+# a reconfigure re-reads the system file and the new key does nothing —
+# the v0.5-test5 run pressed the reassigned key for forty seconds and
+# nothing opened, with a correct rc.xml sitting on disk.
+#
+# So: when the file's EXISTENCE changes, openbox has to resolve the path
+# again, and only --restart does that. When it merely changed contents,
+# --reconfigure is enough and does not disturb the session.
+reload_openbox() {
+	if [ "$1" = path-changed ]; then
+		openbox --restart >/dev/null 2>&1 || true
+	else
+		openbox --reconfigure >/dev/null 2>&1 || true
+	fi
+}
+
 if [ -z "$overrides" ]; then
 	if [ "$DRY" = yes ]; then
 		echo "set-shortcuts: no overrides — the defaults are in use"
 		exit 0
 	fi
-	rm -f "$USER_RC"
-	openbox --reconfigure >/dev/null 2>&1 || true
+	if [ -e "$USER_RC" ]; then
+		rm -f "$USER_RC"
+		reload_openbox path-changed
+	else
+		reload_openbox contents
+	fi
 	echo "set-shortcuts: no overrides left, back to the shipped defaults"
 	exit 0
 fi
@@ -137,6 +162,12 @@ if command -v python3 >/dev/null 2>&1; then
 	python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse(sys.argv[1])" \
 		"$TMP" || { rm -f "$TMP"; echo "E: rewritten rc.xml is not valid XML" >&2; exit 1; }
 fi
+existed=no
+[ -e "$USER_RC" ] && existed=yes
 mv "$TMP" "$USER_RC"
-openbox --reconfigure >/dev/null 2>&1 || true
+if [ "$existed" = yes ]; then
+	reload_openbox contents
+else
+	reload_openbox path-changed
+fi
 echo "set-shortcuts: $USER_RC rewritten ($map)"
