@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 08:59+0000\n"
+"POT-Creation-Date: 2026-09-08 09:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3113,11 +3113,11 @@ msgstr ""
 msgid "Force shut down"
 msgstr ""
 
-#: packages/kavis-tools/src/calc.vala:14
+#: packages/kavis-tools/src/calc.vala:20
 msgid "Calculator"
 msgstr ""
 
-#: packages/kavis-tools/src/calc.vala:80
+#: packages/kavis-tools/src/calc.vala:84
 msgid "Invalid expression"
 msgstr ""
 
@@ -3204,46 +3204,49 @@ msgid ""
 "secure-menu|alt-f4]\n"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:35
-#: packages/kavis-tools/src/openwith.vala:46
+#: packages/kavis-tools/src/openwith.vala:40
+msgid "Open with"
+msgstr ""
+
+#: packages/kavis-tools/src/openwith.vala:49
 #, c-format
 msgid "How should %s be opened?"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:64
+#: packages/kavis-tools/src/openwith.vala:67
 msgid "Always open this file type with this app"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:69
+#: packages/kavis-tools/src/openwith.vala:72
 msgid "Search the Store"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:72
+#: packages/kavis-tools/src/openwith.vala:75
 #: packages/kavis-tools/src/run.vala:68
 msgid "Open"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:98
+#: packages/kavis-tools/src/openwith.vala:101
 msgid "Recommended"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:148
+#: packages/kavis-tools/src/openwith.vala:151
 msgid "Other applications"
 msgstr ""
 
-#: packages/kavis-tools/src/openwith.vala:210
+#: packages/kavis-tools/src/openwith.vala:213
 msgid "Store app coming soon"
 msgstr ""
 
-#: packages/kavis-tools/src/preview.vala:442
+#: packages/kavis-tools/src/preview.vala:445
 msgid "Showing the first part of a large file"
 msgstr ""
 
-#: packages/kavis-tools/src/preview.vala:538
+#: packages/kavis-tools/src/preview.vala:541
 msgid "Could not preview this file"
 msgstr ""
 
-#: packages/kavis-tools/src/repair.vala:28
+#: packages/kavis-tools/src/repair.vala:30
 msgid "Repair drive"
 msgstr ""
 

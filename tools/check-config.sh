@@ -170,6 +170,18 @@ done
 [[ "$shared_drift" -eq 0 ]] && ok "every shared source matches its canonical copy"
 
 echo
+echo "==> Every window wears the Kavis title bar"
+# A window that forgets the header bar does not look broken, it looks
+# like a window from another desktop — which is worse, because nothing
+# about it says anything is wrong. Four had drifted that way.
+if out=$(tools/check-titlebars.py 2>&1); then
+	ok "$out"
+else
+	printf '%s\n' "$out"
+	bad "a window is neither framed by Kavis nor deliberately frameless"
+fi
+
+echo
 echo "==> Text contrast in both themes (feedback C)"
 # The light theme shipped with Kavis' own accents left at their dark
 # values, so everything the panel painted itself was 1.7:1 on white.

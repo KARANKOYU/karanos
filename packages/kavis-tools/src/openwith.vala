@@ -32,10 +32,13 @@ namespace Kavis.Tools {
                     ?? "application/octet-stream";
             } catch (Error e) { }
 
-            set_title (_("How should %s be opened?").printf (
-                file.get_basename ()));
             set_default_size (420, 460);
             set_position (Gtk.WindowPosition.CENTER);
+            /* The question is the heading inside the window; the title
+             * bar carries the short name, because a title bar is the
+             * one place a long sentence gets cut in half. */
+            Kavis.HeaderBar.attach (this, _("Open with"),
+                                    "system-run");
 
             var column = new Gtk.Box (Gtk.Orientation.VERTICAL, 8);
             column.set_border_width (12);

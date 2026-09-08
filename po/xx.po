@@ -2016,6 +2016,9 @@ msgstr "⟪usage: kavis-tools open-with <file>··············⟫\n"
 msgid "usage: kavis-tools repair-drive <device>\n"
 msgstr "⟪usage: kavis-tools repair-drive <device>················⟫\n"
 
+msgid "Open with"
+msgstr "⟪Open with···⟫"
+
 msgid "How should %s be opened?"
 msgstr "⟪How should %s be opened?·········⟫"
 

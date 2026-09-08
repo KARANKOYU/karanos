@@ -25,9 +25,9 @@ namespace Kavis.Tools {
 
         public RepairDriveWindow (string device) {
             this.device = device;
-            title = _("Repair drive");
             window_position = Gtk.WindowPosition.CENTER;
             set_default_size (520, -1);
+            Kavis.HeaderBar.attach (this, _("Repair drive"), "drive-removable-media");
             fstype = detect_fstype ();
 
             var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);

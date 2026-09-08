@@ -2274,3 +2274,6 @@ msgid "%d of the last %d days had nothing go wrong."
 msgid_plural "%d of the last %d days had nothing go wrong."
 msgstr[0] "Son %2$d günün %1$d gününde hiçbir şey ters gitmedi."
 msgstr[1] "Son %2$d günün %1$d gününde hiçbir şey ters gitmedi."
+
+msgid "Open with"
+msgstr "Bununla aç"

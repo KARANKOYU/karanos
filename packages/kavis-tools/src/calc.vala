@@ -11,9 +11,13 @@ namespace Kavis.Tools {
         private Gtk.Label result_label;
 
         public CalculatorWindow () {
-            set_title (_("Calculator"));
             set_default_size (280, 360);
             set_resizable (false);
+            /* The Kavis title bar, like Settings and the Task Manager:
+             * openbox's themerc cannot draw the 46x32 buttons with a
+             * full-height hover fill, so a window without this one is
+             * visibly a different desktop's window. */
+            Kavis.HeaderBar.attach (this, _("Calculator"), "accessories-calculator");
 
             var root = new Gtk.Box (Gtk.Orientation.VERTICAL, 8);
             root.set_border_width (12);

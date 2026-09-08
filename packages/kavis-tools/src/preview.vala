@@ -104,9 +104,12 @@ namespace Kavis.Tools {
             this.uri = uri;
             var file = File.new_for_uri (uri);
             string name = file.get_basename () ?? uri;
-            title = name;
             window_position = Gtk.WindowPosition.CENTER;
             set_default_size (700, 500);
+            /* The file name IS the title here — a preview window with
+             * "Preview" written on it tells nobody which file they are
+             * looking at. */
+            Kavis.HeaderBar.attach (this, name, "document-open");
 
             string ctype = "application/octet-stream";
             try {
