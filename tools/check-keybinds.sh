@@ -137,7 +137,7 @@ xdotool key --clearmodifiers super+d; sleep 0.3
 # --- Execute bindings (stub log) ---------------------------------------
 check "Win → start menu (XF86Launch5/xcape)" XF86Launch5 'log_has "ShowStartMenu false"'
 check "Ctrl+Esc → start menu"   ctrl+Escape 'log_has "ShowStartMenu false"'
-check "Win+R → start + search"  super+r     'log_has "ShowStartMenu true"'
+check "Win+R → Run dialog"      super+r     'log_has "kavis-tools run$"'
 check "Win+E → Files"           super+e     'log_has "^nemo"'
 check "Win+I → Settings"        super+i     'log_has "^kavis-settings"'
 check "Win+Tab → overview"      super+Tab   'log_has ShowOverview'
