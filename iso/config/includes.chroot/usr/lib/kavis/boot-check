@@ -907,8 +907,18 @@ elif [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
 			| sed -n 's/^DBUS_SESSION_BUS_ADDRESS=//p' | head -1)
 		env_run=$(tr '\0' '\n' < "/proc/$session_pid/environ" \
 			| sed -n 's/^XDG_RUNTIME_DIR=//p' | head -1)
-		[ -n "$env_bus" ] && session_bus="$env_bus"
 		[ -n "$env_run" ] && session_run="$env_run"
+		if [ -n "$env_bus" ]; then
+			session_bus="$env_bus"
+		elif [ -n "$env_run" ]; then
+			# DBUS_SESSION_BUS_ADDRESS unset is the dbus-user-session
+			# case: clients default to $XDG_RUNTIME_DIR/bus, so the
+			# selftest has to as well, using the session's OWN runtime
+			# dir rather than a hardcoded 1000. Falling back to the
+			# hardcoded address here is what made the fix incomplete —
+			# it was the very value that could not find the name.
+			session_bus="unix:path=${env_run}/bus"
+		fi
 	fi
 	log "SELFTEST-BUS ${session_bus} (runtime ${session_run})"
 	runuser -u karan -- env DISPLAY=:0 HOME=/users/karan \
