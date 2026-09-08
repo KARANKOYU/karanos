@@ -2277,3 +2277,9 @@ msgstr[1] "Son %2$d günün %1$d gününde hiçbir şey ters gitmedi."
 
 msgid "Open with"
 msgstr "Bununla aç"
+
+msgid "No pointer themes installed"
+msgstr "Kurulu imleç teması yok"
+
+msgid "The Kavis pointers come with the theme package"
+msgstr "Kavis imleçleri tema paketiyle gelir"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 09:19+0000\n"
+"POT-Creation-Date: 2026-09-08 10:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -503,125 +503,125 @@ msgstr ""
 msgid "Close the last desktop"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:453
+#: packages/kavis-panel/src/ui/panel.vala:458
 msgid "Start — applications, search and power"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:458
+#: packages/kavis-panel/src/ui/panel.vala:463
 #: packages/kavis-settings/src/ui/page_network.vala:218
 msgid "Start"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:550
+#: packages/kavis-panel/src/ui/panel.vala:555
 msgid "Show desktop — minimises every window; press again to bring them back"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1219
+#: packages/kavis-panel/src/ui/panel.vala:1282
 #, c-format
 msgid "%s — not running; click to open"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1261
+#: packages/kavis-panel/src/ui/panel.vala:1329
 #, c-format
 msgid "Open %s"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1277
-#: packages/kavis-panel/src/ui/start_menu.vala:216
+#: packages/kavis-panel/src/ui/panel.vala:1345
+#: packages/kavis-panel/src/ui/start_menu.vala:217
 msgid "Unpin from taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1278
-#: packages/kavis-panel/src/ui/start_menu.vala:216
+#: packages/kavis-panel/src/ui/panel.vala:1346
+#: packages/kavis-panel/src/ui/start_menu.vala:217
 msgid "Pin to taskbar"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1294
+#: packages/kavis-panel/src/ui/panel.vala:1362
 msgid "Close window"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1294
+#: packages/kavis-panel/src/ui/panel.vala:1362
 msgid "Close all windows"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1390
+#: packages/kavis-panel/src/ui/panel.vala:1458
 #: packages/kavis-settings/src/logic/catalog.vala:170
 #: packages/kavis-settings/src/ui/page_taskbar.vala:31
 msgid "Position"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1398
+#: packages/kavis-panel/src/ui/panel.vala:1466
 #: packages/kavis-settings/src/ui/page_taskbar.vala:16
 msgid "Bottom"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1398
+#: packages/kavis-panel/src/ui/panel.vala:1466
 #: packages/kavis-settings/src/ui/page_taskbar.vala:17
 msgid "Top"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1399
+#: packages/kavis-panel/src/ui/panel.vala:1467
 #: packages/kavis-settings/src/ui/page_taskbar.vala:18
 #: packages/kavis-settings/src/ui/page_taskbar.vala:45
 msgid "Left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1399
+#: packages/kavis-panel/src/ui/panel.vala:1467
 #: packages/kavis-settings/src/ui/page_taskbar.vala:19
 msgid "Right"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1420
+#: packages/kavis-panel/src/ui/panel.vala:1488
 #: packages/kavis-settings/src/logic/catalog.vala:172
 #: packages/kavis-settings/src/ui/page_taskbar.vala:42
 msgid "Size"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1428
+#: packages/kavis-panel/src/ui/panel.vala:1496
 msgid "Thin"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1428
+#: packages/kavis-panel/src/ui/panel.vala:1496
 #: packages/kavis-settings/src/ui/page_taskbar.vala:36
 msgid "Medium"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1428
+#: packages/kavis-panel/src/ui/panel.vala:1496
 msgid "Thick"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1451
+#: packages/kavis-panel/src/ui/panel.vala:1519
 #: packages/kavis-settings/src/logic/catalog.vala:174
 #: packages/kavis-settings/src/ui/page_taskbar.vala:51
 msgid "Alignment"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1458
+#: packages/kavis-panel/src/ui/panel.vala:1526
 msgid "Align left"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1458
+#: packages/kavis-panel/src/ui/panel.vala:1526
 #: packages/kavis-settings/src/ui/page_taskbar.vala:46
 msgid "Center"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1481
+#: packages/kavis-panel/src/ui/panel.vala:1549
 msgid "Monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1486
+#: packages/kavis-panel/src/ui/panel.vala:1554
 msgid "Primary monitor"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1524
+#: packages/kavis-panel/src/ui/panel.vala:1592
 msgid "Auto-hide"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1541
+#: packages/kavis-panel/src/ui/panel.vala:1609
 msgid "Display settings"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/panel.vala:1543
+#: packages/kavis-panel/src/ui/panel.vala:1611
 #: packages/kavis-settings/src/logic/shortcuts.vala:155
 #: packages/kavis-taskmanager/src/tasks.vala:118
 #: packages/kavis-taskmanager/src/tasks.vala:120
@@ -739,7 +739,7 @@ msgstr ""
 msgid "Restart"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/previews.vala:243
+#: packages/kavis-panel/src/ui/previews.vala:322
 msgid "Close this window"
 msgstr ""
 
@@ -859,11 +859,11 @@ msgstr ""
 msgid "Power"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/start_menu.vala:138
+#: packages/kavis-panel/src/ui/start_menu.vala:139
 msgid "No results found"
 msgstr ""
 
-#: packages/kavis-panel/src/ui/start_menu.vala:229
+#: packages/kavis-panel/src/ui/start_menu.vala:230
 msgid "Add desktop shortcut"
 msgstr ""
 
@@ -1376,7 +1376,8 @@ msgid "Nine checks: does this machine work"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:186
-#: packages/kavis-settings/src/ui/page_mouse.vala:90
+#: packages/kavis-settings/src/ui/page_mouse.vala:125
+#: packages/kavis-settings/src/ui/page_mouse.vala:129
 msgid "Pointer colour"
 msgstr ""
 
@@ -1385,7 +1386,7 @@ msgid "White or black pointer, and the Breeze themes"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:188
-#: packages/kavis-settings/src/ui/page_mouse.vala:93
+#: packages/kavis-settings/src/ui/page_mouse.vala:133
 msgid "Pointer size"
 msgstr ""
 
@@ -1394,17 +1395,17 @@ msgid "24, 32, 48 or 64 pixels"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:190
-#: packages/kavis-settings/src/ui/page_mouse.vala:107
+#: packages/kavis-settings/src/ui/page_mouse.vala:147
 msgid "Left-handed"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:191
-#: packages/kavis-settings/src/ui/page_mouse.vala:108
+#: packages/kavis-settings/src/ui/page_mouse.vala:148
 msgid "Swaps the left and right buttons"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:192
-#: packages/kavis-settings/src/ui/page_mouse.vala:125
+#: packages/kavis-settings/src/ui/page_mouse.vala:165
 msgid "Double-click speed"
 msgstr ""
 
@@ -1413,7 +1414,7 @@ msgid "How far apart two clicks may be"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:194
-#: packages/kavis-settings/src/ui/page_mouse.vala:144
+#: packages/kavis-settings/src/ui/page_mouse.vala:184
 msgid "Pointer speed"
 msgstr ""
 
@@ -1422,7 +1423,7 @@ msgid "Acceleration of the pointer"
 msgstr ""
 
 #: packages/kavis-settings/src/logic/catalog.vala:196
-#: packages/kavis-settings/src/ui/page_mouse.vala:154
+#: packages/kavis-settings/src/ui/page_mouse.vala:194
 msgid "Natural scrolling"
 msgstr ""
 
@@ -1850,7 +1851,7 @@ msgid "Off"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:38
-#: packages/kavis-settings/src/ui/page_mouse.vala:117
+#: packages/kavis-settings/src/ui/page_mouse.vala:157
 msgid "Fast"
 msgstr ""
 
@@ -1859,7 +1860,7 @@ msgid "Normal"
 msgstr ""
 
 #: packages/kavis-settings/src/ui/page_appearance.vala:40
-#: packages/kavis-settings/src/ui/page_mouse.vala:119
+#: packages/kavis-settings/src/ui/page_mouse.vala:159
 msgid "Slow"
 msgstr ""
 
@@ -2348,66 +2349,74 @@ msgid ""
 "Anything in the xkb catalogue, whether a language on the list uses it or not"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:40
+#: packages/kavis-settings/src/ui/page_mouse.vala:69
 msgid "Kavis white"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:41
+#: packages/kavis-settings/src/ui/page_mouse.vala:70
 msgid "Kavis black"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:42
+#: packages/kavis-settings/src/ui/page_mouse.vala:71
 msgid "Breeze light"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:43
+#: packages/kavis-settings/src/ui/page_mouse.vala:72
 msgid "Breeze snow"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:44
+#: packages/kavis-settings/src/ui/page_mouse.vala:73
 msgid "Breeze dark"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:67
+#: packages/kavis-settings/src/ui/page_mouse.vala:95
 msgid "Small (24)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:68
+#: packages/kavis-settings/src/ui/page_mouse.vala:96
 msgid "Medium (32)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:69
+#: packages/kavis-settings/src/ui/page_mouse.vala:97
 msgid "Large (48)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:70
+#: packages/kavis-settings/src/ui/page_mouse.vala:98
 msgid "Extra large (64)"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:91
+#: packages/kavis-settings/src/ui/page_mouse.vala:123
+msgid "No pointer themes installed"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:126
+msgid "The Kavis pointers come with the theme package"
+msgstr ""
+
+#: packages/kavis-settings/src/ui/page_mouse.vala:130
 msgid ""
 "A white pointer disappears on a white page; a dark one disappears on the "
 "desktop"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:94
+#: packages/kavis-settings/src/ui/page_mouse.vala:134
 msgid "Applications already open keep the old size until their next window"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:118
-#: packages/kavis-settings/src/ui/page_mouse.vala:138
+#: packages/kavis-settings/src/ui/page_mouse.vala:158
+#: packages/kavis-settings/src/ui/page_mouse.vala:178
 msgid "Default"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:126
+#: packages/kavis-settings/src/ui/page_mouse.vala:166
 msgid "How long two clicks may be apart and still count as one double click"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:145
+#: packages/kavis-settings/src/ui/page_mouse.vala:185
 msgid "How far the pointer travels for the same movement of the hand"
 msgstr ""
 
-#: packages/kavis-settings/src/ui/page_mouse.vala:155
+#: packages/kavis-settings/src/ui/page_mouse.vala:195
 msgid "The content follows the fingers, the way a phone scrolls"
 msgstr ""
 

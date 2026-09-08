@@ -1488,6 +1488,12 @@ msgstr "⟪Large (48)····⟫"
 msgid "Extra large (64)"
 msgstr "⟪Extra large (64)······⟫"
 
+msgid "No pointer themes installed"
+msgstr "⟪No pointer themes installed··········⟫"
+
+msgid "The Kavis pointers come with the theme package"
+msgstr "⟪The Kavis pointers come with the theme package··················⟫"
+
 msgid "Applications already open keep the old size until their next window"
 msgstr "⟪Applications already open keep the old size until their next window··························⟫"
 

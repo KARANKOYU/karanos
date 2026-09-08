@@ -623,9 +623,17 @@ namespace Kavis.Settings.Apply {
         }
         session_env ("XCURSOR_THEME", theme);
         session_env ("XCURSOR_SIZE", size.to_string ());
-        Run.fire ({ "xsetroot", "-xcf",
-                    "/usr/share/icons/%s/cursors/left_ptr".printf (theme),
-                    size.to_string () });
+        /* The theme directory is looked up rather than assumed: a
+         * pointer installed into the user's own ~/.icons is not under
+         * /usr/share, and xsetroot given a path that does not exist
+         * leaves the desktop with the previous cursor and says
+         * nothing. */
+        string? cursors = Pages.Cursors.find (theme);
+        if (cursors != null) {
+            Run.fire ({ "xsetroot", "-xcf",
+                        Path.build_filename (cursors, "left_ptr"),
+                        size.to_string () });
+        }
     }
 
     /* One `export NAME=value` line in ~/.xsessionrc, replaced in place.

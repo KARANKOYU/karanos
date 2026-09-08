@@ -28,6 +28,35 @@ namespace Kavis.Settings.Pages {
         public string label;
     }
 
+    /* Where cursor themes live.
+     *
+     * NOT just /usr/share/icons. XCursor searches the user's own
+     * directories first, and a person who installs a pointer theme from
+     * the store or by hand puts it in one of those — a settings page
+     * that only looks in the system directory would not list the theme
+     * the machine is already using. The order is XCursor's own. */
+    namespace Cursors {
+
+        public string? find (string name) {
+            string[] roots = {
+                Path.build_filename (Environment.get_home_dir (), ".icons"),
+                Path.build_filename (Environment.get_user_data_dir (),
+                                     "icons")
+            };
+            foreach (unowned string dir in Environment.get_system_data_dirs ()) {
+                roots += Path.build_filename (dir, "icons");
+            }
+            roots += "/usr/share/icons";
+            foreach (unowned string root in roots) {
+                string path = Path.build_filename (root, name, "cursors");
+                if (FileUtils.test (path, FileTest.IS_DIR)) {
+                    return path;
+                }
+            }
+            return null;
+        }
+    }
+
     public Gtk.Widget mouse (string title) {
         Gtk.Box body;
         var page = frame (title, out body);
@@ -48,8 +77,7 @@ namespace Kavis.Settings.Pages {
         int index = 0;
         int active = -1;
         foreach (unowned Pointer p in themes) {
-            if (!FileUtils.test ("/usr/share/icons/" + p.dir + "/cursors",
-                                 FileTest.IS_DIR)) {
+            if (Cursors.find (p.dir) == null) {
                 continue;
             }
             colour.append (p.dir, p.label);
@@ -87,9 +115,21 @@ namespace Kavis.Settings.Pages {
             }
         });
 
-        pointer_block.pack_start (row (_("Pointer colour"),
-            _("A white pointer disappears on a white page; a dark one disappears on the desktop"),
-            colour), false, false, 0);
+        /* An empty dropdown is a setting that looks broken and says
+         * nothing. If not one of the themes is installed — which is
+         * what a bare build tree looks like — say that instead of
+         * offering a list with nothing in it. */
+        if (index == 0) {
+            var none = new Gtk.Label (_("No pointer themes installed"));
+            none.get_style_context ().add_class ("dim-label");
+            pointer_block.pack_start (row (_("Pointer colour"),
+                _("The Kavis pointers come with the theme package"),
+                none), false, false, 0);
+        } else {
+            pointer_block.pack_start (row (_("Pointer colour"),
+                _("A white pointer disappears on a white page; a dark one disappears on the desktop"),
+                colour), false, false, 0);
+        }
         pointer_block.pack_start (row (_("Pointer size"),
             _("Applications already open keep the old size until their next window"),
             size), false, false, 0);
