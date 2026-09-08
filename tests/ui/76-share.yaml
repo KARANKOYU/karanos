@@ -26,7 +26,12 @@ steps:
   - do: shell kavis-share --list >/dev/null
     expect: ok
     note: >
-      the daemon answers on the session bus — which is how the panel and
+      the daemon answers on the session bus. v0.5-test9 failed here with
+      "org.kavis.Share was not provided" while the daemon was
+      demonstrably alive: the selftest was handed a hardcoded bus
+      address (/run/user/1000/bus) and the live session's bus was not
+      always that one. boot-check now reads the address from openbox's
+      own environment, and the client waits a moment for the name — which is how the panel and
       the Nemo menu will ask it, so a broken bus name is worth catching
       here rather than there
 

@@ -146,22 +146,43 @@ private int run_daemon () {
                       }
                   }, null, null);
 
-    stdout.printf ("kavis-share: %s listening on %u\n",
-                   me.device.alias, me.device.port);
+    string bus = Environment.get_variable ("DBUS_SESSION_BUS_ADDRESS")
+        ?? ("(default $XDG_RUNTIME_DIR/bus: "
+            + (Environment.get_variable ("XDG_RUNTIME_DIR") ?? "unset")
+            + "/bus)");
+    stdout.printf ("kavis-share: %s listening on %u, session bus %s\n",
+                   me.device.alias, me.device.port, bus);
     stdout.flush ();
     new MainLoop ().run ();
     return 0;
 }
 
 private Kavis.Share.ShareBus? bus_service () {
-    try {
-        return Bus.get_proxy_sync<Kavis.Share.ShareBus> (
-            BusType.SESSION, "org.kavis.Share", "/org/kavis/Share");
-    } catch (Error e) {
-        stderr.printf ("kavis-share: the daemon is not running (%s)\n",
-                       e.message);
-        return null;
+    /* Wait a moment for the name rather than failing on the instant it
+     * is not yet there: Bus.own_name in the daemon is asynchronous, so
+     * a client that races a just-started daemon would see nothing. Two
+     * seconds is far more than acquisition takes and is invisible when
+     * the daemon has been up for a while, which is the usual case. */
+    for (int attempt = 0; attempt < 10; attempt++) {
+        try {
+            var proxy = Bus.get_proxy_sync<Kavis.Share.ShareBus> (
+                BusType.SESSION, "org.kavis.Share", "/org/kavis/Share",
+                DBusProxyFlags.DO_NOT_AUTO_START);
+            /* get_proxy_sync does not itself prove the name is owned;
+             * a call does. this_device is cheap and read-only. */
+            proxy.this_device ();
+            return proxy;
+        } catch (Error e) {
+            if (attempt == 9) {
+                stderr.printf (
+                    "kavis-share: the daemon did not answer (%s)\n",
+                    e.message);
+                return null;
+            }
+            Thread.usleep (200000);
+        }
     }
+    return null;
 }
 
 int main (string[] args) {

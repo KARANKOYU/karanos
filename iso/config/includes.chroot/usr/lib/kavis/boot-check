@@ -890,8 +890,29 @@ if [ "$ci_run" -eq 0 ]; then
 	log "SELFTEST-SKIP not asked for (no CI marker) — Settings > System runs it"
 elif [ "$panel_up" -eq 1 ] && command -v kavis-selftest >/dev/null 2>&1; then
 	selftest_rc=0
+	# The session bus, read from a process that is already IN the
+	# session rather than guessed. A live session's bus is not always
+	# /run/user/1000/bus — if it came up before the user bus was ready
+	# it can be an X-autolaunched private bus at /tmp — and a service
+	# owned on one bus is invisible from another. kavis-share exposed
+	# this: the daemon was reachable by the panel (same session) and
+	# not by the selftest, which was handed a bus address spelled out
+	# here. So the address comes from openbox's own environment; the
+	# hardcoded values are only the fallback if that read fails.
+	session_pid=$(pgrep -x openbox | head -1 || true)
+	session_bus="unix:path=/run/user/1000/bus"
+	session_run="/run/user/1000"
+	if [ -n "$session_pid" ] && [ -r "/proc/$session_pid/environ" ]; then
+		env_bus=$(tr '\0' '\n' < "/proc/$session_pid/environ" \
+			| sed -n 's/^DBUS_SESSION_BUS_ADDRESS=//p' | head -1)
+		env_run=$(tr '\0' '\n' < "/proc/$session_pid/environ" \
+			| sed -n 's/^XDG_RUNTIME_DIR=//p' | head -1)
+		[ -n "$env_bus" ] && session_bus="$env_bus"
+		[ -n "$env_run" ] && session_run="$env_run"
+	fi
+	log "SELFTEST-BUS ${session_bus} (runtime ${session_run})"
 	runuser -u karan -- env DISPLAY=:0 HOME=/users/karan \
-		XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+		XDG_RUNTIME_DIR="$session_run" DBUS_SESSION_BUS_ADDRESS="$session_bus" \
 		timeout 900 kavis-selftest --all 2>/dev/null | while IFS= read -r line; do
 		log "SELFTEST ${line}"
 	done
