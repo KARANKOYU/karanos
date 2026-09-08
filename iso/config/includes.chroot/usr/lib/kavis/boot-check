@@ -136,8 +136,9 @@ fi
 # alternative. Both must be on the ISO — a missing default means the
 # session falls back to X's core cursor, which is the thick black X.
 if [ -f /usr/share/icons/Breeze_Light/cursors/left_ptr ] \
-	&& [ -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr ]; then
-	log "CURSOR-OK Breeze_Light $(ls /usr/share/icons/Breeze_Light/cursors 2>/dev/null | wc -l) names, Kavis-Cursors $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l)"
+	&& [ -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr ] \
+	&& [ -f /usr/share/icons/Kavis-Cursors-Black/cursors/left_ptr ]; then
+	log "CURSOR-OK Breeze_Light $(ls /usr/share/icons/Breeze_Light/cursors 2>/dev/null | wc -l) names, Kavis-Cursors $(ls /usr/share/icons/Kavis-Cursors/cursors 2>/dev/null | wc -l), Kavis-Cursors-Black $(ls /usr/share/icons/Kavis-Cursors-Black/cursors 2>/dev/null | wc -l)"
 else
 	fatal "CURSOR-FAIL cursor theme missing" "cursor"
 fi

@@ -1976,3 +1976,93 @@ msgstr "Bu hesabın parolası yok"
 
 msgid "Set a password first — a lock screen that anything can open protects nothing."
 msgstr "Önce bir parola belirleyin — her şeyin açabildiği bir kilit ekranı hiçbir şeyi korumaz."
+
+msgid "Pointer"
+msgstr "İmleç"
+
+msgid "Buttons"
+msgstr "Düğmeler"
+
+msgid "Speed and scrolling"
+msgstr "Hız ve kaydırma"
+
+msgid "Pointer colour"
+msgstr "İmleç rengi"
+
+msgid "White or black pointer, and the Breeze themes"
+msgstr "Beyaz ya da siyah imleç, bir de Breeze temaları"
+
+msgid "Pointer size"
+msgstr "İmleç boyutu"
+
+msgid "24, 32, 48 or 64 pixels"
+msgstr "24, 32, 48 ya da 64 piksel"
+
+msgid "Left-handed"
+msgstr "Solak"
+
+msgid "Swaps the left and right buttons"
+msgstr "Sol ve sağ düğmeyi değiştirir"
+
+msgid "Double-click speed"
+msgstr "Çift tıklama hızı"
+
+msgid "How far apart two clicks may be"
+msgstr "İki tıklama arası en fazla ne kadar olabilir"
+
+msgid "Pointer speed"
+msgstr "İmleç hızı"
+
+msgid "Acceleration of the pointer"
+msgstr "İmlecin ivmelenmesi"
+
+msgid "Natural scrolling"
+msgstr "Doğal kaydırma"
+
+msgid "Content follows the fingers"
+msgstr "İçerik parmakları izler"
+
+msgid "Kavis white"
+msgstr "Kavis beyaz"
+
+msgid "Kavis black"
+msgstr "Kavis siyah"
+
+msgid "Breeze light"
+msgstr "Breeze açık"
+
+msgid "Breeze snow"
+msgstr "Breeze kar"
+
+msgid "Breeze dark"
+msgstr "Breeze koyu"
+
+msgid "Small (24)"
+msgstr "Küçük (24)"
+
+msgid "Medium (32)"
+msgstr "Orta (32)"
+
+msgid "Large (48)"
+msgstr "Büyük (48)"
+
+msgid "Extra large (64)"
+msgstr "Çok büyük (64)"
+
+msgid "A white pointer disappears on a white page; a dark one disappears on the desktop"
+msgstr "Beyaz imleç beyaz sayfada kaybolur; koyu imleç masaüstünde kaybolur"
+
+msgid "Applications already open keep the old size until their next window"
+msgstr "Zaten açık uygulamalar bir sonraki penceresine kadar eski boyutu korur"
+
+msgid "Default"
+msgstr "Varsayılan"
+
+msgid "How long two clicks may be apart and still count as one double click"
+msgstr "İki tıklama arasında en fazla ne kadar olup yine çift tıklama sayılacağı"
+
+msgid "How far the pointer travels for the same movement of the hand"
+msgstr "Elin aynı hareketinde imlecin ne kadar yol alacağı"
+
+msgid "The content follows the fingers, the way a phone scrolls"
+msgstr "İçerik parmakları izler, telefonun kaydırdığı gibi"

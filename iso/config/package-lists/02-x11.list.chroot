@@ -109,6 +109,14 @@ libglib2.0-bin
 # fonts-noto-color-emoji: so the emoji picker's cells draw emoji, not
 # boxes.
 xdotool
+# xinput: Settings > Mouse sets pointer speed, natural scrolling and
+# the left-handed switch through libinput's per-device properties.
+# There is no global switch in X — a laptop with a touchpad and a
+# plugged-in mouse has two devices, and setting only the first one is
+# how such settings end up applying to whichever device happened to be
+# enumerated first. xsetroot and xmodmap (the root cursor and the
+# button map) come from x11-xserver-utils, already on line 12.
+xinput
 fonts-noto-color-emoji
 
 # --- touchpad gestures (next-tasks 6g) ---

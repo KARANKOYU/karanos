@@ -173,6 +173,15 @@ override_dh_auto_install:
 	printf '[Icon Theme]\nName=Kavis\nComment=Kavis cursors\nInherits=Breeze_Light\n' \
 		> $(CURSORS)/index.theme
 	cp $(CURSORS)/index.theme $(CURSORS)/cursor.theme
+	# The dark-bodied pointer, from the same drawings: a white cursor
+	# disappears on a white document. Settings > Mouse offers the two
+	# as a colour choice, which is only cheap because the shapes are
+	# generated rather than checked in.
+	install -d $(CURSORS)-Black/cursors
+	python3 tools/gen-cursors.py $(CURSORS)-Black/cursors black
+	printf '[Icon Theme]\nName=Kavis Black\nComment=Kavis cursors, dark body\nInherits=Breeze_Light\n' \
+		> $(CURSORS)-Black/index.theme
+	cp $(CURSORS)-Black/index.theme $(CURSORS)-Black/cursor.theme
 	# C3: the system-wide default pointer, registered with
 	# update-alternatives by the postinst. It is a pointer FILE rather
 	# than a theme directory on purpose: it must not show up in a cursor

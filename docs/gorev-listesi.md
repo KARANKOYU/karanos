@@ -636,6 +636,20 @@ sıfırdan yazılır. Hazır programları apt ile kurup ayarlamak serbest.
     tarayıcıda "beni hatırla" olacak mı — karar verilene kadar link tek
     seferlik. docs/kararlar.md 12.
 
+81. **FARE VE İMLEÇ AYARLARI (2026-09-08 eki, Grup F eki).** Kavis'te
+    fare *donanım testi* vardı ama tek bir fare *ayarı* yoktu: imleç
+    büyütülemiyor, beyaz sayfada kaybolan imleç koyulaştırılamıyor,
+    solak düğme düzeni seçilemiyordu — ikisi tercih değil erişilebilirlik
+    maddesi. Ayarlar'da yeni **Fare** bölümü: imleç rengi (Kavis beyaz /
+    Kavis siyah / kurulu Breeze temaları), imleç boyutu (24/32/48/64),
+    solak, çift tıklama hızı, imleç hızı, doğal kaydırma. Renk bir
+    *tema* seçimidir çünkü X'te imleç bir görüntü dizinidir: siyah imleç,
+    aynı SVG çizimlerinin gövdesi ve konturu yer değiştirmiş hâlidir
+    (`gen-cursors.py <dizin> black`), yani ikinci tema zaten ürettiğimiz
+    dosyanın bir kez daha üretilmesinden ibaret. libinput özellikleri
+    aygıtta durur ve X yeniden başlayınca gider; `openbox/autostart`
+    oturum açılışında kavis.conf'tan geri uygular.
+
 ## Yapılış sırası (gruplar)
 
 Numara sırasıyla DEĞİL, gruplar hâlinde. Her grubun sonunda DUR: özet,

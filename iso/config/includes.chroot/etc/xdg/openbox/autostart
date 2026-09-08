@@ -38,6 +38,32 @@ fi
 # in windows.
 xsetroot -cursor_name left_ptr &
 
+# --- Mouse (Settings > Mouse) ----------------------------------------
+# libinput properties live on the DEVICE and are gone the moment X
+# restarts, so what Settings applied last time has to be applied again
+# here. A plain grep rather than a keyfile parser: this runs before the
+# session has anything to parse with, and a missing file simply means
+# "the defaults", which is what the device already has.
+KAVIS_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/kavis/kavis.conf"
+conf_value() { grep -m1 "^$1=" "$KAVIS_CONF" 2>/dev/null | cut -d= -f2-; }
+if [ -f "$KAVIS_CONF" ] && command -v xinput >/dev/null 2>&1; then
+	SPEED=$(conf_value speed)
+	NATURAL=$(conf_value natural-scroll)
+	LEFT=$(conf_value left-handed)
+	xinput --list --name-only 2>/dev/null | while IFS= read -r device; do
+		case "$device" in "Virtual core"*|"Virtual pointer"*|"") continue ;; esac
+		[ -n "$SPEED" ] && xinput --set-prop "$device" \
+			"libinput Accel Speed" \
+			"$(awk -v p="$SPEED" 'BEGIN { printf "%.2f", p / 100 }')" \
+			2>/dev/null
+		[ "$NATURAL" = "true" ] && xinput --set-prop "$device" \
+			"libinput Natural Scrolling Enabled" 1 2>/dev/null
+		[ "$LEFT" = "true" ] && xinput --set-prop "$device" \
+			"libinput Left Handed Enabled" 1 2>/dev/null
+	done
+	[ "$LEFT" = "true" ] && xmodmap -e "pointer = 3 2 1" 2>/dev/null
+fi
+
 # --- Compositor ------------------------------------------------------
 # For shadows and rounded corners. Starts BEFORE the panel: at startup
 # the panel checks whether compositing exists and draws the power menu

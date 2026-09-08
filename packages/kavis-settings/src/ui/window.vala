@@ -155,6 +155,7 @@ namespace Kavis.Settings {
                 { "sound", "audio-volume-high-symbolic", _("Sound") },
                 { "keyboard", "input-keyboard-symbolic",
                   _("Keyboard & Language") },
+                { "mouse", "input-mouse-symbolic", _("Mouse") },
                 { "power", "battery-good-symbolic", _("Power") },
                 { "network", "network-wireless-symbolic", _("Network") },
                 { "taskbar", "view-grid-symbolic", _("Taskbar") },

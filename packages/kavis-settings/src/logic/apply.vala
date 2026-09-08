@@ -588,6 +588,132 @@ namespace Kavis.Settings.Apply {
     }
 
     /* Screen blank timeout (minutes; 0 = never) via DPMS. */
+    /* --- Mouse and pointer -------------------------------------- */
+
+    /* The pointer theme and its size.
+     *
+     * Four places have to agree or the pointer changes in some windows
+     * and not others, which is worse than not changing at all:
+     *   xsettingsd  — GTK applications, live
+     *   ~/.icons/default/index.theme  — what Xcursor reads for windows
+     *                 that ask the server rather than the toolkit
+     *   XCURSOR_THEME/SIZE in ~/.xsessionrc — the next session's
+     *                 environment, for programs that read neither
+     *   xsetroot    — the root window's own cursor, which nothing else
+     *                 updates and which is what shows over the desktop
+     *
+     * Already-running applications keep the old pointer: GTK reads the
+     * theme once per window. Saying so in the UI is honest; restarting
+     * everybody's applications to change a cursor is not. */
+    public void pointer (string theme, int size) {
+        xsettings_set ("Gtk/CursorThemeName", "\"%s\"".printf (theme));
+        xsettings_set ("Gtk/CursorThemeSize", size.to_string ());
+
+        string dir = Path.build_filename (Environment.get_home_dir (),
+                                          ".icons", "default");
+        DirUtils.create_with_parents (dir, 0755);
+        try {
+            FileUtils.set_contents (
+                Path.build_filename (dir, "index.theme"),
+                "[Icon Theme]\nName=Default\nComment=Kavis pointer\n"
+                + "Inherits=%s\n".printf (theme));
+        } catch (Error e) {
+            warning ("kavis-settings: could not write the pointer theme: %s",
+                     e.message);
+        }
+        session_env ("XCURSOR_THEME", theme);
+        session_env ("XCURSOR_SIZE", size.to_string ());
+        Run.fire ({ "xsetroot", "-xcf",
+                    "/usr/share/icons/%s/cursors/left_ptr".printf (theme),
+                    size.to_string () });
+    }
+
+    /* One `export NAME=value` line in ~/.xsessionrc, replaced in place.
+     * The language setting writes the same file; both go through here
+     * so the second one to run cannot drop the first one's line. */
+    private void session_env (string name, string value) {
+        string path = Path.build_filename (Environment.get_home_dir (),
+                                           ".xsessionrc");
+        string contents = "";
+        try {
+            FileUtils.get_contents (path, out contents);
+        } catch (Error e) { }
+        var lines = new StringBuilder ();
+        bool replaced = false;
+        foreach (unowned string line in contents.split ("\n")) {
+            if (line.strip () == "") {
+                continue;
+            }
+            if (line.has_prefix ("export %s=".printf (name))) {
+                lines.append_printf ("export %s=%s\n", name, value);
+                replaced = true;
+            } else {
+                lines.append (line);
+                lines.append_c ('\n');
+            }
+        }
+        if (!replaced) {
+            lines.append_printf ("export %s=%s\n", name, value);
+        }
+        try {
+            FileUtils.set_contents (path, lines.str);
+        } catch (Error e) {
+            warning ("kavis-settings: could not write ~/.xsessionrc: %s",
+                     e.message);
+        }
+    }
+
+    /* Every pointing device libinput drives. The properties are set per
+     * device because there is no global switch in X: a laptop with a
+     * touchpad and a plugged-in mouse has two, and setting only the
+     * "first" one is how these settings end up applying to whichever
+     * device happened to be enumerated first. */
+    private void each_pointer (string property, string value) {
+        string? list = Run.capture ({ "xinput", "--list", "--name-only" });
+        if (list == null) {
+            return;
+        }
+        foreach (unowned string name in list.split ("\n")) {
+            string device = name.strip ();
+            if (device == "" || device.has_prefix ("Virtual core")
+                || device.has_prefix ("Virtual pointer")) {
+                continue;
+            }
+            /* A device without the property answers with an error and
+             * is skipped: xinput sets what it can and says so on
+             * stderr, which is not worth showing for a keyboard that
+             * has no scroll setting. */
+            Run.fire ({ "xinput", "--set-prop", device, property, value });
+        }
+    }
+
+    /* -1..1 in libinput's own units; the UI shows -100..100. */
+    public void pointer_speed (int percent) {
+        double accel = percent.clamp (-100, 100) / 100.0;
+        each_pointer ("libinput Accel Speed", "%.2f".printf (accel));
+    }
+
+    public void natural_scroll (bool on) {
+        each_pointer ("libinput Natural Scrolling Enabled", on ? "1" : "0");
+    }
+
+    /* Left-handed: swap button 1 and 3. libinput has its own property
+     * for it, and the X button map is set as well — the property is
+     * what a libinput device honours, the map is what everything else
+     * does. */
+    public void left_handed (bool on) {
+        each_pointer ("libinput Left Handed Enabled", on ? "1" : "0");
+        Run.fire (on
+            ? new string[] { "xmodmap", "-e", "pointer = 3 2 1" }
+            : new string[] { "xmodmap", "-e", "pointer = 1 2 3" });
+    }
+
+    /* Milliseconds between two clicks that still count as a double
+     * click. GTK reads this from xsettings, live. */
+    public void double_click (int ms) {
+        xsettings_set ("Net/DoubleClickTime", ms.to_string ());
+    }
+
     public void screen_off (int minutes) {
         if (minutes == 0) {
             Run.fire ({ "xset", "s", "off", "-dpms" });

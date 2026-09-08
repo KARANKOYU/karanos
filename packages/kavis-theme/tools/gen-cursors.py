@@ -21,6 +21,24 @@ import tempfile
 # dark desktop and on top of a white document.
 OUTLINE = "#0D141B"
 FILL = "#FFFFFF"
+
+# The colour variants Settings > Mouse offers. Same drawing in every
+# one — only the body and its outline swap, which is the whole reason
+# the cursors are generated from SVG instead of being checked in as
+# PNGs. A white pointer disappears on a white document and a dark one
+# disappears on a dark desktop; the choice costs one more build of a
+# file we already build.
+#
+# READ AT IMPORT, not in main(): the shape table below is built from
+# these two names while the module loads, and several drawing helpers
+# capture them as default arguments. Rebinding them later would produce
+# a theme that is white however it was asked for.
+VARIANTS = {"white": ("#FFFFFF", "#0D141B"), "black": ("#0D141B", "#FFFFFF")}
+if len(sys.argv) == 3:
+    if sys.argv[2] not in VARIANTS:
+        sys.exit("unknown variant %r (have: %s)"
+                 % (sys.argv[2], ", ".join(sorted(VARIANTS))))
+    FILL, OUTLINE = VARIANTS[sys.argv[2]]
 ACCENT = "#2DD4BF"
 ACCENT2 = "#4F92F7"
 # A teal "forbidden" cursor does not read as a warning; red as the single
@@ -284,9 +302,10 @@ ALIASES = {
 
 
 def main():
-	if len(sys.argv) != 2:
-		sys.exit("usage: gen-cursors.py <cursors-dir>")
+	if len(sys.argv) not in (2, 3):
+		sys.exit("usage: gen-cursors.py <cursors-dir> [white|black]")
 	outdir = os.path.abspath(sys.argv[1])
+	variant = sys.argv[2] if len(sys.argv) == 3 else "white"
 	os.makedirs(outdir, exist_ok=True)
 
 	with tempfile.TemporaryDirectory() as tmp:
@@ -325,7 +344,8 @@ def main():
 			os.symlink(target, path)
 
 	total = len(os.listdir(outdir))
-	print(f"cursor theme ready: {len(SHAPES)} shapes, {total} names ({outdir})")
+	print(f"cursor theme ready ({variant}): {len(SHAPES)} shapes, "
+	      f"{total} names ({outdir})")
 
 
 if __name__ == "__main__":

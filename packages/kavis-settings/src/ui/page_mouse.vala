@@ -1,0 +1,160 @@
+/* Mouse and pointer page (feedback, 8 Sep 2026).
+ *
+ * Kavis had a mouse HARDWARE TEST and no mouse settings at all: no way
+ * to make the pointer bigger, no way to make it visible on a white
+ * document, no left-handed switch. Every one of those is a thing people
+ * change on the first day, and two of them are accessibility settings
+ * rather than preferences.
+ *
+ * The pointer colour is a THEME choice, because that is what X has:
+ * a cursor theme is a directory of images, so "black pointer" means
+ * shipping the same drawings with the body and outline swapped. The
+ * generator already drew them from SVG, so the second theme costs one
+ * more build of a file we already build (kavis-theme's rules).
+ *
+ * Everything here writes kavis.conf and applies immediately; the size
+ * and colour reach running applications only when they open a new
+ * window, which the page says out loud rather than pretending
+ * otherwise.
+ */
+
+namespace Kavis.Settings.Pages {
+
+    /* Directory name -> the name a person recognises. Only themes that
+     * are actually installed are offered: a list that promises a
+     * pointer the machine does not have is worse than a short list. */
+    private struct Pointer {
+        public string dir;
+        public string label;
+    }
+
+    public Gtk.Widget mouse (string title) {
+        Gtk.Box body;
+        var page = frame (title, out body);
+
+        /* --- Pointer ------------------------------------------------ */
+        var pointer_block = subsection (body, "pointer",
+            Catalog.sub_title ("mouse", "pointer"));
+
+        Pointer[] themes = {
+            { "Kavis-Cursors", _("Kavis white") },
+            { "Kavis-Cursors-Black", _("Kavis black") },
+            { "Breeze_Light", _("Breeze light") },
+            { "Breeze_Snow", _("Breeze snow") },
+            { "breeze_cursors", _("Breeze dark") }
+        };
+        var colour = new Gtk.ComboBoxText ();
+        string current_theme = conf_get ("mouse", "pointer", "Kavis-Cursors");
+        int index = 0;
+        int active = -1;
+        foreach (unowned Pointer p in themes) {
+            if (!FileUtils.test ("/usr/share/icons/" + p.dir + "/cursors",
+                                 FileTest.IS_DIR)) {
+                continue;
+            }
+            colour.append (p.dir, p.label);
+            if (p.dir == current_theme) {
+                active = index;
+            }
+            index++;
+        }
+        colour.set_active (active >= 0 ? active : 0);
+
+        var size = new Gtk.ComboBoxText ();
+        /* The four sizes the cursors are generated at. An XCursor theme
+         * only carries the sizes it was built with; offering a fifth
+         * would silently pick the nearest one. */
+        size.append ("24", _("Small (24)"));
+        size.append ("32", _("Medium (32)"));
+        size.append ("48", _("Large (48)"));
+        size.append ("64", _("Extra large (64)"));
+        size.set_active_id (conf_get_int ("mouse", "pointer-size", 24)
+                            .to_string ());
+
+        colour.changed.connect (() => {
+            string? id = colour.get_active_id ();
+            if (id != null) {
+                conf_set ("mouse", "pointer", id);
+                Apply.pointer (id, conf_get_int ("mouse", "pointer-size", 24));
+            }
+        });
+        size.changed.connect (() => {
+            string? id = size.get_active_id ();
+            if (id != null) {
+                conf_set_int ("mouse", "pointer-size", int.parse (id));
+                Apply.pointer (conf_get ("mouse", "pointer",
+                                         "Kavis-Cursors"), int.parse (id));
+            }
+        });
+
+        pointer_block.pack_start (row (_("Pointer colour"),
+            _("A white pointer disappears on a white page; a dark one disappears on the desktop"),
+            colour), false, false, 0);
+        pointer_block.pack_start (row (_("Pointer size"),
+            _("Applications already open keep the old size until their next window"),
+            size), false, false, 0);
+
+        /* --- Buttons ------------------------------------------------ */
+        var buttons = subsection (body, "buttons",
+            Catalog.sub_title ("mouse", "buttons"));
+
+        var handed = new Gtk.Switch ();
+        handed.active = conf_get_bool ("mouse", "left-handed", false);
+        handed.notify["active"].connect (() => {
+            conf_set_bool ("mouse", "left-handed", handed.active);
+            Apply.left_handed (handed.active);
+        });
+        buttons.pack_start (row (_("Left-handed"),
+            _("Swaps the left and right buttons"), handed), false, false, 0);
+
+        var double_click = new Gtk.Scale.with_range (
+            Gtk.Orientation.HORIZONTAL, 200, 900, 50);
+        double_click.set_size_request (220, -1);
+        double_click.set_value (conf_get_int ("mouse", "double-click", 400));
+        double_click.set_draw_value (false);
+        /* The three marks are the answer to "what is a normal value" —
+         * a bare slider between two numbers tells nobody anything. */
+        double_click.add_mark (200, Gtk.PositionType.BOTTOM, _("Fast"));
+        double_click.add_mark (400, Gtk.PositionType.BOTTOM, _("Default"));
+        double_click.add_mark (900, Gtk.PositionType.BOTTOM, _("Slow"));
+        double_click.value_changed.connect (() => {
+            int ms = (int) double_click.get_value ();
+            conf_set_int ("mouse", "double-click", ms);
+            Apply.double_click (ms);
+        });
+        buttons.pack_start (row (_("Double-click speed"),
+            _("How long two clicks may be apart and still count as one double click"),
+            double_click), false, false, 0);
+
+        /* --- Pointer speed and scrolling ---------------------------- */
+        var motion = subsection (body, "motion",
+            Catalog.sub_title ("mouse", "motion"));
+
+        var speed = new Gtk.Scale.with_range (
+            Gtk.Orientation.HORIZONTAL, -100, 100, 5);
+        speed.set_size_request (220, -1);
+        speed.set_value (conf_get_int ("mouse", "speed", 0));
+        speed.set_draw_value (false);
+        speed.add_mark (0, Gtk.PositionType.BOTTOM, _("Default"));
+        speed.value_changed.connect (() => {
+            int percent = (int) speed.get_value ();
+            conf_set_int ("mouse", "speed", percent);
+            Apply.pointer_speed (percent);
+        });
+        motion.pack_start (row (_("Pointer speed"),
+            _("How far the pointer travels for the same movement of the hand"),
+            speed), false, false, 0);
+
+        var natural = new Gtk.Switch ();
+        natural.active = conf_get_bool ("mouse", "natural-scroll", false);
+        natural.notify["active"].connect (() => {
+            conf_set_bool ("mouse", "natural-scroll", natural.active);
+            Apply.natural_scroll (natural.active);
+        });
+        motion.pack_start (row (_("Natural scrolling"),
+            _("The content follows the fingers, the way a phone scrolls"),
+            natural), false, false, 0);
+
+        return page;
+    }
+}

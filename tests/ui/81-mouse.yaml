@@ -1,0 +1,67 @@
+# Mouse and pointer (Settings > Mouse).
+#
+# Kavis had a mouse hardware TEST and no mouse settings at all: no
+# pointer size, no way to make the pointer visible on a white document,
+# no left-handed switch. Two of those are accessibility settings, not
+# preferences.
+#
+# The pointer colour is a THEME, because that is what X has — a cursor
+# theme is a directory of images, so "black pointer" means the same
+# drawings with the body and outline swapped. Both are generated from
+# the same SVG source at build time, which is why the second one costs
+# nothing to ship. The first two steps check they are both actually
+# there: a colour list that offers a pointer the machine does not have
+# would silently fall back and look like the setting did nothing.
+name: 81-mouse
+title: Mouse and pointer
+item: 81
+allowed: [kavis-settings]
+steps:
+  - do: shell test -f /usr/share/icons/Kavis-Cursors/cursors/left_ptr
+    expect: ok
+    note: the white pointer
+  - do: shell test -f /usr/share/icons/Kavis-Cursors-Black/cursors/left_ptr
+    expect: ok
+    note: and the black one, from the same drawings
+  - do: shell test "$(ls /usr/share/icons/Kavis-Cursors-Black/cursors | wc -l)" -ge 100
+    expect: ok
+    note: >
+      every shape, not just the arrow — a theme missing the resize or
+      text shapes falls back to the inherited theme mid-gesture, which
+      reads as the pointer flickering between two colours
+  - do: shell command -v xinput
+    expect: ok
+    note: >
+      speed, natural scrolling and left-handed are libinput device
+      properties; without xinput the switches would write the config
+      and change nothing
+
+  - do: launch kavis-settings mouse
+    expect: window kavis-settings visible
+    timeout: 40000
+    note: the Mouse section
+    shot: true
+  - do: type pointer
+    expect: ok
+    note: the search finds it by the word a person would use
+  - do: wait 1500
+    expect: ok
+    shot: true
+  - do: close window kavis-settings
+    expect: window kavis-settings absent
+    timeout: 8000
+
+  - do: conf mouse pointer-size 48
+    expect: conf mouse pointer-size 48
+    note: what the size dropdown writes
+  - do: conf mouse left-handed true
+    expect: conf mouse left-handed true
+  - do: shell grep -q "^pointer-size=48" "$HOME/.config/kavis/kavis.conf"
+    expect: ok
+    note: >
+      one config file for the whole desktop — the session autostart
+      reads these back at the next login, because libinput properties
+      live on the device and do not survive an X restart
+  - do: shell sed -i '/^pointer-size=/d;/^left-handed=/d' "$HOME/.config/kavis/kavis.conf"
+    expect: ok
+    note: leave the session as it was found

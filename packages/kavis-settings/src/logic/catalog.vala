@@ -69,6 +69,9 @@ namespace Kavis.Settings.Catalog {
 
             { "hardware",   "tests",       _("Tests") },
 
+            { "mouse",      "pointer",     _("Pointer") },
+            { "mouse",      "buttons",     _("Buttons") },
+            { "mouse",      "motion",      _("Speed and scrolling") },
             { "system",     "about",       _("About") },
             { "system",     "selftest",    _("Self test") }
         };
@@ -177,6 +180,18 @@ namespace Kavis.Settings.Catalog {
               _("Nine checks: does this machine work") + " test hardware diagnostics check keyboard mouse camera microphone disk memory smart" },
 
             /* --- System ----------------------------------------- */
+            { "mouse", "pointer", _("Pointer colour"),
+              _("White or black pointer, and the Breeze themes") + " cursor mouse pointer colour color black white theme visible" },
+            { "mouse", "pointer", _("Pointer size"),
+              _("24, 32, 48 or 64 pixels") + " cursor mouse pointer size big large small bigger accessibility" },
+            { "mouse", "buttons", _("Left-handed"),
+              _("Swaps the left and right buttons") + " mouse buttons left handed swap primary" },
+            { "mouse", "buttons", _("Double-click speed"),
+              _("How far apart two clicks may be") + " mouse double click speed interval" },
+            { "mouse", "motion", _("Pointer speed"),
+              _("Acceleration of the pointer") + " mouse pointer speed acceleration sensitivity" },
+            { "mouse", "motion", _("Natural scrolling"),
+              _("Content follows the fingers") + " mouse touchpad scroll scrolling natural reverse invert direction" },
             { "system", "about", _("About"),
               _("What this machine is") + " about system info specs processor cpu graphics gpu memory ram disk version" },
             { "system", "selftest", _("Automatic interface test"),

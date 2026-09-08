@@ -588,6 +588,15 @@ msgstr "⟪Pinned apps····⟫"
 msgid "Tests"
 msgstr "⟪Tests··⟫"
 
+msgid "Pointer"
+msgstr "⟪Pointer··⟫"
+
+msgid "Buttons"
+msgstr "⟪Buttons··⟫"
+
+msgid "Speed and scrolling"
+msgstr "⟪Speed and scrolling·······⟫"
+
 msgid "About"
 msgstr "⟪About··⟫"
 
@@ -800,6 +809,42 @@ msgstr "⟪Hardware test·····⟫"
 
 msgid "Nine checks: does this machine work"
 msgstr "⟪Nine checks: does this machine work··············⟫"
+
+msgid "Pointer colour"
+msgstr "⟪Pointer colour·····⟫"
+
+msgid "White or black pointer, and the Breeze themes"
+msgstr "⟪White or black pointer, and the Breeze themes··················⟫"
+
+msgid "Pointer size"
+msgstr "⟪Pointer size····⟫"
+
+msgid "24, 32, 48 or 64 pixels"
+msgstr "⟪24, 32, 48 or 64 pixels·········⟫"
+
+msgid "Left-handed"
+msgstr "⟪Left-handed····⟫"
+
+msgid "Swaps the left and right buttons"
+msgstr "⟪Swaps the left and right buttons············⟫"
+
+msgid "Double-click speed"
+msgstr "⟪Double-click speed·······⟫"
+
+msgid "How far apart two clicks may be"
+msgstr "⟪How far apart two clicks may be············⟫"
+
+msgid "Pointer speed"
+msgstr "⟪Pointer speed·····⟫"
+
+msgid "Acceleration of the pointer"
+msgstr "⟪Acceleration of the pointer··········⟫"
+
+msgid "Natural scrolling"
+msgstr "⟪Natural scrolling······⟫"
+
+msgid "Content follows the fingers"
+msgstr "⟪Content follows the fingers··········⟫"
 
 msgid "What this machine is"
 msgstr "⟪What this machine is········⟫"
@@ -1343,6 +1388,48 @@ msgstr "⟪Esc cancels. The keys are taken as they are pressed.········�
 
 msgid "%s is already “%s”. Change that one first."
 msgstr "⟪%s is already “%s”. Change that one first.················⟫"
+
+msgid "Kavis white"
+msgstr "⟪Kavis white····⟫"
+
+msgid "Kavis black"
+msgstr "⟪Kavis black····⟫"
+
+msgid "Breeze light"
+msgstr "⟪Breeze light····⟫"
+
+msgid "Breeze snow"
+msgstr "⟪Breeze snow····⟫"
+
+msgid "Breeze dark"
+msgstr "⟪Breeze dark····⟫"
+
+msgid "Small (24)"
+msgstr "⟪Small (24)····⟫"
+
+msgid "Medium (32)"
+msgstr "⟪Medium (32)····⟫"
+
+msgid "Large (48)"
+msgstr "⟪Large (48)····⟫"
+
+msgid "Extra large (64)"
+msgstr "⟪Extra large (64)······⟫"
+
+msgid "Applications already open keep the old size until their next window"
+msgstr "⟪Applications already open keep the old size until their next window··························⟫"
+
+msgid "Default"
+msgstr "⟪Default··⟫"
+
+msgid "How long two clicks may be apart and still count as one double click"
+msgstr "⟪How long two clicks may be apart and still count as one double click···························⟫"
+
+msgid "How far the pointer travels for the same movement of the hand"
+msgstr "⟪How far the pointer travels for the same movement of the hand························⟫"
+
+msgid "The content follows the fingers, the way a phone scrolls"
+msgstr "⟪The content follows the fingers, the way a phone scrolls······················⟫"
 
 msgid "Network"
 msgstr "⟪Network··⟫"
