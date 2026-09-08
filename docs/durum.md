@@ -9,6 +9,145 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 8 Eylül 2026 (v0.5-test4: VM geri bildirimi A–E)
+
+## A. Kilit ekranı — sistemi kilitliyordu
+
+**Kök sebep sanılandan derindeydi.** `/etc/pam.d/kavis-lock`, lightdm'in
+kendi dosyası gibi, şu satırla başlıyor:
+
+```
+auth sufficient pam_succeed_if.so user ingroup nopasswdlogin
+```
+
+Yani **parolasız bir hesapta hiçbir cevabın geçebileceği tek yol o grup
+üyeliğidir**; altındaki `common-auth` `pam_unix`'tir ve boş parolayı
+reddeder. Grup üyeliği önyükleme parametresiyle isteniyordu
+(`user-default-groups`), ama `user-setup` çalıştığı anda grup henüz
+yoksa istek **sessizce düşüyor**. Sonuç: her şeye "Wrong password" diyen
+bir kilit ekranı ve arkasında kalan oturum.
+
+Bu aynı zamanda "PAM'a soralım" çözümünün de neden yetmediğini
+açıklıyor: PAM da "parola var" derdi.
+
+- `0031-kavis-dirs` artık grubu yoksa oluşturuyor ve kullanıcıyı
+  ekliyor (fonksiyonun kendi build-marker + `boot=live` koruması
+  altında).
+- `boot-check` grup yoksa koşuyu **kırmızıya çeviriyor**
+  (`PASSWORDLESS-FAIL`).
+- Senaryonun ilk adımı bu üyeliği doğruluyor.
+
+**Karar (A1): parolası olmayan hesap hiç kilitlenmiyor.** Win+L bir kart
+gösterip kendiliğinden kapanıyor, oturuma dokunmuyor. Kullanıcının
+tercihi buydu; gerekçesi de şu: Enter'a basınca açılan bir kilit hiçbir
+şeyi korumaz, ama soruyu ters yönde yanlış cevaplamak insanı kendi
+makinesinden dışarıda bırakır.
+
+**A2 — kaçış yolu.** 30 saniye içinde 3 başarısız denemeden sonra
+"Oturumu kapat" düğmesi çıkıyor. Sayaç redler kesilince sıfırlanıyor,
+yani sabah bir, akşam bir yanlış yazan kimse kilitlenmiş sayılmıyor.
+Ayrıca ilk redde "bu hesap boş parolayla açılıyor mu" diye PAM'a
+soruluyor; cevap evetse kilit bırakılıyor. Bu soru **açılışta**
+sorulmuyor: parolası olan hesapta boş parola başarısız olur ve
+`pam_unix` başarısızlığa iki saniyelik ceza gecikmesi verir — Win+L'den
+sonra masaüstünün iki saniye daha açık kalması demek olurdu.
+
+**A3 — "Debian Live user" gitti.** Ad artık gecos alanından değil,
+oturum açan kullanıcı adından geliyor (`karan`). Gecos'u altımızdaki
+dağıtım dolduruyor; Kavis'in kendi kullanıcı profili gelene kadar
+(madde 0) bildiği ad giriş adıdır.
+
+**A4 — tek kart.** Saat ayrı, parola ayrı karttaydı ve ikisi bağımsız
+ortalandığı için hiçbir ekran boyutunda hizalanmıyordu. Hepsi tek kart;
+"Unlock" düğmesi Kavis turkuazı — GTK'nın mavi `suggested-action`'ı
+değil. Kilit ekranı bir yabancının gördüğü ilk Kavis penceresiydi ve
+başka bir masaüstünün rengini taşıyordu.
+
+## B. İlk açılışta sistem kendi kendine iş yapıyordu
+
+**Kök sebep: `boot-check` her canlı açılışta `kavis-selftest --all`
+çalıştırıyordu.** Selftest kısayollara basar, pencere sürükler,
+uygulama açıp kapatır, metin yazar. Yeni bir makinenin başına oturan
+biri için bu tam olarak "bilgisayar kendi kendine bir şeyler yapıyor"
+demektir. Bozuk bir şey yoktu; işini bir insanın önünde yapıyordu.
+
+Tetikleyici artık **SMBIOS makine seri numarası**: CI'ın açtığı ISO ile
+kullanıcının açtığı ISO bit bit aynı olduğundan, imajın içinden ikisini
+ayırt edecek başka bir şey yok. QEMU'ya
+`-smbios type=1,serial=kavis-selftest` veriliyor; VirtualBox ve gerçek
+donanım bunu taşımaz. Elle çalıştırmak için `KAVIS_SELFTEST=1`.
+Ayarlar > Sistem'deki "Bu sistemi test et" düğmesi zaten vardı.
+
+**B2 yapısal olarak denetleniyor:** `72-selftest` senaryosu hiçbir
+autostart girdisinin, birimin ya da zamanlayıcının `kavis-selftest`
+adını geçirmediğini doğruluyor. Senaryolar geliyor, tetikleyici
+gelmiyor.
+
+## C. Açık tema — yazılar okunmuyordu
+
+Açık tema iki yerde yazılmıştı ve yalnız biri bitmişti. `gtk-light.css`
+(her uygulamanın aldığı GTK teması) beyaz zeminin daha koyu vurgu
+istediğini biliyor ve koyultuyordu. Kavis'in **kendi** bileşenlerinin
+`@kavis_*` çözdüğü palet (`kavis-common/theme.vala`) parlak değerleri
+koruyordu. Yani açık temada Kavis'in kendi çizdiği her şey — vurgu
+çizgisi, açık anahtar, OSD, Unlock düğmesi — **beyaz üstünde 1.7:1**'di.
+Bu "düşük kontrast" değil, yok demektir.
+
+Ölçerek bulunan diğerleri:
+
+| Ne | Önce | Sonra |
+|---|---|---|
+| Açık tema vurgusu üstündeki beyaz yazı | 3.74:1 | `#0F766E` ile 4.5:1 |
+| Açık temada uyarı (amber `#F59E0B`) | 2.15:1 | `#92400E` |
+| Açık temada hata / başarı | 4.4 / 3.3:1 | `#B91C1C` / `#166534` |
+| İkincil metin (hover zemininde) | 4.47:1 | `#4A5A68` |
+
+Durum renkleri artık her iki palette de **isim** (`@kavis_ok`,
+`@kavis_warn`, `@kavis_error`); her bileşenin CSS'ine hex yazılıyordu ve
+kilit ekranının "Wrong password"ü ile panelin yazma göstergesi tam bu
+yüzden beyaz üstünde okunmuyordu.
+
+`tools/check-contrast.py` iki paletteki ve iki GTK temasındaki **94
+metin/zemin çiftini** WCAG 4.5:1'e (büyük vurgularda 3:1) tutuyor ve
+push kapısında koşuyor. Devre dışı metin oranıyla birlikte *raporlanıyor
+ama zorlanmıyor*: WCAG onu muaf tutar ve rengin işi zaten "kullanılamaz"
+görünmektir — 4.5:1'e zorlamak, devre dışı yazıyı etkin gibi çizmek
+olurdu.
+
+Senaryo açık temayı açıp o temada hiç bakılmamış pencereleri —
+Başlat menüsü, Ayarlar, Görev Yöneticisi — açıp fotoğraflıyor.
+
+## D. Kavis Paylaş / Messenger
+
+Kararlar yazıldı: `docs/kararlar.md` **11** (Paylaş) ve **12**
+(Messenger) — kullanıcı "14/15" demişti ama dosyada 10 madde vardı,
+sıradaki numaralar bunlar. Görev listesine 76-80, roadmap'te 0.7.
+D1 (uzakta kod yetmez, karşı taraf kabul eder; aynı ağda yalnız ilk
+eşleşmede PIN) ve D2 (rahatsız etme açıkken kimse gönderemez, kuyruğa
+da alınmaz) Paylaş maddesinin "Onay kuralı" bölümünde.
+
+## Ek: fare ayarları (madde 81)
+
+Kavis'te fare *donanım testi* vardı, tek bir fare *ayarı* yoktu.
+Ayarlar > Fare: imleç rengi ve boyutu, solak, çift tıklama hızı, imleç
+hızı, doğal kaydırma. Renk bir **tema** seçimi, çünkü X'te imleç bir
+görüntü dizinidir — siyah imleç aynı SVG çizimlerinin gövdesiyle
+konturunun yer değiştirmiş hâli, `gen-cursors.py <dizin> black`.
+libinput özellikleri aygıtta durur ve X yeniden başlayınca gider;
+`openbox/autostart` oturum açılışında kavis.conf'tan geri uyguluyor.
+
+## Bu turun kendi hatası (debug taraması yakaladı)
+
+`theme.vala`'nın aslı `packages/kavis-common/` altında; derleme onu her
+paketin `src/logic`'ine kopyalıyor ve `.gitignore` kopyaları gizliyor.
+Açık tema düzeltmesini **kopyaya** yazmışım: derleme geçti, çalışan ikili
+düzeldi, `git status` hiçbir şey demedi ve bir sonraki derleme üstüne
+yazacaktı. Artık `check-config.sh` paylaşılan her kaynağı aslıyla
+karşılaştırıyor — bu hata tasarım gereği görünmez olduğu için kendi
+denetimini hak ediyor.
+
+---
+
 # OTURUM DURUMU — 5 Eylül 2026 (v0.5-test3: hata ayıklama + optimizasyon)
 
 Yeni oturum önce bunu okur.
