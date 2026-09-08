@@ -177,5 +177,31 @@ if command -v curl >/dev/null 2>&1; then
 	fi
 fi
 
+# The daemon must survive a machine with no multicast route — a VM the
+# instant after boot, before the interface is up. join_multicast_group
+# throws there, and the first version let that kill the daemon before it
+# owned its D-Bus name. Needs an isolated netns; skipped where unshare
+# is not permitted (some CI sandboxes), because a false skip is better
+# than a false failure.
+if unshare -rn true 2>/dev/null; then
+	NM="$T/nm"; mkdir -p "$NM/c/kavis" "$NM/r" "$NM/h/downloads"; chmod 700 "$NM/r"
+	eval "$(dbus-launch --sh-syntax)"; NMBUS=$DBUS_SESSION_BUS_PID
+	env XDG_CONFIG_HOME="$NM/c" XDG_RUNTIME_DIR="$NM/r" HOME="$NM/h" \
+		unshare -rn bash -c \
+		"ip link set lo up 2>/dev/null; exec '$SHARE' --daemon" \
+		>"$NM/log" 2>&1 &
+	sleep 4
+	if grep -q "listening on" "$NM/log"; then
+		ok "the daemon survives a network with no multicast route"
+	else
+		bad "the daemon did not come up without multicast"
+		cat "$NM/log" | grep -iv 'dbind\|a11y' | head -3
+	fi
+	pkill -f "$SHARE" 2>/dev/null || true
+	kill "$NMBUS" 2>/dev/null || true
+else
+	ok "no-multicast survival: skipped (unshare not permitted here)"
+fi
+
 [ "$fail" -eq 0 ] || { echo "SHARE-FAIL"; exit 1; }
 echo "SHARE-OK: two devices, one protocol, a file across and a stranger refused"

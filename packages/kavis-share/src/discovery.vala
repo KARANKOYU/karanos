@@ -91,33 +91,61 @@ namespace Kavis.Share {
 
         /* --- listening -------------------------------------------- */
 
-        public bool start () throws Error {
-            socket = new Socket (SocketFamily.IPV4, SocketType.DATAGRAM,
-                                 SocketProtocol.UDP);
-            socket.set_blocking (false);
-            /* Several LocalSend clients on one machine is the normal
-             * case while testing, and the normal case for a person with
-             * two accounts logged in. Without reuse the second one
-             * cannot listen at all. */
-            var address = new InetSocketAddress (
-                new InetAddress.any (SocketFamily.IPV4), PORT);
-            socket.bind (address, true);
-            socket.join_multicast_group (
-                new InetAddress.from_string (MULTICAST_GROUP), false, null);
-
-            var source = socket.create_source (IOCondition.IN);
-            source.set_callback ((s, condition) => {
-                receive ();
-                return Source.CONTINUE;
-            });
-            source.attach (MainContext.default ());
-
-            announce ();
+        /* NEVER THROWS, and that is the point.
+         *
+         * The multicast socket needs a network with a multicast route,
+         * and right after boot in a VM there often is not one yet — the
+         * interface is still coming up. The FIRST version bound and
+         * joined the group here and let the error propagate, and the
+         * daemon's startup treated that as fatal: it exited before it
+         * ever owned its D-Bus name, so `kavis-share --list` came back
+         * "org.kavis.Share was not provided" while everything else was
+         * fine. That cost three ISO runs to see, because the scenario's
+         * `pgrep` self-matched and swore the daemon was alive.
+         *
+         * Multicast is ONE discovery path. Direct registration over HTTP
+         * and a typed-in address do not need it, and the D-Bus service
+         * and the file receiver do not need it at all. So setup is tried
+         * here, and if it fails it is retried every few seconds until
+         * the network is up — the daemon lives the whole time. */
+        public void start () {
+            try_setup ();
             Timeout.add_seconds (ANNOUNCE_INTERVAL_S, () => {
-                announce ();
+                if (socket == null) {
+                    try_setup ();   /* keep trying until the network is up */
+                } else {
+                    announce ();
+                }
                 return Source.CONTINUE;
             });
-            return true;
+        }
+
+        private void try_setup () {
+            try {
+                var s = new Socket (SocketFamily.IPV4, SocketType.DATAGRAM,
+                                    SocketProtocol.UDP);
+                s.set_blocking (false);
+                /* Several clients on one machine — testing, or a person
+                 * with two accounts — so the port is shared. */
+                var address = new InetSocketAddress (
+                    new InetAddress.any (SocketFamily.IPV4), PORT);
+                s.bind (address, true);
+                s.join_multicast_group (
+                    new InetAddress.from_string (MULTICAST_GROUP),
+                    false, null);
+                var source = s.create_source (IOCondition.IN);
+                source.set_callback ((sk, condition) => {
+                    receive ();
+                    return Source.CONTINUE;
+                });
+                source.attach (MainContext.default ());
+                socket = s;
+                announce ();
+            } catch (Error e) {
+                /* Normal right after boot; retried on the timer. No log
+                 * line every few seconds for a condition that clears
+                 * itself. */
+            }
         }
 
         private void receive () {

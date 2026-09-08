@@ -18,11 +18,15 @@ allowed: []
 steps:
   - do: shell command -v kavis-share
     expect: ok
-  - do: shell pgrep -f 'kavis-share --daemon' >/dev/null
+  - do: shell pgrep -f '[k]avis-share --daemon' >/dev/null
     expect: ok
     note: >
       started with the session, not by systemd: it belongs to whoever is
-      logged in, it draws a dialog, and it has to stop when they log out
+      logged in, it draws a dialog, and it has to stop when they log out.
+      The bracket is not decoration — `pgrep -f` matches full command
+      lines and the plain pattern matched THIS step's own shell, so it
+      passed even when the daemon had exited on a multicast error. That
+      false pass hid the real bug for three ISO runs.
   - do: shell kavis-share --list >/dev/null
     expect: ok
     note: >

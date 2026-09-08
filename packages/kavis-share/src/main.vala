@@ -118,13 +118,18 @@ private int run_daemon () {
     var receiver = new Kavis.Share.Receiver (me, discovery, trust);
     Kavis.Share.Prompt.use (trust);
 
+    /* The file receiver is what makes the daemon a daemon; if its
+     * ports cannot be taken there is a real conflict and exiting is
+     * right. Discovery is best-effort and started after — it can never
+     * be the reason the daemon is not there, which is the mistake the
+     * first version made. */
     try {
-        discovery.start ();
         receiver.start ();
     } catch (Error e) {
-        stderr.printf ("kavis-share: could not start: %s\n", e.message);
+        stderr.printf ("kavis-share: could not listen: %s\n", e.message);
         return 1;
     }
+    discovery.start ();
 
     receiver.arrived.connect ((path, from) => {
         stdout.printf ("kavis-share: received %s from %s\n", path, from);
