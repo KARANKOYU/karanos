@@ -104,18 +104,27 @@ sabitler.
 
 ## Derleme ortamı — en önemli kısıt
 
-Geliştirme GitHub Codespaces'te yapılıyor: Debian konteyner, **2 çekirdek**,
-~20 GB boş disk.
+Geliştirme **11 Eyl 2026'dan beri** Bazzite üstünde bir **distrobox
+Debian 13 (trixie) konteynerinde** yapılıyor (`~/projeler/karanos`,
+12 çekirdek, `/dev/kvm` var). Önceki ortam GitHub Codespaces'ti
+(2 çekirdek); belgelerde "Codespace" geçen notlar o döneme ait, kural
+olarak hâlâ geçerli. Distrobox'ta `$HOME` **host'un gerçek ev dizini**,
+yani aşağıdaki yasak komutlar listesi burada daha da önemli.
 
-- **ISO'yu yerelde derleme.** `lb build` yalnızca GitHub Actions'ta çalışır
-  (`.github/workflows/build-iso.yml`). Sebep çekirdek sayısı ve disk;
-  Codespace'te sadece yapılandırma yazılır ve tek tek bileşen testi yapılır.
+- **ISO'yu yerelde derleme.** `lb build` hâlâ yalnızca GitHub Actions'ta
+  çalışır (`.github/workflows/build-iso.yml`); chroot hook'ları host
+  korumasıyla (build-marker) yerelde zaten çalışmayı reddeder.
 - İlk doğrulama yine CI'da: QEMU duman testi ve `diag-<mode>` yapıtı (seri
   günlük + otomatik PNG ekran görüntüleri). Bir şey bozulduğunda önce oraya bak
   — 40 dakikalık koşuyu tahminle harcama.
-- Kullanıcının bağlantısı ~1 MB/s. ISO'yu indirip **VirtualBox'ta elle test
-  edebiliyor**; "bunu gözünle görmen lazım" diyebileceğin durumlarda
-  `kavis-iso` yapıtını indirmesini istemek makul.
+- **ISO testi yerelde:** `tools/vm.sh [iso]` (kısayolu `~/projeler/vm.sh`)
+  ISO'yu QEMU/KVM'de pencereyle açar; seri konsol terminalde ve
+  `out/vm/serial-<mode>.log`'da. Selftest tetikleyicisini **varsayılan
+  olarak geçmez** (`--selftest` ile) — kullanıcının açtığı ISO neyse
+  onu gösterir. Kullanıcı ayrıca VirtualBox'ta da bakıyor.
+- Bileşen testi Xvfb'de (`tools/check-*.sh`, `tools/theme-screenshot.sh`);
+  kavis-lock için `KAVIS_PAM_CONFDIR` + `KAVIS_GROUP_FILE` kancalarıyla
+  parola yolu da gerçek PAM üstünden sürülebiliyor.
 
 ## Push etmeden önce
 
@@ -168,7 +177,7 @@ başarısız saymaz.
   yerelde geçmeyeni push etme. Yeni bağımlılık → hem paketin `Depends`
   alanına hem iş akışının kurulum adımına.
 
-## Codespace host'unda YASAK komutlar (4 Eyl 2026 kuralı)
+## Geliştirme konteynerinde (Codespace / distrobox) YASAK komutlar (4 Eyl 2026 kuralı)
 
 Geliştirme konteynerinin kendisi bir kez kurban gitti: bir hook host'ta
 çalıştı, `/home` ve kullanıcı hesabı bozuldu, konteyner yeniden

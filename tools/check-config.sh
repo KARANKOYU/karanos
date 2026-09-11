@@ -59,6 +59,21 @@ for f in .github/workflows/*.yml; do
 	fi
 done
 
+# Selftest scenarios: kavis-selftest reads them with its own small
+# parser, which is forgiving — a `do:` line holding a ": " (11 Sep 2026,
+# a `cut -d: -f2`) got through it and would have been unreadable to
+# every real YAML tool, gen-test-coverage.py included. So they must be
+# real YAML too.
+echo
+echo "==> selftest scenario YAML"
+for f in tests/ui/*.yaml; do
+	if python3 -c "import yaml,sys; yaml.safe_load(open('$f'))" 2>/dev/null; then
+		ok "$f"
+	else
+		bad "$f — invalid YAML"
+	fi
+done
+
 echo
 echo "==> Host guard in the chroot hooks (4 Sep 2026 incident)"
 # A hook without the guard can wreck a developer machine: these scripts
