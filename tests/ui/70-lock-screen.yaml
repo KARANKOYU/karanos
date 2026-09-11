@@ -1,11 +1,13 @@
 # Lock screen (item 70).
 #
-# The live account has no password, and since the v0.5-test1 report the
-# rule is that such an account is NOT locked: the screen could only ever
-# be opened by pressing Enter, and getting the question wrong in the
-# other direction leaves somebody shut out of their own machine with no
-# way back. So what this scenario asserts in a live session is that
-# Win+L explains itself and leaves the desktop alone.
+# The live account has no password — since 11 Sep 2026 really: live-config
+# gives its user the password "live" and 0031-kavis-dirs deletes it at
+# boot — and since the v0.5-test1 report the rule is that such an account
+# is NOT locked: the screen could only ever be opened by pressing Enter,
+# and getting the question wrong in the other direction leaves somebody
+# shut out of their own machine with no way back. So what this scenario
+# asserts in a live session is that Win+L explains itself and leaves the
+# desktop alone.
 #
 # The password path cannot be exercised here — there is no password to
 # type. It stays on the VM checklist, together with the escape hatch
@@ -29,6 +31,16 @@ steps:
       v0.5-test1 shipped a lock screen that said "Wrong password" to
       everything. 0031-kavis-dirs now makes it true rather than hoping,
       and boot-check fails the run without it.
+  - do: shell if sudo -n true 2>/dev/null; then test -z "$(sudo -n getent shadow "$USER" | cut -d':' -f2)"; fi
+    expect: ok
+    note: >
+      THE OTHER HALF of the root cause: the account really has no
+      password hash. live-config's user-setup gives the live user the
+      password "live" — that is what v0.5-test1's lock was asking for,
+      and nothing on screen said so. 0031-kavis-dirs deletes it; this
+      reads /etc/shadow through the live session's passwordless sudo
+      to prove it (and is a no-op where sudo asks for a password, i.e.
+      on an installed system, where a hash is right).
   - do: launch kavis-lock
     expect: window kavis-lock visible
     timeout: 20000

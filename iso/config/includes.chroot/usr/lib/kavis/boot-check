@@ -158,12 +158,22 @@ fi
 # C3: the default pointer is Breeze Light; Kavis-Cursors is the
 # alternative. Both must be on the ISO — a missing default means the
 # session falls back to X's core cursor, which is the thick black X.
-# The lock-screen trap (v0.5-test1): /etc/pam.d/kavis-lock lets an
-# account with no password unlock ONLY through membership of
-# nopasswdlogin. Without it the live session locks itself out with no
-# way back, so it is checked here rather than discovered in a VM.
-if id -nG karan 2>/dev/null | tr ' ' '\n' | grep -qx nopasswdlogin; then
-	log "PASSWORDLESS-OK karan is in nopasswdlogin (the lock screen can be opened)"
+# The lock-screen trap (v0.5-test1), both halves. The live user is
+# passwordless by decision, and "passwordless" has two parts that must
+# BOTH be true, checked here rather than discovered in a VM:
+#   1) /etc/shadow carries no hash. live-config's user-setup sets the
+#      password "live" by default; 0031-kavis-dirs deletes it. If the
+#      hash is still there, the lock screen would ask for a password
+#      nobody was told — which is what v0.5-test1 shipped.
+#   2) karan is in nopasswdlogin: that group is what kavis-lock and the
+#      idle watcher read to know the session cannot be locked, and the
+#      first line of /etc/pam.d/kavis-lock.
+# This runs as root, so the shadow field can be read directly.
+shadow_hash=$(getent shadow karan 2>/dev/null | cut -d: -f2)
+if [ -n "$shadow_hash" ]; then
+	fatal "PASSWORDLESS-FAIL karan still has a password hash (live-config's default is 'live') — the lock screen would ask for it" "passwordless"
+elif id -nG karan 2>/dev/null | tr ' ' '\n' | grep -qx nopasswdlogin; then
+	log "PASSWORDLESS-OK karan has no password hash and is in nopasswdlogin (the lock screen does not lock)"
 else
 	fatal "PASSWORDLESS-FAIL karan is NOT in nopasswdlogin — a lock screen would trap the session" "passwordless"
 fi

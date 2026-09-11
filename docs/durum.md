@@ -9,6 +9,85 @@ adlarını kullanır — tarihsel doğruluk için değiştirilmedi.
 
 ---
 
+# OTURUM DURUMU — 11 Eylül 2026 (yeni ortam: Bazzite + distrobox; kilit ekranının ASIL kök sebebi)
+
+Geliştirme artık Bazzite üstünde distrobox Debian 13 konteynerinde
+(`~/projeler/karanos`, 12 çekirdek, KVM). `lb build` hâlâ CI'da; ISO
+testi yerelde `tools/vm.sh` (`~/projeler/vm.sh`) ile QEMU/KVM'de.
+Konteynere derleme zinciri (CI'ın listesi), `qemu-system-gui` ve
+`python3-yaml` kuruldu; `tools/check-config.sh` artık burada da tam
+koşuyor (PyYAML olmadan üç iş akışı "geçersiz YAML" görünüyordu).
+
+## Kilit ekranı: canlı hesap parolasız DEĞİLDİ — parolası "live"
+
+v0.5-test1'in "her şeye Wrong password diyen kilit" hatası test4'te
+`nopasswdlogin` grubuna bağlanmıştı; grup düzeltmesi gerekliydi ama
+hikâyenin yarısıydı. **live-config'in `0030-user-setup` bileşeni canlı
+kullanıcıya kendi içindeki sabit hash ile "live" parolasını veriyor**
+(`user-setup-apply` → `usermod --password`); bunu kapatan bir açılış
+parametresi yok. Yani kilit ekranı gerçekten bir parola soruyordu ve
+doğru cevap "live"di — ekranda kimseye söylenmeyen bir parola. Kodun
+her yerinde yazan "canlı hesabın parolası yok" cümlesi yanlıştı.
+Kaynaktan doğrulandı: `apt-get download live-config user-setup`,
+`x/usr/lib/live/config/0030-user-setup` (`_PASSWORD="8Ab05sVQ4LLps"`).
+
+Aynı hash `pkexec`/"Yönetici olarak çalıştır" istemini de kilitliyordu:
+polkit `common-auth` üstünden aynı parolayı istiyor, kullanıcı
+bilmiyordu.
+
+Düzeltme, "parolasız"ı varsaymak yerine DOĞRU yapmak:
+
+- `0031-kavis-dirs`: shadow'da hash varsa `passwd -d karan`
+  (build-marker + `boot=live` korumalarının arkasında). Debian'ın
+  `common-auth`'u `pam_unix nullok` olduğundan boş parola artık her
+  yerde geçer; sudo zaten NOPASSWD (live-config `0040-sudo`).
+- `boot-check` `PASSWORDLESS-*`: kök olarak `getent shadow` okuyor;
+  hash duruyorsa **FAIL**, sonra grup üyeliği. İki yarı da doğru olmadan
+  yeşil yok.
+- `70-lock-screen` senaryosu: parolasız sudo üstünden shadow alanının
+  boş olduğunu doğrulayan adım (sudo parola isteyen kurulu sistemde
+  no-op).
+- `iso/auto/config`: `user-fullname=karan` — gecos'taki "Debian Live
+  user" kaynağında gitti; kilit ekranı zaten giriş adını gösteriyordu.
+
+## kavis-lock'ta okuyarak bulunan ve kapanan
+
+| Hata | Düzeltme |
+|---|---|
+| **Parolasız hesabın gördüğü tek pencere (bildirim kartı) stilsizdi** — CSS yalnız `LockWindow` kurucusunda yükleniyordu; bildirim düz GTK kutusu olarak çıkıyordu (beyaz, kenarsız, düğme vurgusuz). ISO'daki 70 senaryosunun ekran görüntüsü tam buydu. | CSS `main()`'de bir kez, iki pencere için (`LockStyle.install`); bildirimde kart pencere kendisi, iç boşluk ayrı sınıfta (GtkWindow CSS padding'i yok sayar) |
+| `common-account` PAM dosyasına dahil edilmiş ama **hiç sorulmuyordu** (yalnız `pam_authenticate`) — süresi dolmuş/kapatılmış hesap kilidi açabilirdi; yorum tersini iddia ediyordu | `pam_acct_mgmt`; `PAM_NEW_AUTHTOK_REQD` doğru parola sayılır (değiştirmek girişin işi) |
+| PAM 2 sn beklerken basılan Enter kuyruğa giriyor, boşaltılmış alana karşı ateşleniyor ve **kullanıcının yapmadığı bir ret** sayılıyordu | tek seferde tek konuşma (`checking`), retten sonraki 500 ms içindeki BOŞ gönderim kuyruktaki Enter sayılıyor |
+| İki monitörde `fullscreen()` yalnız birini örtüyordu; diğeri masaüstünü — pencereleri, metni — göstermeye devam ediyordu | kart birincil monitörde (`fullscreen_on_monitor`), diğerlerinde `LockCover` (bulanık duvar kâğıdı, odak/grab yok) |
+| `packages/kavis-panel/kavis-lock` ikilisi git'te izleniyordu | `git rm --cached` + `.gitignore` |
+| `70-lock-screen.yaml`'a yazdığım adımda `cut -d: -f2` — selftest'in kendi ayrıştırıcısı yutuyor, gerçek YAML değil (PyYAML, gen-test-coverage patlar) | `-d':'`; `check-config.sh` artık `tests/ui/*.yaml`'ı PyYAML ile de doğruluyor |
+
+**Test kancası:** `KAVIS_PAM_CONFDIR` (pam_start_confdir) + `KAVIS_GROUP_FILE`
+ile parola yolu Xvfb'de gerçek PAM üstünden sürüldü (pam_exec ile
+sahte parola): bildirim 8 sn'de kendi kapanıyor, 3 ret → "Log out",
+doğru parola → çıkış 0, hesap yığını reddi → kilitli kalıyor, boş parola
+kabul ediliyorsa yanlış cevap kilidi bırakıyor, Enter'a basılı tutmak
+tek ret. Açık paletle de fotoğraflandı: "yazı bozulması" görülmedi
+(test4'teki kontrast düzeltmesi yerinde, `check-contrast.py` 94 çift
+yeşil) — VM'de gerçek yazı tipiyle bir daha bakılacak.
+
+## Selftest "kendi kendine çalışıyor" şüphesi
+
+Kod tarafında tek tetikleyici SMBIOS `product_serial=kavis-selftest`
+(CI) ya da `KAVIS_SELFTEST=1`; ISO'da autostart/birim/zamanlayıcı yok
+(`72-selftest` yapısal olarak doğruluyor). **Dikkat:** CI'ın komutunu
+kopyalayan bir yerel QEMU betiği (`-smbios type=1,serial=kavis-selftest`)
+o şüpheyi yeniden yaratır — `tools/vm.sh` bu yüzden bayrağı yalnız
+`--selftest` ile geçiyor.
+
+## VM'de bakılacaklar (bu turun ürünü, test edilmemiş ISO'da)
+
+- `PASSWORDLESS-OK` seri günlükte "no password hash" diyor mu; Win+L
+  bildirimi kart olarak çıkıyor mu; "Yönetici olarak çalıştır" boş
+  parola + Enter ile geçiyor mu.
+- Açık temada gerçek yazı tipi (Inter) ile kilit/bildirim/Ayarlar.
+
+---
+
 # OTURUM DURUMU — 8 Eylül 2026 gecesi (v0.5-test13: BEŞ PROFİL YEŞİL — kavis-share çalışıyor)
 
 `v0.5-test13` beş QEMU profilinin hepsinde `RESULT=OK`, `SELFTEST-OK`.

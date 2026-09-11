@@ -63,6 +63,7 @@ serial-*.log
 packages/kavis-panel/kavis-panel
 packages/kavis-panel/kavis-snap
 packages/kavis-panel/kavis-osd
+packages/kavis-panel/kavis-lock
 packages/kavis-settings/kavis-settings
 packages/kavis-tools/kavis-tools
 *.ddeb

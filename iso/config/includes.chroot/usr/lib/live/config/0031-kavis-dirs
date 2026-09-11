@@ -17,7 +17,11 @@
 # link and of usermod, and test -d verifies at the end.
 #
 # The user system is POSTPONED (item 0): single user karan, passwordless
-# autologin. Lock screen and adding users are deliberately ABSENT.
+# autologin. Adding users is deliberately ABSENT. "Passwordless" is
+# MADE true below: live-config's user-setup gives the live user the
+# password "live" (a crypted default inside the component, no boot
+# parameter turns it off), and v0.5-test1's lock screen asked for a
+# password nobody had been told.
 #
 # XDG folder names are English lower-case (exactly the list in item 0);
 # since /etc/xdg/user-dirs.conf has enabled=False, xdg-user-dirs-update
@@ -61,24 +65,39 @@ kavis_dirs() {
 			|| echo "kavis-dirs: could not move the home ($old_home)" >&2
 	fi
 
-	# THE LOCK-SCREEN TRAP (v0.5-test1). /etc/pam.d/kavis-lock — like
-	# lightdm's — starts with
-	#     auth sufficient pam_succeed_if.so user ingroup nopasswdlogin
-	# so on an account with no password the group membership is the
-	# ONLY thing that lets anything unlock: common-auth below it is
-	# pam_unix, which refuses an empty password. The boot parameter
-	# asks live-config for that group (iso/auto/config,
-	# user-default-groups), but if the group did not exist yet when
-	# user-setup ran, the request is silently dropped — and the result
-	# is a lock screen that answers "Wrong password" to everything,
-	# with the session behind it. Which is exactly what the VM round
-	# found.
+	# THE LOCK-SCREEN TRAP (v0.5-test1), both halves of it.
 	#
-	# So it is made true here instead of hoped for. usermod on a real
-	# account is a forbidden command on a development machine; this
-	# runs behind the same two guards as the rest of the function (the
-	# build marker and boot=live), which is the sanctioned place for
-	# it.
+	# 1) The account HAD a password. live-config's 0030-user-setup
+	#    preseeds passwd/user-password-crypted with its own default —
+	#    the hash of "live" — and user-setup-apply runs usermod
+	#    --password with it. There is no boot parameter that says "no
+	#    password"; nothing on the Kavis desktop says "live"; the lock
+	#    screen answered "Wrong password" to everything, and every line
+	#    of Kavis that said "the live account has no password" was
+	#    wrong. Deleting the hash makes it true: pam_unix (nullok in
+	#    Debian's common-auth) then accepts an empty password, sudo is
+	#    NOPASSWD already (live-config's 0040-sudo), autologin never
+	#    asked. boot-check reads /etc/shadow and fails the run if the
+	#    hash is still there.
+	#
+	# 2) /etc/pam.d/kavis-lock — like lightdm's — starts with
+	#        auth sufficient pam_succeed_if.so user ingroup nopasswdlogin
+	#    and the boot parameter asks live-config for that group
+	#    (iso/auto/config, user-default-groups), but if the group did
+	#    not exist yet when user-setup ran, adduser fails and
+	#    user-setup-apply drops the request silently (`|| true`). The
+	#    group is what the lock screen and the idle watcher read to
+	#    know the session has no password, so it is made true here
+	#    too.
+	#
+	# passwd/usermod on a real account are forbidden commands on a
+	# development machine; this runs behind the same two guards as the
+	# rest of the function (the build marker and boot=live), which is
+	# the sanctioned place for them.
+	if [ -n "$(getent shadow "$LIVE_USER" | cut -d: -f2)" ]; then
+		passwd -d "$LIVE_USER" >/dev/null 2>&1 \
+			|| echo "kavis-dirs: could not delete the password of $LIVE_USER" >&2
+	fi
 	if ! getent group nopasswdlogin >/dev/null 2>&1; then
 		groupadd --system nopasswdlogin \
 			|| echo "kavis-dirs: could not create nopasswdlogin" >&2

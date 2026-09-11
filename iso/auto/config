@@ -46,6 +46,12 @@ arm64)
 esac
 
 # Boot line.
+# user-fullname: live-config's default gecos is "Debian Live user", and
+# that is what anything reading the passwd record shows (the v0.5-test1
+# lock screen did). Kavis has no user profile yet (item 0); the one name
+# it knows is the login name, so the gecos says the same. No "no
+# password" parameter exists — the live user's "live" password is
+# deleted at boot by 0031-kavis-dirs instead.
 # Default language EN (decision of 2 Sep 2026 — global release):
 # locales=en_US.UTF-8; the KEYBOARD STAYS TR Q (keyboard-layouts=tr).
 # GRUB/splash/F3 texts are English too (9600/9601 hooks and the
@@ -56,6 +62,7 @@ esac
 # effect on real hardware without a serial port.
 BOOTAPPEND="boot=live components \
 username=karan \
+user-fullname=karan \
 hostname=${ID} \
 user-default-groups=audio,cdrom,dip,floppy,video,plugdev,netdev,scanner,bluetooth,sudo,nopasswdlogin,input \
 locales=en_US.UTF-8,tr_TR.UTF-8 \

@@ -7,7 +7,8 @@
  * of it and need to run as root besides.
  *
  * Debian ships no vapi for libpam, and this is the whole surface we
- * need: start a transaction, authenticate, end it. The conversation
+ * need: start a transaction, authenticate, check the account, end it.
+ * The conversation
  * callback is the fiddly part — PAM hands it an array of message
  * pointers and expects an allocated array of responses back, which it
  * then frees itself, so the response strings must come from the C
@@ -31,6 +32,8 @@ namespace Pam {
 	public const int TEXT_INFO;
 	[CCode (cname = "PAM_DISALLOW_NULL_AUTHTOK")]
 	public const int DISALLOW_NULL_AUTHTOK;
+	[CCode (cname = "PAM_NEW_AUTHTOK_REQD")]
+	public const int NEW_AUTHTOK_REQD;
 
 	[CCode (cname = "struct pam_message", has_type_id = false)]
 	public struct Message {
@@ -66,8 +69,22 @@ namespace Pam {
 	public int start (string service, string? user, ref Conv conv,
 	                  out unowned Handle handle);
 
+	/* Test hook: the same as pam_start, but the service file is read
+	 * from `confdir` instead of /etc/pam.d. Linux-PAM added it for
+	 * exactly this — exercising an application's PAM path without
+	 * writing into the system's configuration. */
+	[CCode (cname = "pam_start_confdir")]
+	public int start_confdir (string service, string? user, ref Conv conv,
+	                          string confdir, out unowned Handle handle);
+
 	[CCode (cname = "pam_authenticate")]
 	public int authenticate (Handle handle, int flags);
+
+	/* The account stack: expiry, a disabled account, faillock. A
+	 * password can be right and the account still not allowed in;
+	 * authenticate alone never asks that question. */
+	[CCode (cname = "pam_acct_mgmt")]
+	public int acct_mgmt (Handle handle, int flags);
 
 	[CCode (cname = "pam_end")]
 	public int end (Handle handle, int status);

@@ -1,10 +1,15 @@
 /* kavis-lock — the lock screen (item 70).
  *
  * A LOCK SCREEN THAT CANNOT BE UNLOCKED IS THE WORST BUG THIS PROJECT
- * CAN SHIP, and v0.5-test1 shipped it: the live account has no
- * password, the screen asked for one anyway, and every answer came back
- * "Wrong password" with no way out of the session. Three things came
- * out of that, and all three are here:
+ * CAN SHIP, and v0.5-test1 shipped it: the screen asked for a password,
+ * and every answer came back "Wrong password" with no way out of the
+ * session. The account was believed to have no password. It did:
+ * live-config's user-setup gives the live user the password "live"
+ * (a crypted default inside the component, no boot parameter turns it
+ * off) and nothing on screen said so. The live image now deletes that
+ * password at boot (0031-kavis-dirs), so "no password" is true rather
+ * than assumed, and boot-check reads /etc/shadow to prove it. Three
+ * things came out of the trap, and all three are here:
  *
  *   1. Whether an account can be locked is now asked of PAM, not
  *      inferred from group membership. Being in `nopasswdlogin` is a
@@ -23,8 +28,9 @@
  *      who reaches that button has already told us the password is not
  *      working.
  *
- * One full-screen window per monitor's worth of screen, over everything,
- * with the keyboard and the pointer grabbed. The password goes to PAM,
+ * One full-screen window per monitor — the card on the primary one,
+ * a plain cover on every other — over everything, with the keyboard
+ * and the pointer grabbed. The password goes to PAM,
  * which is the only way the answer respects the system's own rules:
  * account expiry, faillock, a fingerprint module. Comparing /etc/shadow
  * by hand would ignore all of that and need root besides.
@@ -42,9 +48,28 @@
 
 namespace Kavis {
 
+    /* The lock screen's own CSS, installed once per process by main()
+     * — for BOTH windows. It used to be loaded inside LockWindow's
+     * constructor, so the notice a passwordless account gets (the only
+     * window the live image ever shows) came up as a stock GTK box:
+     * no card, no padding, no accent on its button. */
+    namespace LockStyle {
+        public void install () {
+            var provider = new Gtk.CssProvider ();
+            try {
+                provider.load_from_data (LockWindow.CSS, LockWindow.CSS.length);
+                Gtk.StyleContext.add_provider_for_screen (
+                    Gdk.Screen.get_default (), provider,
+                    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            } catch (Error e) {
+                warning ("kavis-lock: CSS: %s", e.message);
+            }
+        }
+    }
+
     public class LockWindow : Gtk.Window {
 
-        private const string CSS = """
+        public const string CSS = """
         .kavis-lock {
           background-color: @kavis_backdrop;
         }
@@ -79,6 +104,13 @@ namespace Kavis {
         .kavis-lock-hint {
           font-size: 13px;
           color: @kavis_text2;
+        }
+        /* The notice: the WINDOW carries the card's background and
+           border (a card inside a backdrop-coloured window left a rim
+           around the rounded corners), but GtkWindow ignores CSS
+           padding, so the inset lives on the box inside. */
+        .kavis-lock-notice-body {
+          padding: 24px 32px;
         }
         .kavis-lock-clock {
           font-size: 64px;
@@ -123,6 +155,22 @@ namespace Kavis {
         private const int REFUSALS_BEFORE_ESCAPE = 3;
         private const int64 REFUSAL_WINDOW_US = 30 * 1000000;
 
+        /* One PAM conversation at a time. try_unlock pumps the main
+         * loop before blocking in PAM, and pam_unix holds a failure for
+         * two seconds; an Enter pressed in that time used to queue up,
+         * fire against the just-emptied field, and count as a second
+         * refusal the person never made. */
+        private bool checking = false;
+        /* When the last refusal came back. Keys pressed while PAM was
+         * blocking are delivered the moment it returns; an Enter among
+         * them submits the field that was just emptied. An EMPTY
+         * submission inside this window after a refusal is that queued
+         * Enter, not a new attempt. A deliberate empty password (the
+         * right answer on an account that has none) comes later than
+         * this. */
+        private int64 last_refusal = 0;
+        private const int64 QUEUED_ENTER_US = 500 * 1000;
+
         public LockWindow () {
             Object (type: Gtk.WindowType.TOPLEVEL);
 
@@ -132,17 +180,14 @@ namespace Kavis {
             set_skip_taskbar_hint (true);
             set_skip_pager_hint (true);
             set_type_hint (Gdk.WindowTypeHint.SPLASHSCREEN);
-            fullscreen ();
-
-            var provider = new Gtk.CssProvider ();
-            try {
-                provider.load_from_data (CSS, CSS.length);
-                Gtk.StyleContext.add_provider_for_screen (
-                    Gdk.Screen.get_default (), provider,
-                    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-            } catch (Error e) {
-                warning ("kavis-lock: CSS: %s", e.message);
-            }
+            /* Not fullscreen(): on a screen with two monitors that
+             * covers the one the pointer happens to be on and leaves the
+             * other showing the desktop — its windows, its text — with
+             * only the keyboard taken away. The card goes on the
+             * primary monitor and main() puts a LockCover on each of
+             * the others. */
+            fullscreen_on_monitor (Gdk.Screen.get_default (),
+                                   primary_monitor ());
             get_style_context ().add_class ("kavis-lock");
 
             background = Wallpaper.blurred ();
@@ -219,26 +264,26 @@ namespace Kavis {
             });
         }
 
-        /* The wallpaper, blurred, painted under everything. Without one
-         * the ground colour still applies, so a machine with no
-         * wallpaper set is not a black rectangle by accident. */
-        private bool on_draw (Cairo.Context cr) {
-            if (background != null) {
-                int w = get_allocated_width ();
-                int h = get_allocated_height ();
-                double sx = (double) w / background.get_width ();
-                double sy = (double) h / background.get_height ();
-                double scale = double.max (sx, sy);
-                cr.save ();
-                cr.scale (scale, scale);
-                Gdk.cairo_set_source_pixbuf (cr, background, 0, 0);
-                cr.paint ();
-                cr.restore ();
-                /* Darkened, so white text is readable over any picture
-                 * and the card still reads as being in front. */
-                cr.set_source_rgba (0.05, 0.08, 0.11, 0.55);
-                cr.paint ();
+        /* The monitor that gets the card: the one X calls primary, or
+         * the first when none is marked (Xvfb, a bare VM). */
+        public static int primary_monitor () {
+            var display = Gdk.Display.get_default ();
+            var primary = display.get_primary_monitor ();
+            for (int i = 0; i < display.get_n_monitors (); i++) {
+                if (display.get_monitor (i) == primary) {
+                    return i;
+                }
             }
+            return 0;
+        }
+
+        public unowned Gdk.Pixbuf? wallpaper () {
+            return background;
+        }
+
+        private bool on_draw (Cairo.Context cr) {
+            Wallpaper.paint (cr, background,
+                             get_allocated_width (), get_allocated_height ());
             return false;
         }
 
@@ -249,9 +294,17 @@ namespace Kavis {
         }
 
         private void try_unlock () {
+            if (checking) {
+                return;
+            }
+            string secret = password.get_text ();
+            if (secret == "" && last_refusal != 0
+                && get_monotonic_time () - last_refusal < QUEUED_ENTER_US) {
+                return;
+            }
+            checking = true;
             unlock_button.set_sensitive (false);
             error_label.hide ();
-            string secret = password.get_text ();
             /* PAM blocks, and pam_unix sleeps for two seconds after a
              * failure. Pumping the main loop first means the button
              * shows as pressed instead of the window looking frozen. */
@@ -281,6 +334,8 @@ namespace Kavis {
             unlock_button.set_sensitive (true);
             password.grab_focus ();
             note_refusal ();
+            last_refusal = get_monotonic_time ();
+            checking = false;
         }
 
         /* A2. The counter restarts when the refusals stop coming: a
@@ -406,19 +461,63 @@ namespace Kavis {
          * empty password works, refusing what the person types, is a
          * session about to be locked out of itself. */
         public bool accepts_empty () {
-            conversation_password = "";
+            return verdict ("") == Pam.SUCCESS;
+        }
+
+        /* One complete PAM transaction: start, authenticate, account,
+         * end. Both questions the lock asks go through here, so they
+         * cannot be answered by two different stacks.
+         *
+         * KAVIS_PAM_CONFDIR is a test hook, like KAVIS_GROUP_FILE in
+         * session.vala: when set, the service file is read from that
+         * directory instead of /etc/pam.d, so the password path can be
+         * driven end to end under Xvfb with a stack of pam_exec. Unset
+         * on a real system. */
+        private int verdict (string secret) {
+            conversation_password = secret;
             Pam.Conv conv = { conversation, null };
             unowned Pam.Handle handle;
-            int rc = Pam.start ("kavis-lock", Environment.get_user_name (),
-                                ref conv, out handle);
-            if (rc != Pam.SUCCESS) {
-                conversation_password = null;
-                return false;
+            string user = Environment.get_user_name ();
+            string? confdir = Environment.get_variable ("KAVIS_PAM_CONFDIR");
+            int rc;
+            if (confdir != null && confdir != "") {
+                rc = Pam.start_confdir ("kavis-lock", user, ref conv,
+                                        confdir, out handle);
+            } else {
+                rc = Pam.start ("kavis-lock", user, ref conv, out handle);
             }
+            if (rc != Pam.SUCCESS) {
+                warning ("kavis-lock: pam_start failed (%d)", rc);
+                conversation_password = null;
+                return rc;
+            }
+            /* No DISALLOW_NULL_AUTHTOK: on an account with an empty
+             * password that flag makes PAM refuse, which would lock a
+             * live session out of its own desktop. What may unlock is
+             * PAM's decision, not a flag we pass. */
             rc = Pam.authenticate (handle, 0);
+            /* The account stack too. /etc/pam.d/kavis-lock includes
+             * common-account so that an expired or disabled account
+             * cannot unlock a screen it could not log into — and that
+             * line was never consulted, because only authenticate was
+             * called. A right password is not the whole verdict. */
+            if (rc == Pam.SUCCESS) {
+                rc = Pam.acct_mgmt (handle, 0);
+                /* "The password has expired, change it": the password
+                 * was RIGHT. Changing it is the next login's job; a
+                 * lock screen that refuses a right password over it
+                 * has locked somebody out for a policy reminder. */
+                if (rc == Pam.NEW_AUTHTOK_REQD) {
+                    rc = Pam.SUCCESS;
+                }
+            }
+            if (rc != Pam.SUCCESS) {
+                debug ("kavis-lock: PAM refused: %s",
+                       Pam.strerror (handle, rc));
+            }
             Pam.end (handle, rc);
             conversation_password = null;
-            return rc == Pam.SUCCESS;
+            return rc;
         }
 
         private static int conversation (int num_msg, Pam.Message** msg,
@@ -449,30 +548,36 @@ namespace Kavis {
             if (passwordless ()) {
                 return true;
             }
-            conversation_password = secret;
-            Pam.Conv conv = { conversation, null };
-            unowned Pam.Handle handle;
-            int rc = Pam.start ("kavis-lock", Environment.get_user_name (),
-                                ref conv, out handle);
-            if (rc != Pam.SUCCESS) {
-                warning ("kavis-lock: pam_start failed (%d)", rc);
-                conversation_password = null;
-                return false;
-            }
-            /* No DISALLOW_NULL_AUTHTOK: on an account with an empty
-             * password that flag makes PAM refuse, which would lock a
-             * live session out of its own desktop. What may unlock is
-             * PAM's decision, not a flag we pass. */
-            rc = Pam.authenticate (handle, 0);
-            Pam.end (handle, rc);
-            conversation_password = null;
-            return rc == Pam.SUCCESS;
+            return verdict (secret) == Pam.SUCCESS;
         }
     }
 
     /* --- the blurred wallpaper ---------------------------------------- */
 
     namespace Wallpaper {
+
+        /* The wallpaper, blurred, painted under everything. Without one
+         * the ground colour still applies, so a machine with no
+         * wallpaper set is not a black rectangle by accident. Shared
+         * by the card window and the covers on the other monitors. */
+        public void paint (Cairo.Context cr, Gdk.Pixbuf? background,
+                           int w, int h) {
+            if (background == null) {
+                return;
+            }
+            double sx = (double) w / background.get_width ();
+            double sy = (double) h / background.get_height ();
+            double scale = double.max (sx, sy);
+            cr.save ();
+            cr.scale (scale, scale);
+            Gdk.cairo_set_source_pixbuf (cr, background, 0, 0);
+            cr.paint ();
+            cr.restore ();
+            /* Darkened, so white text is readable over any picture
+             * and the card still reads as being in front. */
+            cr.set_source_rgba (0.05, 0.08, 0.11, 0.55);
+            cr.paint ();
+        }
 
         /* Scale far down and back up: bilinear interpolation over a
          * tiny image IS a blur, costs one allocation, and needs no
@@ -506,6 +611,34 @@ namespace Kavis {
     }
 }
 
+/* A cover for a monitor that is not the primary one: the blurred
+ * wallpaper and nothing else. It takes no focus and no grab — the card
+ * window holds both — its whole job is that the second monitor does
+ * not keep showing the desktop while the first says "locked". */
+public class Kavis.LockCover : Gtk.Window {
+
+    private Gdk.Pixbuf? background;
+
+    public LockCover (Gdk.Pixbuf? background, int monitor) {
+        Object (type: Gtk.WindowType.TOPLEVEL);
+        this.background = background;
+        set_app_paintable (true);
+        set_decorated (false);
+        set_keep_above (true);
+        set_skip_taskbar_hint (true);
+        set_skip_pager_hint (true);
+        set_accept_focus (false);
+        set_type_hint (Gdk.WindowTypeHint.SPLASHSCREEN);
+        get_style_context ().add_class ("kavis-lock");
+        fullscreen_on_monitor (Gdk.Screen.get_default (), monitor);
+        draw.connect ((cr) => {
+            Wallpaper.paint (cr, this.background,
+                             get_allocated_width (), get_allocated_height ());
+            return false;
+        });
+    }
+}
+
 /* A1: what Win+L says on an account that has no password.
  *
  * Not a lock: a card that explains why, and goes away by itself. It is
@@ -520,10 +653,14 @@ public class Kavis.LockNotice : Gtk.Window {
         set_keep_above (true);
         set_skip_taskbar_hint (true);
         set_position (Gtk.WindowPosition.CENTER);
+        /* The window IS the card: with the card as a box inside a
+         * backdrop-coloured window, a rim of backdrop showed around the
+         * rounded corners. */
         get_style_context ().add_class ("kavis-lock");
+        get_style_context ().add_class ("kavis-lock-card");
 
         var card = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
-        card.get_style_context ().add_class ("kavis-lock-card");
+        card.get_style_context ().add_class ("kavis-lock-notice-body");
         var head = new Gtk.Label (_("This account has no password"));
         head.get_style_context ().add_class ("kavis-lock-notice");
         var hint = new Gtk.Label (
@@ -548,6 +685,7 @@ int main (string[] args) {
     Kavis.AppInit.init ();
     Gtk.init (ref args);
     Kavis.Theme.install ();
+    Kavis.LockStyle.install ();
 
     /* --idle: started by the idle watcher rather than by a person. The
      * difference matters in one place — a session that cannot be locked
@@ -582,12 +720,29 @@ int main (string[] args) {
 
     var window = new Kavis.LockWindow ();
     window.show_all ();
+    /* Every other monitor gets a cover. Created after the card window
+     * so they stack above nothing of ours and below nothing that
+     * matters — the grab is on the card, input never reaches them. */
+    var covers = new GLib.List<Kavis.LockCover> ();
+    var display = Gdk.Display.get_default ();
+    int primary = Kavis.LockWindow.primary_monitor ();
+    for (int i = 0; i < display.get_n_monitors (); i++) {
+        if (i == primary) {
+            continue;
+        }
+        var cover = new Kavis.LockCover (window.wallpaper (), i);
+        cover.show_all ();
+        covers.append (cover);
+    }
     if (!window.grab ()) {
         warning ("kavis-lock: could not grab the keyboard — not locking");
         return 1;
     }
     Gtk.main ();
     window.release ();
+    foreach (var cover in covers) {
+        cover.destroy ();
+    }
     return 0;
 }
 
